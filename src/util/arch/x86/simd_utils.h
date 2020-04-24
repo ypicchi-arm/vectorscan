@@ -187,6 +187,12 @@ static really_inline m128 or128(m128 a, m128 b) {
     return _mm_or_si128(a,b);
 }
 
+#if defined(HAVE_AVX512VBMI)
+static really_inline m512 expand128(m128 a) {
+    return _mm512_broadcast_i32x4(a);
+}
+#endif
+
 static really_inline m128 andnot128(m128 a, m128 b) {
     return _mm_andnot_si128(a, b);
 }
@@ -373,6 +379,12 @@ static really_inline m256 and256(m256 a, m256 b) {
 static really_inline m256 or256(m256 a, m256 b) {
     return _mm256_or_si256(a, b);
 }
+
+#if defined(HAVE_AVX512VBMI)
+static really_inline m512 expand256(m256 a) {
+    return _mm512_broadcast_i64x4(a);
+}
+#endif
 
 static really_inline m256 xor256(m256 a, m256 b) {
     return _mm256_xor_si256(a, b);
@@ -683,6 +695,16 @@ static really_inline
 m512 or512(m512 a, m512 b) {
     return _mm512_or_si512(a, b);
 }
+
+#if defined(HAVE_AVX512VBMI)
+static really_inline m512 expand384(m384 a) {
+    u64a *lo = (u64a*)&a.lo;
+    u64a *mid = (u64a*)&a.mid;
+    u64a *hi = (u64a*)&a.hi;
+    return _mm512_set_epi64(0ULL, 0ULL, hi[1], hi[0], mid[1], mid[0],
+                            lo[1], lo[0]);
+}
+#endif
 
 static really_inline
 m512 xor512(m512 a, m512 b) {
