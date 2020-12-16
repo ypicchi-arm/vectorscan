@@ -33,58 +33,13 @@
 #ifndef UTIL_ARCH_H_
 #define UTIL_ARCH_H_
 
-#if defined(__SSE2__) || defined(_M_X64) || (_M_IX86_FP >= 2)
-#define HAVE_SSE2
+#include "config.h"
+
+#if defined(ARCH_IA32) || defined(ARCH_X86_64)
+#include "util/arch/x86/x86.h"
+#elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
+#include "util/arch/arm/arm.h"
 #endif
 
-#if defined(__SSE4_1__) || (defined(_WIN32) && defined(__AVX__))
-#define HAVE_SSE41
-#endif
+#endif // UTIL_ARCH_X86_H_
 
-#if defined(__SSE4_2__) || (defined(_WIN32) && defined(__AVX__))
-#define HAVE_SSE42
-#endif
-
-#if defined(__AVX__)
-#define HAVE_AVX
-#endif
-
-#if defined(__AVX2__)
-#define HAVE_AVX2
-#endif
-
-#if defined(__AVX512BW__)
-#define HAVE_AVX512
-#endif
-
-#if defined(__AVX512VBMI__)
-#define HAVE_AVX512VBMI
-#endif
-
-/*
- * ICC and MSVC don't break out POPCNT or BMI/2 as separate pre-def macros
- */
-#if defined(__POPCNT__) ||                                                     \
-    (defined(__INTEL_COMPILER) && defined(__SSE4_2__)) ||                      \
-    (defined(_WIN32) && defined(__AVX__))
-#define HAVE_POPCOUNT_INSTR
-#endif
-
-#if defined(__BMI__) || (defined(_WIN32) && defined(__AVX2__)) ||              \
-    (defined(__INTEL_COMPILER) && defined(__AVX2__))
-#define HAVE_BMI
-#endif
-
-#if defined(__BMI2__) || (defined(_WIN32) && defined(__AVX2__)) ||             \
-    (defined(__INTEL_COMPILER) && defined(__AVX2__))
-#define HAVE_BMI2
-#endif
-
-/*
- * MSVC uses a different form of inline asm
- */
-#if defined(_WIN32) && defined(_MSC_VER)
-#define NO_ASM
-#endif
-
-#endif // UTIL_ARCH_H_

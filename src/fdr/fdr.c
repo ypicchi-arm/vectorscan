@@ -36,6 +36,7 @@
 #include "teddy.h"
 #include "teddy_internal.h"
 #include "util/arch.h"
+#include "util/bitutils.h"
 #include "util/simd_utils.h"
 #include "util/uniform_ops.h"
 
@@ -118,20 +119,6 @@ const ALIGN_CL_DIRECTIVE u8 zone_or_mask[ITER_BYTES+1][ITER_BYTES] = {
     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
 };
-
-/* compilers don't reliably synthesize the 32-bit ANDN instruction here,
- * so we force its generation.
- */
-static really_inline
-u64a andn(const u32 a, const u8 *b) {
-    u64a r;
-#if defined(HAVE_BMI) && !defined(NO_ASM)
-    __asm__ ("andn\t%2,%1,%k0" : "=r"(r) : "r"(a), "m"(*(const u32 *)b));
-#else
-    r = unaligned_load_u32(b) & ~a;
-#endif
-    return r;
-}
 
 /* generates an initial state mask based on the last byte-ish of history rather
  * than being all accepting. If there is no history to consider, the state is
@@ -739,6 +726,7 @@ hwlm_error_t fdr_engine_exec(const struct FDR *fdr,
     assert(ISALIGNED_CL(confBase));
     struct zone zones[ZONE_MAX];
     assert(fdr->domain > 8 && fdr->domain < 16);
+    memset(zones, 0, sizeof(zones));
 
     size_t numZone = prepareZones(a->buf, a->len,
                                   a->buf_history + a->len_history,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, Intel Corporation
+ * Copyright (c) 2017-2020, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,46 +27,70 @@
  */
 
 /** \file
- * \brief SIMD types and primitive operations.
+ * \brief Per-platform architecture definitions
  */
 
-#ifndef SIMD_UTILS_H
-#define SIMD_UTILS_H
+#ifndef UTIL_ARCH_X86_H_
+#define UTIL_ARCH_X86_H_
 
-#include "config.h"
-#include "util/arch.h"
-
-// Define a common assume_aligned using an appropriate compiler built-in, if
-// it's available. Note that we need to handle C or C++ compilation.
-#ifdef __cplusplus
-#  ifdef HAVE_CXX_BUILTIN_ASSUME_ALIGNED
-#    define assume_aligned(x, y) __builtin_assume_aligned((x), (y))
-#  endif
-#else
-#  ifdef HAVE_CC_BUILTIN_ASSUME_ALIGNED
-#    define assume_aligned(x, y) __builtin_assume_aligned((x), (y))
-#  endif
+#if defined(__SSE2__) || defined(_M_X64) || (_M_IX86_FP >= 2)
+#define HAVE_SSE2
+#define HAVE_SIMD_128_BITS
 #endif
 
-// Fallback to identity case.
-#ifndef assume_aligned
-#define assume_aligned(x, y) (x)
+#if defined(__SSE4_1__) || (defined(_WIN32) && defined(__AVX__))
+#define HAVE_SSE41
+#define HAVE_SIMD_128_BITS
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-extern const char vbs_mask_data[];
-#ifdef __cplusplus
-}
+#if defined(__SSE4_2__) || (defined(_WIN32) && defined(__AVX__))
+#define HAVE_SSE42
+#define HAVE_SIMD_128_BITS
 #endif
 
-#if defined(ARCH_IA32) || defined(ARCH_X86_64)
-#include "util/arch/x86/simd_utils.h"
-#elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
-#include "util/arch/arm/simd_utils.h"
+#if defined(__AVX__)
+#define HAVE_AVX
+#define HAVE_SIMD_256_BITS
 #endif
 
-#include "util/arch/common/simd_utils.h"
+#if defined(__AVX2__)
+#define HAVE_AVX2
+#define HAVE_SIMD_256_BITS
+#endif
 
-#endif // SIMD_UTILS_H
+#if defined(__AVX512BW__)
+#define HAVE_AVX512
+#define HAVE_SIMD_512_BITS
+#endif
+
+#if defined(__AVX512VBMI__)
+#define HAVE_AVX512VBMI
+#endif
+
+/*
+ * ICC and MSVC don't break out POPCNT or BMI/2 as separate pre-def macros
+ */
+#if defined(__POPCNT__) ||                                                     \
+    (defined(__INTEL_COMPILER) && defined(__SSE4_2__)) ||                      \
+    (defined(_WIN32) && defined(__AVX__))
+#define HAVE_POPCOUNT_INSTR
+#endif
+
+#if defined(__BMI__) || (defined(_WIN32) && defined(__AVX2__)) ||              \
+    (defined(__INTEL_COMPILER) && defined(__AVX2__))
+#define HAVE_BMI
+#endif
+
+#if defined(__BMI2__) || (defined(_WIN32) && defined(__AVX2__)) ||             \
+    (defined(__INTEL_COMPILER) && defined(__AVX2__))
+#define HAVE_BMI2
+#endif
+
+/*
+ * MSVC uses a different form of inline asm
+ */
+#if defined(_WIN32) && defined(_MSC_VER)
+#define NO_ASM
+#endif
+
+#endif // UTIL_ARCH_X86_H_

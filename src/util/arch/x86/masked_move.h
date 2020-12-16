@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, Intel Corporation
+ * Copyright (c) 2015-2017, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,47 +26,57 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \file
- * \brief SIMD types and primitive operations.
- */
+#ifndef MASKED_MOVE_H
+#define MASKED_MOVE_H
 
-#ifndef SIMD_UTILS_H
-#define SIMD_UTILS_H
+#include "x86.h"
 
-#include "config.h"
-#include "util/arch.h"
+#if defined(HAVE_AVX2)
 
-// Define a common assume_aligned using an appropriate compiler built-in, if
-// it's available. Note that we need to handle C or C++ compilation.
-#ifdef __cplusplus
-#  ifdef HAVE_CXX_BUILTIN_ASSUME_ALIGNED
-#    define assume_aligned(x, y) __builtin_assume_aligned((x), (y))
-#  endif
-#else
-#  ifdef HAVE_CC_BUILTIN_ASSUME_ALIGNED
-#    define assume_aligned(x, y) __builtin_assume_aligned((x), (y))
-#  endif
-#endif
-
-// Fallback to identity case.
-#ifndef assume_aligned
-#define assume_aligned(x, y) (x)
-#endif
+#include "util/unaligned.h"
+#include "util/simd_utils.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern const char vbs_mask_data[];
+extern const u32 mm_mask_mask[16];
+extern const u32 mm_shuffle_end[32][8];
 #ifdef __cplusplus
 }
 #endif
 
-#if defined(ARCH_IA32) || defined(ARCH_X86_64)
-#include "util/arch/x86/simd_utils.h"
-#elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
-#include "util/arch/arm/simd_utils.h"
-#endif
+/* load mask for len bytes from start of buffer */
+static really_inline m256
+_get_mm_mask_end(u32 len) {
+    assert(len <= 32);
+    const u8 *masky = (const u8 *)mm_mask_mask;
+    m256 mask = load256(masky + 32);
+    mask = _mm256_sll_epi32(mask, _mm_cvtsi32_si128(8 - (len >> 2)));
+    return mask;
+}
 
-#include "util/arch/common/simd_utils.h"
+/*
+ * masked_move256_len: Will load len bytes from *buf into m256
+ * _______________________________
+ * |0<----len---->|            32|
+ * -------------------------------
+ */
+static really_inline m256
+masked_move256_len(const u8 *buf, const u32 len) {
+    assert(len >= 4);
 
-#endif // SIMD_UTILS_H
+    m256 lmask = _get_mm_mask_end(len);
+
+    u32 end = unaligned_load_u32(buf + len - 4);
+    m256 preshufend = _mm256_broadcastq_epi64(_mm_cvtsi32_si128(end));
+    m256 v = _mm256_maskload_epi32((const int *)buf, lmask);
+    m256 shufend = pshufb_m256(preshufend,
+                               loadu256(&mm_shuffle_end[len - 4]));
+    m256 target = or256(v, shufend);
+
+    return target;
+}
+
+#endif /* AVX2 */
+#endif /* MASKED_MOVE_H */
+
