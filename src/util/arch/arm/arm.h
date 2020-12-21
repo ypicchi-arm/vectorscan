@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Intel Corporation
+ * Copyright (c) 2017-2020, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,30 +26,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UTIL_CPUID_H_
-#define UTIL_CPUID_H_
+/** \file
+ * \brief Per-platform architecture definitions
+ */
 
-#include "ue2common.h"
+#ifndef UTIL_ARCH_ARM_H_
+#define UTIL_ARCH_ARM_H_
 
-#if !defined(_WIN32) && !defined(CPUID_H_)
-#include <cpuid.h>
- /* system header doesn't have a header guard */
-#define CPUID_H_
+#if defined(__ARM_NEON) && (defined(ARCH_ARM32) || defined(ARCH_AARCH64))
+#define HAVE_NEON
+#define HAVE_SIMD_128_BITS
 #endif
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-/* returns HS_CPU_FEATURES_* mask.  */
-u64a cpuid_flags(void);
-
-u32 cpuid_tune(void);
-
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
-
-#endif /* UTIL_CPUID_H_ */
+#endif // UTIL_ARCH_ARM_H_
 

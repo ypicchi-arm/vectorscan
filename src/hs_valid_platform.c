@@ -26,16 +26,23 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "config.h"
 #include "hs_common.h"
-#include "util/cpuid_flags.h"
-#include "util/cpuid_inline.h"
+#include "ue2common.h"
+#if defined(ARCH_X86_64)
+#include "util/arch/x86/cpuid_inline.h"
+#endif
 
 HS_PUBLIC_API
 hs_error_t HS_CDECL hs_valid_platform(void) {
     /* Hyperscan requires SSSE3, anything else is a bonus */
+#if defined(ARCH_IA32) || defined(ARCH_X86_64)
     if (check_ssse3()) {
         return HS_SUCCESS;
     } else {
         return HS_ARCH_ERROR;
     }
+#elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
+    return HS_SUCCESS;
+#endif
 }

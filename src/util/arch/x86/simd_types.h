@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, Intel Corporation
+ * Copyright (c) 2015-2017, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,47 +26,20 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \file
- * \brief SIMD types and primitive operations.
- */
+#ifndef SIMD_TYPES_X86_H
+#define SIMD_TYPES_X86_H
 
-#ifndef SIMD_UTILS_H
-#define SIMD_UTILS_H
-
-#include "config.h"
-#include "util/arch.h"
-
-// Define a common assume_aligned using an appropriate compiler built-in, if
-// it's available. Note that we need to handle C or C++ compilation.
-#ifdef __cplusplus
-#  ifdef HAVE_CXX_BUILTIN_ASSUME_ALIGNED
-#    define assume_aligned(x, y) __builtin_assume_aligned((x), (y))
-#  endif
-#else
-#  ifdef HAVE_CC_BUILTIN_ASSUME_ALIGNED
-#    define assume_aligned(x, y) __builtin_assume_aligned((x), (y))
-#  endif
+#if !defined(m128) && defined(HAVE_SSE2)
+typedef __m128i m128;
 #endif
 
-// Fallback to identity case.
-#ifndef assume_aligned
-#define assume_aligned(x, y) (x)
+#if !defined(m128) && defined(HAVE_AVX2)
+typedef __m256i m256;
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-extern const char vbs_mask_data[];
-#ifdef __cplusplus
-}
+#if !defined(m512) && defined(HAVE_AVX512)
+typedef __m512i m512;
 #endif
 
-#if defined(ARCH_IA32) || defined(ARCH_X86_64)
-#include "util/arch/x86/simd_utils.h"
-#elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
-#include "util/arch/arm/simd_utils.h"
-#endif
+#endif /* SIMD_TYPES_X86_H */
 
-#include "util/arch/common/simd_utils.h"
-
-#endif // SIMD_UTILS_H
