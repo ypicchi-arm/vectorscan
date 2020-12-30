@@ -30,7 +30,7 @@ else()
     message(STATUS "Build type ${CMAKE_BUILD_TYPE}")
 endif()
 
-if(CMAKE_BUILD_TYPE MATCHES RELEASE|RELWITHDEBINFO|MINSIZEREL)
+if(CMAKE_BUILD_TYPE MATCHES NONE|RELEASE|RELWITHDEBINFO|MINSIZEREL)
     message(STATUS "using release build")
     set(RELEASE_BUILD TRUE)
 else()
@@ -1193,6 +1193,9 @@ if (NOT FAT_RUNTIME)
         set_target_properties(hs_runtime PROPERTIES LINKER_LANGUAGE C)
 
         add_library(hs_compile OBJECT ${hs_compile_SRCS})
+	if (ARCH_IA32)
+            set_target_properties(hs_compile PROPERTIES COMPILE_FLAGS "-mssse3")
+        endif (ARCH_IA32)
 
         add_library(hs STATIC
             src/hs_version.c
@@ -1259,7 +1262,11 @@ else (FAT_RUNTIME)
            $<TARGET_OBJECTS:hs_exec_common>
            ${RUNTIME_LIBS})
        set_target_properties(hs_runtime PROPERTIES LINKER_LANGUAGE C)
-        add_library(hs_compile OBJECT ${hs_compile_SRCS})
+       add_library(hs_compile OBJECT ${hs_compile_SRCS})
+       if (ARCH_IA32)
+           set_target_properties(hs_exec_common PROPERTIES COMPILE_FLAGS "-mssse3")
+           set_target_properties(hs_compile PROPERTIES COMPILE_FLAGS "-mssse3")
+       endif (ARCH_IA32)
 
        # we want the static lib for testing
        add_library(hs STATIC src/hs_version.c src/hs_valid_platform.c
