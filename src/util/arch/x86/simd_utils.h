@@ -44,7 +44,7 @@
 static really_inline m128 ones128(void) {
 #if defined(__GNUC__) || defined(__INTEL_COMPILER)
     /* gcc gets this right */
-    return _mm_set1_epi8(0xFF);
+    return (m128) _mm_set1_epi8(0xFF);
 #else
     /* trick from Intel's optimization guide to generate all-ones.
      * ICC converts this to the single cmpeq instruction */
@@ -53,12 +53,12 @@ static really_inline m128 ones128(void) {
 }
 
 static really_inline m128 zeroes128(void) {
-    return _mm_setzero_si128();
+    return (m128) _mm_setzero_si128();
 }
 
 /** \brief Bitwise not for m128*/
 static really_inline m128 not128(m128 a) {
-    return _mm_xor_si128(a, ones128());
+    return (m128) _mm_xor_si128(a, ones128());
 }
 
 /** \brief Return 1 if a and b are different otherwise 0 */
@@ -125,7 +125,13 @@ static really_inline u32 movd(const m128 in) {
 }
 
 static really_inline u64a movq(const m128 in) {
+#if defined(ARCH_X86_64)
     return _mm_cvtsi128_si64(in);
+#else // 32-bit - this is horrific
+    u32 lo = movd(in);
+    u32 hi = movd(_mm_srli_epi64(in, 32));
+    return (u64a)hi << 32 | lo;
+#endif
 }
 
 /* another form of movq */

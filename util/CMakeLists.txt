@@ -33,6 +33,9 @@ SET(corpusomatic_SRCS
     ng_find_matches.cpp
 )
 add_library(corpusomatic STATIC ${corpusomatic_SRCS})
+if (ARCH_IA32)
+    set_target_properties(corpusomatic PROPERTIES COMPILE_FLAGS "-mssse3")
+endif (ARCH_IA32)
 
 set(databaseutil_SRCS
     database_util.cpp

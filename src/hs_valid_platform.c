@@ -29,7 +29,7 @@
 #include "config.h"
 #include "hs_common.h"
 #include "ue2common.h"
-#if defined(ARCH_X86_64)
+#if defined(ARCH_IA32) || defined(ARCH_X86_64)
 #include "util/arch/x86/cpuid_inline.h"
 #endif
 
