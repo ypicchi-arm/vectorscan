@@ -135,6 +135,10 @@ u64a expand64(u64a x, u64a m) {
     return expand64_impl(x, m);
 }
 
+static really_inline
+m128 expand128(m128 x, m128 m) {
+    return expand128_impl(x, m);
+}
 
 /* returns the first set bit after begin (if not ~0U). If no bit is set after
  * begin returns ~0U

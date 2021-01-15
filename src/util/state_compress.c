@@ -162,14 +162,16 @@ m128 loadcompressed128_64bit(const void *ptr, m128 mvec) {
     u64a ALIGN_ATTR(16) m[2];
     store128(m, mvec);
 
-    u32 bits[2] = { popcount64(m[0]), popcount64(m[1]) };
+    // Count the number of bits of compressed state we're writing out per
+    // chunk.
+    u32 ALIGN_ATTR(16) bits[2] = { popcount64(m[0]), popcount64(m[1]) };
+
     u64a ALIGN_ATTR(16) v[2];
-
     unpack_bits_64(v, (const u8 *)ptr, bits, 2);
+    m128 xvec = load128(v);
 
-    u64a x[2] = { expand64(v[0], m[0]), expand64(v[1], m[1]) };
-
-    return set2x64(x[1], x[0]);
+    // Expand vector
+    return expand128(xvec, mvec);
 }
 #endif
 

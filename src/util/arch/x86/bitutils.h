@@ -239,6 +239,11 @@ u64a expand64_impl(u64a x, u64a m) {
 #endif
 }
 
+static really_inline
+m128 expand128_impl(m128 x, m128 m) {
+    return expand128_impl_c(x, m);
+}
+
 /* returns the first set bit after begin (if not ~0U). If no bit is set after
  * begin returns ~0U
  */
