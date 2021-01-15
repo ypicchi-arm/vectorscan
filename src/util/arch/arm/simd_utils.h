@@ -202,6 +202,18 @@ static really_inline u64a extract64from128(const m128 in, unsigned imm) {
 #endif
 }
 
+static really_inline m128 low64from128(const m128 in) {
+    return vcombine_u64(vget_low_u64(in), vdup_n_u64(0));
+}
+
+static really_inline m128 high64from128(const m128 in) {
+    return vcombine_u64(vget_high_u64(in), vdup_n_u64(0));
+}
+
+static really_inline m128 add128(m128 a, m128 b) {
+    return (m128) vaddq_u64((uint64x2_t)a, (uint64x2_t)b);
+}
+
 static really_inline m128 and128(m128 a, m128 b) {
     return (m128) vandq_s8((int8x16_t)a, (int8x16_t)b);
 }
@@ -381,13 +393,13 @@ m128 sub_u8_m128(m128 a, m128 b) {
 
 static really_inline
 m128 set4x32(u32 x3, u32 x2, u32 x1, u32 x0) {
-    uint32_t __attribute__((aligned(16))) data[4] = { x0, x1, x2, x3 };
+    uint32_t ALIGN_ATTR(16) data[4] = { x0, x1, x2, x3 };
     return (m128) vld1q_u32((uint32_t *) data);
 }
 
 static really_inline
 m128 set2x64(u64a hi, u64a lo) {
-    uint64_t __attribute__((aligned(16))) data[2] = { lo, hi };
+    uint64_t ALIGN_ATTR(16) data[2] = { lo, hi };
     return (m128) vld1q_u64((uint64_t *) data);
 }
 

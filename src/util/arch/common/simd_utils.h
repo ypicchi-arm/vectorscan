@@ -46,7 +46,7 @@
 
 #ifdef DEBUG
 static inline void print_m128_16x8(char *label, m128 vector) {
-    uint8_t __attribute__((aligned(16))) data[16];
+    uint8_t ALIGN_ATTR(16) data[16];
     store128(data, vector);
     DEBUG_PRINTF("%s: ", label);
     for(int i=0; i < 16; i++)
@@ -55,7 +55,7 @@ static inline void print_m128_16x8(char *label, m128 vector) {
 }
 
 static inline void print_m128_8x16(char *label, m128 vector) {
-    uint16_t __attribute__((aligned(16))) data[8];
+    uint16_t ALIGN_ATTR(16) data[8];
     store128(data, vector);
     DEBUG_PRINTF("%s: ", label);
     for(int i=0; i < 8; i++)
@@ -64,7 +64,7 @@ static inline void print_m128_8x16(char *label, m128 vector) {
 }
 
 static inline void print_m128_4x32(char *label, m128 vector) {
-    uint32_t __attribute__((aligned(16))) data[4];
+    uint32_t ALIGN_ATTR(16) data[4];
     store128(data, vector);
     DEBUG_PRINTF("%s: ", label);
     for(int i=0; i < 4; i++)
@@ -73,7 +73,7 @@ static inline void print_m128_4x32(char *label, m128 vector) {
 }
 
 static inline void print_m128_2x64(char *label, m128 vector) {
-    uint64_t __attribute__((aligned(16))) data[2];
+    uint64_t ALIGN_ATTR(16) data[2];
     store128(data, vector);
     DEBUG_PRINTF("%s: ", label);
     for(int i=0; i < 2; i++)
@@ -143,6 +143,13 @@ static really_inline m256 zeroes256(void) {
 
 static really_inline m256 ones256(void) {
     m256 rv = {ones128(), ones128()};
+    return rv;
+}
+
+static really_inline m256 add256(m256 a, m256 b) {
+    m256 rv;
+    rv.lo = add128(a.lo, b.lo);
+    rv.hi = add128(a.hi, b.hi);
     return rv;
 }
 
@@ -585,6 +592,13 @@ m512 set1_4x128(m128 a) {
     return rv;
 }
 
+static really_inline
+m512 add512(m512 a, m512 b) {
+    m512 rv;
+    rv.lo = add256(a.lo, b.lo);
+    rv.hi = add256(a.hi, b.hi);
+    return rv;
+}
 
 static really_inline
 m512 and512(m512 a, m512 b) {
