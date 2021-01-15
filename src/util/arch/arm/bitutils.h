@@ -106,7 +106,6 @@ u64a compress64_impl(u64a x, u64a m) {
 
 static really_inline
 m128 compress128_impl(m128 x, m128 m) {
-
     m128 one = set1_2x64(1);
     m128 bitset = one;
     m128 vres = zeroes128();
@@ -118,7 +117,7 @@ m128 compress128_impl(m128 x, m128 m) {
 	m128 mask = not128(eq64_m128(tv, zeroes128()));
 	mask = vandq_s64(bitset, mask);
         vres = or128(vres, mask);
-	m = and128(m, sub_2x64(m, set1_2x64(1)));
+	m = and128(m, sub_2x64(m, one));
         bitset = lshift64_m128(bitset, 1);
     }
     return vres;
@@ -132,6 +131,25 @@ u32 expand32_impl(u32 x, u32 m) {
 static really_inline
 u64a expand64_impl(u64a x, u64a m) {
     return expand64_impl_c(x, m);
+}
+
+static really_inline
+m128 expand128_impl(m128 x, m128 m) {
+    m128 one = set1_2x64(1);
+    m128 bitset = one;
+    m128 vres = zeroes128();
+    while (isnonzero128(m)) {
+	m128 tv = and128(x, m);
+
+	m128 mm = sub_2x64(zeroes128(), m);
+	m128 mask = not128(eq64_m128(tv, zeroes128()));
+	mask = vandq_s64(bitset, mask);
+	mask = and128(mask, mm);
+        vres = or128(vres, mask);
+	m = and128(m, sub_2x64(m, one));
+        bitset = lshift64_m128(bitset, 1);
+    }
+    return vres;
 }
 
 /* returns the first set bit after begin (if not ~0U). If no bit is set after

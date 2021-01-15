@@ -301,6 +301,18 @@ u64a expand64_impl_c(u64a x, u64a m) {
     return x & m0; // clear out extraneous bits*/
 }
 
+static really_inline
+m128 expand128_impl_c(m128 xvec, m128 mvec) {
+    u64a ALIGN_ATTR(16) x[2];
+    u64a ALIGN_ATTR(16) m[2];
+    store128(x, xvec);
+    store128(m, mvec);
+
+    expand64_impl_c(x[0], m[0]);
+    expand64_impl_c(x[1], m[1]);
+
+    return xvec;
+}
 
 /* returns the first set bit after begin (if not ~0U). If no bit is set after
  * begin returns ~0U
