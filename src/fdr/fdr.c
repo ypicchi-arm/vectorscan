@@ -147,6 +147,7 @@ void get_conf_stride_1(const u8 *itPtr, UNUSED const u8 *start_ptr,
                        const u64a *ft, u64a *conf0, u64a *conf8, m128 *s) {
     /* +1: the zones ensure that we can read the byte at z->end */
     assert(itPtr >= start_ptr && itPtr + ITER_BYTES <= end_ptr);
+
     u64a reach0 = andn(domain_mask_flipped, itPtr);
     u64a reach1 = andn(domain_mask_flipped, itPtr + 1);
     u64a reach2 = andn(domain_mask_flipped, itPtr + 2);
@@ -184,17 +185,16 @@ void get_conf_stride_1(const u8 *itPtr, UNUSED const u8 *start_ptr,
     st0 = or128(st0, st4);
     *s = or128(*s, st0);
 
-    *conf0 = movq(*s);
+    *conf0 = movq(*s) ^ ~0ULL;
     *s = rshiftbyte_m128(*s, 8);
-    *conf0 ^= ~0ULL;
 
     u64a reach8 = andn(domain_mask_flipped, itPtr + 8);
     u64a reach9 = andn(domain_mask_flipped, itPtr + 9);
     u64a reach10 = andn(domain_mask_flipped, itPtr + 10);
     u64a reach11 = andn(domain_mask_flipped, itPtr + 11);
 
-    m128 st8 = load_m128_from_u64a(ft + reach8);
-    m128 st9 = load_m128_from_u64a(ft + reach9);
+    m128 st8  = load_m128_from_u64a(ft + reach8);
+    m128 st9  = load_m128_from_u64a(ft + reach9);
     m128 st10 = load_m128_from_u64a(ft + reach10);
     m128 st11 = load_m128_from_u64a(ft + reach11);
 
@@ -225,9 +225,8 @@ void get_conf_stride_1(const u8 *itPtr, UNUSED const u8 *start_ptr,
     st8 = or128(st8, st12);
     *s = or128(*s, st8);
 
-    *conf8 = movq(*s);
+    *conf8 = movq(*s) ^ ~0ULL;
     *s = rshiftbyte_m128(*s, 8);
-    *conf8 ^= ~0ULL;
 }
 
 static really_inline
@@ -235,6 +234,7 @@ void get_conf_stride_2(const u8 *itPtr, UNUSED const u8 *start_ptr,
                        UNUSED const u8 *end_ptr, u32 domain_mask_flipped,
                        const u64a *ft, u64a *conf0, u64a *conf8, m128 *s) {
     assert(itPtr >= start_ptr && itPtr + ITER_BYTES <= end_ptr);
+
     u64a reach0 = andn(domain_mask_flipped, itPtr);
     u64a reach2 = andn(domain_mask_flipped, itPtr + 2);
     u64a reach4 = andn(domain_mask_flipped, itPtr + 4);
@@ -287,6 +287,7 @@ void get_conf_stride_4(const u8 *itPtr, UNUSED const u8 *start_ptr,
                        UNUSED const u8 *end_ptr, u32 domain_mask_flipped,
                        const u64a *ft, u64a *conf0, u64a *conf8, m128 *s) {
     assert(itPtr >= start_ptr && itPtr + ITER_BYTES <= end_ptr);
+
     u64a reach0 = andn(domain_mask_flipped, itPtr);
     u64a reach4 = andn(domain_mask_flipped, itPtr + 4);
     u64a reach8 = andn(domain_mask_flipped, itPtr + 8);
@@ -683,6 +684,10 @@ size_t prepareZones(const u8 *buf, size_t len, const u8 *hend,
         const u8 *tryFloodDetect = zz->floodPtr;                            \
         const u8 *start_ptr = zz->start;                                    \
         const u8 *end_ptr = zz->end;                                        \
+        for (const u8 *itPtr = start_ptr; itPtr + 4*ITER_BYTES <= end_ptr;  \
+            itPtr += 4*ITER_BYTES) {                                        \
+            __builtin_prefetch(itPtr);                                      \
+        }                                                                   \
                                                                             \
         for (const u8 *itPtr = start_ptr; itPtr + ITER_BYTES <= end_ptr;    \
             itPtr += ITER_BYTES) {                                          \
