@@ -634,6 +634,11 @@ char nfaExecMcClellan16_Q2i(const struct NFA *n, u64a offset, const u8 *buffer,
     assert(ISALIGNED_N(q->state, 2));
     u32 s = *(u16 *)q->state;
 
+    __builtin_prefetch(&m->remap[0]);
+    __builtin_prefetch(&m->remap[64]);
+    __builtin_prefetch(&m->remap[128]);
+    __builtin_prefetch(&m->remap[192]);
+
     if (q->report_current) {
         assert(s);
         assert(get_aux(m, s)->accept);
@@ -789,6 +794,11 @@ char nfaExecMcClellan8_Q2i(const struct NFA *n, u64a offset, const u8 *buffer,
     s64a sp;
 
     u32 s = *(u8 *)q->state;
+
+    __builtin_prefetch(&m->remap[0]);
+    __builtin_prefetch(&m->remap[64]);
+    __builtin_prefetch(&m->remap[128]);
+    __builtin_prefetch(&m->remap[192]);
 
     if (q->report_current) {
         assert(s);
