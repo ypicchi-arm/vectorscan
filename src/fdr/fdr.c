@@ -148,25 +148,58 @@ void get_conf_stride_1(const u8 *itPtr, UNUSED const u8 *start_ptr,
     /* +1: the zones ensure that we can read the byte at z->end */
     assert(itPtr >= start_ptr && itPtr + ITER_BYTES <= end_ptr);
 
-    u64a reach0 = andn(domain_mask_flipped, itPtr);
-    u64a reach1 = andn(domain_mask_flipped, itPtr + 1);
-    u64a reach2 = andn(domain_mask_flipped, itPtr + 2);
-    u64a reach3 = andn(domain_mask_flipped, itPtr + 3);
+    u64a ALIGN_ATTR(16) ptr[16];
+    ptr[0] = unaligned_load_u32(itPtr + 0);
+    ptr[1] = unaligned_load_u32(itPtr + 1);
+    ptr[2] = unaligned_load_u32(itPtr + 2);
+    ptr[3] = unaligned_load_u32(itPtr + 3);
+    ptr[4] = unaligned_load_u32(itPtr + 4);
+    ptr[5] = unaligned_load_u32(itPtr + 5);
+    ptr[6] = unaligned_load_u32(itPtr + 6);
+    ptr[7] = unaligned_load_u32(itPtr + 7);
+    ptr[8]  = unaligned_load_u32(itPtr + 8);
+    ptr[9]  = unaligned_load_u32(itPtr + 9);
+    ptr[10] = unaligned_load_u32(itPtr + 10);
+    ptr[11] = unaligned_load_u32(itPtr + 11);
+    ptr[12] = unaligned_load_u32(itPtr + 12);
+    ptr[13] = unaligned_load_u32(itPtr + 13);
+    ptr[14] = unaligned_load_u32(itPtr + 14);
+    ptr[15] = unaligned_load_u32(itPtr + 15);
+
+    u64a mask_not = ~domain_mask_flipped;
+    u64a reach0 = mask_not & ptr[0];
+    u64a reach1 = mask_not & ptr[1];
+    u64a reach2 = mask_not & ptr[2];
+    u64a reach3 = mask_not & ptr[3];
+    u64a reach4 = mask_not & ptr[4];
+    u64a reach5 = mask_not & ptr[5];
+    u64a reach6 = mask_not & ptr[6];
+    u64a reach7 = mask_not & ptr[7];
+    u64a reach8  = mask_not & ptr[8];
+    u64a reach9  = mask_not & ptr[9];
+    u64a reach10 = mask_not & ptr[10];
+    u64a reach11 = mask_not & ptr[11];
+    u64a reach12 = mask_not & ptr[12];
+    u64a reach13 = mask_not & ptr[13];
+    u64a reach14 = mask_not & ptr[14];
+    u64a reach15 = mask_not & ptr[15];
 
     m128 st0 = load_m128_from_u64a(ft + reach0);
     m128 st1 = load_m128_from_u64a(ft + reach1);
     m128 st2 = load_m128_from_u64a(ft + reach2);
     m128 st3 = load_m128_from_u64a(ft + reach3);
-
-    u64a reach4 = andn(domain_mask_flipped, itPtr + 4);
-    u64a reach5 = andn(domain_mask_flipped, itPtr + 5);
-    u64a reach6 = andn(domain_mask_flipped, itPtr + 6);
-    u64a reach7 = andn(domain_mask_flipped, itPtr + 7);
-
     m128 st4 = load_m128_from_u64a(ft + reach4);
     m128 st5 = load_m128_from_u64a(ft + reach5);
     m128 st6 = load_m128_from_u64a(ft + reach6);
     m128 st7 = load_m128_from_u64a(ft + reach7);
+    m128 st8  = load_m128_from_u64a(ft + reach8);
+    m128 st9  = load_m128_from_u64a(ft + reach9);
+    m128 st10 = load_m128_from_u64a(ft + reach10);
+    m128 st11 = load_m128_from_u64a(ft + reach11);
+    m128 st12 = load_m128_from_u64a(ft + reach12);
+    m128 st13 = load_m128_from_u64a(ft + reach13);
+    m128 st14 = load_m128_from_u64a(ft + reach14);
+    m128 st15 = load_m128_from_u64a(ft + reach15);
 
     st1 = lshiftbyte_m128(st1, 1);
     st2 = lshiftbyte_m128(st2, 2);
@@ -175,39 +208,6 @@ void get_conf_stride_1(const u8 *itPtr, UNUSED const u8 *start_ptr,
     st5 = lshiftbyte_m128(st5, 5);
     st6 = lshiftbyte_m128(st6, 6);
     st7 = lshiftbyte_m128(st7, 7);
-
-    st0 = or128(st0, st1);
-    st2 = or128(st2, st3);
-    st4 = or128(st4, st5);
-    st6 = or128(st6, st7);
-    st0 = or128(st0, st2);
-    st4 = or128(st4, st6);
-    st0 = or128(st0, st4);
-    *s = or128(*s, st0);
-
-    *conf0 = movq(*s) ^ ~0ULL;
-    *s = rshiftbyte_m128(*s, 8);
-
-    u64a reach8 = andn(domain_mask_flipped, itPtr + 8);
-    u64a reach9 = andn(domain_mask_flipped, itPtr + 9);
-    u64a reach10 = andn(domain_mask_flipped, itPtr + 10);
-    u64a reach11 = andn(domain_mask_flipped, itPtr + 11);
-
-    m128 st8  = load_m128_from_u64a(ft + reach8);
-    m128 st9  = load_m128_from_u64a(ft + reach9);
-    m128 st10 = load_m128_from_u64a(ft + reach10);
-    m128 st11 = load_m128_from_u64a(ft + reach11);
-
-    u64a reach12 = andn(domain_mask_flipped, itPtr + 12);
-    u64a reach13 = andn(domain_mask_flipped, itPtr + 13);
-    u64a reach14 = andn(domain_mask_flipped, itPtr + 14);
-    u64a reach15 = andn(domain_mask_flipped, itPtr + 15);
-
-    m128 st12 = load_m128_from_u64a(ft + reach12);
-    m128 st13 = load_m128_from_u64a(ft + reach13);
-    m128 st14 = load_m128_from_u64a(ft + reach14);
-    m128 st15 = load_m128_from_u64a(ft + reach15);
-
     st9 = lshiftbyte_m128(st9, 1);
     st10 = lshiftbyte_m128(st10, 2);
     st11 = lshiftbyte_m128(st11, 3);
@@ -216,6 +216,14 @@ void get_conf_stride_1(const u8 *itPtr, UNUSED const u8 *start_ptr,
     st14 = lshiftbyte_m128(st14, 6);
     st15 = lshiftbyte_m128(st15, 7);
 
+    st0 = or128(st0, st1);
+    st2 = or128(st2, st3);
+    st4 = or128(st4, st5);
+    st6 = or128(st6, st7);
+    st0 = or128(st0, st2);
+    st4 = or128(st4, st6);
+    st0 = or128(st0, st4);
+
     st8 = or128(st8, st9);
     st10 = or128(st10, st11);
     st12 = or128(st12, st13);
@@ -223,10 +231,14 @@ void get_conf_stride_1(const u8 *itPtr, UNUSED const u8 *start_ptr,
     st8 = or128(st8, st10);
     st12 = or128(st12, st14);
     st8 = or128(st8, st12);
-    *s = or128(*s, st8);
 
-    *conf8 = movq(*s) ^ ~0ULL;
-    *s = rshiftbyte_m128(*s, 8);
+    m128 st = or128(*s, st0);
+    *conf0 = movq(st) ^ ~0ULL;
+    st = rshiftbyte_m128(st, 8);
+    st = or128(st, st8);
+
+    *conf8 = movq(st) ^ ~0ULL;
+    *s = rshiftbyte_m128(st, 8);
 }
 
 static really_inline
