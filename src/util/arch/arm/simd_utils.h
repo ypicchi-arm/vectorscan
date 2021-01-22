@@ -121,16 +121,18 @@ static really_inline m128 eq64_m128(m128 a, m128 b) {
     return (m128) vceqq_u64((int64x2_t)a, (int64x2_t)b);
 }
 
+
 static really_inline u32 movemask128(m128 a) {
     static const uint8x16_t powers = { 1, 2, 4, 8, 16, 32, 64, 128, 1, 2, 4, 8, 16, 32, 64, 128 };
 
     // Compute the mask from the input
-    uint64x2_t mask= vpaddlq_u32(vpaddlq_u16(vpaddlq_u8(vandq_u8((uint8x16_t)a, powers))));
+    uint64x2_t mask  = vpaddlq_u32(vpaddlq_u16(vpaddlq_u8(vandq_u8((uint8x16_t)a, powers))));
+    uint64x2_t mask1 = (m128)vextq_s8(mask, zeroes128(), 7);
+    mask = vorrq_u8(mask, mask1);
 
     // Get the resulting bytes
     uint16_t output;
-    vst1q_lane_u8((uint8_t*)&output + 0, (uint8x16_t)mask, 0);
-    vst1q_lane_u8((uint8_t*)&output + 1, (uint8x16_t)mask, 8);
+    vst1q_lane_u16((uint16_t*)&output, (uint16x8_t)mask, 0);
     return output;
 }
 
@@ -233,14 +235,12 @@ static really_inline m128 andnot128(m128 a, m128 b) {
 // aligned load
 static really_inline m128 load128(const void *ptr) {
     assert(ISALIGNED_N(ptr, alignof(m128)));
-    ptr = assume_aligned(ptr, 16);
     return (m128) vld1q_s32((const int32_t *)ptr);
 }
 
 // aligned store
 static really_inline void store128(void *ptr, m128 a) {
     assert(ISALIGNED_N(ptr, alignof(m128)));
-    ptr = assume_aligned(ptr, 16);
     vst1q_s32((int32_t *)ptr, a);
 }
 
@@ -270,22 +270,13 @@ m128 loadbytes128(const void *ptr, unsigned int n) {
     return a;
 }
 
-static really_inline
-m128 variable_byte_shift_m128(m128 in, s32 amount) {
-    assert(amount >= -16 && amount <= 16);
-    m128 shift_mask = loadu128(vbs_mask_data + 16 - amount);
-    return vqtbl1q_s8(in, shift_mask);
-}
 
 #define CASE_ALIGN_VECTORS(a, b, offset)  case offset: return (m128)vextq_s8((int8x16_t)(a), (int8x16_t)(b), (offset)); break;
 
-static really_inline
-m128 palignr(m128 r, m128 l, int offset) {
-#if defined(HS_OPTIMIZE)
-        return (m128)vextq_s8((int8x16_t)l, (int8x16_t)r, offset);
-#else
+static really_really_inline
+m128 palignr_imm(m128 r, m128 l, int offset) {
     switch (offset) {
-    CASE_ALIGN_VECTORS(l, r, 0);
+    case 0: return l; break;
     CASE_ALIGN_VECTORS(l, r, 1);
     CASE_ALIGN_VECTORS(l, r, 2);
     CASE_ALIGN_VECTORS(l, r, 3);
@@ -301,30 +292,42 @@ m128 palignr(m128 r, m128 l, int offset) {
     CASE_ALIGN_VECTORS(l, r, 13);
     CASE_ALIGN_VECTORS(l, r, 14);
     CASE_ALIGN_VECTORS(l, r, 15);
+    case 16: return r; break;
     default:
 	return zeroes128();
 	break;
     }
+}
+
+static really_really_inline
+m128 palignr(m128 r, m128 l, int offset) {
+#if defined(HS_OPTIMIZE)
+    return (m128)vextq_s8((int8x16_t)l, (int8x16_t)r, offset);
+#else
+    return palignr_imm(r, l, offset);
 #endif
 }
 #undef CASE_ALIGN_VECTORS
 
 static really_really_inline
 m128 rshiftbyte_m128(m128 a, unsigned b) {
-    if (b)
-        return palignr(zeroes128(), a, b);
-    else
-        return a;
+    return palignr(zeroes128(), a, b);
 }
 
 static really_really_inline
 m128 lshiftbyte_m128(m128 a, unsigned b) {
-    if (b)
-        return palignr(a, zeroes128(), 16 - b);
-    else
-        return a;
+    return palignr(a, zeroes128(), 16 - b);
 }
 
+static really_inline
+m128 variable_byte_shift_m128(m128 in, s32 amount) {
+    assert(amount >= -16 && amount <= 16);
+    static const uint8x16_t vbs_mask = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
+    const uint8x16_t outside_mask = set1_16x8(0xf0);
+
+    m128 shift_mask = palignr_imm(vbs_mask, outside_mask, 16 - amount);
+    return vqtbl1q_s8(in, shift_mask);
+}
 
 #ifdef __cplusplus
 extern "C" {
