@@ -45,7 +45,7 @@
 #endif // HAVE_SIMD_128_BITS
 
 #ifdef DEBUG
-static inline void print_m128_16x8(char *label, m128 vector) {
+static inline void print_m128_16x8(const char *label, m128 vector) {
     uint8_t ALIGN_ATTR(16) data[16];
     store128(data, vector);
     DEBUG_PRINTF("%s: ", label);
@@ -54,7 +54,7 @@ static inline void print_m128_16x8(char *label, m128 vector) {
     printf("\n");
 }
 
-static inline void print_m128_8x16(char *label, m128 vector) {
+static inline void print_m128_8x16(const char *label, m128 vector) {
     uint16_t ALIGN_ATTR(16) data[8];
     store128(data, vector);
     DEBUG_PRINTF("%s: ", label);
@@ -63,7 +63,7 @@ static inline void print_m128_8x16(char *label, m128 vector) {
     printf("\n");
 }
 
-static inline void print_m128_4x32(char *label, m128 vector) {
+static inline void print_m128_4x32(const char *label, m128 vector) {
     uint32_t ALIGN_ATTR(16) data[4];
     store128(data, vector);
     DEBUG_PRINTF("%s: ", label);
