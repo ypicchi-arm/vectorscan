@@ -65,3 +65,6 @@ sending email to the list, or by creating an issue on Github.
 If you wish to contact the Hyperscan team at Intel directly, without posting
 publicly to the mailing list, send email to
 [hyperscan@intel.com](mailto:hyperscan@intel.com).
+
+[1]: https://github.com/intel/hyperscan/pull/272
+[2]: https://github.com/intel/hyperscan/pull/287
