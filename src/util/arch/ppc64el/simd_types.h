@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Intel Corporation
+ * Copyright (c) 2015-2017, Intel Corporation
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,56 +26,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \file
- * \brief Wrapper around the compiler supplied intrinsic header
- */
+#ifndef SIMD_TYPES_ARM_H
+#define SIMD_TYPES_ARM_H
 
-#ifndef INTRINSICS_H
-#define INTRINSICS_H
-
-#include "config.h"
-
-#ifdef __cplusplus
-# if defined(HAVE_CXX_X86INTRIN_H)
-#  define USE_X86INTRIN_H
-# endif
-#else // C
-# if defined(HAVE_C_X86INTRIN_H)
-#  define USE_X86INTRIN_H
-# endif
+#if !defined(m128) && defined(HAVE_VSX)
+typedef __vector int32_t m128;
 #endif
 
-#if defined(HAVE_C_ARM_NEON_H)
-#  define USE_ARM_NEON_H
-#endif
+#endif /* SIMD_TYPES_ARM_H */
 
-#if defined(HAVE_C_PPC64EL_ALTIVEC_H)
-#  define USE_PPC64EL_ALTIVEC_H
-#endif
-
-#ifdef __cplusplus
-# if defined(HAVE_CXX_INTRIN_H)
-#  define USE_INTRIN_H
-# endif
-#else // C
-# if defined(HAVE_C_INTRIN_H)
-#  define USE_INTRIN_H
-# endif
-#endif
-
-#if defined(USE_X86INTRIN_H)
-#include <x86intrin.h>
-#elif defined(USE_INTRIN_H)
-#include <intrin.h>
-#elif defined(USE_ARM_NEON_H)
-#include <arm_neon.h>
-#  if defined(HAVE_SVE)
-#    include <arm_sve.h>
-#  endif
-#elif defined(USE_PPC64EL_ALTIVEC_H)
-#include <altivec.h>
-#else
-#error no intrinsics file
-#endif
-
-#endif // INTRINSICS_H
