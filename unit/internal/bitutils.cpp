@@ -294,6 +294,39 @@ TEST(BitUtils, compress64) {
     }
 }
 
+TEST(BitUtils, compress128) {
+    const m128 all_zeroes = zeroes128();
+    const m128 all_ones = ones128();
+    const m128 odd_bits = set1_2x64(0x5555555555555555ull);
+    const m128 even_bits = set1_2x64(0xaaaaaaaaaaaaaaaaull);
+
+    EXPECT_EQ(0, diff128(all_zeroes, compress128(all_zeroes, all_zeroes)));
+    EXPECT_EQ(0, diff128(all_zeroes, compress128(all_zeroes, set1_4x32(1))));
+    EXPECT_EQ(0, diff128(all_zeroes, compress128(all_zeroes, all_ones)));
+    EXPECT_EQ(0, diff128(all_ones, compress128(all_ones, all_ones)));
+    EXPECT_EQ(0, diff128(set1_2x64(0xffffffffull), compress128(odd_bits, odd_bits)));
+    EXPECT_EQ(0, diff128(set1_2x64(0xffffffffull), compress128(even_bits, even_bits)));
+    EXPECT_EQ(0, diff128(all_zeroes, compress128(odd_bits, even_bits)));
+    EXPECT_EQ(0, diff128(all_zeroes, compress128(even_bits, odd_bits)));
+
+    // Some single-bit tests.
+    for (u32 i = 0; i < 64; i++) {
+        const m128 one_bit = set1_2x64(1ull << i);
+
+        EXPECT_EQ(0, diff128(all_zeroes, compress128(all_zeroes, one_bit)));
+        EXPECT_EQ(0, diff128(set1_2x64(1ull), compress128(one_bit, one_bit)));
+        EXPECT_EQ(0, diff128(one_bit, compress128(one_bit, all_ones)));
+
+        if (i % 2) {
+            EXPECT_EQ(0, diff128(set1_2x64(1ull << (i / 2)), compress128(one_bit, even_bits)));
+            EXPECT_EQ(0, diff128(all_zeroes, compress128(one_bit, odd_bits)));
+        } else {
+            EXPECT_EQ(0, diff128(set1_2x64(1ull << (i / 2)), compress128(one_bit, odd_bits)));
+            EXPECT_EQ(0, diff128(all_zeroes, compress128(one_bit, even_bits)));
+        }
+    }
+}
+
 TEST(BitUtils, expand32) {
     const u32 all_ones = 0xffffffffu;
     const u32 odd_bits = 0x55555555u;
@@ -349,6 +382,35 @@ TEST(BitUtils, expand64) {
 
         EXPECT_EQ(one_bit,
                   expand64(1ull << (i / 2), i % 2 ? even_bits : odd_bits));
+    }
+}
+
+TEST(BitUtils, expand128) {
+    const m128 all_zeroes = zeroes128();
+    const m128 all_ones = ones128();
+    const m128 odd_bits = set1_2x64(0x5555555555555555ull);
+    const m128 even_bits = set1_2x64(0xaaaaaaaaaaaaaaaaull);
+
+    EXPECT_EQ(0, diff128(all_zeroes, expand128(all_zeroes, all_zeroes)));
+    EXPECT_EQ(0, diff128(all_zeroes, expand128(all_zeroes, set1_2x64(1ull))));
+    EXPECT_EQ(0, diff128(all_zeroes, expand128(all_zeroes, all_ones)));
+    EXPECT_EQ(0, diff128(all_ones, expand128(all_ones, all_ones)));
+    EXPECT_EQ(0, diff128(odd_bits, expand128(set1_2x64(0xffffffffull), odd_bits)));
+    EXPECT_EQ(0, diff128(even_bits, expand128(set1_2x64(0xffffffffull), even_bits)));
+    EXPECT_EQ(0, diff128(all_zeroes, expand128(set1_2x64(0xffffffff00000000ull), even_bits)));
+    EXPECT_EQ(0, diff128(all_zeroes, expand128(set1_2x64(0xffffffff00000000ull), odd_bits)));
+    EXPECT_EQ(0, diff128(set1_2x64(1u), expand128(set1_2x64(1u), odd_bits)));
+    EXPECT_EQ(0, diff128(set1_2x64(2u), expand128(set1_2x64(1u), even_bits)));
+
+    // Some single-bit tests.
+    for (u32 i = 0; i < 64; i++) {
+        const m128 one_bit = set1_2x64(1ull << i);
+
+        EXPECT_EQ(0, diff128(all_zeroes, expand128(all_zeroes, one_bit)));
+        EXPECT_EQ(0, diff128(one_bit, expand128(set1_2x64(1ull), one_bit)));
+        EXPECT_EQ(0, diff128(one_bit, expand128(one_bit, all_ones)));
+
+        EXPECT_EQ(0, diff128(one_bit, expand128(set1_2x64(1ull << (i / 2)), i % 2 ? even_bits : odd_bits)));
     }
 }
 
