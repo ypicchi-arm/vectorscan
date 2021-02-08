@@ -72,7 +72,7 @@ static inline void print_m128_4x32(const char *label, m128 vector) {
     printf("\n");
 }
 
-static inline void print_m128_2x64(char *label, m128 vector) {
+static inline void print_m128_2x64(const char *label, m128 vector) {
     uint64_t ALIGN_ATTR(16) data[2];
     store128(data, vector);
     DEBUG_PRINTF("%s: ", label);
