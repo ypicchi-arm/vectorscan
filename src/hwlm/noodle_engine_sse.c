@@ -49,12 +49,8 @@ hwlm_error_t scanSingleShort(const struct noodTable *n, const u8 *buf,
     if (!l) {
         return HWLM_SUCCESS;
     }
-    m128 v = zeroes128();
-    // we don't have a clever way of doing this move yet
-    memcpy(&v, d, l);
-    if (noCase) {
-        v = and128(v, caseMask);
-    }
+    m128 mask128 = noCase ? caseMask : ones128();
+    m128 v = and128(load128(d), mask128);
 
     // mask out where we can't match
     u32 mask = (0xFFFF >> (16 - l));
@@ -76,11 +72,8 @@ hwlm_error_t scanSingleUnaligned(const struct noodTable *n, const u8 *buf,
     DEBUG_PRINTF("start %zu end %zu offset %zu\n", start, end, offset);
     const size_t l = end - start;
 
-    m128 v = loadu128(d);
-
-    if (noCase) {
-        v = and128(v, caseMask);
-    }
+    m128 mask128 = noCase ? caseMask : ones128();
+    m128 v = and128(loadu128(d), mask128);
 
     u32 buf_off = start - offset;
     u32 mask = ((1 << l) - 1) << buf_off;
@@ -109,11 +102,8 @@ hwlm_error_t scanDoubleShort(const struct noodTable *n, const u8 *buf,
     assert(l <= 32);
 
     DEBUG_PRINTF("d %zu\n", d - buf);
-    m128 v = zeroes128();
-    memcpy(&v, d, l);
-    if (noCase) {
-        v = and128(v, caseMask);
-    }
+    m128 mask128 = noCase ? caseMask : ones128();
+    m128 v = and128(load128(d), mask128);
 
     u32 z = movemask128(and128(lshiftbyte_m128(eq128(mask1, v), 1),
                                eq128(mask2, v)));
@@ -137,11 +127,8 @@ hwlm_error_t scanDoubleUnaligned(const struct noodTable *n, const u8 *buf,
     DEBUG_PRINTF("start %zu end %zu offset %zu\n", start, end, offset);
     size_t l = end - start;
 
-    m128 v = loadu128(d);
-
-    if (noCase) {
-        v = and128(v, caseMask);
-    }
+    m128 mask128 = noCase ? caseMask : ones128();
+    m128 v = and128(loadu128(d), mask128);
 
     u32 z = movemask128(and128(lshiftbyte_m128(eq128(mask1, v), 1),
                                eq128(mask2, v)));
@@ -164,9 +151,10 @@ hwlm_error_t scanSingleFast(const struct noodTable *n, const u8 *buf,
                             size_t end) {
     const u8 *d = buf + start, *e = buf + end;
     assert(d < e);
+    m128 mask128 = noCase ? caseMask : ones128();
 
     for (; d < e; d += 16) {
-        m128 v = noCase ? and128(load128(d), caseMask) : load128(d);
+        m128 v = and128(load128(d), mask128);
 
         u32 z = movemask128(eq128(mask1, v));
 
@@ -186,9 +174,10 @@ hwlm_error_t scanDoubleFast(const struct noodTable *n, const u8 *buf,
     const u8 *d = buf + start, *e = buf + end;
     assert(d < e);
     m128 lastz1 = zeroes128();
+    m128 mask128 = noCase ? caseMask : ones128();
 
     for (; d < e; d += 16) {
-        m128 v = noCase ? and128(load128(d), caseMask) : load128(d);
+        m128 v = and128(load128(d), mask128);
         m128 z1 = eq128(mask1, v);
         m128 z2 = eq128(mask2, v);
         u32 z = movemask128(and128(palignr(z1, lastz1, 15), z2));
