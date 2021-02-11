@@ -50,7 +50,7 @@ hwlm_error_t scanSingleShort(const struct noodTable *n, const u8 *buf,
         return HWLM_SUCCESS;
     }
     m128 mask128 = noCase ? caseMask : ones128();
-    m128 v = and128(load128(d), mask128);
+    m128 v = and128(loadu128(d), mask128);
 
     // mask out where we can't match
     u32 mask = (0xFFFF >> (16 - l));
@@ -103,7 +103,7 @@ hwlm_error_t scanDoubleShort(const struct noodTable *n, const u8 *buf,
 
     DEBUG_PRINTF("d %zu\n", d - buf);
     m128 mask128 = noCase ? caseMask : ones128();
-    m128 v = and128(load128(d), mask128);
+    m128 v = and128(loadu128(d), mask128);
 
     u32 z = movemask128(and128(lshiftbyte_m128(eq128(mask1, v), 1),
                                eq128(mask2, v)));
