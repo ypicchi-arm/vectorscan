@@ -215,8 +215,16 @@ u64a compress64_impl(u64a x, u64a m) {
 }
 
 static really_inline
-m128 compress128_impl(m128 x, m128 m) {
-    return compress128_impl_c(x, m);
+m128 compress128_impl(m128 xvec, m128 mvec) {
+    u64a ALIGN_ATTR(16) x[2];
+    u64a ALIGN_ATTR(16) m[2];
+    store128(x, xvec);
+    store128(m, mvec);
+
+    x[0] = compress64_impl(x[0], m[0]);
+    x[1] = compress64_impl(x[1], m[1]);
+
+    return load128(x);
 }
 
 static really_inline
@@ -233,6 +241,7 @@ static really_inline
 u64a expand64_impl(u64a x, u64a m) {
 #if defined(ARCH_X86_64) && defined(HAVE_BMI2)
     // BMI2 has a single instruction for this operation.
+    DEBUG_PRINTF("pdep_u64\n");
     return _pdep_u64(x, m);
 #else
     return expand64_impl_c(x, m);
@@ -240,8 +249,16 @@ u64a expand64_impl(u64a x, u64a m) {
 }
 
 static really_inline
-m128 expand128_impl(m128 x, m128 m) {
-    return expand128_impl_c(x, m);
+m128 expand128_impl(m128 xvec, m128 mvec) {
+    u64a ALIGN_ATTR(16) x[2];
+    u64a ALIGN_ATTR(16) m[2];
+    store128(x, xvec);
+    store128(m, mvec);
+    DEBUG_PRINTF("calling expand64_impl:\n");
+    x[0] = expand64_impl(x[0], m[0]);
+    x[1] = expand64_impl(x[1], m[1]);
+
+    return load128(x);
 }
 
 /* returns the first set bit after begin (if not ~0U). If no bit is set after
