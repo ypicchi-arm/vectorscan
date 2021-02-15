@@ -123,7 +123,7 @@ TEST(Noodle, nood1) {
 TEST(Noodle, nood2) {
     const size_t data_len = 1024;
     unsigned int i, j;
-    u8 data[data_len];
+    u8 ALIGN_ATTR(32) data[data_len];
 
     memset(data, 'a', data_len);
 
@@ -224,7 +224,7 @@ TEST(Noodle, noodLong) {
 
 TEST(Noodle, noodCutoverSingle) {
     const size_t max_data_len = 128;
-    u8 data[max_data_len + 15];
+    u8 ALIGN_ATTR(32) data[max_data_len + 15];
 
     memset(data, 'a', max_data_len + 15);
 
