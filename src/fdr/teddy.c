@@ -468,7 +468,7 @@ do {                                                                        \
     *c_16 = *(ptr + 15);                                                    \
     *c_32 = *(ptr + 31);                                                    \
     *c_48 = *(ptr + 47);                                                    \
-    m512 r_msk = set512_64(0ULL, r_msk_base[*c_48], 0ULL, r_msk_base[*c_32],\
+    m512 r_msk = set8x64(0ULL, r_msk_base[*c_48], 0ULL, r_msk_base[*c_32],\
                            0ULL, r_msk_base[*c_16], 0ULL, r_msk_base[*c_0]);\
     *c_0 = *(ptr + 63)
 

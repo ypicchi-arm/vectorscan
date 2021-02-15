@@ -31,12 +31,12 @@
 static really_inline
 m512 getMask(u8 c, bool noCase) {
     u8 k = caseClear8(c, noCase);
-    return set64x8(k);
+    return set1_64x8(k);
 }
 
 static really_inline
 m512 getCaseMask(void) {
-    return set64x8(CASE_CLEAR);
+    return set1_64x8(CASE_CLEAR);
 }
 
 // The short scan routine. It is used both to scan data up to an

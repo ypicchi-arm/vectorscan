@@ -47,7 +47,7 @@
 #define AND_STATE               JOIN(and_, STATE_T)
 #define EQ_STATE(a, b)          (!JOIN(noteq_, STATE_T)((a), (b)))
 #define OR_STATE                JOIN(or_, STATE_T)
-#define EXPAND_STATE            JOIN(expand_, STATE_T)
+#define EXPAND_STATE            JOIN(broadcast_, STATE_T)
 #define SHUFFLE_BYTE_STATE      JOIN(shuffle_byte_, STATE_T)
 #define TESTBIT_STATE           JOIN(testbit_, STATE_T)
 #define EXCEPTION_T             JOIN(struct NFAException, SIZE)

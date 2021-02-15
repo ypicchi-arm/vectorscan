@@ -452,8 +452,8 @@ const u8 *firstMatch(const u8 *buf, u64a z) {
 
 static really_inline
 u64a block(m512 shuf_mask_lo_highclear, m512 shuf_mask_lo_highset, m512 v) {
-    m512 highconst = set64x8(0x80);
-    m512 shuf_mask_hi = set8x64(0x8040201008040201);
+    m512 highconst = set1_64x8(0x80);
+    m512 shuf_mask_hi = set1_8x64(0x8040201008040201);
 
     // and now do the real work
     m512 shuf1 = pshufb_m512(shuf_mask_lo_highclear, v);
@@ -501,8 +501,8 @@ const u8 *revBlock(m512 shuf_mask_lo_highclear, m512 shuf_mask_lo_highset,
 const u8 *truffleExec(m128 shuf_mask_lo_highclear, m128 shuf_mask_lo_highset,
                       const u8 *buf, const u8 *buf_end) {
     DEBUG_PRINTF("len %zu\n", buf_end - buf);
-    const m512 wide_clear = set4x128(shuf_mask_lo_highclear);
-    const m512 wide_set = set4x128(shuf_mask_lo_highset);
+    const m512 wide_clear = set1_4x128(shuf_mask_lo_highclear);
+    const m512 wide_set = set1_4x128(shuf_mask_lo_highset);
 
     assert(buf && buf_end);
     assert(buf < buf_end);
@@ -563,8 +563,8 @@ const u8 *truffleRevMini(m512 shuf_mask_lo_highclear, m512 shuf_mask_lo_highset,
 
 const u8 *rtruffleExec(m128 shuf_mask_lo_highclear, m128 shuf_mask_lo_highset,
                        const u8 *buf, const u8 *buf_end) {
-    const m512 wide_clear = set4x128(shuf_mask_lo_highclear);
-    const m512 wide_set = set4x128(shuf_mask_lo_highset);
+    const m512 wide_clear = set1_4x128(shuf_mask_lo_highclear);
+    const m512 wide_set = set1_4x128(shuf_mask_lo_highset);
     assert(buf && buf_end);
     assert(buf < buf_end);
     const u8 *rv;

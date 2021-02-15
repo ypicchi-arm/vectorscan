@@ -424,7 +424,7 @@ const u8 *vermMiniNocase(m512 chars, const u8 *buf, const u8 *buf_end,
     uintptr_t len = buf_end - buf;
     __mmask64 mask = (~0ULL) >> (64 - len);
     m512 data = loadu_maskz_m512(mask, buf);
-    m512 casemask = set64x8(CASE_CLEAR);
+    m512 casemask = set1_64x8(CASE_CLEAR);
     m512 v = and512(casemask, data);
 
     u64a z = eq512mask(chars, v);
@@ -461,7 +461,7 @@ static really_inline
 const u8 *vermSearchAlignedNocase(m512 chars, const u8 *buf,
                                   const u8 *buf_end, char negate) {
     assert((size_t)buf % 64 == 0);
-    m512 casemask = set64x8(CASE_CLEAR);
+    m512 casemask = set1_64x8(CASE_CLEAR);
 
     for (; buf + 63 < buf_end; buf += 64) {
         m512 data = load512(buf);
@@ -494,7 +494,7 @@ const u8 *vermUnalign(m512 chars, const u8 *buf, char negate) {
 // returns NULL if not found
 static really_inline
 const u8 *vermUnalignNocase(m512 chars, const u8 *buf, char negate) {
-    m512 casemask = set64x8(CASE_CLEAR);
+    m512 casemask = set1_64x8(CASE_CLEAR);
     m512 data = loadu512(buf); // unaligned
     u64a z = eq512mask(chars, and512(casemask, data));
     if (negate) {
@@ -529,7 +529,7 @@ const u8 *dvermMiniNocase(m512 chars1, m512 chars2, const u8 *buf,
     uintptr_t len = buf_end - buf;
     __mmask64 mask = (~0ULL) >> (64 - len);
     m512 data = loadu_maskz_m512(mask, buf);
-    m512 casemask = set64x8(CASE_CLEAR);
+    m512 casemask = set1_64x8(CASE_CLEAR);
     m512 v = and512(casemask, data);
 
     u64a z = eq512mask(chars1, v) & (eq512mask(chars2, v) >> 1);
@@ -583,7 +583,7 @@ static really_inline
 const u8 *dvermSearchAlignedNocase(m512 chars1, m512 chars2, u8 c1, u8 c2,
                                    const u8 *buf, const u8 *buf_end) {
     assert((size_t)buf % 64 == 0);
-    m512 casemask = set64x8(CASE_CLEAR);
+    m512 casemask = set1_64x8(CASE_CLEAR);
 
     for (; buf + 64 < buf_end; buf += 64) {
         m512 data = load512(buf);
@@ -643,7 +643,7 @@ const u8 *dvermPrecondition(m512 chars1, m512 chars2, const u8 *buf) {
 static really_inline
 const u8 *dvermPreconditionNocase(m512 chars1, m512 chars2, const u8 *buf) {
     /* due to laziness, nonalphas and nocase having interesting behaviour */
-    m512 casemask = set64x8(CASE_CLEAR);
+    m512 casemask = set1_64x8(CASE_CLEAR);
     m512 data = loadu512(buf); // unaligned
     m512 v = and512(casemask, data);
     u64a z = eq512mask(chars1, v) & (eq512mask(chars2, v) >> 1);
@@ -703,7 +703,7 @@ const u8 *rvermMiniNocase(m512 chars, const u8 *buf, const u8 *buf_end,
     uintptr_t len = buf_end - buf;
     __mmask64 mask = (~0ULL) >> (64 - len);
     m512 data = loadu_maskz_m512(mask, buf);
-    m512 casemask = set64x8(CASE_CLEAR);
+    m512 casemask = set1_64x8(CASE_CLEAR);
     m512 v = and512(casemask, data);
 
     u64a z = eq512mask(chars, v);
@@ -739,7 +739,7 @@ static really_inline
 const u8 *rvermSearchAlignedNocase(m512 chars, const u8 *buf,
                                    const u8 *buf_end, char negate) {
     assert((size_t)buf_end % 64 == 0);
-    m512 casemask = set64x8(CASE_CLEAR);
+    m512 casemask = set1_64x8(CASE_CLEAR);
 
     for (; buf + 63 < buf_end; buf_end -= 64) {
         m512 data = load512(buf_end - 64);
@@ -771,7 +771,7 @@ const u8 *rvermUnalign(m512 chars, const u8 *buf, char negate) {
 // returns NULL if not found
 static really_inline
 const u8 *rvermUnalignNocase(m512 chars, const u8 *buf, char negate) {
-    m512 casemask = set64x8(CASE_CLEAR);
+    m512 casemask = set1_64x8(CASE_CLEAR);
     m512 data = loadu512(buf); // unaligned
     u64a z = eq512mask(chars, and512(casemask, data));
     if (negate) {
@@ -805,7 +805,7 @@ const u8 *rdvermMiniNocase(m512 chars1, m512 chars2, const u8 *buf,
     uintptr_t len = buf_end - buf;
     __mmask64 mask = (~0ULL) >> (64 - len);
     m512 data = loadu_maskz_m512(mask, buf);
-    m512 casemask = set64x8(CASE_CLEAR);
+    m512 casemask = set1_64x8(CASE_CLEAR);
     m512 v = and512(casemask, data);
 
     u64a z = eq512mask(chars2, v) & (eq512mask(chars1, v) << 1);
@@ -839,7 +839,7 @@ static really_inline
 const u8 *rdvermSearchAlignedNocase(m512 chars1, m512 chars2, u8 c1, u8 c2,
                                     const u8 *buf, const u8 *buf_end) {
     assert((size_t)buf_end % 64 == 0);
-    m512 casemask = set64x8(CASE_CLEAR);
+    m512 casemask = set1_64x8(CASE_CLEAR);
 
     for (; buf + 64 < buf_end; buf_end -= 64) {
         m512 data = load512(buf_end - 64);
@@ -874,7 +874,7 @@ const u8 *rdvermPrecondition(m512 chars1, m512 chars2, const u8 *buf) {
 static really_inline
 const u8 *rdvermPreconditionNocase(m512 chars1, m512 chars2, const u8 *buf) {
     // due to laziness, nonalphas and nocase having interesting behaviour
-    m512 casemask = set64x8(CASE_CLEAR);
+    m512 casemask = set1_64x8(CASE_CLEAR);
     m512 data = loadu512(buf);
     m512 v = and512(casemask, data);
     u64a z = eq512mask(chars2, v) & (eq512mask(chars1, v) << 1);

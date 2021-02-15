@@ -592,7 +592,7 @@ m512 loadcompressed512_64bit(const void *ptr, m512 mvec) {
                   expand64(v[6], m[6]), expand64(v[7], m[7]) };
 
 #if defined(HAVE_AVX512)
-    m512 xvec = set64x8(x[7], x[6], x[5], x[4],
+    m512 xvec = set8x64(x[7], x[6], x[5], x[4],
                                  x[3], x[2], x[1], x[0]);
 #elif defined(HAVE_AVX2)
     m512 xvec = { .lo = set4x64(x[3], x[2], x[1], x[0]),

@@ -1490,7 +1490,7 @@ u32 doSheng64(const struct mcsheng64 *m, const u8 **c_inout, const u8 *soft_c_en
     assert(s_in); /* should not already be dead */
     assert(soft_c_end <= hard_c_end);
     DEBUG_PRINTF("s_in = %u (adjusted %u)\n", s_in, s_in - 1);
-    m512 s = set64x8(s_in - 1);
+    m512 s = set1_64x8(s_in - 1);
     const u8 *c = *c_inout;
     const u8 *c_end = hard_c_end - SHENG_CHUNK + 1;
     if (!do_accel) {
@@ -1509,8 +1509,8 @@ u32 doSheng64(const struct mcsheng64 *m, const u8 **c_inout, const u8 *soft_c_en
 
 #if defined(HAVE_BMI2) && defined(ARCH_64_BIT)
     u32 sheng_limit_x4 = sheng_limit * 0x01010101;
-    m512 simd_stop_limit = set16x32(sheng_stop_limit_x4);
-    m512 accel_delta = set64x8(sheng_limit - sheng_stop_limit);
+    m512 simd_stop_limit = set1_16x32(sheng_stop_limit_x4);
+    m512 accel_delta = set1_64x8(sheng_limit - sheng_stop_limit);
     DEBUG_PRINTF("end %hhu, accel %hu --> limit %hhu\n", sheng_limit,
                  m->sheng_accel_limit, sheng_stop_limit);
 #endif

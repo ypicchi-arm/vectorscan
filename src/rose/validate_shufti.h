@@ -180,7 +180,7 @@ static really_inline
 int validateShuftiMask64x8(const m512 data, const m512 hi_mask,
                            const m512 lo_mask, const m512 and_mask,
                            const u64a neg_mask, const u64a valid_data_mask) {
-    m512 low4bits = set64x8(0xf);
+    m512 low4bits = set1_64x8(0xf);
     m512 c_lo = pshufb_m512(lo_mask, and512(data, low4bits));
     m512 c_hi = pshufb_m512(hi_mask,
                             rshift64_m512(andnot512(low4bits, data), 4));
@@ -210,7 +210,7 @@ int validateShuftiMask64x16(const m512 data,
                             const m512 lo_mask_1, const m512 lo_mask_2,
                             const m512 and_mask_hi, const m512 and_mask_lo,
                             const u64a neg_mask, const u64a valid_data_mask) {
-    m512 low4bits = set64x8(0xf);
+    m512 low4bits = set1_64x8(0xf);
     m512 data_lo = and512(data, low4bits);
     m512 data_hi = and512(rshift64_m512(data, 4), low4bits);
     m512 c_lo_1 = pshufb_m512(lo_mask_1, data_lo);

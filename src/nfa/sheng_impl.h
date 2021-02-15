@@ -114,7 +114,7 @@ char SHENG32_IMPL(u8 *state, NfaCallback cb, void *ctxt,
     }
     DEBUG_PRINTF("Scanning %lli bytes\n", (s64a)(end - start));
 
-    m512 cur_state = set64x8(*state);
+    m512 cur_state = set1_64x8(*state);
     const m512 *masks = s->succ_masks;
 
     while (likely(cur_buf != end)) {
@@ -175,7 +175,7 @@ char SHENG64_IMPL(u8 *state, NfaCallback cb, void *ctxt,
     }
     DEBUG_PRINTF("Scanning %lli bytes\n", (s64a)(end - start));
 
-    m512 cur_state = set64x8(*state);
+    m512 cur_state = set1_64x8(*state);
     const m512 *masks = s->succ_masks;
 
     while (likely(cur_buf != end)) {

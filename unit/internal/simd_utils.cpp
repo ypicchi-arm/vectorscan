@@ -697,7 +697,7 @@ TEST(SimdUtilsTest, set32x8) {
     char cmp[sizeof(m256)];
 
     for (unsigned i = 0; i < 256; i++) {
-        m256 simd = set32x8(i);
+        m256 simd = set1_32x8(i);
         memset(cmp, i, sizeof(simd));
         ASSERT_EQ(0, memcmp(cmp, &simd, sizeof(simd)));
     }
@@ -707,9 +707,9 @@ TEST(SimdUtilsTest, set2x128) {
     char cmp[sizeof(m256)];
 
     for (unsigned i = 0; i < 256; i++) {
-        m128 x = set16x8(i);
-        m256 y = set32x8(i);
-        m256 z = set2x128(x);
+        m128 x = set1_16x8(i);
+        m256 y = set1_32x8(i);
+        m256 z = set1_2x128(x);
         memset(cmp, i, sizeof(z));
         ASSERT_EQ(0, memcmp(cmp, &z, sizeof(z)));
         ASSERT_EQ(0, memcmp(&y, &z, sizeof(z)));

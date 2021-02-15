@@ -320,7 +320,7 @@ char SHENG32_IMPL(u8 *state, NfaCallback cb, void *ctxt,
         return MO_CONTINUE_MATCHING;
     }
 
-    m512 cur_state = set64x8(*state);
+    m512 cur_state = set1_64x8(*state);
     const m512 *masks = s->succ_masks;
 
     while (likely(end - cur_buf >= 4)) {
@@ -542,7 +542,7 @@ char SHENG64_IMPL(u8 *state, NfaCallback cb, void *ctxt,
         return MO_CONTINUE_MATCHING;
     }
 
-    m512 cur_state = set64x8(*state);
+    m512 cur_state = set1_64x8(*state);
     const m512 *masks = s->succ_masks;
 
     while (likely(end - cur_buf >= 4)) {

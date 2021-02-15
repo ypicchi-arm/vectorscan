@@ -383,7 +383,7 @@ m512 prep_conf_fat_teddy_m4(const m512 *lo_mask, const m512 *dup_mask,
  */
 
 #define PREPARE_FAT_MASKS(n)                                                  \
-    m512 lo_mask = set64x8(0xf);                                              \
+    m512 lo_mask = set1_64x8(0xf);                                              \
     m512 sl_msk[n - 1];                                                       \
     FAT_TEDDY_VBMI_LOAD_SHIFT_MASK_M##n
 

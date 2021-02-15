@@ -829,10 +829,10 @@ const u8 *shuftiExec(m128 mask_lo, m128 mask_hi, const u8 *buf,
     DEBUG_PRINTF("shufti %p len %zu\n", buf, buf_end - buf);
     DEBUG_PRINTF("b %s\n", buf);
 
-    const m512 low4bits = set64x8(0xf);
+    const m512 low4bits = set1_64x8(0xf);
     const m512 zeroes = zeroes512();
-    const m512 wide_mask_lo = set4x128(mask_lo);
-    const m512 wide_mask_hi = set4x128(mask_hi);
+    const m512 wide_mask_lo = set1_4x128(mask_lo);
+    const m512 wide_mask_hi = set1_4x128(mask_hi);
     const u8 *rv;
 
     // small cases.
@@ -941,10 +941,10 @@ const u8 *rshuftiExec(m128 mask_lo, m128 mask_hi, const u8 *buf,
     assert(buf && buf_end);
     assert(buf < buf_end);
 
-    const m512 low4bits = set64x8(0xf);
+    const m512 low4bits = set1_64x8(0xf);
     const m512 zeroes = zeroes512();
-    const m512 wide_mask_lo = set4x128(mask_lo);
-    const m512 wide_mask_hi = set4x128(mask_hi);
+    const m512 wide_mask_lo = set1_4x128(mask_lo);
+    const m512 wide_mask_hi = set1_4x128(mask_hi);
     const u8 *rv;
 
     if (buf_end - buf < 64) {
@@ -1051,11 +1051,11 @@ const u8 *shuftiDoubleExec(m128 mask1_lo, m128 mask1_hi,
     DEBUG_PRINTF("buf %p len %zu\n", buf, buf_end - buf);
 
     const m512 ones = ones512();
-    const m512 low4bits = set64x8(0xf);
-    const m512 wide_mask1_lo = set4x128(mask1_lo);
-    const m512 wide_mask1_hi = set4x128(mask1_hi);
-    const m512 wide_mask2_lo = set4x128(mask2_lo);
-    const m512 wide_mask2_hi = set4x128(mask2_hi);
+    const m512 low4bits = set1_64x8(0xf);
+    const m512 wide_mask1_lo = set1_4x128(mask1_lo);
+    const m512 wide_mask1_hi = set1_4x128(mask1_hi);
+    const m512 wide_mask2_lo = set1_4x128(mask2_lo);
+    const m512 wide_mask2_hi = set1_4x128(mask2_hi);
     const u8 *rv;
 
     if (buf_end - buf <= 64) {
