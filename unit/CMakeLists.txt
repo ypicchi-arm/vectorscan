@@ -93,7 +93,6 @@ set(unit_internal_SOURCES
     internal/insertion_ordered.cpp
     internal/lbr.cpp
     internal/limex_nfa.cpp
-    internal/masked_move.cpp
     internal/multi_bit.cpp
     internal/multi_bit_compress.cpp
     internal/nfagraph_common.h
@@ -128,6 +127,12 @@ set(unit_internal_SOURCES
     internal/vermicelli.cpp
     internal/main.cpp
     )
+if (BUILD_AVX2)
+set(unit_internal_SOURCES
+    ${unit_internal_SOURCES}
+    internal/masked_move.cpp
+   )
+endif(BUILD_AVX2)
 
 if(WIN32 AND (BUILD_STATIC_AND_SHARED OR BUILD_SHARED_LIBS))
 add_executable(unit-internal ${unit_internal_SOURCES} $<TARGET_OBJECTS:hs_compile_shared> $<TARGET_OBJECTS:hs_exec_shared>)

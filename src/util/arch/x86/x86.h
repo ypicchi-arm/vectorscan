@@ -48,12 +48,12 @@
 #define HAVE_SIMD_128_BITS
 #endif
 
-#if defined(__AVX__)
+#if defined(__AVX__) && defined(BUILD_AVX2)
 #define HAVE_AVX
 #define HAVE_SIMD_256_BITS
 #endif
 
-#if defined(__AVX2__)
+#if defined(__AVX2__) && defined(BUILD_AVX2)
 #define HAVE_AVX2
 #define HAVE_SIMD_256_BITS
 #endif

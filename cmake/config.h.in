@@ -27,6 +27,9 @@
 /* Define if building "fat" runtime. */
 #cmakedefine FAT_RUNTIME
 
+/* Define if building AVX2 in the fat runtime. */
+#cmakedefine BUILD_AVX2
+
 /* Define if building AVX-512 in the fat runtime. */
 #cmakedefine BUILD_AVX512
 
