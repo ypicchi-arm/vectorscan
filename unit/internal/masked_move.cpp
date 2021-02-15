@@ -33,7 +33,7 @@
 #include "gtest/gtest.h"
 #include "util/arch.h"
 #if defined(ARCH_IA32) || defined(ARCH_X86_64)
-#include "util/masked_move.h"
+#include "util/arch/x86/masked_move.h"
 #endif
 
 namespace {
