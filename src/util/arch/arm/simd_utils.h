@@ -62,7 +62,7 @@ static really_inline int diff128(m128 a, m128 b) {
 }
 
 static really_inline int isnonzero128(m128 a) {
-    return !!diff128(a, zeroes128());
+    return diff128(a, zeroes128());
 }
 
 /**
@@ -120,7 +120,6 @@ static really_inline m128 eq128(m128 a, m128 b) {
 static really_inline m128 eq64_m128(m128 a, m128 b) {
     return (m128) vceqq_u64((int64x2_t)a, (int64x2_t)b);
 }
-
 
 static really_inline u32 movemask128(m128 a) {
     static const uint8x16_t powers = { 1, 2, 4, 8, 16, 32, 64, 128, 1, 2, 4, 8, 16, 32, 64, 128 };
@@ -311,22 +310,28 @@ m128 palignr(m128 r, m128 l, int offset) {
 
 static really_really_inline
 m128 rshiftbyte_m128(m128 a, unsigned b) {
+    if (b == 0) {
+        return a;
+    }
     return palignr(zeroes128(), a, b);
 }
 
 static really_really_inline
 m128 lshiftbyte_m128(m128 a, unsigned b) {
+    if (b == 0) {
+        return a;
+    }
     return palignr(a, zeroes128(), 16 - b);
 }
 
 static really_inline
 m128 variable_byte_shift_m128(m128 in, s32 amount) {
     assert(amount >= -16 && amount <= 16);
-    static const uint8x16_t vbs_mask = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
-    const uint8x16_t outside_mask = set1_16x8(0xf0);
-
-    m128 shift_mask = palignr_imm(vbs_mask, outside_mask, 16 - amount);
-    return vqtbl1q_s8(in, shift_mask);
+    if (amount < 0) {
+        return palignr_imm(zeroes128(), in, -amount);
+    } else {
+        return palignr_imm(in, zeroes128(), 16 - amount);
+    }
 }
 
 #ifdef __cplusplus

@@ -82,11 +82,7 @@ u32 findAndClearLSB_64_impl(u64a *v) {
 
 static really_inline
 u32 findAndClearMSB_32_impl(u32 *v) {
-    u32 val = *v;
-    u32 offset = 31 - clz32_impl(val);
-    *v = val & ~(1 << offset);
-    assert(offset < 32);
-    return offset;
+    return findAndClearMSB_32_impl_c(v);
 }
 
 static really_inline
@@ -107,20 +103,19 @@ u64a compress64_impl(u64a x, u64a m) {
 static really_inline
 m128 compress128_impl(m128 x, m128 m) {
     m128 one = set1_2x64(1);
-    m128 bitset = one;
-    m128 vres = zeroes128();
+    m128 bb = one;
+    m128 res = zeroes128();
     while (isnonzero128(m)) {
-	m128 mm = sub_2x64(zeroes128(), m);
-	m128 tv = and128(x, m);
-	tv = and128(tv, mm);
-
-	m128 mask = not128(eq64_m128(tv, zeroes128()));
-	mask = vandq_s64(bitset, mask);
-        vres = or128(vres, mask);
-	m = and128(m, sub_2x64(m, one));
-        bitset = lshift64_m128(bitset, 1);
+        m128 mm = sub_2x64(zeroes128(), m);
+        m128 xm = and128(x, m);
+        xm = and128(xm, mm);
+ 
+        m128 mask = not128(eq64_m128(xm, zeroes128()));
+        res = or128(res, and128(bb, mask));
+        m = and128(m, sub_2x64(m, one));
+        bb = lshift64_m128(bb, 1);
     }
-    return vres;
+    return res;
 }
 
 static really_inline
@@ -136,20 +131,18 @@ u64a expand64_impl(u64a x, u64a m) {
 static really_inline
 m128 expand128_impl(m128 x, m128 m) {
     m128 one = set1_2x64(1);
-    m128 bitset = one;
-    m128 vres = zeroes128();
+    m128 bb = one;
+    m128 res = zeroes128();
     while (isnonzero128(m)) {
-	m128 tv = and128(x, m);
-
-	m128 mm = sub_2x64(zeroes128(), m);
-	m128 mask = not128(eq64_m128(tv, zeroes128()));
-	mask = vandq_s64(bitset, mask);
-	mask = and128(mask, mm);
-        vres = or128(vres, mask);
-	m = and128(m, sub_2x64(m, one));
-        bitset = lshift64_m128(bitset, 1);
+        m128 xm = and128(x, bb);
+        m128 mm = sub_2x64(zeroes128(), m);
+        m128 mask = not128(eq64_m128(xm, zeroes128()));
+        mask = and128(mask, and128(m, mm));
+        res = or128(res, mask);
+        m = and128(m, sub_2x64(m, one));
+        bb = lshift64_m128(bb, 1);
     }
-    return vres;
+    return res;
 }
 
 /* returns the first set bit after begin (if not ~0U). If no bit is set after
