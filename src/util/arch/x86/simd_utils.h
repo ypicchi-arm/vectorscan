@@ -188,7 +188,7 @@ static really_inline m128 or128(m128 a, m128 b) {
 }
 
 #if defined(HAVE_AVX512VBMI)
-static really_inline m512 expand128(m128 a) {
+static really_inline m512 broadcast128(m128 a) {
     return _mm512_broadcast_i32x4(a);
 }
 #endif
@@ -381,7 +381,7 @@ static really_inline m256 or256(m256 a, m256 b) {
 }
 
 #if defined(HAVE_AVX512VBMI)
-static really_inline m512 expand256(m256 a) {
+static really_inline m512 broadcast256(m256 a) {
     return _mm512_broadcast_i64x4(a);
 }
 #endif
@@ -450,7 +450,7 @@ static really_inline m256 loadu256(const void *ptr) {
     return _mm256_loadu_si256((const m256 *)ptr);
 }
 
-static really_inline
+static really_really_inline
 m256 loadu_maskz_m256(__mmask32 k, const void *ptr) {
     return _mm256_maskz_loadu_epi8(k, ptr);
 }
@@ -535,7 +535,7 @@ m128 movdq_lo(m256 x) {
 #define lshift128_m256(a, count_immed) _mm256_slli_si256(a, count_immed)
 #define extract64from256(a, imm) _mm_extract_epi64(_mm256_extracti128_si256(a, imm >> 1), imm % 2)
 #define extract32from256(a, imm) _mm_extract_epi32(_mm256_extracti128_si256(a, imm >> 2), imm % 4)
-#define extractlow64from256(a) _mm_cvtsi128_si64(cast256to128(a))
+#define extractlow64from256(a) movq(cast256to128(a))
 #define extractlow32from256(a) movd(cast256to128(a))
 #define interleave256hi(a, b) _mm256_unpackhi_epi8(a, b)
 #define interleave256lo(a, b) _mm256_unpacklo_epi8(a, b)
@@ -591,7 +591,7 @@ static really_inline u32 movd512(const m512 in) {
 static really_inline u64a movq512(const m512 in) {
     // NOTE: seems AVX512 doesn't support _mm512_cvtsi512_si64(in),
     //       so we use 2-step convertions to work around.
-    return _mm_cvtsi128_si64(_mm512_castsi512_si128(in));
+    return movq(_mm512_castsi512_si128(in));
 }
 
 static really_inline
@@ -639,7 +639,7 @@ m512 set1_8x64(u64a a) {
 }
 
 static really_inline
-m512 set16x32(u32 a) {
+m512 set1_16x32(u32 a) {
     return _mm512_set1_epi32(a);
 }
 
@@ -652,7 +652,7 @@ m512 set8x64(u64a hi_3, u64a hi_2, u64a hi_1, u64a hi_0,
 
 static really_inline
 m512 swap256in512(m512 a) {
-    m512 idx = set512_64(3ULL, 2ULL, 1ULL, 0ULL, 7ULL, 6ULL, 5ULL, 4ULL);
+    m512 idx = set8x64(3ULL, 2ULL, 1ULL, 0ULL, 7ULL, 6ULL, 5ULL, 4ULL);
     return vpermq512(idx, a);
 }
 
@@ -683,7 +683,7 @@ m512 sub_u8_m512(m512 a, m512 b) {
 
 static really_inline m512
 add512(m512 a, m512 b) {
-    return _mm512_add_epu64(a, b);
+    return _mm512_add_epi64(a, b);
 }
 
 static really_inline
@@ -697,7 +697,7 @@ m512 or512(m512 a, m512 b) {
 }
 
 #if defined(HAVE_AVX512VBMI)
-static really_inline m512 expand384(m384 a) {
+static really_inline m512 broadcast384(m384 a) {
     u64a *lo = (u64a*)&a.lo;
     u64a *mid = (u64a*)&a.mid;
     u64a *hi = (u64a*)&a.hi;

@@ -102,10 +102,10 @@
 #define or_m512(a, b)       (or512(a, b))
 
 #if defined(HAVE_AVX512VBMI)
-#define expand_m128(a)      (expand128(a))
-#define expand_m256(a)      (expand256(a))
-#define expand_m384(a)      (expand384(a))
-#define expand_m512(a)      (a)
+#define broadcast_m128(a)      (broadcast128(a))
+#define broadcast_m256(a)      (broadcast256(a))
+#define broadcast_m384(a)      (broadcast384(a))
+#define broadcast_m512(a)      (a)
 
 #define shuffle_byte_m128(a, b)       (pshufb_m512(b, a))
 #define shuffle_byte_m256(a, b)       (vpermb512(a, b))
