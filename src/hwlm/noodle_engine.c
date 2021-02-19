@@ -83,6 +83,7 @@ struct cb_info {
         }                                                                      \
     }
 
+
 #define SINGLE_ZSCAN()                                                         \
     do {                                                                       \
         while (unlikely(z)) {                                                  \
@@ -140,6 +141,32 @@ match:
     return HWLM_SUCCESS;
 }
 
+static really_really_inline
+hwlm_error_t single_zscan(const struct noodTable *n,const u8 *d, const u8 *buf,
+		Z_TYPE z, size_t len, const struct cb_info *cbi) {
+    while (unlikely(z)) {
+        Z_TYPE pos = JOIN(findAndClearLSB_, Z_BITS)(&z);
+        size_t matchPos = d - buf + pos;
+        DEBUG_PRINTF("match pos %zu\n", matchPos);
+        hwlmcb_rv_t rv = final(n, buf, len, 1, cbi, matchPos);
+        RETURN_IF_TERMINATED(rv);
+    }
+    return HWLM_SUCCESS;
+}
+
+static really_really_inline
+hwlm_error_t double_zscan(const struct noodTable *n,const u8 *d, const u8 *buf,
+		Z_TYPE z, size_t len, const struct cb_info *cbi) {
+    while (unlikely(z)) {
+        Z_TYPE pos = JOIN(findAndClearLSB_, Z_BITS)(&z);
+        size_t matchPos = d - buf + pos - 1;                               \
+        DEBUG_PRINTF("match pos %zu\n", matchPos);
+        hwlmcb_rv_t rv = final(n, buf, len, 0, cbi, matchPos);
+        RETURN_IF_TERMINATED(rv);
+    }
+    return HWLM_SUCCESS;
+}
+
 #if defined(HAVE_AVX512)
 #define CHUNKSIZE 64
 #define MASK_TYPE m512
@@ -157,6 +184,7 @@ match:
 #include "noodle_engine_sse.c"
 #endif
 
+
 static really_inline
 hwlm_error_t scanSingleMain(const struct noodTable *n, const u8 *buf,
                             size_t len, size_t start, bool noCase,
@@ -169,14 +197,7 @@ hwlm_error_t scanSingleMain(const struct noodTable *n, const u8 *buf,
     size_t end = len;
     assert(offset < end);
 
-#if !defined(HAVE_AVX512)
     hwlm_error_t rv;
-
-/*    if (end - offset <= CHUNKSIZE) {
-        rv = scanSingleShort(n, buf, len, noCase, caseMask, mask1, cbi, offset,
-                             end);
-        return rv;
-    }*/
 
     if (end - offset <= CHUNKSIZE) {
         rv = scanSingleUnaligned(n, buf, len, offset, caseMask, mask1,
@@ -217,10 +238,6 @@ hwlm_error_t scanSingleMain(const struct noodTable *n, const u8 *buf,
                              s2End, len);
 
     return rv;
-#else // HAVE_AVX512
-    return scanSingle512(n, buf, len, noCase, caseMask, mask1, cbi, offset,
-                         end);
-#endif
 }
 
 static really_inline
@@ -238,14 +255,8 @@ hwlm_error_t scanDoubleMain(const struct noodTable *n, const u8 *buf,
     const MASK_TYPE mask1 = getMask(n->key0, noCase);
     const MASK_TYPE mask2 = getMask(n->key1, noCase);
 
-#if !defined(HAVE_AVX512)
     hwlm_error_t rv;
 
-/*    if (end - offset <= CHUNKSIZE) {
-        rv = scanDoubleShort(n, buf, len, noCase, caseMask, mask1, mask2, cbi,
-                             offset, end);
-        return rv;
-    }*/
     if (end - offset <= CHUNKSIZE) {
         rv = scanDoubleUnaligned(n, buf, len, offset, caseMask, mask1,
                                  mask2, cbi, offset, end);
@@ -295,12 +306,7 @@ hwlm_error_t scanDoubleMain(const struct noodTable *n, const u8 *buf,
                              mask2, cbi, off, end);
 
     return rv;
-#else // AVX512
-    return scanDouble512(n, buf, len, caseMask, mask1, mask2, cbi,
-                         offset, end);
-#endif // AVX512
 }
-
 
 static really_inline
 hwlm_error_t scanSingleNoCase(const struct noodTable *n, const u8 *buf,

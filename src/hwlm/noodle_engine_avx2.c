@@ -39,8 +39,7 @@ static really_inline m256 getCaseMask(void) {
 
 static really_inline
 hwlm_error_t scanSingleUnaligned(const struct noodTable *n, const u8 *buf,
-                                 size_t len, size_t offset,
-				 m256 caseMask, m256 mask1,
+                                 size_t len, size_t offset, m256 caseMask, m256 mask1,
                                  const struct cb_info *cbi, size_t start,
                                  size_t end) {
     const u8 *d = buf + offset;
@@ -56,15 +55,12 @@ hwlm_error_t scanSingleUnaligned(const struct noodTable *n, const u8 *buf,
 
     z &= mask;
 
-    SINGLE_ZSCAN();
-
-    return HWLM_SUCCESS;
+    return single_zscan(n, d, buf, z, len, cbi);
 }
 
 static really_inline
 hwlm_error_t scanDoubleUnaligned(const struct noodTable *n, const u8 *buf,
-                                 size_t len, size_t offset,
-                                 m256 caseMask, m256 mask1, m256 mask2,
+                                 size_t len, size_t offset, m256 caseMask, m256 mask1, m256 mask2,
                                  const struct cb_info *cbi, size_t start,
                                  size_t end) {
     const u8 *d = buf + offset;
@@ -82,90 +78,8 @@ hwlm_error_t scanDoubleUnaligned(const struct noodTable *n, const u8 *buf,
     DEBUG_PRINTF("mask 0x%08x z 0x%08x\n", mask, z);
     z &= mask;
 
-    DOUBLE_ZSCAN();
-
-    return HWLM_SUCCESS;
+    return double_zscan(n, d, buf, z, len, cbi);
 }
-/*
-// The short scan routine. It is used both to scan data up to an
-// alignment boundary if needed and to finish off data that the aligned scan
-// function can't handle (due to small/unaligned chunk at end)
-static really_inline
-hwlm_error_t scanSingleShort(const struct noodTable *n, const u8 *buf,
-                             size_t len, m256 caseMask, m256 mask1,
-                             const struct cb_info *cbi, size_t start,
-                             size_t end) {
-    const u8 *d = buf + start;
-    size_t l = end - start;
-    DEBUG_PRINTF("l %zu\n", l);
-    assert(l <= 32);
-    if (!l) {
-        return HWLM_SUCCESS;
-    }
-    m256 v;
-
-    if (l < 4) {
-        u8 *vp = (u8*)&v;
-        switch (l) {
-            case 3: vp[2] = d[2]; // fallthrough
-            case 2: vp[1] = d[1]; // fallthrough
-            case 1: vp[0] = d[0]; // fallthrough
-        }
-    } else {
-        v = masked_move256_len(d, l);
-    }
-
-    m256 v = and256(v, caseMask);
-    // mask out where we can't match
-    u32 mask = (0xFFFFFFFF >> (32 - l));
-
-    u32 z = mask & movemask256(eq256(mask1, v));
-
-    SINGLE_ZSCAN();
-
-    return HWLM_SUCCESS;
-}
-
-static really_inline
-hwlm_error_t scanDoubleShort(const struct noodTable *n, const u8 *buf,
-                             size_t len, m256 caseMask, m256 mask1,
-                             m256 mask2, const struct cb_info *cbi,
-                             size_t start, size_t end) {
-    const u8 *d = buf + start;
-    size_t l = end - start;
-    if (!l) {
-        return HWLM_SUCCESS;
-    }
-    assert(l <= 32);
-    u32 mask = (0xFFFFFFFF >> (32 - l));
-
-    m256 v;
-
-    DEBUG_PRINTF("d %zu\n", d - buf);
-    if (l < 4) {
-        u8 *vp = (u8*)&v;
-        switch (l) {
-            case 3: vp[2] = d[2]; // fallthrough
-            case 2: vp[1] = d[1]; // fallthrough
-            case 1: vp[0] = d[0]; // fallthrough
-        }
-    } else {
-        v = masked_move256_len(d, l);
-    }
-
-    m256 v = and256(v, caseMask);
-
-    u32 z0 = movemask256(eq256(mask1, v));
-    u32 z1 = movemask256(eq256(mask2, v));
-    u32 z = (z0 << 1) & z1;
-
-    // mask out where we can't match
-    z &= mask;
-
-    DOUBLE_ZSCAN();
-
-    return HWLM_SUCCESS;
-}*/
 
 static really_inline
 hwlm_error_t scanSingleFast(const struct noodTable *n, const u8 *buf,
@@ -183,7 +97,10 @@ hwlm_error_t scanSingleFast(const struct noodTable *n, const u8 *buf,
         // On large packet buffers, this prefetch appears to get us about 2%.
         __builtin_prefetch(d + 128);
 
-        SINGLE_ZSCAN();
+        hwlm_error_t result = single_zscan(n, d, buf, z, len, cbi);
+        if (unlikely(result != HWLM_SUCCESS))
+	    return result;
+
     }
     return HWLM_SUCCESS;
 }
@@ -211,7 +128,9 @@ hwlm_error_t scanDoubleFast(const struct noodTable *n, const u8 *buf,
         // On large packet buffers, this prefetch appears to get us about 2%.
         __builtin_prefetch(d + 128);
 
-        DOUBLE_ZSCAN();
+        hwlm_error_t result = double_zscan(n, d, buf, z, len, cbi);
+        if (unlikely(result != HWLM_SUCCESS))
+	    return result;
 
     }
     return HWLM_SUCCESS;
