@@ -75,36 +75,12 @@ struct cb_info {
 #define Z_TYPE u32
 #endif
 
-
 #define RETURN_IF_TERMINATED(x)                                                \
     {                                                                          \
         if ((x) == HWLM_TERMINATED) {                                          \
             return HWLM_TERMINATED;                                            \
         }                                                                      \
     }
-
-
-#define SINGLE_ZSCAN()                                                         \
-    do {                                                                       \
-        while (unlikely(z)) {                                                  \
-            Z_TYPE pos = JOIN(findAndClearLSB_, Z_BITS)(&z);                   \
-            size_t matchPos = d - buf + pos;                                   \
-            DEBUG_PRINTF("match pos %zu\n", matchPos);                         \
-            hwlmcb_rv_t rv = final(n, buf, len, 1, cbi, matchPos);             \
-            RETURN_IF_TERMINATED(rv);                                          \
-        }                                                                      \
-    } while (0)
-
-#define DOUBLE_ZSCAN()                                                         \
-    do {                                                                       \
-        while (unlikely(z)) {                                                  \
-            Z_TYPE pos = JOIN(findAndClearLSB_, Z_BITS)(&z);                   \
-            size_t matchPos = d - buf + pos - 1;                               \
-            DEBUG_PRINTF("match pos %zu\n", matchPos);                         \
-            hwlmcb_rv_t rv = final(n, buf, len, 0, cbi, matchPos);             \
-            RETURN_IF_TERMINATED(rv);                                          \
-        }                                                                      \
-    } while (0)
 
 static really_inline
 u8 caseClear8(u8 x, bool noCase) {
@@ -187,11 +163,9 @@ hwlm_error_t double_zscan(const struct noodTable *n,const u8 *d, const u8 *buf,
 
 static really_inline
 hwlm_error_t scanSingleMain(const struct noodTable *n, const u8 *buf,
-                            size_t len, size_t start, bool noCase,
+                            size_t len, size_t start,
+			    MASK_TYPE caseMask, MASK_TYPE mask1,
                             const struct cb_info *cbi) {
-
-    const MASK_TYPE mask1 = getMask(n->key0, noCase);
-    const MASK_TYPE caseMask = noCase ? getCaseMask() : ONES;
 
     size_t offset = start + n->msk_len - 1;
     size_t end = len;
@@ -242,7 +216,8 @@ hwlm_error_t scanSingleMain(const struct noodTable *n, const u8 *buf,
 
 static really_inline
 hwlm_error_t scanDoubleMain(const struct noodTable *n, const u8 *buf,
-                            size_t len, size_t start, bool noCase,
+                            size_t len, size_t start, 
+			    MASK_TYPE caseMask, MASK_TYPE mask1, MASK_TYPE mask2,
                             const struct cb_info *cbi) {
     // we stop scanning for the key-fragment when the rest of the key can't
     // possibly fit in the remaining buffer
@@ -251,9 +226,6 @@ hwlm_error_t scanDoubleMain(const struct noodTable *n, const u8 *buf,
     // the first place the key can match
     size_t offset = start + n->msk_len - n->key_offset;
 
-    const MASK_TYPE caseMask = noCase ? getCaseMask() : ONES;
-    const MASK_TYPE mask1 = getMask(n->key0, noCase);
-    const MASK_TYPE mask2 = getMask(n->key1, noCase);
 
     hwlm_error_t rv;
 
@@ -308,20 +280,6 @@ hwlm_error_t scanDoubleMain(const struct noodTable *n, const u8 *buf,
     return rv;
 }
 
-static really_inline
-hwlm_error_t scanSingleNoCase(const struct noodTable *n, const u8 *buf,
-                              size_t len, size_t start,
-                              const struct cb_info *cbi) {
-    return scanSingleMain(n, buf, len, start, true, cbi);
-}
-
-static really_inline
-hwlm_error_t scanSingleCase(const struct noodTable *n, const u8 *buf,
-                            size_t len, size_t start,
-                            const struct cb_info *cbi) {
-    return scanSingleMain(n, buf, len, start, false, cbi);
-}
-
 // Single-character specialisation, used when keyLen = 1
 static really_inline
 hwlm_error_t scanSingle(const struct noodTable *n, const u8 *buf, size_t len,
@@ -330,39 +288,21 @@ hwlm_error_t scanSingle(const struct noodTable *n, const u8 *buf, size_t len,
         noCase = 0; // force noCase off if we don't have an alphabetic char
     }
 
-    // kinda ugly, but this forces constant propagation
-    if (noCase) {
-        return scanSingleNoCase(n, buf, len, start, cbi);
-    } else {
-        return scanSingleCase(n, buf, len, start, cbi);
-    }
-}
+    const MASK_TYPE caseMask = noCase ? getCaseMask() : ONES;
+    const MASK_TYPE mask1 = getMask(n->key0, noCase);
 
-
-static really_inline
-hwlm_error_t scanDoubleNoCase(const struct noodTable *n, const u8 *buf,
-                              size_t len, size_t start,
-                              const struct cb_info *cbi) {
-    return scanDoubleMain(n, buf, len, start, true, cbi);
-}
-
-static really_inline
-hwlm_error_t scanDoubleCase(const struct noodTable *n, const u8 *buf,
-                            size_t len, size_t start,
-                            const struct cb_info *cbi) {
-    return scanDoubleMain(n, buf, len, start, false, cbi);
+    return scanSingleMain(n, buf, len, start, caseMask, mask1, cbi);
 }
 
 
 static really_inline
 hwlm_error_t scanDouble(const struct noodTable *n, const u8 *buf, size_t len,
                         size_t start, bool noCase, const struct cb_info *cbi) {
-    // kinda ugly, but this forces constant propagation
-    if (noCase) {
-        return scanDoubleNoCase(n, buf, len, start, cbi);
-    } else {
-        return scanDoubleCase(n, buf, len, start, cbi);
-    }
+    const MASK_TYPE caseMask = noCase ? getCaseMask() : ONES;
+    const MASK_TYPE mask1 = getMask(n->key0, noCase);
+    const MASK_TYPE mask2 = getMask(n->key1, noCase);
+
+    return scanDoubleMain(n, buf, len, start, caseMask, mask1, mask2, cbi);
 }
 
 // main entry point for the scan code
