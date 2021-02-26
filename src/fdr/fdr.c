@@ -141,6 +141,10 @@ m128 getInitState(const struct FDR *fdr, u8 len_history, const u64a *ft,
     return s;
 }
 
+typedef void (*get_conf_stride_fn)(const u8 *itPtr, const u8 *start_ptr,
+                       const u8 *end_ptr, u32 domain_mask_flipped,
+                       const u64a *ft, u64a *conf0, u64a *conf8, m128 *s);
+
 static really_inline
 void get_conf_stride_1(const u8 *itPtr, UNUSED const u8 *start_ptr,
                        UNUSED const u8 *end_ptr, u32 domain_mask_flipped,
@@ -294,6 +298,12 @@ void get_conf_stride_4(const u8 *itPtr, UNUSED const u8 *start_ptr,
     *s = rshiftbyte_m128(*s, 8);
     *conf8 ^= ~0ULL;
 }
+
+static get_conf_stride_fn get_conf_stride_functions[] = {
+	get_conf_stride_1,
+	get_conf_stride_2,
+	get_conf_stride_4
+};
 
 static really_inline
 void do_confirm_fdr(u64a *conf, u8 offset, hwlmcb_rv_t *control,
@@ -660,41 +670,6 @@ size_t prepareZones(const u8 *buf, size_t len, const u8 *hend,
 
 #define INVALID_MATCH_ID (~0U)
 
-#define FDR_MAIN_LOOP(zz, s, get_conf_fn)                                   \
-    do {                                                                    \
-        const u8 *tryFloodDetect = zz->floodPtr;                            \
-        const u8 *start_ptr = zz->start;                                    \
-        const u8 *end_ptr = zz->end;                                        \
-        for (const u8 *itPtr = start_ptr; itPtr + 4*ITER_BYTES <= end_ptr;  \
-            itPtr += 4*ITER_BYTES) {                                        \
-            __builtin_prefetch(itPtr);                                      \
-        }                                                                   \
-                                                                            \
-        for (const u8 *itPtr = start_ptr; itPtr + ITER_BYTES <= end_ptr;    \
-            itPtr += ITER_BYTES) {                                          \
-            if (unlikely(itPtr > tryFloodDetect)) {                         \
-                tryFloodDetect = floodDetect(fdr, a, &itPtr, tryFloodDetect,\
-                                             &floodBackoff, &control,       \
-                                             ITER_BYTES);                   \
-                if (unlikely(control == HWLM_TERMINATE_MATCHING)) {         \
-                    return HWLM_TERMINATED;                                 \
-                }                                                           \
-            }                                                               \
-            __builtin_prefetch(itPtr + ITER_BYTES);                         \
-            u64a conf0;                                                     \
-            u64a conf8;                                                     \
-            get_conf_fn(itPtr, start_ptr, end_ptr, domain_mask_flipped,     \
-                        ft, &conf0, &conf8, &s);                            \
-            do_confirm_fdr(&conf0, 0, &control, confBase, a, itPtr,         \
-                           &last_match_id, zz);                             \
-            do_confirm_fdr(&conf8, 8, &control, confBase, a, itPtr,         \
-                           &last_match_id, zz);                             \
-            if (unlikely(control == HWLM_TERMINATE_MATCHING)) {             \
-                return HWLM_TERMINATED;                                     \
-            }                                                               \
-        } /* end for loop */                                                \
-    } while (0)                                                             \
-
 static never_inline
 hwlm_error_t fdr_engine_exec(const struct FDR *fdr,
                              const struct FDR_Runtime_Args *a,
@@ -705,8 +680,7 @@ hwlm_error_t fdr_engine_exec(const struct FDR *fdr,
     u32 last_match_id = INVALID_MATCH_ID;
     u32 domain_mask_flipped = ~fdr->domainMask;
     u8 stride = fdr->stride;
-    const u64a *ft =
-        (const u64a *)((const u8 *)fdr + ROUNDUP_CL(sizeof(struct FDR)));
+    const u64a *ft = (const u64a *)((const u8 *)fdr + ROUNDUP_CL(sizeof(struct FDR)));
     assert(ISALIGNED_CL(ft));
     const u32 *confBase = (const u32 *)((const u8 *)fdr + fdr->confOffset);
     assert(ISALIGNED_CL(confBase));
@@ -720,6 +694,12 @@ hwlm_error_t fdr_engine_exec(const struct FDR *fdr,
     assert(numZone <= ZONE_MAX);
     m128 state = getInitState(fdr, a->len_history, ft, &zones[0]);
 
+    u8 stride_idx = ctz32(stride);
+    if (stride == 1) assert(stride_idx == 0);
+    if (stride == 2) assert(stride_idx == 1);
+    if (stride == 4) assert(stride_idx == 2);
+    DEBUG_PRINTF("stride = %d, stride_idx = %d\n", fdr->stride, stride_idx);
+    get_conf_stride_fn get_conf_fn = get_conf_stride_functions[stride_idx];
     for (size_t curZone = 0; curZone < numZone; curZone++) {
         struct zone *z = &zones[curZone];
         dumpZoneInfo(z, curZone);
@@ -745,19 +725,30 @@ hwlm_error_t fdr_engine_exec(const struct FDR *fdr,
 
         state = or128(state, load128(zone_or_mask[shift]));
 
-        switch (stride) {
-        case 1:
-            FDR_MAIN_LOOP(z, state, get_conf_stride_1);
-            break;
-        case 2:
-            FDR_MAIN_LOOP(z, state, get_conf_stride_2);
-            break;
-        case 4:
-            FDR_MAIN_LOOP(z, state, get_conf_stride_4);
-            break;
-        default:
-            break;
+        const u8 *tryFloodDetect = z->floodPtr;
+        const u8 *start_ptr = z->start;
+        const u8 *end_ptr = z->end;
+        for (const u8 *itPtr = start_ptr; itPtr + 4*ITER_BYTES <= end_ptr; itPtr += 4*ITER_BYTES) {
+            __builtin_prefetch(itPtr);
         }
+
+        for (const u8 *itPtr = start_ptr; itPtr + ITER_BYTES <= end_ptr; itPtr += ITER_BYTES) {
+            if (unlikely(itPtr > tryFloodDetect)) {
+                tryFloodDetect = floodDetect(fdr, a, &itPtr, tryFloodDetect, &floodBackoff, &control, ITER_BYTES);
+                if (unlikely(control == HWLM_TERMINATE_MATCHING)) {
+                    return HWLM_TERMINATED;
+                }
+            }
+            __builtin_prefetch(itPtr + ITER_BYTES);
+            u64a conf0;
+            u64a conf8;
+            (*get_conf_fn)(itPtr, start_ptr, end_ptr, domain_mask_flipped, ft, &conf0, &conf8, &state);
+            do_confirm_fdr(&conf0, 0, &control, confBase, a, itPtr, &last_match_id, z);
+            do_confirm_fdr(&conf8, 8, &control, confBase, a, itPtr, &last_match_id, z);
+            if (unlikely(control == HWLM_TERMINATE_MATCHING)) {
+                return HWLM_TERMINATED;
+            }
+	}
     }
 
     return HWLM_SUCCESS;
