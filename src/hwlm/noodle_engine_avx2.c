@@ -95,7 +95,7 @@ hwlm_error_t scanSingleFast(const struct noodTable *n, const u8 *buf,
         u32 z = movemask256(eq256(mask1, v));
 
         // On large packet buffers, this prefetch appears to get us about 2%.
-        __builtin_prefetch(d + 128);
+        __builtin_prefetch(ROUNDDOWN_PTR(d + 128, 64));
 
         hwlm_error_t result = single_zscan(n, d, buf, z, len, cbi);
         if (unlikely(result != HWLM_SUCCESS))
@@ -126,7 +126,7 @@ hwlm_error_t scanDoubleFast(const struct noodTable *n, const u8 *buf,
         lastz0 = z0 >> 31;
 
         // On large packet buffers, this prefetch appears to get us about 2%.
-        __builtin_prefetch(d + 128);
+        __builtin_prefetch(ROUNDDOWN_PTR(d + 128, 64));
 
         hwlm_error_t result = double_zscan(n, d, buf, z, len, cbi);
         if (unlikely(result != HWLM_SUCCESS))

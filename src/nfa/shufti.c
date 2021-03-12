@@ -179,7 +179,7 @@ const u8 *shuftiExec(m128 mask_lo, m128 mask_hi, const u8 *buf,
 
     const u8 *last_block = buf_end - 16;
 
-    for (const u8 *itPtr = buf; itPtr + 4*16 <= last_block; itPtr += 4*16) {
+    for (const u8 *itPtr = ROUNDDOWN_PTR(buf, 64); itPtr + 4*16 <= last_block; itPtr += 4*16) {
         __builtin_prefetch(itPtr);
     }
     while (buf < last_block) {
