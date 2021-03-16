@@ -119,9 +119,9 @@ match:
 
 static really_really_inline
 hwlm_error_t single_zscan(const struct noodTable *n,const u8 *d, const u8 *buf,
-		Z_TYPE z, size_t len, const struct cb_info *cbi) {
-    while (unlikely(z)) {
-        Z_TYPE pos = JOIN(findAndClearLSB_, Z_BITS)(&z);
+		Z_TYPE *z, size_t len, const struct cb_info *cbi) {
+    while (unlikely(*z)) {
+        Z_TYPE pos = JOIN(findAndClearLSB_, Z_BITS)(z);
         size_t matchPos = d - buf + pos;
         DEBUG_PRINTF("match pos %zu\n", matchPos);
         hwlmcb_rv_t rv = final(n, buf, len, 1, cbi, matchPos);
@@ -132,9 +132,9 @@ hwlm_error_t single_zscan(const struct noodTable *n,const u8 *d, const u8 *buf,
 
 static really_really_inline
 hwlm_error_t double_zscan(const struct noodTable *n,const u8 *d, const u8 *buf,
-		Z_TYPE z, size_t len, const struct cb_info *cbi) {
-    while (unlikely(z)) {
-        Z_TYPE pos = JOIN(findAndClearLSB_, Z_BITS)(&z);
+		Z_TYPE *z, size_t len, const struct cb_info *cbi) {
+    while (unlikely(*z)) {
+        Z_TYPE pos = JOIN(findAndClearLSB_, Z_BITS)(z);
         size_t matchPos = d - buf + pos - 1;                               \
         DEBUG_PRINTF("match pos %zu\n", matchPos);
         hwlmcb_rv_t rv = final(n, buf, len, 0, cbi, matchPos);
@@ -174,16 +174,12 @@ hwlm_error_t scanSingleMain(const struct noodTable *n, const u8 *buf,
     hwlm_error_t rv;
 
     if (end - offset <= CHUNKSIZE) {
-        rv = scanSingleUnaligned(n, buf, len, offset, caseMask, mask1,
+        return scanSingleUnaligned(n, buf, len, offset, caseMask, mask1,
                                  cbi, offset, end);
-        return rv;
     }
 
     uintptr_t data = (uintptr_t)buf;
     uintptr_t s2Start = ROUNDUP_N(data + offset, CHUNKSIZE) - data;
-    uintptr_t last = data + end;
-    uintptr_t s2End = ROUNDDOWN_N(last, CHUNKSIZE) - data;
-    uintptr_t s3Start = end - CHUNKSIZE;
 
     if (offset != s2Start) {
         // first scan out to the fast scan starting point
@@ -192,6 +188,8 @@ hwlm_error_t scanSingleMain(const struct noodTable *n, const u8 *buf,
                                  cbi, offset, s2Start);
         RETURN_IF_TERMINATED(rv);
     }
+    uintptr_t last = data + end;
+    uintptr_t s2End = ROUNDDOWN_N(last, CHUNKSIZE) - data;
 
     if (likely(s2Start != s2End)) {
         // scan as far as we can, bounded by the last point this key can
@@ -208,7 +206,7 @@ hwlm_error_t scanSingleMain(const struct noodTable *n, const u8 *buf,
     }
 
     DEBUG_PRINTF("stage 3: %zu -> %zu\n", s2End, len);
-    rv = scanSingleUnaligned(n, buf, len, s3Start, caseMask, mask1, cbi,
+    rv = scanSingleUnaligned(n, buf, len, s2End, caseMask, mask1, cbi,
                              s2End, len);
 
     return rv;
@@ -226,7 +224,6 @@ hwlm_error_t scanDoubleMain(const struct noodTable *n, const u8 *buf,
     // the first place the key can match
     size_t offset = start + n->msk_len - n->key_offset;
 
-
     hwlm_error_t rv;
 
     if (end - offset <= CHUNKSIZE) {
@@ -238,9 +235,6 @@ hwlm_error_t scanDoubleMain(const struct noodTable *n, const u8 *buf,
     uintptr_t data = (uintptr_t)buf;
     uintptr_t s2Start = ROUNDUP_N(data + offset, CHUNKSIZE) - data;
     uintptr_t s1End = s2Start + 1;
-    uintptr_t last = data + end;
-    uintptr_t s2End = ROUNDDOWN_N(last, CHUNKSIZE) - data;
-    uintptr_t s3Start = end - CHUNKSIZE;
     uintptr_t off = offset;
 
     if (s2Start != off) {
@@ -252,6 +246,9 @@ hwlm_error_t scanDoubleMain(const struct noodTable *n, const u8 *buf,
         RETURN_IF_TERMINATED(rv);
     }
     off = s1End;
+    uintptr_t last = data + end;
+    uintptr_t s2End = ROUNDDOWN_N(last, CHUNKSIZE) - data;
+    uintptr_t s3Start = end - CHUNKSIZE;
 
     if (s2Start >= end) {
         DEBUG_PRINTF("s2 == mL %zu\n", end);

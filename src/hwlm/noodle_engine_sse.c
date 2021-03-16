@@ -53,7 +53,7 @@ hwlm_error_t scanSingleUnaligned(const struct noodTable *n, const u8 *buf,
     u32 z = mask & movemask128(eq128(mask1, v));
     DEBUG_PRINTF("mask 0x%08x z 0x%08x\n", mask, z);
 
-    return single_zscan(n, d, buf, z, len, cbi);
+    return single_zscan(n, d, buf, &z, len, cbi);
 }
 
 static really_inline
@@ -71,11 +71,10 @@ hwlm_error_t scanDoubleUnaligned(const struct noodTable *n, const u8 *buf,
 
     // mask out where we can't match
     u32 mask = ((1 << l) - 1) << buf_off;
-    u32 z = mask & movemask128(and128(lshiftbyte_m128(eq128(mask1, v), 1),
-                               eq128(mask2, v)));
+    u32 z = mask & movemask128(and128(lshiftbyte_m128(eq128(mask1, v), 1), eq128(mask2, v)));
     DEBUG_PRINTF("mask 0x%08x z 0x%08x\n", mask, z);
 
-    return double_zscan(n, d, buf, z, len, cbi);
+    return double_zscan(n, d, buf, &z, len, cbi);
 }
 
 static really_inline
@@ -86,15 +85,16 @@ hwlm_error_t scanSingleFast(const struct noodTable *n, const u8 *buf,
     const u8 *d = buf + start, *e = buf + end;
     assert(d < e);
 
+    const u8 *base = ROUNDDOWN_PTR(d, 64);
     for (; d < e; d += 16) {
         m128 v = and128(load128(d), caseMask);
         u32 z = movemask128(eq128(mask1, v));
 
         // On large packet buffers, this prefetch appears to get us about 2%.
-        __builtin_prefetch(ROUNDDOWN_PTR(d + 128, 64));
+        __builtin_prefetch(base + 128);
         DEBUG_PRINTF("z 0x%08x\n", z);
 
-        hwlm_error_t result = single_zscan(n, d, buf, z, len, cbi);
+        hwlm_error_t result = single_zscan(n, d, buf, &z, len, cbi);
         if (unlikely(result != HWLM_SUCCESS))
 	    return result;
     }
@@ -110,6 +110,7 @@ hwlm_error_t scanDoubleFast(const struct noodTable *n, const u8 *buf,
     assert(d < e);
     m128 lastz1 = zeroes128();
 
+    const u8 *base = ROUNDDOWN_PTR(d, 64);
     for (; d < e; d += 16) {
         m128 v = and128(load128(d), caseMask);
         m128 z1 = eq128(mask1, v);
@@ -118,10 +119,10 @@ hwlm_error_t scanDoubleFast(const struct noodTable *n, const u8 *buf,
         lastz1 = z1;
 
         // On large packet buffers, this prefetch appears to get us about 2%.
-        __builtin_prefetch(ROUNDDOWN_PTR(d + 128, 64));
+        __builtin_prefetch(base + 128);
         DEBUG_PRINTF("z 0x%08x\n", z);
 
-        hwlm_error_t result = double_zscan(n, d, buf, z, len, cbi);
+        hwlm_error_t result = double_zscan(n, d, buf, &z, len, cbi);
         if (unlikely(result != HWLM_SUCCESS))
 	    return result;
 
