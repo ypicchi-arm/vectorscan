@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2015-2017, Intel Corporation
  * Copyright (c) 2020-2021, VectorCamp PC
+ * Copyright (c) 2021, Arm Limited
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -82,7 +83,7 @@ const u8 *shortShufti(SuperVector<S> mask_lo, SuperVector<S> mask_hi, const u8 *
     DEBUG_PRINTF(" z: 0x%016llx\n", (u64a)z);
     z &= maskb | maske;
     DEBUG_PRINTF(" z: 0x%016llx\n", (u64a)z);
-    
+
     return firstMatch<S>(buf, z);
 }*/
 
@@ -146,7 +147,7 @@ const u8 *shuftiExecReal(m128 mask_lo, m128 mask_hi, const u8 *buf, const u8 *bu
         // rv = shortShufti(wide_mask_lo, wide_mask_hi, buf_end - S, buf_end);
         DEBUG_PRINTF("rv %p \n", rv);
     }
-    
+
     return rv;
 }
 
@@ -199,40 +200,13 @@ const u8 *rshuftiExecReal(m128 mask_lo, m128 mask_hi, const u8 *buf, const u8 *b
         DEBUG_PRINTF("rv %p \n", rv);
         if (rv) return rv;
     }
-    
+
     return buf - 1;
 }
 
-template <uint16_t S>
-static really_inline
-const u8 *fwdBlockDouble(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi, SuperVector<S> mask2_lo, SuperVector<S> mask2_hi,
-                    SuperVector<S> chars, const u8 *buf) {
-
-    const SuperVector<S> low4bits = SuperVector<S>::dup_u8(0xf);
-    SuperVector<S> chars_lo = chars & low4bits;
-    chars_lo.print8("chars_lo");
-    SuperVector<S> chars_hi = chars.rshift64(4) & low4bits;
-    chars_hi.print8("chars_hi");
-    SuperVector<S> c1_lo = mask1_lo.pshufb(chars_lo);
-    c1_lo.print8("c1_lo");
-    SuperVector<S> c1_hi = mask1_hi.pshufb(chars_hi);
-    c1_hi.print8("c1_hi");
-    SuperVector<S> t1 = c1_lo | c1_hi;
-    t1.print8("t1");
-
-    SuperVector<S> c2_lo = mask2_lo.pshufb(chars_lo);
-    c2_lo.print8("c2_lo");
-    SuperVector<S> c2_hi = mask2_hi.pshufb(chars_hi);
-    c2_hi.print8("c2_hi");
-    SuperVector<S> t2 = c2_lo | c2_hi;
-    t2.print8("t2");
-    t2.rshift128(1).print8("t2.rshift128(1)");
-    SuperVector<S> t = t1 | (t2.rshift128(1));
-    t.print8("t");
-
-    typename SuperVector<S>::movemask_type z = t.eqmask(SuperVector<S>::Ones());
-    DEBUG_PRINTF(" z: 0x%016llx\n", (u64a)z);
-    return firstMatch<S>(buf, z);
+const u8 *shuftiExec(m128 mask_lo, m128 mask_hi, const u8 *buf,
+                      const u8 *buf_end) {
+    return shuftiExecReal<VECTORSIZE>(mask_lo, mask_hi, buf, buf_end);
 }
 
 template <uint16_t S>
@@ -325,4 +299,9 @@ const u8 *shuftiDoubleExecReal(m128 mask1_lo, m128 mask1_hi, m128 mask2_lo, m128
     }
     
     return buf_end;
+}
+
+const u8 *rshuftiExec(m128 mask_lo, m128 mask_hi, const u8 *buf,
+                       const u8 *buf_end) {
+    return rshuftiExecReal<VECTORSIZE>(mask_lo, mask_hi, buf, buf_end);
 }
