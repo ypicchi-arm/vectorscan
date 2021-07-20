@@ -263,10 +263,7 @@ static really_inline const u8 *shuftiDoubleMini(SuperVector<S> mask1_lo, SuperVe
     SuperVector<S> c2_hi = mask2_hi.pshufb_maskz(chars_hi, len);
     c2_hi.print8("c2_hi");
     SuperVector<S> t2 = c2_lo | c2_hi;
-    t2.print8("t2");
-    t2.rshift128(1).print8("t2.rshift128(1)");
     SuperVector<S> t = t1 | (t2.rshift128(1));
-    t.print8("t");
 
     typename SuperVector<S>::movemask_type z = t.eqmask(SuperVector<S>::Ones());
     DEBUG_PRINTF(" z: 0x%016llx\n", (u64a)z);
