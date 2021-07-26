@@ -1358,7 +1358,7 @@ else (FAT_RUNTIME)
             add_library(hs_exec_shared_avx2 OBJECT ${hs_exec_SRCS} ${hs_exec_avx2_SRCS})
             list(APPEND RUNTIME_SHLIBS $<TARGET_OBJECTS:hs_exec_shared_avx2>)
             set_target_properties(hs_exec_shared_avx2 PROPERTIES
-                COMPILE_FLAGS "-march=core-avx2"
+                COMPILE_FLAGS "-march=core-avx2 -mavx2"
                 POSITION_INDEPENDENT_CODE TRUE
                 RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} avx2 ${CMAKE_MODULE_PATH}/keep.syms.in"
                 )
