@@ -251,7 +251,7 @@ else()
 
     # set compiler flags - more are tested and added later
     set(EXTRA_C_FLAGS "${OPT_C_FLAG} -std=c17 -Wall -Wextra -Wshadow -Wcast-qual -fno-strict-aliasing")
-    set(EXTRA_CXX_FLAGS "${OPT_CXX_FLAG} -std=c++17 -Wall -Wextra -Wshadow -Wswitch -Wreturn-type -Wcast-qual -Wno-deprecated -Wnon-virtual-dtor -fno-strict-aliasing")
+    set(EXTRA_CXX_FLAGS "${OPT_CXX_FLAG} -std=c++17 -Wall -Wextra -Wshadow -Wswitch -Wreturn-type -Wcast-qual -Wno-deprecated -Wnon-virtual-dtor -fno-strict-aliasing -fno-new-ttp-matching")
 
     if (NOT RELEASE_BUILD)
         # -Werror is most useful during development, don't potentially break
@@ -312,9 +312,6 @@ elseif (ARCH_ARM32 OR ARCH_AARCH64)
   CHECK_INCLUDE_FILE_CXX(arm_neon.h HAVE_C_ARM_NEON_H)
   if (BUILD_SVE OR BUILD_SVE2 OR BUILD_SVE2_BITPERM)
     CHECK_INCLUDE_FILE_CXX(arm_sve.h HAVE_C_ARM_SVE_H)
-    if (NOT HAVE_C_ARM_SVE_H)
-        message(FATAL_ERROR "arm_sve.h is required to build for SVE.")
-    endif()
   endif()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -flax-vector-conversions")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flax-vector-conversions")
@@ -882,8 +879,6 @@ SET (hs_compile_SRCS
     src/nfa/tamaramacompile.h
     src/nfa/trufflecompile.cpp
     src/nfa/trufflecompile.h
-    src/nfa/vermicellicompile.cpp
-    src/nfa/vermicellicompile.h
     src/nfagraph/ng.cpp
     src/nfagraph/ng.h
     src/nfagraph/ng_anchored_acyclic.cpp
@@ -1280,7 +1275,7 @@ else (FAT_RUNTIME)
         add_library(hs_exec_corei7 OBJECT ${hs_exec_SRCS})
         list(APPEND RUNTIME_LIBS $<TARGET_OBJECTS:hs_exec_corei7>)
         set_target_properties(hs_exec_corei7 PROPERTIES
-            COMPILE_FLAGS "-march=corei7"
+            COMPILE_FLAGS "-march=corei7 -mssse3"
             RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} corei7 ${CMAKE_MODULE_PATH}/keep.syms.in"
             )
 
@@ -1288,7 +1283,7 @@ else (FAT_RUNTIME)
             add_library(hs_exec_avx2 OBJECT ${hs_exec_SRCS} ${hs_exec_avx2_SRCS})
             list(APPEND RUNTIME_LIBS $<TARGET_OBJECTS:hs_exec_avx2>)
             set_target_properties(hs_exec_avx2 PROPERTIES
-                COMPILE_FLAGS "-march=core-avx2"
+                COMPILE_FLAGS "-march=core-avx2 -mavx2"
                 RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} avx2 ${CMAKE_MODULE_PATH}/keep.syms.in"
                 )
         endif (BUILD_AVX2)
@@ -1322,10 +1317,10 @@ else (FAT_RUNTIME)
             ${RUNTIME_LIBS})
         set_target_properties(hs_runtime PROPERTIES LINKER_LANGUAGE C)
         add_library(hs_compile OBJECT ${hs_compile_SRCS})
-        if (ARCH_IA32)
+        if (ARCH_IA32 OR ARCH_X86_64)
             set_target_properties(hs_exec_common PROPERTIES COMPILE_FLAGS "-mssse3")
             set_target_properties(hs_compile PROPERTIES COMPILE_FLAGS "-mssse3")
-        endif (ARCH_IA32)
+        endif ()
 
         # we want the static lib for testing
         add_library(hs STATIC src/hs_version.c src/hs_valid_platform.c
@@ -1349,7 +1344,7 @@ else (FAT_RUNTIME)
         add_library(hs_exec_shared_corei7 OBJECT ${hs_exec_SRCS})
         list(APPEND RUNTIME_SHLIBS $<TARGET_OBJECTS:hs_exec_shared_corei7>)
         set_target_properties(hs_exec_shared_corei7 PROPERTIES
-            COMPILE_FLAGS "-march=corei7"
+            COMPILE_FLAGS "-march=corei7 -mssse3"
             POSITION_INDEPENDENT_CODE TRUE
             RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} corei7 ${CMAKE_MODULE_PATH}/keep.syms.in"
             )
