@@ -38,10 +38,8 @@
 #include <vector>
 
 #include <sys/stat.h>
-#if !defined(_WIN32)
 #include <unistd.h>
 #include <libgen.h>
-#endif
 
 //
 // Utility functions
@@ -52,7 +50,6 @@
  */
 static inline
 std::string inferExpressionPath(const std::string &sigFile) {
-#ifndef _WIN32
     // POSIX variant.
 
     // dirname() may modify its argument, so we must make a copy.
@@ -60,24 +57,10 @@ std::string inferExpressionPath(const std::string &sigFile) {
     path.push_back(0); // ensure null termination.
 
     std::string rv = dirname(path.data());
-#else
-    // Windows variant.
-    if (sigFile.size() >= _MAX_DIR) {
-        return std::string();
-    }
-    char path[_MAX_DIR];
-    _splitpath(sigFile.c_str(), nullptr, path, nullptr, nullptr);
-    std::string rv(path);
-#endif
 
     rv += "/../pcre";
     return rv;
 }
-
-#if defined(_WIN32)
-#define stat _stat
-#define S_IFREG _S_IFREG
-#endif
 
 static inline
 bool isDir(const std::string &filename) {

@@ -61,20 +61,12 @@ namespace ue2 {
 
 void *aligned_malloc_internal(size_t size, size_t align) {
     void *mem;
-#if !defined(_WIN32)
     int rv = posix_memalign(&mem, align, size);
     if (rv != 0) {
         DEBUG_PRINTF("posix_memalign returned %d when asked for %zu bytes\n",
                      rv, size);
         return nullptr;
     }
-#else
-    if (nullptr == (mem = _aligned_malloc(size, align))) {
-        DEBUG_PRINTF("_aligned_malloc failed when asked for %zu bytes\n",
-                     size);
-        return nullptr;
-    }
-#endif
 
     assert(mem);
     return mem;
@@ -85,11 +77,7 @@ void aligned_free_internal(void *ptr) {
         return;
     }
 
-#if defined(_WIN32)
-    _aligned_free(ptr);
-#else
     free(ptr);
-#endif
 }
 
 /** \brief 64-byte aligned, zeroed malloc.

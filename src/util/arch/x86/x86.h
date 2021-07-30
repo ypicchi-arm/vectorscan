@@ -38,12 +38,12 @@
 #define HAVE_SIMD_128_BITS
 #endif
 
-#if defined(__SSE4_1__) || (defined(_WIN32) && defined(__AVX__))
+#if defined(__SSE4_1__) || defined(__AVX__)
 #define HAVE_SSE41
 #define HAVE_SIMD_128_BITS
 #endif
 
-#if defined(__SSE4_2__) || (defined(_WIN32) && defined(__AVX__))
+#if defined(__SSE4_2__) || defined(__AVX__)
 #define HAVE_SSE42
 #define HAVE_SIMD_128_BITS
 #endif
@@ -78,30 +78,16 @@
 #define VECTORSIZE 16
 #endif
 
-/*
- * ICC and MSVC don't break out POPCNT or BMI/2 as separate pre-def macros
- */
-#if defined(__POPCNT__) ||                                                     \
-    (defined(__INTEL_COMPILER) && defined(__SSE4_2__)) ||                      \
-    (defined(_WIN32) && defined(__AVX__))
+#if defined(__POPCNT__)
 #define HAVE_POPCOUNT_INSTR
 #endif
 
-#if defined(__BMI__) || (defined(_WIN32) && defined(__AVX2__)) ||              \
-    (defined(__INTEL_COMPILER) && defined(__AVX2__))
+#if defined(__BMI__)
 #define HAVE_BMI
 #endif
 
-#if defined(__BMI2__) || (defined(_WIN32) && defined(__AVX2__)) ||             \
-    (defined(__INTEL_COMPILER) && defined(__AVX2__))
+#if defined(__BMI2__)
 #define HAVE_BMI2
-#endif
-
-/*
- * MSVC uses a different form of inline asm
- */
-#if defined(_WIN32) && defined(_MSC_VER)
-#define NO_ASM
 #endif
 
 #endif // UTIL_ARCH_X86_H_

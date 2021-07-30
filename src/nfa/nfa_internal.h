@@ -242,7 +242,6 @@ int isMultiTopType(u8 t) {
 
 /** Macros used in place of unimplemented NFA API functions for a given
  * engine. */
-#if !defined(_WIN32)
 
 /* Use for functions that return an integer. */
 #define NFA_API_NO_IMPL(...)                                                   \
@@ -258,14 +257,6 @@ int isMultiTopType(u8 t) {
         NFA_ZOMBIE_NO;                                                         \
     })
 
-#else
-
-/* Simpler implementation for compilers that don't like the GCC extension used
- * above. */
-#define NFA_API_NO_IMPL(...)        0
-#define NFA_API_ZOMBIE_NO_IMPL(...) NFA_ZOMBIE_NO
-
-#endif
 
 #ifdef __cplusplus
 }

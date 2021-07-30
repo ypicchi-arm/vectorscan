@@ -34,7 +34,6 @@
 #include "common.h"
 #include "huge.h"
 
-#ifndef _WIN32
 #include <cstdio>
 #include <cstring>
 #include <errno.h>
@@ -189,13 +188,3 @@ long gethugepagesize(void) {
 
     return hpage_size;
 }
-
-#else
-
-/* No huge page support on WIN32. */
-
-hs_database_t *get_huge(hs_database_t *db) { return db; }
-
-void release_huge(hs_database_t *db) { hs_free_database(db); }
-
-#endif

@@ -65,30 +65,19 @@ set_source_files_properties(${hscollider_SOURCES} PROPERTIES
 add_executable(hscollider ${hscollider_SOURCES})
 add_dependencies(hscollider ragel_ColliderCorporaParser)
 
-if(NOT WIN32)
-    if (BUILD_CHIMERA)
-        target_link_libraries(hscollider hs chimera ${PCRE_LDFLAGS} databaseutil
-            expressionutil corpusomatic crosscompileutil pthread
-        "${BACKTRACE_LDFLAGS}")
-    else()
-        target_link_libraries(hscollider hs ${PCRE_LDFLAGS} databaseutil
-            expressionutil corpusomatic crosscompileutil pthread
-        "${BACKTRACE_LDFLAGS}")
-    endif()
+if (BUILD_CHIMERA)
+    target_link_libraries(hscollider hs chimera ${PCRE_LDFLAGS} databaseutil
+        expressionutil corpusomatic crosscompileutil pthread
+    "${BACKTRACE_LDFLAGS}")
+else()
+    target_link_libraries(hscollider hs ${PCRE_LDFLAGS} databaseutil
+        expressionutil corpusomatic crosscompileutil pthread
+    "${BACKTRACE_LDFLAGS}")
+endif()
 
 if(HAVE_BACKTRACE)
     set_source_files_properties(hscollider_SOURCES COMPILE_FLAGS
         "${BACKTRACE_CFLAGS}")
-endif()
-else() # WIN32
-    set_target_properties(hscollider PROPERTIES LINK_FLAGS "/STACK:8388608,8388608")
-    if (BUILD_CHIMERA)
-        target_link_libraries(hscollider hs chimera pcre databaseutil
-            expressionutil corpusomatic crosscompileutil)
-    else()
-        target_link_libraries(hscollider hs pcre databaseutil
-            expressionutil corpusomatic crosscompileutil)
-    endif()
 endif()
 
 add_custom_target(

@@ -69,11 +69,8 @@
 #include <stdexcept>
 #include <string>
 #include <thread>
-#ifndef _WIN32
 #include <getopt.h>
-#else
-#include "win_getopt.h"
-#endif
+
 #include <boost/algorithm/string/trim.hpp>
 
 using namespace std;

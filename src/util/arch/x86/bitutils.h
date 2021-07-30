@@ -42,64 +42,23 @@
 
 static really_inline
 u32 clz32_impl(u32 x) {
-#if defined(_WIN32)
-    unsigned long r;
-    _BitScanReverse(&r, x);
-    return 31 - r;
-#else
     return clz32_impl_c(x);
-#endif
 }
 
 static really_inline
 u32 clz64_impl(u64a x) {
-#if defined(_WIN64)
-    unsigned long r;
-    _BitScanReverse64(&r, x);
-    return 63 - r;
-#elif defined(_WIN32)
-    unsigned long x1 = (u32)x;
-    unsigned long x2 = (u32)(x >> 32);
-    unsigned long r;
-    if (x2) {
-        _BitScanReverse(&r, x2);
-        return (u32)(31 - r);
-    }
-    _BitScanReverse(&r, (u32)x1);
-    return (u32)(63 - r);
-#else
     return clz64_impl_c(x);
-#endif
 }
 
 // CTZ (count trailing zero) implementations.
 static really_inline
 u32 ctz32_impl(u32 x) {
-#if defined(_WIN32)
-    unsigned long r;
-    _BitScanForward(&r, x);
-    return r;
-#else
     return ctz32_impl_c(x);
-#endif
 }
 
 static really_inline
 u32 ctz64_impl(u64a x) {
-#if defined(_WIN64)
-    unsigned long r;
-    _BitScanForward64(&r, x);
-    return r;
-#elif defined(_WIN32)
-    unsigned long r;
-    if (_BitScanForward(&r, (u32)x)) {
-        return (u32)r;
-    }
-    _BitScanForward(&r, x >> 32);
-    return (u32)(r + 32);
-#else
     return ctz64_impl_c(x);
-#endif
 }
 
 static really_inline

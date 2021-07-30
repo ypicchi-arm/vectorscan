@@ -26,9 +26,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef _WIN32
-#define PCRE_STATIC
-#endif
 #include "config.h"
 
 #include "common.h"
@@ -211,19 +208,11 @@ void EnginePCRE::printStats() const {
     }
     printf("Signatures:        %s\n", compile_stats.signatures.c_str());
     printf("PCRE info:         %s\n", compile_stats.db_info.c_str());
-#ifndef _WIN32
     printf("Expression count:  %'zu\n", compile_stats.expressionCount);
     printf("Bytecode size:     %'zu bytes\n", compile_stats.compiledSize);
     printf("Scratch size:      %'zu bytes\n", compile_stats.scratchSize);
     printf("Compile time:      %'0.3Lf seconds\n", compile_stats.compileSecs);
     printf("Peak heap usage:   %'u bytes\n", compile_stats.peakMemorySize);
-#else
-    printf("Expression count:  %zu\n", compile_stats.expressionCount);
-    printf("Bytecode size:     %zu bytes\n", compile_stats.compiledSize);
-    printf("Scratch size:      %zu bytes\n", compile_stats.scratchSize);
-    printf("Compile time:      %0.3Lf seconds\n", compile_stats.compileSecs);
-    printf("Peak heap usage:   %u bytes\n", compile_stats.peakMemorySize);
-#endif
 }
 
 void EnginePCRE::printCsvStats() const {

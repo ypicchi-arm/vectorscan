@@ -46,11 +46,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#ifndef _WIN32
 #include <getopt.h>
-#else
-#include "win_getopt.h"
-#endif
 
 #define xstr(s) str(s)
 #define str(s) #s

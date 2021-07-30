@@ -1,13 +1,6 @@
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_C_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CXX_FLAGS}")
 
-if(CMAKE_C_FLAGS MATCHES "/Gv" )
-    string(REPLACE "/Gv" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-endif()
-if(CMAKE_CXX_FLAGS MATCHES "/Gv" )
-    string(REPLACE "/Gv" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-endif()
-
 set(gtest_SOURCES gtest/gtest-all.cc gtest/gtest.h)
 include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${PROJECT_SOURCE_DIR})
@@ -37,10 +30,6 @@ if(CMAKE_COMPILER_IS_GNUCC)
 endif()
 
 add_definitions(-DGTEST_HAS_PTHREAD=0 -DSRCDIR=${PROJECT_SOURCE_DIR})
-
-if (WIN32)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4309 /wd4018")
-endif()
 
 set(unit_hyperscan_SOURCES
     ${gtest_SOURCES}
@@ -135,11 +124,7 @@ set(unit_internal_SOURCES
    )
 endif(BUILD_AVX2)
 
-if(WIN32 AND (BUILD_STATIC_AND_SHARED OR BUILD_SHARED_LIBS))
-add_executable(unit-internal ${unit_internal_SOURCES} $<TARGET_OBJECTS:hs_compile_shared> $<TARGET_OBJECTS:hs_exec_shared>)
-else()
 add_executable(unit-internal ${unit_internal_SOURCES})
-endif()
 set_target_properties(unit-internal PROPERTIES COMPILE_FLAGS "${HS_CXX_FLAGS}")
 target_link_libraries(unit-internal hs corpusomatic)
 endif(NOT (RELEASE_BUILD OR FAT_RUNTIME))

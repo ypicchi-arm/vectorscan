@@ -29,11 +29,7 @@
 #ifndef HS_COMMON_H_
 #define HS_COMMON_H_
 
-#if defined(_WIN32)
-#define HS_CDECL    __cdecl
-#else
 #define HS_CDECL
-#endif
 #include <stdlib.h>
 
 /**

@@ -40,14 +40,9 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#if !defined(_WIN32)
 #include <dirent.h>
 #include <fcntl.h>
 #include <unistd.h>
-#else
-// Windows support is probably very fragile
-#include <windows.h>
-#endif
 
 #include <boost/algorithm/string/trim.hpp>
 
@@ -98,11 +93,6 @@ void processLine(string &line, unsigned lineNum,
     }
 }
 
-#if defined(_WIN32)
-#define stat _stat
-#define S_ISDIR(st_m) (_S_IFDIR & (st_m))
-#define S_ISREG(st_m) (_S_IFREG & (st_m))
-#endif
 void HS_CDECL loadExpressionsFromFile(const string &fname, ExpressionMap &exprMap) {
     struct stat st;
     if (stat(fname.c_str(), &st) != 0) {
@@ -143,7 +133,6 @@ bool isIgnorable(const std::string &f) {
     return false;
 }
 
-#ifndef _WIN32
 void loadExpressions(const string &inPath, ExpressionMap &exprMap) {
     // Is our input path a file or a directory?
     struct stat st;
@@ -197,62 +186,6 @@ void loadExpressions(const string &inPath, ExpressionMap &exprMap) {
         exit(1);
     }
 }
-#else // windows TODO: improve
-void HS_CDECL loadExpressions(const string &inPath, ExpressionMap &exprMap) {
-    // Is our input path a file or a directory?
-    struct stat st;
-    if (stat(inPath.c_str(), &st) != 0) {
-        cerr << "Can't stat path: '" << inPath << "'" << endl;
-        exit(1);
-    }
-    if (S_ISREG(st.st_mode)) {
-        // process file
-        try {
-            loadExpressionsFromFile(inPath, exprMap);
-        } catch (runtime_error &e) {
-            cerr << e.what() << ": '" << inPath << "'" << endl;
-            exit(1);
-        }
-    } else if (S_ISDIR(st.st_mode)) {
-        WIN32_FIND_DATA ffd;
-        HANDLE hFind = INVALID_HANDLE_VALUE;
-        string glob = inPath + "/*";
-        hFind = FindFirstFile(glob.c_str(), &ffd);
-        if (hFind == INVALID_HANDLE_VALUE) {
-            cerr << "Can't open directory: '" << inPath << "'" << endl;
-            exit(1);
-        }
-        do {
-            string basename(ffd.cFileName);
-            string fname(inPath);
-            fname.push_back('/');
-            fname.append(basename);
-
-            // Ignore '.' and '..'
-            if (basename == "." || basename == "..") {
-                continue;
-            }
-
-            // Skip emacs backup files, dotfiles (such as VIM swap).
-            if (isIgnorable(basename)) {
-                cerr << "Ignoring signature file " << fname << endl;
-                continue;
-            }
-
-            try {
-                loadExpressionsFromFile(fname, exprMap);
-            } catch (runtime_error &e) {
-                cerr << e.what() << ": '" << fname << "'" << endl;
-                exit(1);
-            }
-        } while (FindNextFile(hFind, &ffd) != 0);
-        FindClose(hFind);
-    } else {
-        cerr << "Can't stat path: '" << inPath << "'" << endl;
-        exit(1);
-    }
-}
-#endif
 
 void HS_CDECL loadSignatureList(const string &inFile,
                                 SignatureSet &signatures) {

@@ -1845,13 +1845,9 @@ bool needsQuotes(const char *s) {
     if (len == 0) {
         return true;
     }
-#ifndef _WIN32
     // don't confuse the correct isblank for the one in locale
     int (*blank)(int) = &std::isblank;
     if (find_if(s, s + len, blank) != s + len) {
-#else
-    if (find_if(s, s + len, [](unsigned char c){ return std::isblank(c); }) != s + len) {
-#endif
         return true;
     }
 

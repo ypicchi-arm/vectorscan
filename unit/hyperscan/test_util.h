@@ -37,9 +37,6 @@
 #include <vector>
 
 #ifndef UNUSED
-#if defined(_WIN32) || defined(_WIN64)
-#define UNUSED
-#else
 #define UNUSED __attribute__ ((unused))
 #endif
 #endif
@@ -124,5 +121,3 @@ void *count_malloc(size_t n);
 void *count_malloc_b(size_t n);
 void count_free(void *p);
 void count_free_b(void *p);
-
-#endif

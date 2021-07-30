@@ -26,9 +26,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef _WIN32
-#define PCRE_STATIC
-#endif
 #include "config.h"
 
 #include "common.h"

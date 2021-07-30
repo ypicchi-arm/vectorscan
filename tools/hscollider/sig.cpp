@@ -36,7 +36,7 @@
 #include <ctype.h>
 #include <string>
 
-#if defined(HAVE_SIGACTION) || defined(_WIN32)
+#if defined(HAVE_SIGACTION)
 #include <signal.h>
 #endif
 
@@ -59,12 +59,8 @@ TLS_VARIABLE volatile size_t debug_corpus_len = 0;
 
 extern std::string g_cmdline;
 
-#if defined(_WIN32)
-static void __cdecl sighandler(int signum) {
-#elif defined(HAVE_SIGACTION)
+#if defined(HAVE_SIGACTION)
 static void sighandler(int signum) {
-#endif
-#if defined(HAVE_SIGACTION) || defined(_WIN32)
     /* NOTE: This signal handler is designed solely to provide more information
      * when a crash occurs in ue2collider -- it makes calls to signal-unsafe
      * functions like printf() and backtrace() by design, since we're already
@@ -149,12 +145,7 @@ static void sighandler(int signum) {
 
 void installSignalHandler(void) {
 
-#ifdef _WIN32
-    signal(SIGABRT, sighandler);
-    signal(SIGFPE, sighandler);
-    signal(SIGILL, sighandler);
-    signal(SIGSEGV, sighandler);
-#elif defined(HAVE_SIGACTION)
+#if defined(HAVE_SIGACTION)
     struct sigaction act;
     memset(&act, 0, sizeof(act));
     act.sa_handler = sighandler;

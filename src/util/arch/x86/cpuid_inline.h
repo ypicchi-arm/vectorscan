@@ -32,7 +32,7 @@
 #include "ue2common.h"
 #include "util/arch/common/cpuid_flags.h"
 
-#if !defined(_WIN32) && !defined(CPUID_H_)
+#if !defined(CPUID_H_)
 #include <cpuid.h>
 /* system header doesn't have a header guard */
 #define CPUID_H_
@@ -46,16 +46,7 @@ extern "C"
 static inline
 void cpuid(unsigned int op, unsigned int leaf, unsigned int *eax,
            unsigned int *ebx, unsigned int *ecx, unsigned int *edx) {
-#ifndef _WIN32
     __cpuid_count(op, leaf, *eax, *ebx, *ecx, *edx);
-#else
-    int a[4];
-    __cpuidex(a, op, leaf);
-    *eax = a[0];
-    *ebx = a[1];
-    *ecx = a[2];
-    *edx = a[3];
-#endif
 }
 
 // ECX
@@ -95,9 +86,6 @@ void cpuid(unsigned int op, unsigned int leaf, unsigned int *eax,
 
 static inline
 u64a xgetbv(u32 op) {
-#if defined(_WIN32) || defined(__INTEL_COMPILER)
-    return _xgetbv(op);
-#else
     u32 a, d;
     __asm__ volatile (
             "xgetbv\n"
@@ -105,14 +93,10 @@ u64a xgetbv(u32 op) {
               "=d"(d)
             : "c"(op));
     return ((u64a)d << 32) + a;
-#endif
 }
 
 static inline
 int check_avx2(void) {
-#if defined(__INTEL_COMPILER)
-    return _may_i_use_cpu_feature(_FEATURE_AVX2);
-#else
     unsigned int eax, ebx, ecx, edx;
 
     cpuid(1, 0, &eax, &ebx, &ecx, &edx);
@@ -141,7 +125,6 @@ int check_avx2(void) {
     }
 
     return 0;
-#endif
 }
 
 static inline
@@ -149,9 +132,6 @@ int check_avx512(void) {
     /*
      * For our purposes, having avx512 really means "can we use AVX512BW?"
      */
-#if defined(__INTEL_COMPILER)
-    return _may_i_use_cpu_feature(_FEATURE_AVX512BW | _FEATURE_AVX512VL);
-#else
     unsigned int eax, ebx, ecx, edx;
 
     cpuid(1, 0, &eax, &ebx, &ecx, &edx);
@@ -184,14 +164,10 @@ int check_avx512(void) {
     }
 
     return 0;
-#endif
 }
 
 static inline
 int check_avx512vbmi(void) {
-#if defined(__INTEL_COMPILER)
-    return _may_i_use_cpu_feature(_FEATURE_AVX512VBMI);
-#else
     unsigned int eax, ebx, ecx, edx;
 
     cpuid(1, 0, &eax, &ebx, &ecx, &edx);
@@ -229,7 +205,6 @@ int check_avx512vbmi(void) {
     }
 
     return 0;
-#endif
 }
 
 static inline

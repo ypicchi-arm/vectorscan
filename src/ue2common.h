@@ -45,12 +45,7 @@
 // stdint.h for things like uintptr_t and friends
 #include <stdint.h>
 
-/* ick */
-#if defined(_WIN32)
-#define ALIGN_ATTR(x) __declspec(align(x))
-#else
 #define ALIGN_ATTR(x) __attribute__((aligned((x))))
-#endif
 
 #define ALIGN_DIRECTIVE ALIGN_ATTR(16)
 #define ALIGN_AVX_DIRECTIVE ALIGN_ATTR(32)
@@ -66,13 +61,8 @@ typedef signed int s32;
 /* We append the 'a' for aligned, since these aren't common, garden variety
  * 64 bit values. The alignment is necessary for structs on some platforms,
  * so we don't end up performing accidental unaligned accesses. */
-#if defined(_WIN32) && ! defined(_WIN64)
-typedef unsigned long long ALIGN_ATTR(4) u64a;
-typedef signed long long ALIGN_ATTR(4) s64a;
-#else
 typedef unsigned long long ALIGN_ATTR(8) u64a;
 typedef signed long long ALIGN_ATTR(8) s64a;
-#endif
 
 /* get the SIMD types */
 #include "util/simd_types.h"
@@ -83,24 +73,14 @@ typedef u32 ReportID;
 
 /* Shorthand for attribute to mark a function as part of our public API.
  * Functions without this attribute will be hidden. */
-#if !defined(_WIN32)
 #define HS_PUBLIC_API     __attribute__((visibility("default")))
-#else
-// TODO: dllexport defines for windows
-#define HS_PUBLIC_API
-#endif
 
 #define ARRAY_LENGTH(a) (sizeof(a)/sizeof((a)[0]))
 
 /** \brief Shorthand for the attribute to shut gcc about unused parameters */
-#if !defined(_WIN32)
 #define UNUSED __attribute__ ((unused))
-#else
-#define UNUSED
-#endif
 
 /* really_inline forces inlining always */
-#if !defined(_WIN32)
 #if defined(HS_OPTIMIZE)
 #define really_inline inline __attribute__ ((always_inline, unused))
 #else
@@ -113,33 +93,9 @@ typedef u32 ReportID;
 #define alignof __alignof
 #define HAVE_TYPEOF 1
 
-#else // ms windows
-#define really_inline __forceinline
-#define really_really_inline __forceinline
-#define never_inline
-#define __builtin_prefetch(...) do {} while(0)
-#if defined(__cplusplus)
-#define __typeof__ decltype
-#define HAVE_TYPEOF 1
-#else // C
-/* msvc doesn't have decltype or typeof in C */
-#define inline __inline
-#define alignof __alignof
-#endif
-#endif
-
 
 // We use C99-style "restrict".
-#ifdef _WIN32
-#ifdef __cplusplus
-#define restrict
-#else
 #define restrict __restrict
-#endif
-#else
-#define restrict __restrict
-#endif
-
 
 // Align to 16-byte boundary
 #define ROUNDUP_16(a) (((a) + 0xf) & ~0xf)
@@ -186,24 +142,15 @@ typedef u32 ReportID;
 #define LIMIT_TO_AT_MOST(a, b) (*(a) = MIN(*(a),(b)))
 #define ENSURE_AT_LEAST(a, b) (*(a) = MAX(*(a),(b)))
 
-#ifndef _WIN32
 #ifndef likely
   #define likely(x)     __builtin_expect(!!(x), 1)
 #endif
 #ifndef unlikely
   #define unlikely(x)   __builtin_expect(!!(x), 0)
 #endif
-#else
-#define likely(x)   (x)
-#define unlikely(x) (x)
-#endif
 
 #if !defined(RELEASE_BUILD) || defined(DEBUG)
-#ifdef _WIN32
-#define PATH_SEP '\\'
-#else
 #define PATH_SEP '/'
-#endif
 #endif
 
 #if defined(DEBUG) && !defined(DEBUG_PRINTF)

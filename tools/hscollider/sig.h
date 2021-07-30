@@ -40,11 +40,7 @@
 #define STAGE_GRAPH_COMPILE 6
 #define STAGE_GRAPH_RUN 7
 
-#ifndef WIN32
 #define TLS_VARIABLE __thread
-#else
-#define TLS_VARIABLE __declspec(thread)
-#endif
 
 extern TLS_VARIABLE volatile int debug_stage;
 extern TLS_VARIABLE volatile int debug_expr;

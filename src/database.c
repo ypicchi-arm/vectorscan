@@ -353,12 +353,6 @@ hs_error_t dbIsValid(const hs_database_t *db) {
     return HS_SUCCESS;
 }
 
-#if defined(_WIN32)
-#define SNPRINTF_COMPAT _snprintf
-#else
-#define SNPRINTF_COMPAT snprintf
-#endif
-
 /** Allocate a buffer and prints the database info into it. Returns an
  * appropriate error code on failure, or HS_SUCCESS on success. */
 static
@@ -400,9 +394,7 @@ hs_error_t print_database_string(char **s, u32 version, const platform_t plat,
             return ret;
         }
 
-        // Note: SNPRINTF_COMPAT is a macro defined above, to cope with systems
-        // that don't have snprintf but have a workalike.
-        int p_len = SNPRINTF_COMPAT(
+        int p_len = snprintf(
             buf, len, "Version: %u.%u.%u Features: %s Mode: %s",
             major, minor, release, features, mode);
         if (p_len < 0) {

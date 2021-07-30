@@ -35,12 +35,7 @@
 
 #include "ue2common.h"
 
-#if !defined(_WIN32)
 #define PACKED__MAY_ALIAS __attribute__((packed, may_alias))
-#else
-#define PACKED__MAY_ALIAS
-#pragma pack(push, 1) // pack everything until told otherwise
-#endif
 
 /// Perform an unaligned 16-bit load
 static really_inline
@@ -89,9 +84,6 @@ void unaligned_store_u64a(void *ptr, u64a val) {
     struct unaligned *uptr = (struct unaligned *)ptr;
     uptr->u = val;
 }
-#if defined(_WIN32)
-#pragma pack(pop)
-#endif // win32
 
 #undef PACKED__MAY_ALIAS
 

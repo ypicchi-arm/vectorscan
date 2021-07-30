@@ -166,23 +166,12 @@ void EngineChimera::printStats() const {
     }
     printf("Signatures:        %s\n", compile_stats.signatures.c_str());
     printf("Chimera info:      %s\n", compile_stats.db_info.c_str());
-#ifndef _WIN32
     printf("Expression count:  %'zu\n", compile_stats.expressionCount);
     printf("Bytecode size:     %'zu bytes\n", compile_stats.compiledSize);
-#else
-    printf("Expression count:  %zu\n", compile_stats.expressionCount);
-    printf("Bytecode size:     %zu bytes\n", compile_stats.compiledSize);
-#endif
     printf("Database CRC:      0x%x\n", compile_stats.crc32);
-#ifndef _WIN32
     printf("Scratch size:      %'zu bytes\n", compile_stats.scratchSize);
     printf("Compile time:      %'0.3Lf seconds\n", compile_stats.compileSecs);
     printf("Peak heap usage:   %'u bytes\n", compile_stats.peakMemorySize);
-#else
-    printf("Scratch size:      %zu bytes\n", compile_stats.scratchSize);
-    printf("Compile time:      %0.3Lf seconds\n", compile_stats.compileSecs);
-    printf("Peak heap usage:   %u bytes\n", compile_stats.peakMemorySize);
-#endif
 }
 
 void EngineChimera::printCsvStats() const {

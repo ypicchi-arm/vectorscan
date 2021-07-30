@@ -142,41 +142,7 @@ if (BUILD_AVX512VBMI)
     set(BUILD_AVX512 ON)
 endif ()
 
-option(WINDOWS_ICC "Use Intel C++ Compiler on Windows, default off, requires ICC to be set in project" OFF)
-
 # TODO: per platform config files?
-
-# TODO: windows generator on cmake always uses msvc, even if we plan to build with icc
-if(MSVC OR MSVC_IDE)
-    message(STATUS "Building for Windows")
-
-    if (MSVC_VERSION LESS 1700)
-        message(FATAL_ERROR "The project requires C++11 features.")
-    else()
-        if (WINDOWS_ICC)
-            set(ARCH_C_FLAGS "/QxHost")
-            set(ARCH_CXX_FLAGS "/QxHost")
-            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /O3 /Qstd=c99 /Qrestrict /wd4267 /Qdiag-disable:remark")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2 /Qstd=c++11 /Qrestrict /QxHost /wd4267 /wd4800 /Qdiag-disable:remark -DBOOST_DETAIL_NO_CONTAINER_FWD -D_SCL_SECURE_NO_WARNINGS")
-        else()
-            set(MSVC_WARNS "/wd4101 /wd4146 /wd4172 /wd4200 /wd4244 /wd4267 /wd4307 /wd4334 /wd4805 /wd4996 -D_CRT_SECURE_NO_WARNINGS")
-            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  /O2 ${MSVC_WARNS}")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2 ${MSVC_WARNS} /wd4800 -DBOOST_DETAIL_NO_CONTAINER_FWD")
-        endif()
-        string(REPLACE "/RTC1" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
-        string(REPLACE "/RTC1" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
-
-        if (DISABLE_ASSERTS)
-            set(CMAKE_C_FLAGS_DEBUG "/DNDEBUG ${CMAKE_C_FLAGS_DEBUG}")
-            set(CMAKE_CXX_FLAGS_DEBUG "/DNDEBUG ${CMAKE_CXX_FLAGS_DEBUG}")
-        endif ()
-
-        # flags only used to build hs libs
-        set(HS_C_FLAGS "/Gv")
-        set(HS_CXX_FLAGS "/Gv")
-    endif()
-
-else()
 
     # remove CMake's idea of optimisation
     foreach (CONFIG ${CMAKE_BUILD_TYPE} ${CMAKE_CONFIGURATION_TYPES})
@@ -300,7 +266,6 @@ else()
         set(SKYLAKE_FLAG "-march=skylake-avx512")
         set(ICELAKE_FLAG "-march=icelake-server")
     endif ()
-endif()
 
 CHECK_INCLUDE_FILES(unistd.h HAVE_UNISTD_H)
 if (ARCH_IA32 OR ARCH_X86_64)
@@ -370,7 +335,6 @@ CHECK_C_SOURCE_COMPILES("void *aa_test(void *x) { return __builtin_assume_aligne
 CHECK_CXX_SOURCE_COMPILES("void *aa_test(void *x) { return __builtin_assume_aligned(x, 16);}\nint main(void) { return 0; }" HAVE_CXX_BUILTIN_ASSUME_ALIGNED)
 CHECK_C_SOURCE_COMPILES("int main(void) { __builtin_constant_p(0); }" HAVE__BUILTIN_CONSTANT_P)
 
-if (NOT WIN32)
 set(C_FLAGS_TO_CHECK
 # Variable length arrays are way bad, most especially at run time
 "-Wvla"
@@ -458,8 +422,6 @@ if(CC_STRINGOP_OVERFLOW)
     set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wno-stringop-overflow")
 endif()
 
-endif()
-
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -469,15 +431,6 @@ endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 if(CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
     set(FREEBSD true)
 endif(CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
-
-if(NOT WIN32)
-if(CMAKE_C_COMPILER_ID MATCHES "Intel")
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -diag-error 10006 -diag-disable 68 -diag-disable 177 -diag-disable 186 -diag-disable 2304 -diag-disable 2305 -diag-disable 2338 -diag-disable 1418 -diag-disable 279 -diag-disable=remark")
-endif()
-if(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -diag-error 10006 -diag-disable 68 -diag-disable 177 -diag-disable 186 -diag-disable 2304 -diag-disable 2305 -diag-disable 2338 -diag-disable 1418 -diag-disable 1170 -diag-disable 3373 -diag-disable 279 -diag-disable=remark")
-endif()
-endif()
 
 if (NOT FAT_RUNTIME)
     if (CROSS_COMPILE_AARCH64)
@@ -496,7 +449,6 @@ endif()
 add_subdirectory(util)
 add_subdirectory(doc/dev-reference)
 
-if (NOT WIN32)
 # PCRE check, we have a fixed requirement for PCRE to use Chimera
 # and hscollider
 set(PCRE_REQUIRED_MAJOR_VERSION 8)
@@ -519,25 +471,23 @@ endif()
 if (EXISTS ${CMAKE_SOURCE_DIR}/chimera/CMakeLists.txt AND BUILD_CHIMERA)
     add_subdirectory(chimera)
 endif()
-endif()
 
 # do substitutions
 configure_file(${CMAKE_MODULE_PATH}/config.h.in ${PROJECT_BINARY_DIR}/config.h)
 configure_file(src/hs_version.h.in ${PROJECT_BINARY_DIR}/hs_version.h)
 
-if (NOT WIN32)
-    # expand out library names for pkgconfig static link info
-    foreach (LIB ${CMAKE_CXX_IMPLICIT_LINK_LIBRARIES})
-        # this is fragile, but protects us from toolchain specific files
-        if (NOT EXISTS ${LIB})
-            set(PRIVATE_LIBS "${PRIVATE_LIBS} -l${LIB}")
-        endif()
-    endforeach()
 
-    configure_file(libhs.pc.in libhs.pc @ONLY) # only replace @ quoted vars
-    install(FILES ${CMAKE_BINARY_DIR}/libhs.pc
-        DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
-endif()
+# expand out library names for pkgconfig static link info
+foreach (LIB ${CMAKE_CXX_IMPLICIT_LINK_LIBRARIES})
+    # this is fragile, but protects us from toolchain specific files
+    if (NOT EXISTS ${LIB})
+        set(PRIVATE_LIBS "${PRIVATE_LIBS} -l${LIB}")
+    endif()
+endforeach()
+
+configure_file(libhs.pc.in libhs.pc @ONLY) # only replace @ quoted vars
+install(FILES ${CMAKE_BINARY_DIR}/libhs.pc
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 
 # only set these after all tests are done
 if (NOT FAT_RUNTIME)
@@ -548,34 +498,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_C_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CXX_FLAGS}")
 endif()
 
-if (WIN32)
-# PCRE check, we have a fixed requirement for PCRE to use Chimera
-# and hscollider
-set(PCRE_REQUIRED_MAJOR_VERSION 8)
-set(PCRE_REQUIRED_MINOR_VERSION 41)
-set(PCRE_REQUIRED_VERSION ${PCRE_REQUIRED_MAJOR_VERSION}.${PCRE_REQUIRED_MINOR_VERSION})
-include (${CMAKE_MODULE_PATH}/pcre.cmake)
-if (NOT CORRECT_PCRE_VERSION)
-    message(STATUS "PCRE ${PCRE_REQUIRED_VERSION} or above not found")
-endif()
-
-# we need static libs for Chimera - too much deep magic for shared libs
-if (CORRECT_PCRE_VERSION AND PCRE_BUILD_SOURCE AND BUILD_STATIC_LIBS)
-    set(BUILD_CHIMERA TRUE)
-endif()
-
-add_subdirectory(unit)
-if (EXISTS ${CMAKE_SOURCE_DIR}/tools/CMakeLists.txt)
-    add_subdirectory(tools)
-endif()
-if (EXISTS ${CMAKE_SOURCE_DIR}/chimera/CMakeLists.txt AND BUILD_CHIMERA)
-    add_subdirectory(chimera)
-endif()
-endif()
-
-if(NOT WIN32)
 set(RAGEL_C_FLAGS "-Wno-unused")
-endif()
 
 set_source_files_properties(
     ${CMAKE_BINARY_DIR}/src/parser/Parser.cpp
@@ -779,7 +702,6 @@ set (hs_exec_avx2_SRCS
     src/util/arch/x86/masked_move.c
     src/util/arch/x86/masked_move.h
 )
-
 
 SET (hs_compile_SRCS
     ${hs_HEADERS}
@@ -1475,6 +1397,6 @@ if (NOT BUILD_STATIC_LIBS)
 endif ()
 
 option(BUILD_EXAMPLES "Build Hyperscan example code (default TRUE)" TRUE)
-if(NOT WIN32 AND BUILD_EXAMPLES)
+if(BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
