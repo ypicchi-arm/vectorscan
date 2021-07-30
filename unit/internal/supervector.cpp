@@ -627,8 +627,8 @@ TEST(SuperVectorUtilsTest,RShift256c){
 
 /*Define LSHIFT128_256 macro*/
 #define TEST_LSHIFT128_256(buf, vec, v, l) {                                              \
-                                           auto v_shifted = SP.lshift128(l);              \
-                                           for (int i=16; i>= l; --i) {                   \
+                                           auto v_shifted = v.lshift128(l);               \
+                                           for (int i=15; i>= l; --i) {                   \
                                                buf[i] = vec[i-l];                         \
                                                buf[i+16] = vec[(16+i)-l];                 \
                                            }                                              \
@@ -653,7 +653,7 @@ TEST(SuperVectorUtilsTest,LShift128_256c){
 
 /*Define RSHIFT128_128 macro*/
 #define TEST_RSHIFT128_256(buf, vec, v, l) {                                              \
-                                           auto v_shifted = SP.rshift128(l);              \
+                                           auto v_shifted = v.rshift128(l);               \
                                            for (int i=0; i<16-l; i++) {                   \
                                                buf[i] = vec[i+l];                         \
                                                buf[i+16] = vec[(i+16)+l];                 \
@@ -995,8 +995,8 @@ TEST(SuperVectorUtilsTest,RShift128_512c){
 
 /*Define LSHIFT512 macro*/
 #define TEST_LSHIFT128_512(buf, vec, v, l) {                                              \
-                                           auto v_shifted = SP.lshift128(l);              \
-                                           for (int i=16; i>=l; --i) {                    \
+                                           auto v_shifted = v.lshift128(l);               \
+                                           for (int i=15; i>=l; --i) {                    \
                                                buf[i] = vec[i-l];                         \
                                                buf[i+16] = vec[(i+16)-l];                 \
                                                buf[i+32] = vec[(i+32)-l];                 \
