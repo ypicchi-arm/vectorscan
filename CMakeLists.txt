@@ -33,10 +33,8 @@ endif()
 if(CMAKE_BUILD_TYPE MATCHES NONE|RELEASE|RELWITHDEBINFO|MINSIZEREL)
     message(STATUS "using release build")
     set(RELEASE_BUILD TRUE)
-    set(OPTIMISE TRUE)
 else()
     set(RELEASE_BUILD FALSE)
-    set(OPTIMISE FALSE)
 endif()
 
 set(BINDIR "${PROJECT_BINARY_DIR}/bin")
@@ -99,13 +97,11 @@ if(${RAGEL} STREQUAL "RAGEL-NOTFOUND")
     message(FATAL_ERROR "Ragel state machine compiler not found")
 endif()
 
-option(OPTIMISE "Turns off compiler optimizations (on by default unless debug output enabled or coverage testing)" FALSE)
-
 option(DEBUG_OUTPUT "Enable debug output (warning: very verbose)" FALSE)
 
 if(DEBUG_OUTPUT)
     add_definitions(-DDEBUG)
-    set(OPTIMISE FALSE)
+    set(RELEASE_BUILD FALSE)
 endif(DEBUG_OUTPUT)
 
 option(BUILD_SHARED_LIBS "Build shared libs instead of static" OFF)
@@ -124,7 +120,7 @@ if (NOT BUILD_SHARED_LIBS)
 endif ()
 
 #for config
-if (OPTIMISE)
+if (RELEASE_BUILD)
     set(HS_OPTIMIZE ON)
 endif()
 
@@ -202,7 +198,7 @@ endif ()
         endif()
     endif()
 
-    if(OPTIMISE)
+    if(RELEASE_BUILD)
         if (NOT CMAKE_BUILD_TYPE MATCHES MINSIZEREL)
             set(OPT_C_FLAG "-O3")
             set(OPT_CXX_FLAG "-O3")
@@ -213,7 +209,7 @@ endif ()
     else()
         set(OPT_C_FLAG "-O0")
         set(OPT_CXX_FLAG "-O0")
-    endif(OPTIMISE)
+    endif(RELEASE_BUILD)
 
     # set compiler flags - more are tested and added later
     set(EXTRA_C_FLAGS "${OPT_C_FLAG} -std=c17 -Wall -Wextra -Wshadow -Wcast-qual -fno-strict-aliasing")
@@ -685,7 +681,7 @@ set (hs_exec_SRCS
     src/database.h
 )
 
-if (NOT OPTIMISE)
+if (NOT RELEASE_BUILD)
 if (ARCH_IA32 OR ARCH_X86_64)
 set (hs_exec_SRCS
     ${hs_exec_SRCS}
