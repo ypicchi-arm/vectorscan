@@ -2,7 +2,9 @@
 #include "benchmarks.hpp"
 #include <iostream>
 #include <chrono>
-#include <time.h>
+#include <cstring>
+#include <ctime>
+
 /*
 #define RST  "\x1B[0m"
 #define KRED  "\x1B[31m"
