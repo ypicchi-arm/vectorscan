@@ -65,8 +65,9 @@ void shufti_benchmarks(int size, int loops, int M, bool has_match) {
         total_sec += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
         /*average time*/
         total_sec /= loops;
-        double mb_size = (double) size / 1048576;
         /*average size*/
+        size /= loops;
+        double mb_size = (double) size / 1048576;
         mb_size /= loops;
         bw = mb_size / total_sec;
         std::cout<<"\x1B[35m Case with no match in random pos and size: "<<size<<" for "<<loops<<" loops:"
@@ -121,9 +122,9 @@ void rshufti_benchmarks(int size, int loops, int M, bool has_match) {
         total_sec += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
         /*average time*/
         total_sec /=loops;
-        double mb_size = (double) size / 1048576;
         /*average size*/
-        mb_size /=loops;
+        size /=loops;
+        double mb_size = (double) size / 1048576;
         bw = mb_size / total_sec;
         std::cout<<"\x1B[35m Case with no match in random pos and size: "<< size <<" for "<< loops <<" loops:"
                  <<"\x1B[36m rshuftiExec elapsetime: \x1B[0m"<< total_sec <<" (μs) \x1B[36m bandwidth: \x1B[0m"<< bw <<" (MB/μs)"<<std::endl;
