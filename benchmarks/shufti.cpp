@@ -20,6 +20,7 @@
 
 
 void shufti_benchmarks(int size, int loops, int M, bool has_match) { 
+    size_t real_size = size;
     m128 lo, hi;
     ue2::CharReach chars;
     chars.set('a');
@@ -53,7 +54,7 @@ void shufti_benchmarks(int size, int loops, int M, bool has_match) {
         }
         total_sec /= M;
         bw /= M;
-        std::cout << "\x1B[35m Case with match in random pos and size: " << size << " for " << loops <<" loops ("
+        std::cout << "\x1B[35m Case with match in random pos and size: " << real_size << " for " << loops <<" loops ("
                   << M << " random possisions checked): \x1B[36m shuftiExec elapsetime: \x1B[0m" << (total_sec)
                   << " (μs) \x1B[36m bandwidth: \x1B[0m" << bw <<" (MB/μs)"<<std::endl;
     } else {
@@ -70,13 +71,14 @@ void shufti_benchmarks(int size, int loops, int M, bool has_match) {
         double mb_size = (double) size / 1048576;
         mb_size /= loops;
         bw = mb_size / total_sec;
-        std::cout<<"\x1B[35m Case with no match in random pos and size: "<<size<<" for "<<loops<<" loops:"
+        std::cout<<"\x1B[35m Case with no match in random pos and size: "<<real_size<<" for "<<loops<<" loops:"
                  <<"\x1B[36m shuftiExec elapsetime: \x1B[0m"<<(total_sec)<<" (μs) \x1B[36m bandwidth: \x1B[0m"<< bw <<" (MB/μs)"<<std::endl;
     }
     delete [] kt1;
 }
 
 void rshufti_benchmarks(int size, int loops, int M, bool has_match) {
+    size_t real_size = size;
     m128 lo, hi;
     ue2::CharReach chars;
     chars.set('a');
@@ -110,7 +112,7 @@ void rshufti_benchmarks(int size, int loops, int M, bool has_match) {
         }
         total_sec /= M;
         bw /= M;
-        std::cout << "\x1B[35m Case with match in random pos and size: " << size << " for " << loops<<" loops ("
+        std::cout << "\x1B[35m Case with match in random pos and size: " << real_size << " for " << loops<<" loops ("
                   << M << " random possisions checked): \x1B[36m rshuftiExec elapsetime: \x1B[0m" << total_sec
                   <<" (μs) \x1B[36m bandwidth: \x1B[0m" << bw <<" (MB/μs)"<<std::endl;
     } else {
@@ -126,7 +128,7 @@ void rshufti_benchmarks(int size, int loops, int M, bool has_match) {
         size /=loops;
         double mb_size = (double) size / 1048576;
         bw = mb_size / total_sec;
-        std::cout<<"\x1B[35m Case with no match in random pos and size: "<< size <<" for "<< loops <<" loops:"
+        std::cout<<"\x1B[35m Case with no match in random pos and size: "<< real_size <<" for "<< loops <<" loops:"
                  <<"\x1B[36m rshuftiExec elapsetime: \x1B[0m"<< total_sec <<" (μs) \x1B[36m bandwidth: \x1B[0m"<< bw <<" (MB/μs)"<<std::endl;
     }
     delete [] kt1;
