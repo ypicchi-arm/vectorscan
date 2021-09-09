@@ -4,7 +4,6 @@
 #include <string.h>
 #include <time.h>
 #include <functional>
-#include "nfa/shufticompile.h"
 
 int main(){
     int sizes[]=   { 16000, 32000, 64000, 120000, 1600000, 2000000, 2500000, 3500000, 150000000, 250000000, 350000000, 500000000};
