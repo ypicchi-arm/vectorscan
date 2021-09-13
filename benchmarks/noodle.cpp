@@ -48,8 +48,6 @@ void noodle_benchmarks(int size, int M, const char *lit_str, int lit_len, char n
     total_sec += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
     /*average time*/
     total_sec /= M;
-    /*average size*/
-    size /=M;
     double mb_size = (double) size / 1048576;
     bw = mb_size / total_sec;
     std::cout << "\x1B[35m Case with match in random pos and size: "<< size <<" lit_len: "<< lit_len <<" nocase: "<< (int)nocase
