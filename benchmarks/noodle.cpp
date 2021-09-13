@@ -33,7 +33,8 @@ void noodle_benchmarks(int size, int M, const char *lit_str, int lit_len, char n
     ctxt.clear();
     u8 *data = new u8[size];
     memset(data, 'a', size);
-    double total_sec = 0;
+    long double total_sec = 0;
+    long double trans_size = 0;
     long double bw = 0;
     u32 id = 1000;
     ue2::hwlmLiteral lit(std::string(lit_str, lit_len), nocase, id);
@@ -45,12 +46,16 @@ void noodle_benchmarks(int size, int M, const char *lit_str, int lit_len, char n
         noodExec(n.get(), data, size, 0, hlmSimpleCallback, &scratch); 
     }
     auto end = std::chrono::steady_clock::now();
-    total_sec += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    /*average time*/
-    total_sec /= M;
-    double mb_size = (double) size / 1048576;
-    bw = mb_size / total_sec;
+    total_sec += std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
+    /*calculate transferred size*/
+    trans_size = size * M;
+    /*convert to sec*/
+    bw = trans_size / total_sec;
+    /*convert to MB/s*/
+    bw /=1048576;
+    /*covert average time to μs*/
+    long double ms = total_sec * 1000000;
     std::cout << "\x1B[35m Case with match in random pos and size: "<< size <<" lit_len: "<< lit_len <<" nocase: "<< (int)nocase
-              << "\x1B[36m noodExec elapsetime: \x1B[0m" << total_sec << " (μs) \x1B[36m bandwidth: \x1B[0m" << bw <<" (MB/μs)" << std::endl;    
+              << "\x1B[36m noodExec elapsetime: \x1B[0m" << (ms/M) << " (μs) \x1B[36m bandwidth: \x1B[0m" << bw <<" (MB/s)" << std::endl;    
     delete [] data;
 }

@@ -6,23 +6,26 @@
 #include <functional>
 
 int main(){
-    int sizes[]=   { 16000, 32000, 64000, 120000, 1600000, 2000000, 2500000, 3500000, 150000000, 250000000, 350000000, 500000000};
-    int loops[]=   {  6000,  6000,  6000,   6000,    1000,    1000,    1000,    1000,        50,        50,        25,        25};
-    int exp_len[]= {  2000,  2000,  2000,   2000,     250,     250,     250,     250,        10,        10,         5,         5};
+    int sizes[]=     {  16000,  32000,  64000, 120000, 1600000, 2000000, 2500000, 3500000, 150000000, 250000000, 350000000, 500000000};
+    int f_loops[]=   {  70000,  50000,  30000,  10000,    1000,    1000,    1000,    1000,         7,         7,         5,         3};
+    int t_loops[]=   { 200000, 150000, 100000,  70000,    5000,    5000,    5000,    5000,        50,        50,        50,        50};
+    int exp_len[]=   {     15,     15,     15,     15,       5,       5,       5,       5,         5,         5,         5,         5};
+    int nd_loops[]=  { 250000, 150000, 100000, 100000,   10000,     1000,     1000,     1000,      100,       100,      100,        100};
     const char charset[] = "aAaAaAaAAAaaaaAAAAaaaaAAAAAAaaaAAaaa";
-    std::string labels[] = {"\x1B[33m shuftiExec Benchmarks(kbytes)  \x1B[0m\n", "\x1B[33m rshuftiExec Benchmarks(kbytes)  \x1B[0m\n",
-                            "\x1B[33m truffleExec Benchmarks(kbytes) \x1B[0m\n", "\x1B[33m rtruffleExec Benchmarks(kbytes) \x1B[0m\n", 
-                            "\x1B[33m shuftiExec Benchmarks(Mbytes)  \x1B[0m\n", "\x1B[33m rhuftiExec Benchmarks(Mbytes)   \x1B[0m\n",
-                            "\x1B[33m truffleExec Benchmarks(Mbytes) \x1B[0m\n", "\x1B[33m rtruffleExec Benchmarks(Mbytes) \x1B[0m\n",
-                            "\x1B[33m shuftiExec Benchmarks(Gbytes)  \x1B[0m\n", "\x1B[33m rhuftiExec Benchmarks(Gbytes)   \x1B[0m\n",
-                            "\x1B[33m truffleExec Benchmarks(Gbytes) \x1B[0m\n", "\x1B[33m rtruffleExec Benchmarks(Gbytes) \x1B[0m\n"
+    std::string labels[] = {"\x1B[33m Benchmarks(kbytes)  \x1B[0m\n", "\x1B[33m Benchmarks(kbytes)  \x1B[0m\n",
+                            "\x1B[33m Benchmarks(kbytes) \x1B[0m\n", "\x1B[33m  Benchmarks(kbytes) \x1B[0m\n", 
+                            "\x1B[33m Benchmarks(Mbytes)  \x1B[0m\n", "\x1B[33m Benchmarks(Mbytes)   \x1B[0m\n",
+                            "\x1B[33m Benchmarks(Mbytes) \x1B[0m\n", "\x1B[33m  Benchmarks(Mbytes) \x1B[0m\n",
+                            "\x1B[33m Benchmarks(Gbytes)  \x1B[0m\n", "\x1B[33m Benchmarks(Gbytes)   \x1B[0m\n",
+                            "\x1B[33m Benchmarks(Gbytes) \x1B[0m\n", "\x1B[33m  Benchmarks(Gbytes) \x1B[0m\n"
                         };
+    
     std::function<void(int,int,int,bool)>  functions[] = { shufti_benchmarks, rshufti_benchmarks, truffle_benchmarks, rtruffle_benchmarks };
-    for (int i=0; i<12; i++) {
+    for (int i=11; i<12; i++) {
         std::cout << labels[i];
         for(int j=0; j<4; j++){
-            functions[j](sizes[i],loops[i],exp_len[i],false);
-            functions[j](sizes[i],loops[i],exp_len[i],true);  
+            functions[j](sizes[i],f_loops[i],exp_len[i],false);
+            functions[j](sizes[i],t_loops[i],exp_len[i],true);  
         } 
     }
     for(int i=0; i<12; i++){
@@ -43,7 +46,7 @@ int main(){
                 str[char_len] = charset[key];
                 str[char_len + 1] = '\0';
             }
-            noodle_benchmarks(sizes[i], loops[i], str,char_len,0);
+            noodle_benchmarks(sizes[i], nd_loops[i], str,char_len,0);
             delete [] str;    
         }
     }
