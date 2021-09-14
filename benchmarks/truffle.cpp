@@ -67,7 +67,7 @@ void truffle_benchmarks(int size, int loops, int M, bool has_match) {
         /*calculate maximum bandwidth*/
         max_bw = transferred_size / total_sec;
         /*convert to MB/s*/
-        max_bw /=1048576.0;
+        max_bw /= 1048576.0;
         /*calculate average bandwidth*/
         bandwitdh = max_bw / loops;
         printf(KMAG "TruffleExec case without matches, %u * %u iterations," KBLU " total elapsed time =" RST " %.3f s, " 
@@ -139,7 +139,7 @@ void rtruffle_benchmarks(int size, int loops, int M, bool has_match) {
         /*calculate maximum bandwidth*/
         max_bw = transferred_size / total_sec;
         /*convert to MB/s*/
-        max_bw /=1048576.0;
+        max_bw /= 1048576.0;
         /*calculate average bandwidth*/
         bandwitdh = max_bw / loops;
         printf(KMAG "rTruffleExec case without matches, %u * %u iterations," KBLU " total elapsed time =" RST " %.3f s, " 

@@ -58,7 +58,7 @@ void noodle_benchmarks(int size, int loops, const char *lit_str, int lit_len, ch
     /*calculate maximum bandwidth*/
     max_bw = transferred_size / total_sec;
     /*convert to MB/s*/
-    max_bw /=1048576.0;
+    max_bw /= 1048576.0;
     /*calculate average bandwidth*/
     bandwitdh = max_bw / loops;
     printf(KMAG "Case with %u matches in random pos with %u * %u iterations," KBLU " total elapsed time =" RST " %.3f s, " 
