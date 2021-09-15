@@ -8,6 +8,7 @@
 #include "scratch.h"
 #include <vector>
 #include <chrono>
+#include <memory>
 
 
 struct hlmMatchEntry {
@@ -31,8 +32,8 @@ hwlmcb_rv_t hlmSimpleCallback(size_t to, u32 id,
 
 void noodle_benchmarks(int size, int loops, const char *lit_str, int lit_len, char nocase){
     ctxt.clear();
-    u8 *data = new u8[size];
-    memset(data, 'a', size);
+    std::unique_ptr<u8 []> data ( new u8[size] );
+    memset(data.get(), 'a', size);
     double total_sec = 0.0;
     u64a transferred_size = 0;
     double avg_time = 0.0;
@@ -45,7 +46,7 @@ void noodle_benchmarks(int size, int loops, const char *lit_str, int lit_len, ch
     struct hs_scratch scratch;
     auto start = std::chrono::steady_clock::now(); 
     for (int i = 0; i < loops; i++){ 
-        noodExec(n.get(), data, size, 0, hlmSimpleCallback, &scratch); 
+        noodExec(n.get(), data.get(), size, 0, hlmSimpleCallback, &scratch); 
     }
     auto end = std::chrono::steady_clock::now();
     total_sec += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
@@ -62,7 +63,6 @@ void noodle_benchmarks(int size, int loops, const char *lit_str, int lit_len, ch
     /*calculate average bandwidth*/
     bandwitdh = max_bw / loops;
     printf(KMAG "Case with %u matches in random pos with %u * %u iterations," KBLU " total elapsed time =" RST " %.3f s, " 
-               KBLU "average time per call =" RST " %.3f μs," KBLU " bandwidth = " RST " %.3f MB/s," KBLU " average bandwidth =" RST " %.3f MB/s \n",
-               lit_len, size ,loops, total_sec, avg_time, max_bw, bandwitdh);    
-    delete [] data;
+           KBLU "average time per call =" RST " %.3f μs," KBLU " bandwidth = " RST " %.3f MB/s," KBLU " average bandwidth =" RST " %.3f MB/s \n",
+           lit_len, size ,loops, total_sec, avg_time, max_bw, bandwitdh);    
 }

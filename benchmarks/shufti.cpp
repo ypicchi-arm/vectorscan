@@ -6,14 +6,15 @@
 #include <cstring>
 #include <ctime>
 #include <cstdlib>
+#include <memory>
 
 void shufti_benchmarks(int size, int loops, int M, bool has_match) { 
     m128 lo, hi;
     ue2::CharReach chars;
     chars.set('a');
     int ret = shuftiBuildMasks(chars, (u8 *)&lo, (u8 *)&hi);
-    u8 *kt1 = new u8[size];
-    memset(kt1,'b',size);
+    std::unique_ptr<u8 []> kt1 ( new u8[size] );
+    memset(kt1.get(),'b',size);
     double total_sec = 0.0;            
     u64a transferred_size = 0;
     double bandwitdh = 0.0;
@@ -28,9 +29,9 @@ void shufti_benchmarks(int size, int loops, int M, bool has_match) {
             kt1[pos] = 'a';
             unsigned long act_size = 0;
             auto start = std::chrono::steady_clock::now();
-            for(int i = 0; i < loops; i++) {
-                const u8 *res = shuftiExec(lo, hi, kt1, kt1 + size);
-                act_size += res - kt1;
+            for(int i = 0; i < loops; i++) { 
+                const u8 *res = shuftiExec(lo, hi, kt1.get(), kt1.get() + size);
+                act_size += res - kt1.get();
             }
             auto end = std::chrono::steady_clock::now();
             double dt = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
@@ -55,7 +56,7 @@ void shufti_benchmarks(int size, int loops, int M, bool has_match) {
     } else {
         auto start = std::chrono::steady_clock::now();
         for (int i = 0; i < loops; i++) {
-            shuftiExec(lo, hi, kt1, kt1 + size);
+            shuftiExec(lo, hi, kt1.get(), kt1.get() + size);
         }
         auto end = std::chrono::steady_clock::now();
         total_sec += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
@@ -75,7 +76,6 @@ void shufti_benchmarks(int size, int loops, int M, bool has_match) {
                KBLU "average time per call =" RST " %.3f μs ," KBLU " bandwidth = " RST " %.3f MB/s," KBLU " average bandwidth =" RST " %.3f MB/s \n",
                size ,loops, total_sec, avg_time, max_bw, bandwitdh);
     }
-    delete [] kt1;
 }
 
 void rshufti_benchmarks(int size, int loops, int M, bool has_match) {
@@ -83,8 +83,8 @@ void rshufti_benchmarks(int size, int loops, int M, bool has_match) {
     ue2::CharReach chars;
     chars.set('a');
     int ret = shuftiBuildMasks(chars, (u8 *)&lo, (u8 *)&hi);
-    u8 *kt1 = new u8[size];
-    memset(kt1,'b',size);
+    std::unique_ptr<u8 []> kt1 ( new u8[size] );
+    memset(kt1.get(),'b',size);
     double total_sec = 0.0;            
     u64a transferred_size = 0;
     double bandwitdh = 0.0;
@@ -100,8 +100,8 @@ void rshufti_benchmarks(int size, int loops, int M, bool has_match) {
             unsigned long act_size = 0;
             auto start = std::chrono::steady_clock::now();
             for(int i = 0; i < loops; i++) {
-                const u8 *res = rshuftiExec(lo, hi, kt1, kt1 + size);
-                act_size += res - kt1;
+                const u8 *res = rshuftiExec(lo, hi, kt1.get(), kt1.get() + size);
+                act_size += res - kt1.get();
             }
             auto end = std::chrono::steady_clock::now();
             double dt = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
@@ -126,7 +126,7 @@ void rshufti_benchmarks(int size, int loops, int M, bool has_match) {
     } else {
         auto start = std::chrono::steady_clock::now();
         for (int i = 0; i < loops; i++) {
-            rshuftiExec(lo, hi, kt1, kt1 + size);
+            rshuftiExec(lo, hi, kt1.get(), kt1.get() + size);
         }
         auto end = std::chrono::steady_clock::now();
         total_sec += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
@@ -146,5 +146,4 @@ void rshufti_benchmarks(int size, int loops, int M, bool has_match) {
                KBLU "average time per call =" RST " %.3f μs ," KBLU " bandwidth = " RST " %.3f MB/s," KBLU " average bandwidth =" RST " %.3f MB/s \n",
                size ,loops, total_sec, avg_time, max_bw, bandwitdh);
     }
-    delete [] kt1;
 }
