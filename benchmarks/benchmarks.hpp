@@ -1,3 +1,5 @@
+#include <functional>
+
 /*define colour control characters*/
 #define RST  "\x1B[0m"
 #define KRED  "\x1B[31m"
@@ -8,8 +10,6 @@
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
 
-void shufti_benchmarks(int size, int loops, int M, bool has_match);
-void rshufti_benchmarks(int size, int loops, int M, bool has_match);
-void truffle_benchmarks(int size, int loops, int M, bool has_match);
-void rtruffle_benchmarks(int size, int loops, int M, bool has_match);
+
 void noodle_benchmarks(int size, int M, const char *lit_str, int lit_len, char nocase);
+void run_benchmarks(int size, int loops, int M, bool has_match, std::function <const u8 *(m128, m128, const u8 *, const u8 *)> function);
