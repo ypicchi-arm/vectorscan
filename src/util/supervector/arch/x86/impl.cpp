@@ -110,7 +110,7 @@ really_inline SuperVector<16>::SuperVector<uint64_t>(uint64_t const other)
 
 // Constants
 template<>
-really_inline SuperVector<16> SuperVector<16>::Ones(void)
+really_inline SuperVector<16> SuperVector<16>::Ones()
 {
     return {_mm_set1_epi8(0xFF)};
 }
@@ -171,29 +171,208 @@ really_inline typename SuperVector<16>::movemask_type SuperVector<16>::eqmask(Su
     return eq(b).movemask();
 }
 
+// template <>
+// template<uint8_t N>
+// really_inline SuperVector<16> SuperVector<16>::vshl_8_imm() const
+// {
+//     const uint8_t i = N;
+//     return {_mm_slli_epi8(u.v128[0], i)};
+// }
+
 template <>
-really_inline SuperVector<16> SuperVector<16>::rshift128_var(uint8_t const N) const
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<16>::vshl_16_imm() const
 {
-    switch(N) {
-    case 1: return {_mm_srli_si128(u.v128[0], 1)}; break;
-    case 2: return {_mm_srli_si128(u.v128[0], 2)}; break;
-    case 3: return {_mm_srli_si128(u.v128[0], 3)}; break;
-    case 4: return {_mm_srli_si128(u.v128[0], 4)}; break;
-    case 5: return {_mm_srli_si128(u.v128[0], 5)}; break;
-    case 6: return {_mm_srli_si128(u.v128[0], 6)}; break;
-    case 7: return {_mm_srli_si128(u.v128[0], 7)}; break;
-    case 8: return {_mm_srli_si128(u.v128[0], 8)}; break;
-    case 9: return {_mm_srli_si128(u.v128[0], 9)}; break;
-    case 10: return {_mm_srli_si128(u.v128[0], 10)}; break;
-    case 11: return {_mm_srli_si128(u.v128[0], 11)}; break;
-    case 12: return {_mm_srli_si128(u.v128[0], 12)}; break;
-    case 13: return {_mm_srli_si128(u.v128[0], 13)}; break;
-    case 14: return {_mm_srli_si128(u.v128[0], 14)}; break;
-    case 15: return {_mm_srli_si128(u.v128[0], 15)}; break;
-    case 16: return Zeroes(); break;
-    default: break;
-    }
-    return *this;
+    return {_mm_slli_epi16(u.v128[0], N)};
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<16>::vshl_32_imm() const
+{
+    return {_mm_slli_epi32(u.v128[0], N)};
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<16>::vshl_64_imm() const
+{
+    return {_mm_slli_epi64(u.v128[0], N)};
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<16>::vshl_128_imm() const
+{
+    return {_mm_slli_si128(u.v128[0], N)};
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<16>::vshl_imm() const
+{
+    return vshl_128_imm<N>();
+}
+
+// template <>
+// template<uint8_t N>
+// really_inline SuperVector<16> SuperVector<16>::vshr_8_imm() const
+// {
+//     return {_mm_srli_epi8(u.v128[0], N)};
+// }
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<16>::vshr_16_imm() const
+{
+    return {_mm_srli_epi16(u.v128[0], N)};
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<16>::vshr_32_imm() const
+{
+    return {_mm_srli_epi32(u.v128[0], N)};
+}
+  
+template <>
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<16>::vshr_64_imm() const
+{
+    return {_mm_srli_epi64(u.v128[0], N)};
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<16>::vshr_128_imm() const
+{
+    return {_mm_srli_si128(u.v128[0], N)};
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<16>::vshr_imm() const
+{
+    return vshr_128_imm<N>();
+}
+
+template SuperVector<16> SuperVector<16>::vshl_16_imm<1>() const;
+template SuperVector<16> SuperVector<16>::vshl_64_imm<1>() const;
+template SuperVector<16> SuperVector<16>::vshl_64_imm<4>() const;
+template SuperVector<16> SuperVector<16>::vshl_128_imm<1>() const;
+template SuperVector<16> SuperVector<16>::vshl_128_imm<4>() const;
+template SuperVector<16> SuperVector<16>::vshr_16_imm<1>() const;
+template SuperVector<16> SuperVector<16>::vshr_64_imm<1>() const;
+template SuperVector<16> SuperVector<16>::vshr_64_imm<4>() const;
+template SuperVector<16> SuperVector<16>::vshr_128_imm<1>() const;
+template SuperVector<16> SuperVector<16>::vshr_128_imm<4>() const;
+
+// template <>
+// really_inline SuperVector<16> SuperVector<16>::vshl_8  (uint8_t const N) const
+// {
+//     Unroller<0, 15>::iterator([&,v=this](int i) { if (N == i) return {_mm_slli_epi8(v->u.v128[0], i)}; });
+//     if (N == 16) return Zeroes();
+// }
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::vshl_16 (uint8_t const N) const
+{
+    if (N == 0) return *this;
+    if (N == 16) return Zeroes();
+    SuperVector result;
+    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {_mm_slli_epi16(v->u.v128[0], n)}; });
+    return result;
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::vshl_32 (uint8_t const N) const
+{
+    if (N == 0) return *this;
+    if (N == 16) return Zeroes();
+    SuperVector result;
+    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {_mm_slli_epi32(v->u.v128[0], n)}; });
+    return result;
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::vshl_64 (uint8_t const N) const
+{
+    if (N == 0) return *this;
+    if (N == 16) return Zeroes();
+    SuperVector result;
+    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {_mm_slli_epi64(v->u.v128[0], n)}; });
+    return result;
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::vshl_128(uint8_t const N) const
+{
+    if (N == 0) return *this;
+    if (N == 16) return Zeroes();
+    SuperVector result;
+    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {_mm_slli_si128(v->u.v128[0], n)}; });
+    return result;
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::vshl(uint8_t const N) const
+{
+    return vshl_128(N);
+}
+
+// template <>
+// really_inline SuperVector<16> SuperVector<16>::vshr_8  (uint8_t const N) const
+// {
+//     SuperVector<16> result;
+//     Unroller<0, 15>::iterator([&,v=this](uint8_t const i) { if (N == i) result = {_mm_srli_epi8(v->u.v128[0], i)}; });
+//     if (N == 16) result = Zeroes();
+//     return result;
+// }
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::vshr_16 (uint8_t const N) const
+{
+    if (N == 0) return *this;
+    if (N == 16) return Zeroes();
+    SuperVector result;
+    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {_mm_srli_epi16(v->u.v128[0], n)}; });
+    return result;
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::vshr_32 (uint8_t const N) const
+{
+    if (N == 0) return *this;
+    if (N == 16) return Zeroes();
+    SuperVector result;
+    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {_mm_srli_epi32(v->u.v128[0], n)}; });
+    return result;
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::vshr_64 (uint8_t const N) const
+{
+    if (N == 0) return *this;
+    if (N == 16) return Zeroes();
+    SuperVector result;
+    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {_mm_srli_epi64(v->u.v128[0], n)}; });
+    return result;
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::vshr_128(uint8_t const N) const
+{
+    if (N == 0) return *this;
+    if (N == 16) return Zeroes();
+    SuperVector result;
+    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {_mm_srli_si128(v->u.v128[0], n)}; });
+    return result;
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::vshr(uint8_t const N) const
+{
+    return vshr_128(N);
 }
 
 #ifdef HS_OPTIMIZE
@@ -206,34 +385,9 @@ really_inline SuperVector<16> SuperVector<16>::operator>>(uint8_t const N) const
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator>>(uint8_t const N) const
 {
-    return rshift128_var(N);
+    return vshr_128(N);
 }
 #endif
-
-template <>
-really_inline SuperVector<16> SuperVector<16>::lshift128_var(uint8_t const N) const
-{
-    switch(N) {
-    case 1: return {_mm_slli_si128(u.v128[0], 1)}; break;
-    case 2: return {_mm_slli_si128(u.v128[0], 2)}; break;
-    case 3: return {_mm_slli_si128(u.v128[0], 3)}; break;
-    case 4: return {_mm_slli_si128(u.v128[0], 4)}; break;
-    case 5: return {_mm_slli_si128(u.v128[0], 5)}; break;
-    case 6: return {_mm_slli_si128(u.v128[0], 6)}; break;
-    case 7: return {_mm_slli_si128(u.v128[0], 7)}; break;
-    case 8: return {_mm_slli_si128(u.v128[0], 8)}; break;
-    case 9: return {_mm_slli_si128(u.v128[0], 9)}; break;
-    case 10: return {_mm_slli_si128(u.v128[0], 10)}; break;
-    case 11: return {_mm_slli_si128(u.v128[0], 11)}; break;
-    case 12: return {_mm_slli_si128(u.v128[0], 12)}; break;
-    case 13: return {_mm_slli_si128(u.v128[0], 13)}; break;
-    case 14: return {_mm_slli_si128(u.v128[0], 14)}; break;
-    case 15: return {_mm_slli_si128(u.v128[0], 15)}; break;
-    case 16: return Zeroes(); break;
-    default: break;
-    }
-    return *this;
-}
 
 #ifdef HS_OPTIMIZE
 template <>
@@ -245,9 +399,23 @@ really_inline SuperVector<16> SuperVector<16>::operator<<(uint8_t const N) const
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator<<(uint8_t const N) const
 {
-    return lshift128_var(N);
+    return vshl_128(N);
 }
 #endif
+
+template<>
+really_inline SuperVector<16> SuperVector<16>::Ones_vshr(uint8_t const N)
+{
+    if (N == 0) return Ones();
+    else return Ones().vshr_128(N);
+}
+
+template<>
+really_inline SuperVector<16> SuperVector<16>::Ones_vshl(uint8_t const N)
+{
+    if (N == 0) return Ones();
+    else return Ones().vshr_128(N);
+}
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::loadu(void const *ptr)
@@ -266,9 +434,9 @@ really_inline SuperVector<16> SuperVector<16>::load(void const *ptr)
 template <>
 really_inline SuperVector<16> SuperVector<16>::loadu_maskz(void const *ptr, uint8_t const len)
 {
-    SuperVector<16> mask = Ones().rshift128_var(16 -len);
+    SuperVector mask = Ones_vshr(16 -len);
     mask.print8("mask");
-    SuperVector<16> v = _mm_loadu_si128((const m128 *)ptr);
+    SuperVector v = _mm_loadu_si128((const m128 *)ptr);
     v.print8("v");
     return mask & v;
 }
@@ -315,88 +483,8 @@ really_inline SuperVector<16> SuperVector<16>::pshufb(SuperVector<16> b)
 template<>
 really_inline SuperVector<16> SuperVector<16>::pshufb_maskz(SuperVector<16> b, uint8_t const len)
 {
-    SuperVector<16> mask = Ones().rshift128_var(16 -len);
+    SuperVector mask = Ones_vshr(16 -len);
     return mask & pshufb(b);
-}
-
-#ifdef HS_OPTIMIZE
-template<>
-really_inline SuperVector<16> SuperVector<16>::lshift64(uint8_t const N)
-{
-    return {_mm_slli_epi64(u.v128[0], N)};
-}
-#else
-template<>
-really_inline SuperVector<16> SuperVector<16>::lshift64(uint8_t const N)
-{
-    switch(N) {
-    case 0: return *this; break;
-    case 1: return {_mm_slli_epi64(u.v128[0], 1)}; break;
-    case 2: return {_mm_slli_epi64(u.v128[0], 2)}; break;
-    case 3: return {_mm_slli_epi64(u.v128[0], 3)}; break;
-    case 4: return {_mm_slli_epi64(u.v128[0], 4)}; break;
-    case 5: return {_mm_slli_epi64(u.v128[0], 5)}; break;
-    case 6: return {_mm_slli_epi64(u.v128[0], 6)}; break;
-    case 7: return {_mm_slli_epi64(u.v128[0], 7)}; break;
-    case 8: return {_mm_slli_epi64(u.v128[0], 8)}; break;
-    case 9: return {_mm_slli_epi64(u.v128[0], 9)}; break;
-    case 10: return {_mm_slli_epi64(u.v128[0], 10)}; break;
-    case 11: return {_mm_slli_epi64(u.v128[0], 11)}; break;
-    case 12: return {_mm_slli_epi64(u.v128[0], 12)}; break;
-    case 13: return {_mm_slli_epi64(u.v128[0], 13)}; break;
-    case 14: return {_mm_slli_epi64(u.v128[0], 14)}; break;
-    case 15: return {_mm_slli_epi64(u.v128[0], 15)}; break;
-    case 16: return Zeroes();
-    default: break;
-    }
-    return *this;
-}
-#endif
-
-#ifdef HS_OPTIMIZE
-template<>
-really_inline SuperVector<16> SuperVector<16>::rshift64(uint8_t const N)
-{
-    return {_mm_srli_epi64(u.v128[0], N)};
-}
-#else
-template<>
-really_inline SuperVector<16> SuperVector<16>::rshift64(uint8_t const N)
-{
-    switch(N) {
-    case 0: return {_mm_srli_epi64(u.v128[0], 0)}; break;
-    case 1: return {_mm_srli_epi64(u.v128[0], 1)}; break;
-    case 2: return {_mm_srli_epi64(u.v128[0], 2)}; break;
-    case 3: return {_mm_srli_epi64(u.v128[0], 3)}; break;
-    case 4: return {_mm_srli_epi64(u.v128[0], 4)}; break;
-    case 5: return {_mm_srli_epi64(u.v128[0], 5)}; break;
-    case 6: return {_mm_srli_epi64(u.v128[0], 6)}; break;
-    case 7: return {_mm_srli_epi64(u.v128[0], 7)}; break;
-    case 8: return {_mm_srli_epi64(u.v128[0], 8)}; break;
-    case 9: return {_mm_srli_epi64(u.v128[0], 9)}; break;
-    case 10: return {_mm_srli_epi64(u.v128[0], 10)}; break;
-    case 11: return {_mm_srli_epi64(u.v128[0], 11)}; break;
-    case 12: return {_mm_srli_epi64(u.v128[0], 12)}; break;
-    case 13: return {_mm_srli_epi64(u.v128[0], 13)}; break;
-    case 14: return {_mm_srli_epi64(u.v128[0], 14)}; break;
-    case 15: return {_mm_srli_epi64(u.v128[0], 15)}; break;
-        case 16: return Zeroes();
-    default: break;
-    }
-    return *this;
-}
-#endif
-
-template<>
-really_inline SuperVector<16> SuperVector<16>::lshift128(uint8_t const N)
-{
-    return *this << N;
-}
-
-template<>
-really_inline SuperVector<16> SuperVector<16>::rshift128(uint8_t const N)
-{
-    return *this >> N;
 }
 
 // 256-bit AVX2 implementation
@@ -418,6 +506,20 @@ template<>
 really_inline SuperVector<32>::SuperVector(m128 const v)
 {
     u.v256[0] = _mm256_broadcastsi128_si256(v);
+};
+
+template<>
+really_inline SuperVector<32>::SuperVector(m128 const lo, m128 const hi)
+{
+    u.v128[0] = lo;
+    u.v128[1] = hi;
+};
+
+template<>
+really_inline SuperVector<32>::SuperVector(SuperVector<16> const lo, SuperVector<16> const hi)
+{
+    u.v128[0] = lo.u.v128[0];
+    u.v128[1] = hi.u.v128[0];
 };
 
 template<>
@@ -537,45 +639,245 @@ really_inline typename SuperVector<32>::movemask_type SuperVector<32>::eqmask(Su
     return eq(b).movemask();
 }
 
+
+// template <>
+// template<uint8_t N>
+// really_inline SuperVector<32> SuperVector<32>::vshl_8_imm() const
+// {
+//     const uint8_t i = N;
+//     return {_mm256_slli_epi8(u.v256[0], i)};
+// }
+
 template <>
-really_inline SuperVector<32> SuperVector<32>::rshift128_var(uint8_t const N) const
+template<uint8_t N>
+really_inline SuperVector<32> SuperVector<32>::vshl_16_imm() const
 {
-    switch(N) {
-    case 1: return {_mm256_alignr_epi8(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), u.v256[0], 1)}; break;
-    case 2: return {_mm256_alignr_epi8(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), u.v256[0], 2)}; break;
-    case 3: return {_mm256_alignr_epi8(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), u.v256[0], 3)}; break;
-    case 4: return {_mm256_alignr_epi8(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), u.v256[0], 4)}; break;
-    case 5: return {_mm256_alignr_epi8(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), u.v256[0], 5)}; break;
-    case 6: return {_mm256_alignr_epi8(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), u.v256[0], 6)}; break;
-    case 7: return {_mm256_alignr_epi8(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), u.v256[0], 7)}; break;
-    case 8: return {_mm256_alignr_epi8(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), u.v256[0], 8)}; break;
-    case 9: return {_mm256_alignr_epi8(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), u.v256[0], 9)}; break;
-    case 10: return {_mm256_alignr_epi8(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), u.v256[0], 10)}; break;
-    case 11: return {_mm256_alignr_epi8(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), u.v256[0], 11)}; break;
-    case 12: return {_mm256_alignr_epi8(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), u.v256[0], 12)}; break;
-    case 13: return {_mm256_alignr_epi8(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), u.v256[0], 13)}; break;
-    case 14: return {_mm256_alignr_epi8(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), u.v256[0], 14)}; break;
-    case 15: return {_mm256_alignr_epi8(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), u.v256[0], 15)}; break;
-    case 16: return {_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1))}; break;
-    case 17: return {_mm256_srli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), 1)}; break;
-    case 18: return {_mm256_srli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), 2)}; break;
-    case 19: return {_mm256_srli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), 3)}; break;
-    case 20: return {_mm256_srli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), 4)}; break;
-    case 21: return {_mm256_srli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), 5)}; break;
-    case 22: return {_mm256_srli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), 6)}; break;
-    case 23: return {_mm256_srli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), 7)}; break;
-    case 24: return {_mm256_srli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), 8)}; break;
-    case 25: return {_mm256_srli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), 9)}; break;
-    case 26: return {_mm256_srli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), 10)}; break;
-    case 27: return {_mm256_srli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), 11)}; break;
-    case 28: return {_mm256_srli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), 12)}; break;
-    case 29: return {_mm256_srli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), 13)}; break;
-    case 30: return {_mm256_srli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), 14)}; break;
-    case 31: return {_mm256_srli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), 15)}; break;
-    case 32: return Zeroes(); break;
-    default: break;
-    }
-    return *this;
+    return {_mm256_slli_epi16(u.v256[0], N)};
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<32> SuperVector<32>::vshl_32_imm() const
+{
+    return {_mm256_slli_epi32(u.v256[0], N)};
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<32> SuperVector<32>::vshl_64_imm() const
+{
+    return {_mm256_slli_epi64(u.v256[0], N)};
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<32> SuperVector<32>::vshl_128_imm() const
+{
+    return {_mm256_slli_si256(u.v256[0], N)};
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<32> SuperVector<32>::vshr_imm() const
+{
+    return vshr_256_imm<N>();
+}
+
+// template <>
+// template<uint8_t N>
+// really_inline SuperVector<32> SuperVector<32>::vshr_8_imm() const
+// {
+//     return {_mm256_srli_epi8(u.v256[0], N)};
+// }
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<32> SuperVector<32>::vshr_16_imm() const
+{
+    return {_mm256_srli_epi16(u.v256[0], N)};
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<32> SuperVector<32>::vshr_32_imm() const
+{
+    return {_mm256_srli_epi32(u.v256[0], N)};
+}
+  
+template <>
+template<uint8_t N>
+really_inline SuperVector<32> SuperVector<32>::vshr_64_imm() const
+{
+    return {_mm256_srli_epi64(u.v256[0], N)};
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<32>::vshr_128_imm() const
+{
+    return {_mm256_srli_si256(u.v256[0], N)};
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<32> SuperVector<32>::vshr_imm() const
+{
+    return vshr_256_imm<N>();
+}
+
+template SuperVector<32> SuperVector<32>::vshl_16_imm<1>() const;
+template SuperVector<32> SuperVector<32>::vshl_64_imm<1>() const;
+template SuperVector<32> SuperVector<32>::vshl_64_imm<4>() const;
+template SuperVector<32> SuperVector<32>::vshl_128_imm<1>() const;
+template SuperVector<32> SuperVector<32>::vshl_128_imm<4>() const;
+template SuperVector<32> SuperVector<32>::vshr_16_imm<1>() const;
+template SuperVector<32> SuperVector<32>::vshr_64_imm<1>() const;
+template SuperVector<32> SuperVector<32>::vshr_64_imm<4>() const;
+template SuperVector<32> SuperVector<32>::vshr_128_imm<1>() const;
+template SuperVector<32> SuperVector<32>::vshr_128_imm<4>() const;
+
+// template <>
+// really_inline SuperVector<16> SuperVector<16>::vshl_8  (uint8_t const N) const
+// {
+//     Unroller<0, 15>::iterator([&,v=this](int i) { if (N == i) return {_mm256_slli_epi8(v->u.v256[0], i)}; });
+//     if (N == 16) return Zeroes();
+// }
+
+template <>
+really_inline SuperVector<32> SuperVector<32>::vshl_16 (uint8_t const N) const
+{
+    if (N == 0) return *this;
+    if (N == 32) return Zeroes();
+    SuperVector result;
+    Unroller<1, 32>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {_mm256_slli_epi16(v->u.v256[0], n)}; });
+    return result;
+}
+
+template <>
+really_inline SuperVector<32> SuperVector<32>::vshl_32 (uint8_t const N) const
+{
+    if (N == 0) return *this;
+    if (N == 32) return Zeroes();
+    SuperVector result;
+    Unroller<1, 32>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {_mm256_slli_epi32(v->u.v256[0], n)}; });
+    return result;
+}
+
+template <>
+really_inline SuperVector<32> SuperVector<32>::vshl_64 (uint8_t const N) const
+{
+    if (N == 0) return *this;
+    if (N == 32) return Zeroes();
+    SuperVector result;
+    Unroller<1, 32>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {_mm256_slli_epi64(v->u.v256[0], n)}; });
+    return result;
+}
+
+template <>
+really_inline SuperVector<32> SuperVector<32>::vshl_128(uint8_t const N) const
+{
+    if (N == 0) return *this;
+    if (N == 32) return Zeroes();
+    SuperVector result;
+    Unroller<1, 32>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {_mm256_slli_si256(v->u.v256[0], n)}; });
+    return result;
+}
+
+template <>
+really_inline SuperVector<32> SuperVector<32>::vshl_256(uint8_t const N) const
+{
+    if (N == 0) return *this;
+    if (N == 16) return {_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0))};
+    if (N == 32) return Zeroes();
+    SuperVector result;
+    Unroller<1, 16>::iterator([&,v=this](auto const i) {
+        constexpr uint8_t n = i.value;
+        if (N == n) result = {_mm256_alignr_epi8(u.v256[0], _mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 16 - n)};;
+    });
+    Unroller<17, 32>::iterator([&,v=this](auto const i) {
+        constexpr uint8_t n = i.value;
+        if (N == n) result = {_mm256_slli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), n - 16)};
+    });
+    return result;
+}
+
+template <>
+really_inline SuperVector<32> SuperVector<32>::vshl(uint8_t const N) const
+{
+    return vshl_256(N);
+}
+
+// template <>
+// really_inline SuperVector<16> SuperVector<16>::vshr_8  (uint8_t const N) const
+// {
+//     SuperVector<16> result;
+//     Unroller<0, 15>::iterator([&,v=this](uint8_t const i) { if (N == i) result = {_mm_srli_epi8(v->u.v128[0], i)}; });
+//     if (N == 16) result = Zeroes();
+//     return result;
+// }
+
+template <>
+really_inline SuperVector<32> SuperVector<32>::vshr_16 (uint8_t const N) const
+{
+    if (N == 0) return *this;
+    if (N == 32) return Zeroes();
+    SuperVector result;
+    Unroller<1, 32>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {_mm256_srli_epi16(v->u.v256[0], n)}; });
+    return result;
+}
+
+template <>
+really_inline SuperVector<32> SuperVector<32>::vshr_32 (uint8_t const N) const
+{
+    if (N == 0) return *this;
+    if (N == 32) return Zeroes();
+    SuperVector result;
+    Unroller<1, 32>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {_mm256_srli_epi32(v->u.v256[0], n)}; });
+    return result;
+}
+
+template <>
+really_inline SuperVector<32> SuperVector<32>::vshr_64 (uint8_t const N) const
+{
+    if (N == 0) return *this;
+    if (N == 32) return Zeroes();
+    SuperVector result;
+    Unroller<1, 32>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {_mm256_srli_epi64(v->u.v256[0], n)}; });
+    return result;
+}
+
+template <>
+really_inline SuperVector<32> SuperVector<32>::vshr_128(uint8_t const N) const
+{
+    if (N == 0) return *this;
+    if (N == 32) return Zeroes();
+    SuperVector result;
+    Unroller<1, 32>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {_mm256_srli_si256(v->u.v256[0], n)}; });
+    return result;
+}
+
+template <>
+really_inline SuperVector<32> SuperVector<32>::vshr_256(uint8_t const N) const
+{
+    if (N == 0) return *this;
+    if (N == 16) return {_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1))};
+    if (N == 32) return Zeroes();
+    SuperVector result;
+    Unroller<1, 16>::iterator([&,v=this](auto const i) {
+        constexpr uint8_t n = i.value;
+        if (N == n) result = {_mm256_alignr_epi8(_mm256_permute2x128_si256(v->u.v256[0], v->u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), v->u.v256[0], n)};
+    });
+    Unroller<17, 32>::iterator([&,v=this](auto const i) {
+        constexpr uint8_t n = i.value;
+        if (N == n) result = {_mm256_srli_si256(_mm256_permute2x128_si256(v->u.v256[0], v->u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), n - 16)};
+    });
+    return result;
+}
+
+template <>
+really_inline SuperVector<32> SuperVector<32>::vshr(uint8_t const N) const
+{
+    return vshr_256(N);
 }
 
 #ifdef HS_OPTIMIZE
@@ -595,50 +897,9 @@ really_inline SuperVector<32> SuperVector<32>::operator>>(uint8_t const N) const
 template <>
 really_inline SuperVector<32> SuperVector<32>::operator>>(uint8_t const N) const
 {
-    return rshift128_var(N);
+    return vshr_256(N);
 }
 #endif
-
-template <>
-really_inline SuperVector<32> SuperVector<32>::lshift128_var(uint8_t const N) const
-{
-    switch(N) {
-    case 1: return {_mm256_alignr_epi8(u.v256[0], _mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 15)}; break;
-    case 2: return {_mm256_alignr_epi8(u.v256[0], _mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 14)}; break;
-    case 3: return {_mm256_alignr_epi8(u.v256[0], _mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 13)}; break;
-    case 4: return {_mm256_alignr_epi8(u.v256[0], _mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 12)}; break;
-    case 5: return {_mm256_alignr_epi8(u.v256[0], _mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 11)}; break;
-    case 6: return {_mm256_alignr_epi8(u.v256[0], _mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 10)}; break;
-    case 7: return {_mm256_alignr_epi8(u.v256[0], _mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 9)}; break;
-    case 8: return {_mm256_alignr_epi8(u.v256[0], _mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 8)}; break;
-    case 9: return {_mm256_alignr_epi8(u.v256[0], _mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 7)}; break;
-    case 10: return {_mm256_alignr_epi8(u.v256[0], _mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 6)}; break;
-    case 11: return {_mm256_alignr_epi8(u.v256[0], _mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 5)}; break;
-    case 12: return {_mm256_alignr_epi8(u.v256[0], _mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 4)}; break;
-    case 13: return {_mm256_alignr_epi8(u.v256[0], _mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 3)}; break;
-    case 14: return {_mm256_alignr_epi8(u.v256[0], _mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 2)}; break;
-    case 15: return {_mm256_alignr_epi8(u.v256[0], _mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 1)}; break;
-    case 16: return {_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0))}; break;
-    case 17: return {_mm256_slli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 1)}; break;
-    case 18: return {_mm256_slli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 2)}; break;
-    case 19: return {_mm256_slli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 3)}; break;
-    case 20: return {_mm256_slli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 4)}; break;
-    case 21: return {_mm256_slli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 5)}; break;
-    case 22: return {_mm256_slli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 6)}; break;
-    case 23: return {_mm256_slli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 7)}; break;
-    case 24: return {_mm256_slli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 8)}; break;
-    case 25: return {_mm256_slli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 9)}; break;
-    case 26: return {_mm256_slli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 10)}; break;
-    case 27: return {_mm256_slli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 11)}; break;
-    case 28: return {_mm256_slli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 12)}; break;
-    case 29: return {_mm256_slli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 13)}; break;
-    case 30: return {_mm256_slli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 14)}; break;
-    case 31: return {_mm256_slli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 15)}; break;
-    case 32: return Zeroes(); break;
-    default: break;
-    }
-    return *this;
-}
 
 #ifdef HS_OPTIMIZE
 template <>
@@ -657,9 +918,29 @@ really_inline SuperVector<32> SuperVector<32>::operator<<(uint8_t const N) const
 template <>
 really_inline SuperVector<32> SuperVector<32>::operator<<(uint8_t const N) const
 {
-    return lshift128_var(N);
+    return vshl_256(N);
 }
 #endif
+
+template<>
+really_inline SuperVector<32> SuperVector<32>::Ones_vshr(uint8_t const N)
+{
+    if (N == 0) return Ones();
+    if (N >= 16)
+        return {SuperVector<16>::Ones_vshr(N - 16), SuperVector<16>::Zeroes()};
+    else
+        return {SuperVector<16>::Ones(), SuperVector<16>::Ones_vshr(N)};
+}
+
+template<>
+really_inline SuperVector<32> SuperVector<32>::Ones_vshl(uint8_t const N)
+{
+    if (N == 0) return Ones();
+    if (N >= 16)
+        return {SuperVector<16>::Zeroes(), SuperVector<16>::Ones_vshl(N - 16)};
+    else
+        return {SuperVector<16>::Ones_vshl(N), SuperVector<16>::Ones()};
+}
 
 template <>
 really_inline SuperVector<32> SuperVector<32>::loadu(void const *ptr)
@@ -678,13 +959,21 @@ really_inline SuperVector<32> SuperVector<32>::load(void const *ptr)
 template <>
 really_inline SuperVector<32> SuperVector<32>::loadu_maskz(void const *ptr, uint8_t const len)
 {
-    SuperVector<32> mask = Ones().rshift128_var(32 -len);
+#ifdef HAVE_AVX512
+    u32 mask = (~0ULL) >> (32 - len);
+    SuperVector<32> v = _mm256_mask_loadu_epi8(Zeroes().u.v256[0], mask, (const m256 *)ptr);
+    v.print8("v");
+    return v;
+#else
+    DEBUG_PRINTF("len = %d", len);
+    SuperVector<32> mask = Ones_vshr(32 -len);
     mask.print8("mask");
+    (Ones() >> (32 - len)).print8("mask");
     SuperVector<32> v = _mm256_loadu_si256((const m256 *)ptr);
     v.print8("v");
     return mask & v;
+#endif
 }
-
 
 #ifdef HS_OPTIMIZE
 template<>
@@ -736,7 +1025,6 @@ really_inline SuperVector<32> SuperVector<32>::alignr(SuperVector<32> &other, in
 }
 #endif
 
-
 template<>
 really_inline SuperVector<32> SuperVector<32>::pshufb(SuperVector<32> b)
 {
@@ -746,207 +1034,9 @@ really_inline SuperVector<32> SuperVector<32>::pshufb(SuperVector<32> b)
 template<>
 really_inline SuperVector<32> SuperVector<32>::pshufb_maskz(SuperVector<32> b, uint8_t const len)
 {
-    SuperVector<32> mask = Ones().rshift128_var(32 -len);
+    SuperVector<32> mask = Ones_vshr(32 -len);
     return mask & pshufb(b);
 }
-
-#ifdef HS_OPTIMIZE
-template<>
-really_inline SuperVector<32> SuperVector<32>::lshift64(uint8_t const N)
-{
-    return {_mm256_slli_epi64(u.v256[0], N)};
-}
-#else
-template<>
-really_inline SuperVector<32> SuperVector<32>::lshift64(uint8_t const N)
-{
-    switch(N) {
-    case 0: return *this; break;
-    case 1: return {_mm256_slli_epi64(u.v256[0], 1)}; break;
-    case 2: return {_mm256_slli_epi64(u.v256[0], 2)}; break;
-    case 3: return {_mm256_slli_epi64(u.v256[0], 3)}; break;
-    case 4: return {_mm256_slli_epi64(u.v256[0], 4)}; break;
-    case 5: return {_mm256_slli_epi64(u.v256[0], 5)}; break;
-    case 6: return {_mm256_slli_epi64(u.v256[0], 6)}; break;
-    case 7: return {_mm256_slli_epi64(u.v256[0], 7)}; break;
-    case 8: return {_mm256_slli_epi64(u.v256[0], 8)}; break;
-    case 9: return {_mm256_slli_epi64(u.v256[0], 9)}; break;
-    case 10: return {_mm256_slli_epi64(u.v256[0], 10)}; break;
-    case 11: return {_mm256_slli_epi64(u.v256[0], 11)}; break;
-    case 12: return {_mm256_slli_epi64(u.v256[0], 12)}; break;
-    case 13: return {_mm256_slli_epi64(u.v256[0], 13)}; break;
-    case 14: return {_mm256_slli_epi64(u.v256[0], 14)}; break;
-    case 15: return {_mm256_slli_epi64(u.v256[0], 15)}; break;
-    case 16: return {_mm256_slli_epi64(u.v256[0], 16)}; break;
-    case 17: return {_mm256_slli_epi64(u.v256[0], 17)}; break;
-    case 18: return {_mm256_slli_epi64(u.v256[0], 18)}; break;
-    case 19: return {_mm256_slli_epi64(u.v256[0], 19)}; break;
-    case 20: return {_mm256_slli_epi64(u.v256[0], 20)}; break;
-    case 21: return {_mm256_slli_epi64(u.v256[0], 21)}; break;
-    case 22: return {_mm256_slli_epi64(u.v256[0], 22)}; break;
-    case 23: return {_mm256_slli_epi64(u.v256[0], 23)}; break;
-    case 24: return {_mm256_slli_epi64(u.v256[0], 24)}; break;
-    case 25: return {_mm256_slli_epi64(u.v256[0], 25)}; break;
-    case 26: return {_mm256_slli_epi64(u.v256[0], 26)}; break;
-    case 27: return {_mm256_slli_epi64(u.v256[0], 27)}; break;
-    case 28: return {_mm256_slli_epi64(u.v256[0], 28)}; break;
-    case 29: return {_mm256_slli_epi64(u.v256[0], 29)}; break;
-    case 30: return {_mm256_slli_epi64(u.v256[0], 30)}; break;
-    case 31: return {_mm256_slli_epi64(u.v256[0], 31)}; break;
-        case 32: return Zeroes();
-    default: break;
-    }
-    return *this;
-}
-#endif
-
-#ifdef HS_OPTIMIZE
-template<>
-really_inline SuperVector<32> SuperVector<32>::rshift64(uint8_t const N)
-{
-    return {_mm256_srli_epi64(u.v256[0], N)};
-}
-#else
-template<>
-really_inline SuperVector<32> SuperVector<32>::rshift64(uint8_t const N)
-{
-    switch(N) {
-    case 0: return *this; break;
-    case 1: return {_mm256_srli_epi64(u.v256[0], 1)}; break;
-    case 2: return {_mm256_srli_epi64(u.v256[0], 2)}; break;
-    case 3: return {_mm256_srli_epi64(u.v256[0], 3)}; break;
-    case 4: return {_mm256_srli_epi64(u.v256[0], 4)}; break;
-    case 5: return {_mm256_srli_epi64(u.v256[0], 5)}; break;
-    case 6: return {_mm256_srli_epi64(u.v256[0], 6)}; break;
-    case 7: return {_mm256_srli_epi64(u.v256[0], 7)}; break;
-    case 8: return {_mm256_srli_epi64(u.v256[0], 8)}; break;
-    case 9: return {_mm256_srli_epi64(u.v256[0], 9)}; break;
-    case 10: return {_mm256_srli_epi64(u.v256[0], 10)}; break;
-    case 11: return {_mm256_srli_epi64(u.v256[0], 11)}; break;
-    case 12: return {_mm256_srli_epi64(u.v256[0], 12)}; break;
-    case 13: return {_mm256_srli_epi64(u.v256[0], 13)}; break;
-    case 14: return {_mm256_srli_epi64(u.v256[0], 14)}; break;
-    case 15: return {_mm256_srli_epi64(u.v256[0], 15)}; break;
-    case 16: return {_mm256_srli_epi64(u.v256[0], 16)}; break;
-    case 17: return {_mm256_srli_epi64(u.v256[0], 17)}; break;
-    case 18: return {_mm256_srli_epi64(u.v256[0], 18)}; break;
-    case 19: return {_mm256_srli_epi64(u.v256[0], 19)}; break;
-    case 20: return {_mm256_srli_epi64(u.v256[0], 20)}; break;
-    case 21: return {_mm256_srli_epi64(u.v256[0], 21)}; break;
-    case 22: return {_mm256_srli_epi64(u.v256[0], 22)}; break;
-    case 23: return {_mm256_srli_epi64(u.v256[0], 23)}; break;
-    case 24: return {_mm256_srli_epi64(u.v256[0], 24)}; break;
-    case 25: return {_mm256_srli_epi64(u.v256[0], 25)}; break;
-    case 26: return {_mm256_srli_epi64(u.v256[0], 26)}; break;
-    case 27: return {_mm256_srli_epi64(u.v256[0], 27)}; break;
-    case 28: return {_mm256_srli_epi64(u.v256[0], 28)}; break;
-    case 29: return {_mm256_srli_epi64(u.v256[0], 29)}; break;
-    case 30: return {_mm256_srli_epi64(u.v256[0], 30)}; break;
-    case 31: return {_mm256_srli_epi64(u.v256[0], 31)}; break;
-        case 32: return Zeroes();
-    default: break;
-    }
-    return *this;
-}
-#endif
-
-#ifdef HS_OPTIMIZE
-template<>
-really_inline SuperVector<32> SuperVector<32>::lshift128(uint8_t const N)
-{
-    return {_mm256_slli_si256(u.v256[0], N)};
-}
-#else
-template<>
-really_inline SuperVector<32> SuperVector<32>::lshift128(uint8_t const N)
-{
-    switch(N) {
-    case 0: return *this; break;
-    case 1: return {_mm256_slli_si256(u.v256[0], 1)}; break;
-    case 2: return {_mm256_slli_si256(u.v256[0], 2)}; break;
-    case 3: return {_mm256_slli_si256(u.v256[0], 3)}; break;
-    case 4: return {_mm256_slli_si256(u.v256[0], 4)}; break;
-    case 5: return {_mm256_slli_si256(u.v256[0], 5)}; break;
-    case 6: return {_mm256_slli_si256(u.v256[0], 6)}; break;
-    case 7: return {_mm256_slli_si256(u.v256[0], 7)}; break;
-    case 8: return {_mm256_slli_si256(u.v256[0], 8)}; break;
-    case 9: return {_mm256_slli_si256(u.v256[0], 9)}; break;
-    case 10: return {_mm256_slli_si256(u.v256[0], 10)}; break;
-    case 11: return {_mm256_slli_si256(u.v256[0], 11)}; break;
-    case 12: return {_mm256_slli_si256(u.v256[0], 12)}; break;
-    case 13: return {_mm256_slli_si256(u.v256[0], 13)}; break;
-    case 14: return {_mm256_slli_si256(u.v256[0], 14)}; break;
-    case 15: return {_mm256_slli_si256(u.v256[0], 15)}; break;
-    case 16: return {_mm256_slli_si256(u.v256[0], 16)}; break;
-    case 17: return {_mm256_slli_si256(u.v256[0], 17)}; break;
-    case 18: return {_mm256_slli_si256(u.v256[0], 18)}; break;
-    case 19: return {_mm256_slli_si256(u.v256[0], 19)}; break;
-    case 20: return {_mm256_slli_si256(u.v256[0], 20)}; break;
-    case 21: return {_mm256_slli_si256(u.v256[0], 21)}; break;
-    case 22: return {_mm256_slli_si256(u.v256[0], 22)}; break;
-    case 23: return {_mm256_slli_si256(u.v256[0], 23)}; break;
-    case 24: return {_mm256_slli_si256(u.v256[0], 24)}; break;
-    case 25: return {_mm256_slli_si256(u.v256[0], 25)}; break;
-    case 26: return {_mm256_slli_si256(u.v256[0], 26)}; break;
-    case 27: return {_mm256_slli_si256(u.v256[0], 27)}; break;
-    case 28: return {_mm256_slli_si256(u.v256[0], 28)}; break;
-    case 29: return {_mm256_slli_si256(u.v256[0], 29)}; break;
-    case 30: return {_mm256_slli_si256(u.v256[0], 30)}; break;
-    case 31: return {_mm256_slli_si256(u.v256[0], 31)}; break;
-    default: break;
-    }
-    return *this;
-}
-#endif
-
-#ifdef HS_OPTIMIZE
-template<>
-really_inline SuperVector<32> SuperVector<32>::rshift128(uint8_t const N)
-{
-    return {_mm256_srli_si256(u.v256[0], N)};
-}
-#else
-template<>
-really_inline SuperVector<32> SuperVector<32>::rshift128(uint8_t const N)
-{
-    switch(N) {
-    case 0: return *this; break;
-    case 1: return {_mm256_srli_si256(u.v256[0], 1)}; break;
-    case 2: return {_mm256_srli_si256(u.v256[0], 2)}; break;
-    case 3: return {_mm256_srli_si256(u.v256[0], 3)}; break;
-    case 4: return {_mm256_srli_si256(u.v256[0], 4)}; break;
-    case 5: return {_mm256_srli_si256(u.v256[0], 5)}; break;
-    case 6: return {_mm256_srli_si256(u.v256[0], 6)}; break;
-    case 7: return {_mm256_srli_si256(u.v256[0], 7)}; break;
-    case 8: return {_mm256_srli_si256(u.v256[0], 8)}; break;
-    case 9: return {_mm256_srli_si256(u.v256[0], 9)}; break;
-    case 10: return {_mm256_srli_si256(u.v256[0], 10)}; break;
-    case 11: return {_mm256_srli_si256(u.v256[0], 11)}; break;
-    case 12: return {_mm256_srli_si256(u.v256[0], 12)}; break;
-    case 13: return {_mm256_srli_si256(u.v256[0], 13)}; break;
-    case 14: return {_mm256_srli_si256(u.v256[0], 14)}; break;
-    case 15: return {_mm256_srli_si256(u.v256[0], 15)}; break;
-    case 16: return {_mm256_srli_si256(u.v256[0], 16)}; break;
-    case 17: return {_mm256_srli_si256(u.v256[0], 17)}; break;
-    case 18: return {_mm256_srli_si256(u.v256[0], 18)}; break;
-    case 19: return {_mm256_srli_si256(u.v256[0], 19)}; break;
-    case 20: return {_mm256_srli_si256(u.v256[0], 20)}; break;
-    case 21: return {_mm256_srli_si256(u.v256[0], 21)}; break;
-    case 22: return {_mm256_srli_si256(u.v256[0], 22)}; break;
-    case 23: return {_mm256_srli_si256(u.v256[0], 23)}; break;
-    case 24: return {_mm256_srli_si256(u.v256[0], 24)}; break;
-    case 25: return {_mm256_srli_si256(u.v256[0], 25)}; break;
-    case 26: return {_mm256_srli_si256(u.v256[0], 26)}; break;
-    case 27: return {_mm256_srli_si256(u.v256[0], 27)}; break;
-    case 28: return {_mm256_srli_si256(u.v256[0], 28)}; break;
-    case 29: return {_mm256_srli_si256(u.v256[0], 29)}; break;
-    case 30: return {_mm256_srli_si256(u.v256[0], 30)}; break;
-    case 31: return {_mm256_srli_si256(u.v256[0], 31)}; break;
-    default: break;
-    }
-    return *this;
-}
-#endif
 
 #endif // HAVE_AVX2
 

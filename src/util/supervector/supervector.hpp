@@ -217,15 +217,63 @@ public:
 
   SuperVector pshufb(SuperVector b);
   SuperVector pshufb_maskz(SuperVector b, uint8_t const len);
-  SuperVector lshift64(uint8_t const N);
-  SuperVector rshift64(uint8_t const N);
-  SuperVector lshift128(uint8_t const N);
-  SuperVector rshift128(uint8_t const N);
-  SuperVector lshift128_var(uint8_t const N) const;
-  SuperVector rshift128_var(uint8_t const N) const;
+
+  // Shift instructions
+  template<uint8_t N>
+  SuperVector vshl_8_imm() const;
+  template<uint8_t N>
+  SuperVector vshl_16_imm() const;
+  template<uint8_t N>
+  SuperVector vshl_32_imm() const;
+  template<uint8_t N>
+  SuperVector vshl_64_imm() const;
+  template<uint8_t N>
+  SuperVector vshl_128_imm() const;
+  #if defined(HAVE_SIMD_256_BITS)
+  template<uint8_t N>
+  SuperVector vshl_256_imm() const;
+  #endif
+  template<uint8_t N>
+  SuperVector vshl_imm() const;
+  template<uint8_t N>
+  SuperVector vshr_8_imm() const;
+  template<uint8_t N>
+  SuperVector vshr_16_imm() const;
+  template<uint8_t N>
+  SuperVector vshr_32_imm() const;
+  template<uint8_t N>
+  SuperVector vshr_64_imm() const;
+  template<uint8_t N>
+  SuperVector vshr_128_imm() const;
+  #if defined(HAVE_SIMD_256_BITS)
+  template<uint8_t N>
+  SuperVector vshr_256_imm() const;
+  #endif
+  template<uint8_t N>
+  SuperVector vshr_imm() const;
+  SuperVector vshl_8  (uint8_t const N) const;
+  SuperVector vshl_16 (uint8_t const N) const;
+  SuperVector vshl_32 (uint8_t const N) const;
+  SuperVector vshl_64 (uint8_t const N) const;
+  SuperVector vshl_128(uint8_t const N) const;
+  #if defined(HAVE_SIMD_256_BITS)
+  SuperVector vshl_256(uint8_t const N) const;
+  #endif
+  SuperVector vshl    (uint8_t const N) const;
+  SuperVector vshr_8  (uint8_t const N) const;
+  SuperVector vshr_16 (uint8_t const N) const;
+  SuperVector vshr_32 (uint8_t const N) const;
+  SuperVector vshr_64 (uint8_t const N) const;
+  SuperVector vshr_128(uint8_t const N) const;
+  #if defined(HAVE_SIMD_256_BITS)
+  SuperVector vshr_256(uint8_t const N) const;
+  #endif
+  SuperVector vshr    (uint8_t const N) const;
 
   // Constants
   static SuperVector Ones();
+  static SuperVector Ones_vshr(uint8_t const N);
+  static SuperVector Ones_vshl(uint8_t const N);
   static SuperVector Zeroes();
 
   #if defined(DEBUG)
@@ -262,6 +310,25 @@ public:
   void print32(const char *label UNUSED) const {};
   void print64(const char *label UNUSED) const {};
 #endif
+};
+
+template <std::size_t Begin, std::size_t End>
+struct Unroller
+{
+  template<typename Action>
+  static void iterator(Action &&action)
+  {
+    action(std::integral_constant<int, Begin>());
+    Unroller<Begin + 1, End>::iterator(action);
+  }
+};
+
+template <std::size_t End>
+struct Unroller<End, End>
+{
+  template<typename Action>
+  static void iterator(Action &&action UNUSED)
+  {}
 };
 
 #if defined(HS_OPTIMIZE)

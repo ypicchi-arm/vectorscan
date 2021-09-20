@@ -51,7 +51,7 @@ typename SuperVector<S>::movemask_type block(SuperVector<S> mask_lo, SuperVector
 
     SuperVector<S> c_lo = chars & low4bits;
     c_lo = mask_lo.pshufb(c_lo);
-    SuperVector<S> c_hi = mask_hi.pshufb(chars.rshift64(4) & low4bits);
+    SuperVector<S> c_hi = mask_hi.pshufb(chars.template vshr_64_imm<4>() & low4bits);
     SuperVector<S> t = c_lo & c_hi;
 
     return t.eqmask(SuperVector<S>::Zeroes());
@@ -212,7 +212,7 @@ const u8 *fwdBlockDouble(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi, Super
     const SuperVector<S> low4bits = SuperVector<S>::dup_u8(0xf);
     SuperVector<S> chars_lo = chars & low4bits;
     chars_lo.print8("chars_lo");
-    SuperVector<S> chars_hi = chars.rshift64(4) & low4bits;
+    SuperVector<S> chars_hi = chars.template vshr_64_imm<4>() & low4bits;
     chars_hi.print8("chars_hi");
     SuperVector<S> c1_lo = mask1_lo.pshufb(chars_lo);
     c1_lo.print8("c1_lo");
@@ -227,8 +227,8 @@ const u8 *fwdBlockDouble(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi, Super
     c2_hi.print8("c2_hi");
     SuperVector<S> t2 = c2_lo | c2_hi;
     t2.print8("t2");
-    t2.rshift128(1).print8("t2.rshift128(1)");
-    SuperVector<S> t = t1 | (t2.rshift128(1));
+    t2.template vshr_128_imm<1>().print8("t2.rshift128(1)");
+    SuperVector<S> t = t1 | (t2.template vshr_128_imm<1>());
     t.print8("t");
 
     typename SuperVector<S>::movemask_type z = t.eqmask(SuperVector<S>::Ones());
@@ -250,7 +250,7 @@ static really_inline const u8 *shuftiDoubleMini(SuperVector<S> mask1_lo, SuperVe
 
     SuperVector<S> chars_lo = chars & low4bits;
     chars_lo.print8("chars_lo");
-    SuperVector<S> chars_hi = chars.rshift64(4) & low4bits;
+    SuperVector<S> chars_hi = chars.template vshr_64_imm<4>() & low4bits;
     chars_hi.print8("chars_hi");
     SuperVector<S> c1_lo = mask1_lo.pshufb_maskz(chars_lo, len);
     c1_lo.print8("c1_lo");
@@ -265,8 +265,8 @@ static really_inline const u8 *shuftiDoubleMini(SuperVector<S> mask1_lo, SuperVe
     c2_hi.print8("c2_hi");
     SuperVector<S> t2 = c2_lo | c2_hi;
     t2.print8("t2");
-    t2.rshift128(1).print8("t2.rshift128(1)");
-    SuperVector<S> t = t1 | (t2.rshift128(1));
+    t2.template vshr_128_imm<1>().print8("t2.rshift128(1)");
+    SuperVector<S> t = t1 | (t2.template vshr_128_imm<1>());
     t.print8("t");
 
     typename SuperVector<S>::movemask_type z = t.eqmask(SuperVector<S>::Ones());

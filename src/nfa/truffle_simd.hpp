@@ -53,7 +53,7 @@ typename SuperVector<S>::movemask_type block(SuperVector<S> shuf_mask_lo_highcle
     SuperVector<S> shuf1 = shuf_mask_lo_highclear.pshufb(v);
     SuperVector<S> t1 = v ^ highconst;
     SuperVector<S> shuf2 = shuf_mask_lo_highset.pshufb(t1);
-    SuperVector<S> t2 = highconst.opandnot(v.rshift64(4));
+    SuperVector<S> t2 = highconst.opandnot(v.template vshr_64_imm<4>());
     SuperVector<S> shuf3 = shuf_mask_hi.pshufb(t2);
     SuperVector<S> tmp = (shuf1 | shuf2) & shuf3;
 
