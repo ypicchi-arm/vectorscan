@@ -146,7 +146,7 @@ endif ()
         string(REGEX REPLACE "-O[^ ]*" "" CMAKE_CXX_FLAGS_${CONFIG} "${CMAKE_CXX_FLAGS_${CONFIG}}")
     endforeach ()
 
-    if (CMAKE_COMPILER_IS_GNUCC AND NOT CROSS_COMPILE_AARCH64)
+    if (CMAKE_COMPILER_IS_GNUCC AND NOT CROSS_COMPILE_AARCH64 AND NOT ARCH_PPC64EL)
         message(STATUS "gcc version ${CMAKE_C_COMPILER_VERSION}")
         # If gcc doesn't recognise the host cpu, then mtune=native becomes
         # generic, which isn't very good in some cases. march=native looks at
@@ -227,21 +227,23 @@ endif ()
         set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -DNDEBUG")
     endif()
 
-
-    if (NOT CMAKE_C_FLAGS MATCHES .*march.* AND NOT CMAKE_C_FLAGS MATCHES .*mtune.*)
-           set(ARCH_C_FLAGS "-march=${GNUCC_ARCH} -mtune=${TUNE_FLAG}")
+    
+    if (ARCH_IA32 OR ARCH_X86_64 OR ARCH_ARM32 OR ARCH_AARCH64)
+	 if (NOT CMAKE_C_FLAGS MATCHES .*march.* AND NOT CMAKE_C_FLAGS MATCHES .*mtune.*)
+            set(ARCH_C_FLAGS "-march=${GNUCC_ARCH} -mtune=${TUNE_FLAG}")
+   	 endif()
+	 
+	 if (NOT CMAKE_CXX_FLAGS MATCHES .*march.* AND NOT CMAKE_CXX_FLAGS MATCHES .*mtune.*)
+            set(ARCH_CXX_FLAGS "-march=${GNUCC_ARCH} -mtune=${TUNE_FLAG}")
+         endif()
     endif()
-
-    if (NOT CMAKE_CXX_FLAGS MATCHES .*march.* AND NOT CMAKE_CXX_FLAGS MATCHES .*mtune.*)
-           set(ARCH_CXX_FLAGS "-march=${GNUCC_ARCH} -mtune=${TUNE_FLAG}")
-    endif()
-
-    if(ARCH_AARCH64)
+    
+    if(ARCH_PPC64EL)
         if (NOT CMAKE_C_FLAGS MATCHES .*march.* AND NOT CMAKE_C_FLAGS MATCHES .*mtune.*)
             set(ARCH_C_FLAGS "-mtune=${TUNE_FLAG}")
         endif()
         if (NOT CMAKE_CXX_FLAGS MATCHES .*march.* AND NOT CMAKE_CXX_FLAGS MATCHES .*mtune.*)
-            set(ARCH_CXX_FLAGS " -mtune=${TUNE_FLAG}")
+            set(ARCH_CXX_FLAGS "-mtune=${TUNE_FLAG}")
         endif()
     endif()
 
