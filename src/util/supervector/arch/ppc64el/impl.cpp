@@ -57,7 +57,7 @@ template<>
 really_inline SuperVector<16>::SuperVector<int8_t>(int8_t const other)
 {
     //u.v128[0] = _mm_set1_epi8(other);
-    u.v128[0] = vdupq_n_u8(other);
+    u.v128[0] = vec_splat_s8(other);
 }
 
 template<>
@@ -65,7 +65,7 @@ template<>
 really_inline SuperVector<16>::SuperVector<uint8_t>(uint8_t const other)
 {
     //u.v128[0] = _mm_set1_epi8(static_cast<int8_t>(other));
-    u.v128[0] = vdupq_n_u8(static_cast<int8_t>(other));
+    u.v128[0] = vec_splat_s8(static_cast<int8_t>(other));
 }
 
 template<>
@@ -73,6 +73,7 @@ template<>
 really_inline SuperVector<16>::SuperVector<int16_t>(int16_t const other)
 {
     //u.v128[0] = _mm_set1_epi16(other);
+    u.v128[0] = vec_splat_s16(other);
 }
 
 template<>
@@ -80,6 +81,7 @@ template<>
 really_inline SuperVector<16>::SuperVector<uint16_t>(uint16_t const other)
 {
     //u.v128[0] = _mm_set1_epi16(static_cast<int16_t>(other));
+    u.v128[0] = vec_splat_s16(static_cast<int8_t>(other));
 }
 
 template<>
@@ -87,7 +89,7 @@ template<>
 really_inline SuperVector<16>::SuperVector<int32_t>(int32_t const other)
 {
     //u.v128[0] = _mm_set1_epi32(other);
-    u.v128[0] = vdupq_n_u32(other);
+    u.v128[0] = vec_splat_s32(other);
 }
 
 template<>
@@ -95,7 +97,7 @@ template<>
 really_inline SuperVector<16>::SuperVector<uint32_t>(uint32_t const other)
 {
     //u.v128[0] = _mm_set1_epi32(static_cast<int32_t>(other));
-    u.v128[0] = vdupq_n_u32(static_cast<int32_t>(other));
+    u.v128[0] = vec_splat_s32(static_cast<int8_t>(other));
 }
 
 template<>
@@ -103,7 +105,7 @@ template<>
 really_inline SuperVector<16>::SuperVector<int64_t>(int64_t const other)
 {
     //u.v128[0] = _mm_set1_epi64x(other);
-    u.v128[0] = vdupq_n_u64(other);
+    u.v128[0] = vec_splat_u64(other);
 }
 
 template<>
@@ -111,7 +113,7 @@ template<>
 really_inline SuperVector<16>::SuperVector<uint64_t>(uint64_t const other)
 {
     //u.v128[0] = _mm_set1_epi64x(static_cast<int64_t>(other));
-    u.v128[0] = vdupq_n_u64(static_cast<int64_t>(other));
+    u.v128[0] = vec_splat_u32(static_cast<int8_t>(other));
 }
 
 // Constants
@@ -141,7 +143,7 @@ template <>
 really_inline SuperVector<16> SuperVector<16>::operator&(SuperVector<16> const &b) const
 {
     //return {_mm_and_si128(u.v128[0], b.u.v128[0])};
-    return {vec_add(u.v128[0], b.u.v128[0])};
+    return {vec_and(u.v128[0], b.u.v128[0])};
 }
 
 template <>
@@ -162,14 +164,14 @@ template <>
 really_inline SuperVector<16> SuperVector<16>::opandnot(SuperVector<16> const &b) const
 {
     //return {_mm_andnot_si128(u.v128[0], b.u.v128[0])};
-    return 0;
+    #warning FIXME
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::eq(SuperVector<16> const &b) const
 {
     //return {_mm_cmpeq_epi8(u.v128[0], b.u.v128[0])};
-    return {vec_cmpeq(u.v128[0], b.u.v128[0])};
+    return { vec_all_eq(u.v128[0], b.u.v128[0])};
 }
 
 template <>
@@ -177,15 +179,15 @@ really_inline typename SuperVector<16>::movemask_type SuperVector<16>::movemask(
 {
     //return _mm_movemask_epi8(u.v128[0]);
     // Compute the mask from the input
-    uint64x2_t mask  = vpaddlq_u32(vpaddlq_u16(vpaddlq_u8(vandq_u8((uint8x16_t)u.v128[0], 0))));
-    uint64x2_t mask1 = (m128)vextq_s8(mask, Zeroes(), 7);
-    mask = vorrq_u8(mask, mask1);
+    //uint64x2_t mask  = vpaddlq_u32(vpaddlq_u16(vpaddlq_u8(vandq_u8((uint8x16_t)u.v128[0], 0))));
+    //uint64x2_t mask1 = (m128)vextq_s8(mask, Zeroes(), 7);
+    //mask = vorrq_u8(mask, mask1);
 
     // Get the resulting bytes
-    uint16_t output;
-    vst1q_lane_u16((uint16_t*)&output, (uint16x8_t)mask, 0);
-    return output;
-    return 0;
+    //uint16_t output;
+    //vst1q_lane_u16((uint16_t*)&output, (uint16x8_t)mask, 0);
+    //return output;
+    #warning FIXME
 }
 
 template <>
@@ -198,21 +200,21 @@ template <>
 really_inline SuperVector<16> SuperVector<16>::rshift128_var(uint8_t const N) const
 {
     switch(N) {
-    case 1: return {vshrq_n_s32(u.v128[0], 1)}; break;
-    case 2: return {vshrq_n_s32(u.v128[0], 2)}; break;
-    case 3: return {vshrq_n_s32(u.v128[0], 3)}; break;
-    case 4: return {vshrq_n_s32(u.v128[0], 4)}; break;
-    case 5: return {vshrq_n_s32(u.v128[0], 5)}; break;
-    case 6: return {vshrq_n_s32(u.v128[0], 6)}; break;
-    case 7: return {vshrq_n_s32(u.v128[0], 7)}; break;
-    case 8: return {vshrq_n_s32(u.v128[0], 8)}; break;
-    case 9: return {vshrq_n_s32(u.v128[0], 9)}; break;
-    case 10: return {vshrq_n_s32(u.v128[0], 10)}; break;
-    case 11: return {vshrq_n_s32(u.v128[0], 11)}; break;
-    case 12: return {vshrq_n_s32(u.v128[0], 12)}; break;
-    case 13: return {vshrq_n_s32(u.v128[0], 13)}; break;
-    case 14: return {vshrq_n_s32(u.v128[0], 14)}; break;
-    case 15: return {vshrq_n_s32(u.v128[0], 15)}; break;
+    case 1: return {vec_srl(u.v128[0], 1)}; break;
+    case 2: return {vec_srl(u.v128[0], 2)}; break;
+    case 3: return {vec_srl(u.v128[0], 3)}; break;
+    case 4: return {vec_srl(u.v128[0], 4)}; break;
+    case 5: return {vec_srl(u.v128[0], 5)}; break;
+    case 6: return {vec_srl(u.v128[0], 6)}; break;
+    case 7: return {vec_srl(u.v128[0], 7)}; break;
+    case 8: return {vec_srl(u.v128[0], 8)}; break;
+    case 9: return {vec_srl(u.v128[0], 9)}; break;
+    case 10: return {vec_srl(u.v128[0], 10)}; break;
+    case 11: return {vec_srl(u.v128[0], 11)}; break;
+    case 12: return {vec_srl(u.v128[0], 12)}; break;
+    case 13: return {vec_srl(u.v128[0], 13)}; break;
+    case 14: return {vec_srl(u.v128[0], 14)}; break;
+    case 15: return {vec_srl(u.v128[0], 15)}; break;
     case 16: return Zeroes(); break;
     default: break;
     }
@@ -223,7 +225,7 @@ really_inline SuperVector<16> SuperVector<16>::rshift128_var(uint8_t const N) co
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator>>(uint8_t const N) const
 {
-    return {vshrq_n_s32(u.v128[0], N)};
+    return {vec_srl(u.v128[0], N)};
 }
 #else
 template <>
@@ -237,21 +239,21 @@ template <>
 really_inline SuperVector<16> SuperVector<16>::lshift128_var(uint8_t const N) const
 {
     switch(N) {
-    case 1: return {vshlq_n_s32(u.v128[0], 1)}; break;
-    case 2: return {vshlq_n_s32(u.v128[0], 2)}; break;
-    case 3: return {vshlq_n_s32(u.v128[0], 3)}; break;
-    case 4: return {vshlq_n_s32(u.v128[0], 4)}; break;
-    case 5: return {vshlq_n_s32(u.v128[0], 5)}; break;
-    case 6: return {vshlq_n_s32(u.v128[0], 6)}; break;
-    case 7: return {vshlq_n_s32(u.v128[0], 7)}; break;
-    case 8: return {vshlq_n_s32(u.v128[0], 8)}; break;
-    case 9: return {vshlq_n_s32(u.v128[0], 9)}; break;
-    case 10: return {vshlq_n_s32(u.v128[0], 10)}; break;
-    case 11: return {vshlq_n_s32(u.v128[0], 11)}; break;
-    case 12: return {vshlq_n_s32(u.v128[0], 12)}; break;
-    case 13: return {vshlq_n_s32(u.v128[0], 13)}; break;
-    case 14: return {vshlq_n_s32(u.v128[0], 14)}; break;
-    case 15: return {vshlq_n_s32(u.v128[0], 15)}; break;
+    case 1: return {vec_sll(u.v128[0], 1)}; break;
+    case 2: return {vec_sll(u.v128[0], 2)}; break;
+    case 3: return {vec_sll(u.v128[0], 3)}; break;
+    case 4: return {vec_sll(u.v128[0], 4)}; break;
+    case 5: return {vec_sll(u.v128[0], 5)}; break;
+    case 6: return {vec_sll(u.v128[0], 6)}; break;
+    case 7: return {vec_sll(u.v128[0], 7)}; break;
+    case 8: return {vec_sll(u.v128[0], 8)}; break;
+    case 9: return {vec_sll(u.v128[0], 9)}; break;
+    case 10: return {vec_sll(u.v128[0], 10)}; break;
+    case 11: return {vec_sll(u.v128[0], 11)}; break;
+    case 12: return {vec_sll(u.v128[0], 12)}; break;
+    case 13: return {vec_sll(u.v128[0], 13)}; break;
+    case 14: return {vec_sll(u.v128[0], 14)}; break;
+    case 15: return {vec_sll(u.v128[0], 15)}; break;
     case 16: return Zeroes(); break;
     default: break;
     }
@@ -262,7 +264,7 @@ really_inline SuperVector<16> SuperVector<16>::lshift128_var(uint8_t const N) co
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator<<(uint8_t const N) const
 {
-    return {vshlq_n_s32(u.v128[0], N)};
+    return {vec_sll(u.v128[0], N)};
 }
 #else
 template <>
@@ -276,7 +278,7 @@ template <>
 really_inline SuperVector<16> SuperVector<16>::loadu(void const *ptr)
 {
     //return _mm_loadu_si128((const m128 *)ptr);
-    return vld1q_s32((const int32_t *)ptr)
+    #warning FIXME
 }
 
 template <>
@@ -285,31 +287,34 @@ really_inline SuperVector<16> SuperVector<16>::load(void const *ptr)
     //assert(ISALIGNED_N(ptr, alignof(SuperVector::size)));
     //ptr = assume_aligned(ptr, SuperVector::size);
     //return _mm_load_si128((const m128 *)ptr);
-    assert(ISALIGNED_N(ptr, alignof(m128)));
-    return vld1q_s32((const int32_t *)ptr);
-
+    //assert(ISALIGNED_N(ptr, alignof(m128)));
+    //return vld1q_s32((const int32_t *)ptr);
+    #warning FIXME
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::loadu_maskz(void const *ptr, uint8_t const len)
 {
-    SuperVector<16> mask = Ones().rshift128_var(16 -len);
-    mask.print8("mask");
-    SuperVector<16> v = vld1q_s32((const int32_t *)ptr);
-    v.print8("v");
-    return mask & v;
+    //SuperVector<16> mask = Ones().rshift128_var(16 -len);
+    //mask.print8("mask");
+    //SuperVector<16> v = vld1q_s32((const int32_t *)ptr);
+    //v.print8("v");
+    //return mask & v;
+    #warning FIXME
 }
 
 #ifdef HS_OPTIMIZE
 template<>
 really_inline SuperVector<16> SuperVector<16>::alignr(SuperVector<16> &other, int8_t offset)
 {
-    return {vextq_s8(u.v128[0], other.u.v128[0], offset)};
+    //return {vextq_s8(u.v128[0], other.u.v128[0], offset)};
+    #warning FIXME
 }
 #else
 template<>
 really_inline SuperVector<16> SuperVector<16>::alignr(SuperVector<16> &other, int8_t offset)
-{
+{   
+    /*
     switch(offset) {
     case 0: return other; break;
     case 1: return {vextq_s8(u.v128[0], other.u.v128[0], 1)}; break;
@@ -330,6 +335,8 @@ really_inline SuperVector<16> SuperVector<16>::alignr(SuperVector<16> &other, in
     default: break;
     }
     return *this;
+    */
+   #warning FIXME
 }
 #endif
 
@@ -337,8 +344,9 @@ template<>
 really_inline SuperVector<16> SuperVector<16>::pshufb(SuperVector<16> b)
 {
     //return {_mm_shuffle_epi8(u.v128[0], b.u.v128[0])};
-    int8x16_t btranslated = vandq_s8((int8x16_t)b.u.v128[0],vdupq_n_s8(0x8f));
-    return (m128)vqtbl1q_s8((int8x16_t)u.v128[0], (uint8x16_t)btranslated);
+    //int8x16_t btranslated = vandq_s8((int8x16_t)b.u.v128[0],vdupq_n_s8(0x8f));
+    //return (m128)vqtbl1q_s8((int8x16_t)u.v128[0], (uint8x16_t)btranslated);
+    #warning FIXME
 }
 
 template<>
@@ -352,7 +360,8 @@ really_inline SuperVector<16> SuperVector<16>::pshufb_maskz(SuperVector<16> b, u
 template<>
 really_inline SuperVector<16> SuperVector<16>::lshift64(uint8_t const N)
 {
-    return {vshlq_n_s64(u.v128[0], N)};
+    //return {vshlq_n_s64(u.v128[0], N)};
+    return {vec_sldw((int64x2_t)u.v128[0], N, 8)};
 }
 #else
 template<>
@@ -360,21 +369,21 @@ really_inline SuperVector<16> SuperVector<16>::lshift64(uint8_t const N)
 {
     switch(N) {
     case 0: return *this; break;
-    case 1: return {vshlq_n_s64(u.v128[0], 1)}; break;
-    case 2: return {vshlq_n_s64(u.v128[0], 2)}; break;
-    case 3: return {vshlq_n_s64(u.v128[0], 3)}; break;
-    case 4: return {vshlq_n_s64(u.v128[0], 4)}; break;
-    case 5: return {vshlq_n_s64(u.v128[0], 5)}; break;
-    case 6: return {vshlq_n_s64(u.v128[0], 6)}; break;
-    case 7: return {vshlq_n_s64(u.v128[0], 7)}; break;
-    case 8: return {vshlq_n_s64(u.v128[0], 8)}; break;
-    case 9: return {vshlq_n_s64(u.v128[0], 9)}; break;
-    case 10: return {vshlq_n_s64(u.v128[0], 10)}; break;
-    case 11: return {vshlq_n_s64(u.v128[0], 11)}; break;
-    case 12: return {vshlq_n_s64(u.v128[0], 12)}; break;
-    case 13: return {vshlq_n_s64(u.v128[0], 13)}; break;
-    case 14: return {vshlq_n_s64(u.v128[0], 14)}; break;
-    case 15: return {vshlq_n_s64(u.v128[0], 15)}; break;
+    case 1: return {vec_sldw((int64x2_t)u.v128[0], 1, 8)}; break;
+    case 2: return {vec_sldw((int64x2_t)u.v128[0], 2, 8)}; break;
+    case 3: return {vec_sldw((int64x2_t)u.v128[0], 3, 8)}; break;
+    case 4: return {vec_sldw((int64x2_t)u.v128[0], 4, 8)}; break;
+    case 5: return {vec_sldw((int64x2_t)u.v128[0], 5, 8)}; break;
+    case 6: return {vec_sldw((int64x2_t)u.v128[0], 6, 8)}; break;
+    case 7: return {vec_sldw((int64x2_t)u.v128[0], 7, 8)}; break;
+    case 8: return {vec_sldw((int64x2_t)u.v128[0], 8, 8)}; break;
+    case 9: return {vec_sldw((int64x2_t)u.v128[0], 9, 8)}; break;
+    case 10: return {vec_sldw((int64x2_t)u.v128[0], 10, 8)}; break;
+    case 11: return {vec_sldw((int64x2_t)u.v128[0], 11, 8)}; break;
+    case 12: return {vec_sldw((int64x2_t)u.v128[0], 12, 8)}; break;
+    case 13: return {vec_sldw((int64x2_t)u.v128[0], 13, 8)}; break;
+    case 14: return {vec_sldw((int64x2_t)u.v128[0], 14, 8)}; break;
+    case 15: return {vec_sldw((int64x2_t)u.v128[0], 15, 8)}; break;
     case 16: return Zeroes();
     default: break;
     }
@@ -386,12 +395,14 @@ really_inline SuperVector<16> SuperVector<16>::lshift64(uint8_t const N)
 template<>
 really_inline SuperVector<16> SuperVector<16>::rshift64(uint8_t const N)
 {
-    return {vshrq_n_s64(u.v128[0], N)};
+    //return {vshrq_n_s64(u.v128[0], N)};
+    #warning FIXME
 }
 #else
 template<>
 really_inline SuperVector<16> SuperVector<16>::rshift64(uint8_t const N)
-{
+{   
+    /*
     switch(N) {
     case 0: return {vshrq_n_s64(u.v128[0], 0)}; break;
     case 1: return {vshrq_n_s64(u.v128[0], 1)}; break;
@@ -413,6 +424,8 @@ really_inline SuperVector<16> SuperVector<16>::rshift64(uint8_t const N)
     default: break;
     }
     return *this;
+    */
+   #warning FIXME
 }
 #endif
 

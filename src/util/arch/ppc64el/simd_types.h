@@ -26,12 +26,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SIMD_TYPES_ARM_H
-#define SIMD_TYPES_ARM_H
+#ifndef ARCH_PPC64EL_SIMD_TYPES_H
+#define ARCH_PPC64EL_SIMD_TYPES_H
 
 #if !defined(m128) && defined(HAVE_VSX)
 typedef __vector int32_t m128;
 #endif
 
-#endif /* SIMD_TYPES_ARM_H */
+#endif /* ARCH_PPC64EL_SIMD_TYPES_H  */
 
