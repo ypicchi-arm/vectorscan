@@ -51,7 +51,7 @@ u32 packedExtract(SuperVector<S> s, const SuperVector<S> permute, const SuperVec
 template <>
 really_really_inline
 u32 packedExtract<16>(SuperVector<16> s, const SuperVector<16> permute, const SuperVector<16> compare) {
-    SuperVector<16> shuffled = s.pshufb(permute);
+    SuperVector<16> shuffled = s.pshufb<true>(permute);
     SuperVector<16> compared = shuffled & compare;
     u16 rv = ~compared.eqmask(shuffled);
     return (u32)rv;
@@ -60,7 +60,7 @@ u32 packedExtract<16>(SuperVector<16> s, const SuperVector<16> permute, const Su
 template <>
 really_really_inline
 u32 packedExtract<32>(SuperVector<32> s, const SuperVector<32> permute, const SuperVector<32> compare) {
-    SuperVector<32> shuffled = s.pshufb(permute);
+    SuperVector<32> shuffled = s.pshufb<true>(permute);
     SuperVector<32> compared = shuffled & compare;
     u32 rv = ~compared.eqmask(shuffled); 
     return (u32)((rv >> 16) | (rv & 0xffffU));
@@ -69,7 +69,7 @@ u32 packedExtract<32>(SuperVector<32> s, const SuperVector<32> permute, const Su
 template <>
 really_really_inline
 u32 packedExtract<64>(SuperVector<64> s, const SuperVector<64> permute, const SuperVector<64> compare) {
-    SuperVector<64> shuffled = s.pshufb(permute);
+    SuperVector<64> shuffled = s.pshufb<true>(permute);
     SuperVector<64> compared = shuffled & compare;
     u64a rv = ~compared.eqmask(shuffled);
     rv = rv >> 32 | rv;
