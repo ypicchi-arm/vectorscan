@@ -899,7 +899,7 @@ TEST(DoubleShufti, ExecMatchMixed3) {
         const u8 *rv = shuftiDoubleExec(lo1, hi1, lo2, hi2,
                                         (u8 *)t2, (u8 *)t2 + len);
 
-        ASSERT_EQ((size_t)&t2[len - i], (size_t)rv);
+        ASSERT_EQ((const u8 *)&t2[len - i], rv);
     }
 }
 
