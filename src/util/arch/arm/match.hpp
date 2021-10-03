@@ -27,22 +27,40 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ue2common.h"
-#include "util/arch.h"
-#include "util/bitutils.h"
-#include "util/unaligned.h"
+template <>
+really_really_inline
+const u8 *firstMatch<16>(const u8 *buf, SuperVector<16> mask) {
+    uint32x4_t res_t = vreinterpretq_u32_u8(mask.u.v128[0]);
+    uint64_t vmax = vgetq_lane_u64 (vreinterpretq_u64_u32 (vpmaxq_u32(res_t, res_t)), 0);
+    if (vmax != 0) {
+	typename SuperVector<16>::movemask_type z = mask.movemask();
+        DEBUG_PRINTF("z %08x\n", z);
+        DEBUG_PRINTF("buf %p z %08x \n", buf, z);
+        u32 pos = ctz32(z & 0xffff);
+        DEBUG_PRINTF("match @ pos %u\n", pos);
+        assert(pos < 16);
+        DEBUG_PRINTF("buf + pos %p\n", buf + pos);
+        return buf + pos;
+    } else {
+        return NULL; // no match
+    }
+}
 
-#include "util/supervector/supervector.hpp"
-
-template <u16 S>
-const u8 *firstMatch(const u8 *buf, SuperVector<S> v);
-
-template <u16 S>
-const u8 *lastMatch(const u8 *buf, SuperVector<S> v);
-
-#if defined(ARCH_IA32) || defined(ARCH_X86_64)
-#include "util/arch/x86/match.hpp"
-#elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
-#include "util/arch/arm/match.hpp"
-#endif
+template <>
+really_really_inline
+const u8 *lastMatch<16>(const u8 *buf, SuperVector<16> mask) {
+    uint32x4_t res_t = vreinterpretq_u32_u8(mask.u.v128[0]);
+    uint64_t vmax = vgetq_lane_u64 (vreinterpretq_u64_u32 (vpmaxq_u32(res_t, res_t)), 0);
+    if (vmax != 0) {
+	typename SuperVector<16>::movemask_type z = mask.movemask();
+        DEBUG_PRINTF("buf %p z %08x \n", buf, z);
+        DEBUG_PRINTF("z %08x\n", z);
+        u32 pos = clz32(z & 0xffff);
+        DEBUG_PRINTF("match @ pos %u\n", pos);
+        assert(pos >= 16 && pos < 32);
+        return buf + (31 - pos);
+    } else {
+        return NULL; // no match
+    }
+}
 
