@@ -43,8 +43,6 @@
 static really_inline
 const u8 *shuftiFwdSlow(const u8 *lo, const u8 *hi, const u8 *buf,
                         const u8 *buf_end) {
-    assert(buf < buf_end);
-
     DEBUG_PRINTF("buf %p end %p \n", buf, buf_end);
     for (; buf < buf_end; ++buf) {
         u8 c = *buf;
@@ -59,8 +57,6 @@ const u8 *shuftiFwdSlow(const u8 *lo, const u8 *hi, const u8 *buf,
 static really_inline
 const u8 *shuftiRevSlow(const u8 *lo, const u8 *hi, const u8 *buf,
                         const u8 *buf_end) {
-    assert(buf < buf_end);
-
     for (buf_end--; buf_end >= buf; buf_end--) {
         u8 c = *buf_end;
         if (lo[c & 0xf] & hi[c >> 4]) {
