@@ -43,56 +43,82 @@
 #include "util/supervector/supervector.hpp"
 #include "util/match.hpp"
 
+#include <asm/unistd.h>
+#include <linux/perf_event.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+
+#include <inttypes.h>
+#include <sys/types.h>
+
 template <uint16_t S>
 static really_inline
-typename SuperVector<S>::movemask_type block(SuperVector<S> mask_lo, SuperVector<S> mask_hi,
-            SuperVector<S> chars) {
+const SuperVector<S> blockSingleMask(SuperVector<S> mask_lo, SuperVector<S> mask_hi, SuperVector<S> chars) {
     const SuperVector<S> low4bits = SuperVector<S>::dup_u8(0xf);
 
     SuperVector<S> c_lo = chars & low4bits;
-    c_lo = mask_lo.pshufb(c_lo);
-    SuperVector<S> c_hi = mask_hi.pshufb(chars.template vshr_64_imm<4>() & low4bits);
-    SuperVector<S> t = c_lo & c_hi;
+    SuperVector<S> c_hi = chars.template vshr_8_imm<4>();
+    c_lo = mask_lo.template pshufb<false>(c_lo);
+    c_hi = mask_hi.template pshufb<false>(c_hi);
 
-    return t.eqmask(SuperVector<S>::Zeroes());
+    return (c_lo & c_hi) > (SuperVector<S>::Zeroes());
+}
+
+template <uint16_t S>
+static really_inline
+SuperVector<S> blockDoubleMask(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi, SuperVector<S> mask2_lo, SuperVector<S> mask2_hi, SuperVector<S> chars) {
+
+    const SuperVector<S> low4bits = SuperVector<S>::dup_u8(0xf);
+    SuperVector<S> chars_lo = chars & low4bits;
+    chars_lo.print8("chars_lo");
+    SuperVector<S> chars_hi = chars.template vshr_64_imm<4>() & low4bits;
+    chars_hi.print8("chars_hi");
+    SuperVector<S> c1_lo = mask1_lo.template pshufb<true>(chars_lo);
+    c1_lo.print8("c1_lo");
+    SuperVector<S> c1_hi = mask1_hi.template pshufb<true>(chars_hi);
+    c1_hi.print8("c1_hi");
+    SuperVector<S> t1 = c1_lo | c1_hi;
+    t1.print8("t1");
+
+    SuperVector<S> c2_lo = mask2_lo.template pshufb<true>(chars_lo);
+    c2_lo.print8("c2_lo");
+    SuperVector<S> c2_hi = mask2_hi.template pshufb<true>(chars_hi);
+    c2_hi.print8("c2_hi");
+    SuperVector<S> t2 = c2_lo | c2_hi;
+    t2.print8("t2");
+    t2.template vshr_128_imm<1>().print8("t2.vshr_128(1)");
+    SuperVector<S> t = t1 | (t2.template vshr_128_imm<1>());
+    t.print8("t");
+
+    return !t.eq(SuperVector<S>::Ones());
 }
 
 template <uint16_t S>
 static really_inline
 const u8 *fwdBlock(SuperVector<S> mask_lo, SuperVector<S> mask_hi, SuperVector<S> chars, const u8 *buf) {
-    typename SuperVector<S>::movemask_type z = block(mask_lo, mask_hi, chars);
-    DEBUG_PRINTF(" z: 0x%016llx\n", (u64a)z);
+    SuperVector<S> v = blockSingleMask(mask_lo, mask_hi, chars);
 
-    return firstMatch<S>(buf, z);
+    return firstMatch<S>(buf, v);
 }
-/*
-template <uint16_t S>
-static really_inline
-const u8 *shortShufti(SuperVector<S> mask_lo, SuperVector<S> mask_hi, const u8 *buf, const u8 *buf_end) {
-    DEBUG_PRINTF("short shufti %p len %zu\n", buf, buf_end - buf);
-    uintptr_t len = buf_end - buf;
-    assert(len <= S);
-
-    SuperVector<S> chars = SuperVector<S>::loadu_maskz(buf, static_cast<uint8_t>(len));
-    //printv_u8("chars", chars);
-    uint8_t alignment = (uintptr_t)(buf) & 15;
-    typename SuperVector<S>::movemask_type maskb = 1 << alignment;
-    typename SuperVector<S>::movemask_type maske = SINGLE_LOAD_MASK(len - alignment);
-    typename SuperVector<S>::movemask_type z = block(mask_lo, mask_hi, chars);
-    // reuse the load mask to indicate valid bytes
-    DEBUG_PRINTF(" z: 0x%016llx\n", (u64a)z);
-    z &= maskb | maske;
-    DEBUG_PRINTF(" z: 0x%016llx\n", (u64a)z);
-
-    return firstMatch<S>(buf, z);
-}*/
 
 template <uint16_t S>
 static really_inline
 const u8 *revBlock(SuperVector<S> mask_lo, SuperVector<S> mask_hi, SuperVector<S> chars, const u8 *buf) {
-    typename SuperVector<S>::movemask_type z = block(mask_lo, mask_hi, chars);
-    DEBUG_PRINTF(" z: 0x%016llx\n", (u64a)z);
-    return lastMatch<S>(buf, z);
+    SuperVector<S> v = blockSingleMask(mask_lo, mask_hi, chars);
+
+    return lastMatch<S>(buf, v);
+}
+
+template <uint16_t S>
+static really_inline
+const u8 *fwdBlockDouble(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi, SuperVector<S> mask2_lo, SuperVector<S> mask2_hi, SuperVector<S> chars, const u8 *buf) {
+
+    SuperVector<S> mask = blockDoubleMask(mask1_lo, mask1_hi, mask2_lo, mask2_hi, chars);
+
+    return firstMatch<S>(buf, mask);
 }
 
 template <uint16_t S>
@@ -108,54 +134,50 @@ const u8 *shuftiExecReal(m128 mask_lo, m128 mask_hi, const u8 *buf, const u8 *bu
     const u8 *d = buf;
     const u8 *rv;
 
+    __builtin_prefetch(d +   64);
+    __builtin_prefetch(d + 2*64);
+    __builtin_prefetch(d + 3*64);
+    __builtin_prefetch(d + 4*64);
     DEBUG_PRINTF("start %p end %p \n", d, buf_end);
     assert(d < buf_end);
     if (d + S <= buf_end) {
-        // peel off first part to cacheline boundary
-        const u8 *d1 = ROUNDUP_PTR(d, S);
-        DEBUG_PRINTF("until aligned %p \n", d1);
-        if (d1 != d) {
-            rv = shuftiFwdSlow((const u8 *)&mask_lo, (const u8 *)&mask_hi, d, d1);
-            // rv = shortShufti(wide_mask_lo, wide_mask_hi, d, d1);
-            if (rv != d1) {
-                return rv;
-            }
-            d = d1;
+        // Reach vector aligned boundaries
+        DEBUG_PRINTF("until aligned %p \n", ROUNDUP_PTR(d, S));
+        if (!ISALIGNED_N(d, S)) {
+            SuperVector<S> chars = SuperVector<S>::loadu(d);
+            rv = fwdBlock(wide_mask_lo, wide_mask_hi, chars, d);
+            if (rv) return rv;
+            d = ROUNDUP_PTR(d, S);
         }
 
-        size_t loops = (buf_end - d) / S;
-        DEBUG_PRINTF("loops %ld \n", loops);
-
-        for (size_t i = 0; i < loops; i++, d+= S) {
+	while(d + S <= buf_end) {
+            __builtin_prefetch(d + 64);
             DEBUG_PRINTF("d %p \n", d);
-            const u8 *base = ROUNDUP_PTR(d, S);
-            // On large packet buffers, this prefetch appears to get us about 2%.
-            __builtin_prefetch(base + 256);
-
             SuperVector<S> chars = SuperVector<S>::load(d);
             rv = fwdBlock(wide_mask_lo, wide_mask_hi, chars, d);
             if (rv) return rv;
+	    d += S;
         }
     }
 
     DEBUG_PRINTF("d %p e %p \n", d, buf_end);
     // finish off tail
 
-    rv = buf_end;
     if (d != buf_end) {
-        rv = shuftiFwdSlow((const u8 *)&mask_lo, (const u8 *)&mask_hi, d, buf_end);
-        // rv = shortShufti(wide_mask_lo, wide_mask_hi, buf_end - S, buf_end);
+        SuperVector<S> chars = SuperVector<S>::loadu(d);
+        rv = fwdBlock(wide_mask_lo, wide_mask_hi, chars, d);
         DEBUG_PRINTF("rv %p \n", rv);
+        if (rv) return rv;
     }
 
-    return rv;
+    return buf_end;
 }
 
 template <uint16_t S>
 const u8 *rshuftiExecReal(m128 mask_lo, m128 mask_hi, const u8 *buf, const u8 *buf_end) {
     assert(buf && buf_end);
     assert(buf < buf_end);
-    DEBUG_PRINTF("shufti %p len %zu\n", buf, buf_end - buf);
+    DEBUG_PRINTF("rshufti %p len %zu\n", buf, buf_end - buf);
     DEBUG_PRINTF("b %s\n", buf);
 
     const SuperVector<S> wide_mask_lo(mask_lo);
@@ -164,27 +186,29 @@ const u8 *rshuftiExecReal(m128 mask_lo, m128 mask_hi, const u8 *buf, const u8 *b
     const u8 *d = buf_end;
     const u8 *rv;
 
+    __builtin_prefetch(d -   64);
+    __builtin_prefetch(d - 2*64);
+    __builtin_prefetch(d - 3*64);
+    __builtin_prefetch(d - 4*64);
     DEBUG_PRINTF("start %p end %p \n", buf, d);
     assert(d > buf);
     if (d - S >= buf) {
-        // peel off first part to cacheline boundary
-        const u8 *d1 = ROUNDDOWN_PTR(d, S);
-        DEBUG_PRINTF("until aligned %p \n", d1);
-        if (d1 != d) {
-            rv = shuftiRevSlow((const u8 *)&mask_lo, (const u8 *)&mask_hi, d1, d);
+        // Reach vector aligned boundaries
+        DEBUG_PRINTF("until aligned %p \n", ROUNDDOWN_PTR(d, S));
+        if (!ISALIGNED_N(d, S)) {
+            SuperVector<S> chars = SuperVector<S>::loadu(d - S);
+            rv = revBlock(wide_mask_lo, wide_mask_hi, chars, d - S);
             DEBUG_PRINTF("rv %p \n", rv);
-            // rv = shortShufti(wide_mask_lo, wide_mask_hi, d, d1);
-            if (rv != d1 - 1) return rv;
-            d = d1;
+            if (rv) return rv;
+            d = ROUNDDOWN_PTR(d, S);
         }
 
         while (d - S >= buf) {
             DEBUG_PRINTF("aligned %p \n", d);
-            d -= S;
-            const u8 *base = ROUNDDOWN_PTR(buf, S);
             // On large packet buffers, this prefetch appears to get us about 2%.
-            __builtin_prefetch(base + 256);
+            __builtin_prefetch(d - 64);
 
+            d -= S;
             SuperVector<S> chars = SuperVector<S>::load(d);
             rv = revBlock(wide_mask_lo, wide_mask_hi, chars, d);
             if (rv) return rv;
@@ -192,11 +216,11 @@ const u8 *rshuftiExecReal(m128 mask_lo, m128 mask_hi, const u8 *buf, const u8 *b
     }
 
     DEBUG_PRINTF("tail d %p e %p \n", buf, d);
-    // finish off tail
+    // finish off head
 
     if (d != buf) {
-        rv = shuftiRevSlow((const u8 *)&mask_lo, (const u8 *)&mask_hi, buf, d);
-        // rv = shortShufti(wide_mask_lo, wide_mask_hi, buf_end - S, buf_end);
+        SuperVector<S> chars = SuperVector<S>::loadu(buf);
+        rv = revBlock(wide_mask_lo, wide_mask_hi, chars, buf);
         DEBUG_PRINTF("rv %p \n", rv);
         if (rv) return rv;
     }
@@ -205,79 +229,9 @@ const u8 *rshuftiExecReal(m128 mask_lo, m128 mask_hi, const u8 *buf, const u8 *b
 }
 
 template <uint16_t S>
-static really_inline
-const u8 *fwdBlockDouble(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi, SuperVector<S> mask2_lo, SuperVector<S> mask2_hi,
-                    SuperVector<S> chars, const u8 *buf) {
-
-    const SuperVector<S> low4bits = SuperVector<S>::dup_u8(0xf);
-    SuperVector<S> chars_lo = chars & low4bits;
-    chars_lo.print8("chars_lo");
-    SuperVector<S> chars_hi = chars.template vshr_64_imm<4>() & low4bits;
-    chars_hi.print8("chars_hi");
-    SuperVector<S> c1_lo = mask1_lo.pshufb(chars_lo);
-    c1_lo.print8("c1_lo");
-    SuperVector<S> c1_hi = mask1_hi.pshufb(chars_hi);
-    c1_hi.print8("c1_hi");
-    SuperVector<S> t1 = c1_lo | c1_hi;
-    t1.print8("t1");
-
-    SuperVector<S> c2_lo = mask2_lo.pshufb(chars_lo);
-    c2_lo.print8("c2_lo");
-    SuperVector<S> c2_hi = mask2_hi.pshufb(chars_hi);
-    c2_hi.print8("c2_hi");
-    SuperVector<S> t2 = c2_lo | c2_hi;
-    t2.print8("t2");
-    t2.template vshr_128_imm<1>().print8("t2.rshift128(1)");
-    SuperVector<S> t = t1 | (t2.template vshr_128_imm<1>());
-    t.print8("t");
-
-    typename SuperVector<S>::movemask_type z = t.eqmask(SuperVector<S>::Ones());
-    DEBUG_PRINTF(" z: 0x%016llx\n", (u64a)z);
-    return firstMatch<S>(buf, z);
-}
-
-template <uint16_t S>
-static really_inline const u8 *shuftiDoubleMini(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi, SuperVector<S> mask2_lo, SuperVector<S> mask2_hi,
-                       const u8 *buf, const u8 *buf_end){
-    uintptr_t len = buf_end - buf;
-    assert(len < S);
-
-    const SuperVector<S> low4bits = SuperVector<S>::dup_u8(0xf);
-
-    DEBUG_PRINTF("buf %p buf_end %p \n", buf, buf_end);
-    SuperVector<S> chars = SuperVector<S>::loadu_maskz(buf, len);
-    chars.print8("chars");
-
-    SuperVector<S> chars_lo = chars & low4bits;
-    chars_lo.print8("chars_lo");
-    SuperVector<S> chars_hi = chars.template vshr_64_imm<4>() & low4bits;
-    chars_hi.print8("chars_hi");
-    SuperVector<S> c1_lo = mask1_lo.pshufb_maskz(chars_lo, len);
-    c1_lo.print8("c1_lo");
-    SuperVector<S> c1_hi = mask1_hi.pshufb_maskz(chars_hi, len);
-    c1_hi.print8("c1_hi");
-    SuperVector<S> t1 = c1_lo | c1_hi;
-    t1.print8("t1");
-
-    SuperVector<S> c2_lo = mask2_lo.pshufb_maskz(chars_lo, len);
-    c2_lo.print8("c2_lo");
-    SuperVector<S> c2_hi = mask2_hi.pshufb_maskz(chars_hi, len);
-    c2_hi.print8("c2_hi");
-    SuperVector<S> t2 = c2_lo | c2_hi;
-    t2.print8("t2");
-    t2.template vshr_128_imm<1>().print8("t2.rshift128(1)");
-    SuperVector<S> t = t1 | (t2.template vshr_128_imm<1>());
-    t.print8("t");
-
-    typename SuperVector<S>::movemask_type z = t.eqmask(SuperVector<S>::Ones());
-    DEBUG_PRINTF(" z: 0x%016llx\n", (u64a)z);
-    return firstMatch<S>(buf, z);
-}
-
-template <uint16_t S>
 const u8 *shuftiDoubleExecReal(m128 mask1_lo, m128 mask1_hi, m128 mask2_lo, m128 mask2_hi,
                            const u8 *buf, const u8 *buf_end) {
-        assert(buf && buf_end);
+    assert(buf && buf_end);
     assert(buf < buf_end);
     DEBUG_PRINTF("shufti %p len %zu\n", buf, buf_end - buf);
     DEBUG_PRINTF("b %s\n", buf);
@@ -290,32 +244,31 @@ const u8 *shuftiDoubleExecReal(m128 mask1_lo, m128 mask1_hi, m128 mask2_lo, m128
     const u8 *d = buf;
     const u8 *rv;
 
+    __builtin_prefetch(d +   64);
+    __builtin_prefetch(d + 2*64);
+    __builtin_prefetch(d + 3*64);
+    __builtin_prefetch(d + 4*64);
     DEBUG_PRINTF("start %p end %p \n", d, buf_end);
     assert(d < buf_end);
     if (d + S <= buf_end) {
         // peel off first part to cacheline boundary
-        const u8 *d1 = ROUNDUP_PTR(d, S);
-        DEBUG_PRINTF("until aligned %p \n", d1);
-        if (d1 != d) {
+        DEBUG_PRINTF("until aligned %p \n", ROUNDUP_PTR(d, S));
+        if (!ISALIGNED_N(d, S)) {
             SuperVector<S> chars = SuperVector<S>::loadu(d);
             rv = fwdBlockDouble(wide_mask1_lo, wide_mask1_hi, wide_mask2_lo, wide_mask2_hi, chars, d);
             DEBUG_PRINTF("rv %p \n", rv);
             if (rv) return rv;
-            d = d1;
+            d = ROUNDUP_PTR(d, S);
         }
 
-        size_t loops = (buf_end - d) / S;
-        DEBUG_PRINTF("loops %ld \n", loops);
-
-        for (size_t i = 0; i < loops; i++, d+= S) {
-            DEBUG_PRINTF("it = %ld, d %p \n", i, d);
-            const u8 *base = ROUNDUP_PTR(d, S);
-            // On large packet buffers, this prefetch appears to get us about 2%.
-            __builtin_prefetch(base + 256);
+	while(d + S <= buf_end) {
+            __builtin_prefetch(d + 64);
+            DEBUG_PRINTF("d %p \n", d);
 
             SuperVector<S> chars = SuperVector<S>::load(d);
             rv = fwdBlockDouble(wide_mask1_lo, wide_mask1_hi, wide_mask2_lo, wide_mask2_hi, chars, d);
             if (rv) return rv;
+	    d += S;
         }
     }
 
@@ -323,9 +276,10 @@ const u8 *shuftiDoubleExecReal(m128 mask1_lo, m128 mask1_hi, m128 mask2_lo, m128
     // finish off tail
 
     if (d != buf_end) {
-        rv = shuftiDoubleMini(wide_mask1_lo, wide_mask1_hi, wide_mask2_lo, wide_mask2_hi, d, buf_end);
+        SuperVector<S> chars = SuperVector<S>::loadu(buf_end - S);
+        rv = fwdBlockDouble(wide_mask1_lo, wide_mask1_hi, wide_mask2_lo, wide_mask2_hi, chars, buf_end - S);
         DEBUG_PRINTF("rv %p \n", rv);
-        if (rv >= buf && rv < buf_end) return rv;
+        if (rv) return rv;
     }
     
     return buf_end;
