@@ -174,8 +174,9 @@ public:
     double   f64[SIZE / sizeof(double)];
   } u;
 
-  SuperVector() {};
-  SuperVector(SuperVector const &other);
+  constexpr SuperVector() {};
+  constexpr SuperVector(SuperVector const &other)
+  :u(other.u) {};
   SuperVector(typename base_type::type const v);
 
   template<typename T>
@@ -198,11 +199,20 @@ public:
   SuperVector operator&(SuperVector const &b) const;
   SuperVector operator|(SuperVector const &b) const;
   SuperVector operator^(SuperVector const &b) const;
+  SuperVector operator!() const;
+
+  SuperVector operator==(SuperVector const &b) const;
+  SuperVector operator!=(SuperVector const &b) const;
+  SuperVector operator>(SuperVector const &b) const;
+  SuperVector operator>=(SuperVector const &b) const;
+  SuperVector operator<(SuperVector const &b) const;
+  SuperVector operator<=(SuperVector const &b) const;
 
   SuperVector opand(SuperVector const &b) const { return *this & b; }
   SuperVector opor (SuperVector const &b) const { return *this | b; }
   SuperVector opxor(SuperVector const &b) const { return *this ^ b; }
   SuperVector opandnot(SuperVector const &b) const;
+  SuperVector opnot() const { return !(*this); }
 
   SuperVector eq(SuperVector const &b) const;
   SuperVector operator<<(uint8_t const N) const;
@@ -215,6 +225,7 @@ public:
   static SuperVector loadu_maskz(void const *ptr, uint8_t const len);
   SuperVector alignr(SuperVector &other, int8_t offset);
 
+  template<bool emulateIntel>
   SuperVector pshufb(SuperVector b);
   SuperVector pshufb_maskz(SuperVector b, uint8_t const len);
 

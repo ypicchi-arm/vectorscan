@@ -284,7 +284,7 @@ TEST(SuperVectorUtilsTest,pshufb128c) {
     }
     auto SP1 = SuperVector<16>::loadu(vec);
     auto SP2 = SuperVector<16>::loadu(vec2);
-    auto SResult = SP1.pshufb(SP2);
+    auto SResult = SP1.template pshufb<true>(SP2);
     for (int i=0; i<16; i++) {
         ASSERT_EQ(vec[vec2[i]],SResult.u.u8[i]);
     }
