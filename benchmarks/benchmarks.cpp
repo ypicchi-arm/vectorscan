@@ -35,7 +35,7 @@ template<typename InitFunc, typename BenchFunc>
 static void run_benchmarks(int size, int loops, int max_matches, bool is_reverse, MicroBenchmark &bench, InitFunc &&init, BenchFunc &&func) {
     init(bench);
     double total_sec = 0.0;            
-    u64a transferred_size = 0;
+    u64a total_size = 0;
     double bw = 0.0;
     double avg_bw = 0.0;
     double max_bw = 0.0;
@@ -46,21 +46,21 @@ static void run_benchmarks(int size, int loops, int max_matches, bool is_reverse
             bench.buf[pos] = 'b';
             pos = (j+1) *size / max_matches ;
             bench.buf[pos] = 'a';
-            unsigned long act_size = 0;
+            u64a actual_size = 0;
             auto start = std::chrono::steady_clock::now();
             for(int i = 0; i < loops; i++) { 
                 const u8 *res = func(bench);
 		if (is_reverse)
-		   act_size += bench.buf.data() + size - res;
+		   actual_size += bench.buf.data() + size - res;
 		else
-                   act_size += res - bench.buf.data();
+                   actual_size += res - bench.buf.data();
             }
             auto end = std::chrono::steady_clock::now();
             double dt = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
             total_sec += dt;
             /*convert microseconds to seconds*/
             /*calculate bandwidth*/
-            bw  = (act_size / dt) * 1000000.0 / 1048576.0;
+            bw  = (actual_size / dt) * 1000000.0 / 1048576.0;
 	    /*std::cout << "act_size = " << act_size << std::endl;
 	    std::cout << "dt = " << dt << std::endl;
 	    std::cout << "bw = " << bw << std::endl;*/
@@ -85,105 +85,112 @@ static void run_benchmarks(int size, int loops, int max_matches, bool is_reverse
         auto end = std::chrono::steady_clock::now();
         total_sec += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
         /*calculate transferred size*/
-        transferred_size = size * loops;
+        total_size = size * loops;
         /*calculate average time*/
         avg_time = total_sec / loops;
         /*convert microseconds to seconds*/
         total_sec /= 1000000.0;
         /*calculate maximum bandwidth*/
-        max_bw = transferred_size / total_sec;
+        max_bw = total_size / total_sec;
         /*convert to MB/s*/
         max_bw /= 1048576.0;
         printf(KMAG "%s: no matches, %u * %u iterations," KBLU " total elapsed time =" RST " %.3f s, " 
                KBLU "average time per call =" RST " %.3f μs ," KBLU " bandwidth = " RST " %.3f MB/s \n",
-               bench.label, size ,loops, total_sec, avg_time, max_bw);
+               bench.label, size ,loops, total_sec, avg_time, max_bw );
     }
 }
 
 int main(){
+    int matches[] = {0, MAX_MATCHES};
     std::vector<size_t> sizes;
     for (size_t i = 0; i < N; i++) sizes.push_back(16000 << i*2);
     const char charset[] = "aAaAaAaAAAaaaaAAAAaaaaAAAAAAaaaAAaaa"; 
-    
-    for (size_t i = 0; i < std::size(sizes); i++) {
-      MicroBenchmark bench("Shufti", sizes[i]);
-      run_benchmarks(sizes[i], MAX_LOOPS / sizes[i], MAX_MATCHES, false, bench,
-        [&](MicroBenchmark &b) {
-          b.chars.set('a');
-          ue2::shuftiBuildMasks(b.chars, (u8 *)&b.lo, (u8 *)&b.hi);
-          memset(b.buf.data(), 'b', b.size);
-        },
-        [&](MicroBenchmark &b) {
-          return shuftiExec(b.lo, b.hi, b.buf.data(), b.buf.data() + b.size);
-      });
-    }
-
-    for (size_t i = 0; i < std::size(sizes); i++) {
-      MicroBenchmark bench("Reverse Shufti", sizes[i]);
-      run_benchmarks(sizes[i], MAX_LOOPS / sizes[i], MAX_MATCHES, true, bench,
-        [&](MicroBenchmark &b) {
-          b.chars.set('a');
-          ue2::shuftiBuildMasks(b.chars, (u8 *)&b.lo, (u8 *)&b.hi);
-          memset(b.buf.data(), 'b', b.size);
-        },
-        [&](MicroBenchmark &b) {
-          return rshuftiExec(b.lo, b.hi, b.buf.data(), b.buf.data() + b.size);
-      });
-    }
-
-    for (size_t i = 0; i < std::size(sizes); i++) {
-      MicroBenchmark bench("Truffle", sizes[i]);
-      run_benchmarks(sizes[i], MAX_LOOPS / sizes[i], MAX_MATCHES, false, bench,
-        [&](MicroBenchmark &b) {
-          b.chars.set('a');
-          ue2::truffleBuildMasks(b.chars, (u8 *)&b.lo, (u8 *)&b.hi);
-          memset(b.buf.data(), 'b', b.size);
-        },
-        [&](MicroBenchmark &b) {
-          return truffleExec(b.lo, b.hi, b.buf.data(), b.buf.data() + b.size);
-      });
-    }
-
-    for (size_t i = 0; i < std::size(sizes); i++) {
-      MicroBenchmark bench("Reverse Truffle", sizes[i]);
-      run_benchmarks(sizes[i], MAX_LOOPS / sizes[i], MAX_MATCHES, true, bench,
-        [&](MicroBenchmark &b) {
-          b.chars.set('a');
-          ue2::truffleBuildMasks(b.chars, (u8 *)&b.lo, (u8 *)&b.hi);
-          memset(b.buf.data(), 'b', b.size);
-        },
-        [&](MicroBenchmark &b) {
-          return rtruffleExec(b.lo, b.hi, b.buf.data(), b.buf.data() + b.size);
-      });
-    }
-
-    for (size_t i = 0; i < std::size(sizes); i++) {
-      //we imitate the noodle unit tests
-      std::string str;
-      const size_t char_len = 5;
-      str.resize(char_len + 1);
-      for (size_t j=0; j < char_len; j++) {
-        srand (time(NULL));
-        int key = rand() % + 36 ;
-        str[char_len] = charset[key];
-        str[char_len + 1] = '\0';
-      }
-
-      MicroBenchmark bench("Noodle", sizes[i]);
-      run_benchmarks(sizes[i], MAX_LOOPS / sizes[i], MAX_MATCHES, false, bench,
-        [&](MicroBenchmark &b) {
-          ctxt.clear();
-          memset(b.buf.data(), 'a', b.size);
-          u32 id = 1000;
-          ue2::hwlmLiteral lit(str, true, id);
-          b.nt = ue2::noodBuildTable(lit);
-          assert(b.nt != nullptr);
-        },
-        [&](MicroBenchmark &b) {
-          noodExec(b.nt.get(), b.buf.data(), b.size, 0, hlmSimpleCallback, &b.scratch);
-	  return b.buf.data() + b.size;
+  
+    for (int m = 0; m < 2; m++) {
+        for (size_t i = 0; i < std::size(sizes); i++) {
+            MicroBenchmark bench("Shufti", sizes[i]);
+            run_benchmarks(sizes[i], MAX_LOOPS / sizes[i], matches[m], false, bench,
+                [&](MicroBenchmark &b) {
+                    b.chars.set('a');
+                    ue2::shuftiBuildMasks(b.chars, (u8 *)&b.lo, (u8 *)&b.hi);
+                    memset(b.buf.data(), 'b', b.size);
+                },
+                [&](MicroBenchmark &b) {
+                    return shuftiExec(b.lo, b.hi, b.buf.data(), b.buf.data() + b.size);
+                }
+            );
         }
-      );
+
+        for (size_t i = 0; i < std::size(sizes); i++) {
+            MicroBenchmark bench("Reverse Shufti", sizes[i]);
+            run_benchmarks(sizes[i], MAX_LOOPS / sizes[i], matches[m], true, bench,
+                [&](MicroBenchmark &b) {
+                    b.chars.set('a');
+                    ue2::shuftiBuildMasks(b.chars, (u8 *)&b.lo, (u8 *)&b.hi);
+                    memset(b.buf.data(), 'b', b.size);
+                },
+                [&](MicroBenchmark &b) {
+                    return rshuftiExec(b.lo, b.hi, b.buf.data(), b.buf.data() + b.size);
+                }
+            );
+        }
+
+        for (size_t i = 0; i < std::size(sizes); i++) {
+            MicroBenchmark bench("Truffle", sizes[i]);
+            run_benchmarks(sizes[i], MAX_LOOPS / sizes[i], matches[m], false, bench,
+                [&](MicroBenchmark &b) {
+                    b.chars.set('a');
+                    ue2::truffleBuildMasks(b.chars, (u8 *)&b.lo, (u8 *)&b.hi);
+                    memset(b.buf.data(), 'b', b.size);
+                },
+                [&](MicroBenchmark &b) {
+                    return truffleExec(b.lo, b.hi, b.buf.data(), b.buf.data() + b.size);
+                }
+            );
+        }
+
+        for (size_t i = 0; i < std::size(sizes); i++) {
+            MicroBenchmark bench("Reverse Truffle", sizes[i]);
+            run_benchmarks(sizes[i], MAX_LOOPS / sizes[i], matches[m], true, bench,
+                [&](MicroBenchmark &b) {
+                    b.chars.set('a');
+                    ue2::truffleBuildMasks(b.chars, (u8 *)&b.lo, (u8 *)&b.hi);
+                    memset(b.buf.data(), 'b', b.size);
+                },
+                [&](MicroBenchmark &b) {
+                    return rtruffleExec(b.lo, b.hi, b.buf.data(), b.buf.data() + b.size);
+                }
+            );
+        }
+
+        for (size_t i = 0; i < std::size(sizes); i++) {
+            //we imitate the noodle unit tests
+            std::string str;
+            const size_t char_len = 5;
+            str.resize(char_len + 1);
+            for (size_t j=0; j < char_len; j++) {
+                srand (time(NULL));
+                int key = rand() % + 36 ;
+                str[char_len] = charset[key];
+                str[char_len + 1] = '\0';
+            }
+
+            MicroBenchmark bench("Noodle", sizes[i]);
+            run_benchmarks(sizes[i], MAX_LOOPS / sizes[i], matches[m], false, bench,
+                [&](MicroBenchmark &b) {
+                    ctxt.clear();
+                    memset(b.buf.data(), 'a', b.size);
+                    u32 id = 1000;
+                    ue2::hwlmLiteral lit(str, true, id);
+                    b.nt = ue2::noodBuildTable(lit);
+                    assert(b.nt != nullptr);
+                },
+                [&](MicroBenchmark &b) {
+                    noodExec(b.nt.get(), b.buf.data(), b.size, 0, hlmSimpleCallback, &b.scratch);
+                    return b.buf.data() + b.size;
+                }
+           );
+        }
     }
 
     return 0;
