@@ -36,6 +36,7 @@
 #if defined(__VSX__) && defined(ARCH_PPC64EL)
 #define HAVE_VSX
 #define HAVE_SIMD_128_BITS
+#define VECTORSIZE 16
 #endif
 
 #endif // UTIL_ARCH_ARM_H_

@@ -695,6 +695,10 @@ elseif (ARCH_ARM32 OR ARCH_AARCH64)
 set (hs_exec_SRCS
     ${hs_exec_SRCS}
     src/util/supervector/arch/arm/impl.cpp)
+elseif (ARCH_PPC64EL)
+set (hs_exec_SRCS
+    ${hs_exec_SRCS}
+    src/util/supervector/arch/ppc64el/impl.cpp)
 endif ()
 endif()
 

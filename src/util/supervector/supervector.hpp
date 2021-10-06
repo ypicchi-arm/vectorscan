@@ -38,6 +38,8 @@
 #include "util/supervector/arch/x86/types.hpp"
 #elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
 #include "util/supervector/arch/arm/types.hpp"
+#elif defined(ARCH_PPC64EL)
+#include "util/supervector/arch/ppc64el/types.hpp"
 #endif
 
 #if defined(HAVE_SIMD_512_BITS)
@@ -353,6 +355,8 @@ struct Unroller<End, End>
 #include "util/supervector/arch/x86/impl.cpp"
 #elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
 #include "util/supervector/arch/arm/impl.cpp"
+#elif defined(ARCH_PPC64EL)
+#include "util/supervector/arch/ppc64el/impl.cpp"
 #endif
 #endif
 

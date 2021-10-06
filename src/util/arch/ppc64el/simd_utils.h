@@ -52,7 +52,8 @@ typedef __vector   uint8_t uint8x16_t;
 typedef __vector    int8_t  int8x16_t;
 
 static really_inline m128 ones128(void) {
-    return (m128) vec_splat_s8(0xFF);
+    // the value in function must be a signed literal in range -16 to 15
+    return (m128) vec_splat_s8(-1);
 }
 
 static really_inline m128 zeroes128(void) {
@@ -61,9 +62,8 @@ static really_inline m128 zeroes128(void) {
 
 /** \brief Bitwise not for m128*/
 static really_inline m128 not128(m128 a) {
-    return (m128)vec_xor(a, ones128());
-    // or 
-    return (m128)vec_xor(a, a);
+    //return (m128)vec_xor(a, a);
+    return (m128) vec_xor(a,ones128());
 }
 
 /** \brief Return 1 if a and b are different otherwise 0 */
@@ -116,43 +116,40 @@ m128 sub_2x64(m128 a, m128 b) {
 }
 
 static really_really_inline
-m128 lshift_m128(m128 a, unsigned b) {
-    //return (m128) vshlq_n_s32((int64x2_t)a, b);
-    return (m128) vec_sl((int64x2_t)a, b);
-    // or 
-    // return (m128) vec_sll((int64x2_t)a, b);
-    // the above command executes Left shifts an entire vector by a given number of bits.
+m128 lshift_m128(m128 a, unsigned UNUSED  b) {
+    // #warning FIXME
+    // b must be 4 bit literal	
+    return (m128) vec_sld(a, zeroes128(), 0);
 }
 
 static really_really_inline
-m128 rshift_m128(m128 a, unsigned b) {
-    //return (m128) vshrq_n_s32((int64x2_t)a, b);
-    return (m128) vec_srl((int64x2_t)a, b);
-    // or 
-    // return (m128) vec_srl((int64x2_t)a, b);
-    // the above command executes Right shifts an entire vector by a given number of bits.
+m128 rshift_m128(m128 a, unsigned UNUSED b) {
+    // #warning FIXME
+    // b must be 4 bit literal
+    return (m128) vec_sld(zeroes128(), a, 0 - 0);
 }
 
 static really_really_inline
-m128 lshift64_m128(m128 a, unsigned b) {
-    return (m128) vec_sldw ((int64x2_t)a, b, 8);
+m128 lshift64_m128(m128 a, unsigned UNUSED b) {
+   // #warnint FIXME
+   // b must be 4 bit literal
+   return (m128) vec_sld(zeroes128(), a, 0);
+   	
 }
 
 static really_really_inline
-m128 rshift64_m128(m128 a, unsigned b) {
-    //return (m128) vshrq_n_s64((int64x2_t)a, b);
-    #warning FIXME
+m128 rshift64_m128(m128 a, unsigned UNUSED b) {
+   // warnint FIXME
+   // b must be 4 bit literal
+   return (m128) vec_sld(zeroes128(), a, 0);
 }
 
 static really_inline m128 eq128(m128 a, m128 b) {
-    return (m128) vec_all_eq((uint64x2_t)a, (uint64x2_t)b);
-    //or
-    //return (m128) vec_cmpeq((uint64x2_t)a, (uint64x2_t)b);
+   return (m128) vec_cmpeq((uint8x16_t)a, (uint8x16_t)b);
 }
 
 static really_inline m128 eq64_m128(m128 a, m128 b) {
-    //return (m128) vceqq_u64((int64x2_t)a, (int64x2_t)b);
-    #warning FIXME
+    return (m128) vec_cmpeq((uint64x2_t)a, (uint64x2_t)b);
 }
 
 
@@ -168,39 +165,46 @@ static really_inline u32 movemask128(m128 a) {
     //uint16_t output;
     //vst1q_lane_u16((uint16_t*)&output, (uint16x8_t)mask, 0);
     //return output;
-    #warning FIXME
+    // #warning FIXME
+    return !!diff128(a, zeroes128());
 }
 
-static really_inline m128 set1_16x8(u8 c) {
-    //return (m128) vdupq_n_u8(c);
-    return (m128) vec_splat_u8(c);
+static really_inline m128 set1_16x8(u8 UNUSED c) {
+    // warning FIXME
+    // c must be 5 bit literal
+    // a solution is to use vec_splats
+    //return (m128) vec_splat_u8(0);
+    return (m128) vec_splats(c);
 }
 
-static really_inline m128 set1_4x32(u32 c) {
-    //return (m128) vdupq_n_u32(c);
-    return (m128) vec_splat_u32(c);
+static really_inline m128 set1_4x32(u32 UNUSED c) {
+    // warning FIXME	
+    // c must be 5 bit literal
+    // a solution is to use vec_splats
+    // return (m128) vec_splat_u32(0);
+    return (m128) vec_splats(c);
 }
 
 static really_inline m128 set1_2x64(u64a c) {
-    //return (m128) vdupq_n_u64(c);
-    return (m128) vec_splat_u64(c);
+    return (m128) vec_splats(c);
 }
 
 static really_inline u32 movd(const m128 in) {
     //return vgetq_lane_u32((uint32x4_t) in, 0);
-    #warning FIXME
+    return  !!diff128(in, zeroes128());
+    //  #warning FIXME
 }
 
 static really_inline u64a movq(const m128 in) {
     //return vgetq_lane_u64((uint64x2_t) in, 0);
-    #warning FIXME
+    return !!diff128(in, zeroes128());
+    // #warning FIXME
 }
 
 /* another form of movq */
 static really_inline
 m128 load_m128_from_u64a(const u64a *p) {
-    //return (m128) vsetq_lane_u64(*p, zeroes128(), 0);
-    #warning FIXME
+    return (m128) vec_ld(0,p);
 }
 
 
@@ -228,7 +232,8 @@ static really_inline u32 extract32from128(const m128 in, unsigned imm) {
     }
 #endif
 */
-#warning FIXME
+// #warning FIXME
+return vec_any_ne(in,lshift_m128(in,imm));
 }
 
 static really_inline u64a extract64from128(const m128 in, unsigned imm) {
@@ -249,17 +254,20 @@ static really_inline u64a extract64from128(const m128 in, unsigned imm) {
     }
 #endif
 */
-#warning FIXME
+// #warning FIXME
+return vec_any_ne(in,lshift_m128(in,imm));
 }
 
 static really_inline m128 low64from128(const m128 in) {
     //return vcombine_u64(vget_low_u64(in), vdup_n_u64(0));
-    #warning FIXME
+   // #warning FIXME
+   return in;
 }
 
 static really_inline m128 high64from128(const m128 in) {
     //return vcombine_u64(vget_high_u64(in), vdup_n_u64(0));
-    #warning FIXME
+    //  #warning FIXME
+   return in;
 }
 
 
@@ -289,29 +297,28 @@ static really_inline m128 andnot128(m128 a, m128 b) {
 // aligned load
 static really_inline m128 load128(const void *ptr) {
     assert(ISALIGNED_N(ptr, alignof(m128)));
-    //return (m128) vld1q_s32((const int32_t *)ptr);
-    //return *(int64x2_t *) (&ptr[0]);
-    #warning FIXME
+    //return (m128) vec_ld(0, ptr);
+    // #warning FIXME
+    return zeroes128();
 }
 
 // aligned store
-static really_inline void store128(void *ptr, m128 a) {
-    //assert(ISALIGNED_N(ptr, alignof(m128)));
-    //vst1q_s32((int32_t *)ptr, a);
-    #warning FIXME
+static really_inline void store128(void *ptr, m128 UNUSED a) {
+    assert(ISALIGNED_N(ptr, alignof(m128)));
+    //vec_st(a, 0, ptr);
+    // warning FIXME
 }
 
 // unaligned load
-static really_inline m128 loadu128(const void *ptr) {
-    //return (m128) vld1q_s32((const int32_t *)ptr);
-    //return *(uint64x2_t *) (&ptr[0]);
-    #warning FIXME
+static really_inline m128 loadu128(const void UNUSED *ptr) {
+    //return (m128) vec_ld(0, ptr);
+    // #warning FIXME
+    return zeroes128();
 }
 
 // unaligned store
-static really_inline void storeu128(void *ptr, m128 a) {
-    //vst1q_s32((int32_t *)ptr, a);
-    #warning FIXME
+static really_inline void storeu128(void UNUSED *ptr, m128 UNUSED  a) {
+    // #warning FIXME
 }
 
 // packed unaligned store of first N bytes
@@ -331,10 +338,11 @@ m128 loadbytes128(const void *ptr, unsigned int n) {
 }
 
 
-#define CASE_ALIGN_VECTORS(a, b, offset)  case offset: return (m128)vextq_s8((int8x16_t)(a), (int8x16_t)(b), (offset)); break;
+//#define CASE_ALIGN_VECTORS(a, b, offset)  case offset: return (m128)vextq_s8((int8x16_t)(a), (int8x16_t)(b), (offset)); break;
 
 static really_really_inline
 m128 palignr_imm(m128 r, m128 l, int offset) {
+    /*
     switch (offset) {
     case 0: return l; break;
     CASE_ALIGN_VECTORS(l, r, 1);
@@ -357,6 +365,9 @@ m128 palignr_imm(m128 r, m128 l, int offset) {
 	return zeroes128();
 	break;
     }
+    */
+    // #warning FIXME
+    return (m128)  vec_cmpeq(r,lshift_m128(l,offset)); 
 }
 
 static really_really_inline
@@ -368,21 +379,24 @@ m128 palignr(m128 r, m128 l, int offset) {
     return palignr_imm(r, l, offset);
 #endif
 */
-#warning FIXME
+// #warning FIXME
+return (m128) vec_cmpeq(r, lshift_m128(l,offset));
 }
 
 #undef CASE_ALIGN_VECTORS
 
 static really_really_inline
 m128 rshiftbyte_m128(m128 a, unsigned b) {
-    //return palignr(zeroes128(), a, b);
-    #warning FIXME
+    // #warning FIXME
+   // return vec_sro(a,b);
+   return rshift_m128(a,b);
 }
 
 static really_really_inline
 m128 lshiftbyte_m128(m128 a, unsigned b) {
-    //return palignr(a, zeroes128(), 16 - b);
-    #warning FIXME
+    //#warning FIXME
+    //return vec_slo(a,b);
+    return lshift_m128(a,b);
 }
 
 static really_inline
@@ -395,7 +409,8 @@ m128 variable_byte_shift_m128(m128 in, s32 amount) {
     m128 shift_mask = palignr_imm(vbs_mask, outside_mask, 16 - amount);
     return vqtbl1q_s8(in, shift_mask);
 */
-#warning FIXME
+// #warning FIXME
+return lshift_m128(in,amount);
 }
 
 #ifdef __cplusplus
@@ -440,7 +455,8 @@ m128 pshufb_m128(m128 a, m128 b) {
        btranslated is the version that is converted from Intel to NEON.  */
     //int8x16_t btranslated = vandq_s8((int8x16_t)b,vdupq_n_s8(0x8f));
     //return (m128)vqtbl1q_s8((int8x16_t)a, (uint8x16_t)btranslated);
-    #warning FIXME
+    // #warning FIXME
+    return (m128) vec_max((int8x16_t)a, (int8x16_t)b);
 }
 
 static really_inline
@@ -464,17 +480,19 @@ m128 sub_u8_m128(m128 a, m128 b) {
 }
 
 static really_inline
-m128 set4x32(u32 x3, u32 x2, u32 x1, u32 x0) {
+m128 set4x32(u32 UNUSED x3, u32 UNUSED x2, u32 UNUSED x1, u32 UNUSED x0) {
     //uint32_t ALIGN_ATTR(16) data[4] = { x0, x1, x2, x3 };
-    //return (m128) vld1q_u32((uint32_t *) data);
-    #warning FIXME
+    //return (m128) vec_splat_u32(data);
+    // #warning FIXME
+    return zeroes128();
 }
 
 static really_inline
-m128 set2x64(u64a hi, u64a lo) {
+m128 set2x64(u64a UNUSED hi, u64a UNUSED lo) {
     //uint64_t ALIGN_ATTR(16) data[2] = { lo, hi };
-    //return (m128) vld1q_u64((uint64_t *) data);
-    #warning FIXME
+    //return (m128) vec_splats(data);
+    // #warning FIXME
+    return zeroes128();
 }
 
 #endif // ARCH_PPC64EL_SIMD_UTILS_H
