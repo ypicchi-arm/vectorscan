@@ -920,7 +920,7 @@ TEST(SuperVectorUtilsTest,LShift64_512c){
     u64a vec[8] = {32, 64, 128, 256, 512, 512, 256, 1024};
     auto SP = SuperVector<64>::loadu(vec);
     for(int s = 0; s<64; s++) {
-        auto SP_after_shift = SP.lshift64(s);
+        auto SP_after_shift = SP.vshl_64(s);
         for (int i=0; i<8; i++) {
             ASSERT_EQ(SP_after_shift.u.u64[i], vec[i] << s);
         }
@@ -931,7 +931,7 @@ TEST(SuperVectorUtilsTest,RShift64_512c){
     u64a vec[8] = {32, 64, 128, 256, 512, 512, 256, 1024};
     auto SP = SuperVector<64>::loadu(vec);
     for(int s = 0; s<64; s++) {
-        auto SP_after_shift = SP.rshift64(s);
+        auto SP_after_shift = SP.vshr_64(s);
         for (int i=0; i<8; i++) {
             ASSERT_EQ(SP_after_shift.u.u64[i], vec[i] >> s);
         }
