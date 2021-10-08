@@ -41,6 +41,23 @@
 
 #include <string.h> // for memcpy
 
+#define ZEROES_8 0, 0, 0, 0, 0, 0, 0, 0
+#define ZEROES_31 ZEROES_8, ZEROES_8, ZEROES_8, 0, 0, 0, 0, 0, 0, 0
+#define ZEROES_32 ZEROES_8, ZEROES_8, ZEROES_8, ZEROES_8
+
+/** \brief LUT for the mask1bit functions. */
+ALIGN_CL_DIRECTIVE static const u8 simd_onebit_masks[] = {
+    ZEROES_32, ZEROES_32,
+    ZEROES_31, 0x01, ZEROES_32,
+    ZEROES_31, 0x02, ZEROES_32,
+    ZEROES_31, 0x04, ZEROES_32,
+    ZEROES_31, 0x08, ZEROES_32,
+    ZEROES_31, 0x10, ZEROES_32,
+    ZEROES_31, 0x20, ZEROES_32,
+    ZEROES_31, 0x40, ZEROES_32,
+    ZEROES_31, 0x80, ZEROES_32,
+    ZEROES_32, ZEROES_32,
+};
 static really_inline m128 ones128(void) {
 #if defined(__GNUC__) || defined(__INTEL_COMPILER)
     /* gcc gets this right */
@@ -236,14 +253,14 @@ m128 loadbytes128(const void *ptr, unsigned int n) {
     memcpy(&a, ptr, n);
     return a;
 }
-
+/*
 #ifdef __cplusplus
 extern "C" {
 #endif
 extern const u8 simd_onebit_masks[];
 #ifdef __cplusplus
 }
-#endif
+#endif*/
 
 static really_inline
 m128 mask1bit128(unsigned int n) {
@@ -277,19 +294,68 @@ char testbit128(m128 val, unsigned int n) {
 }
 
 // offset must be an immediate
-#define palignr(r, l, offset) _mm_alignr_epi8(r, l, offset)
+#define palignr_imm(r, l, offset) _mm_alignr_epi8(r, l, offset)
 
 static really_inline
 m128 pshufb_m128(m128 a, m128 b) {
     return _mm_shuffle_epi8(a, b);
 }
 
+#define CASE_ALIGN_VECTORS(a, b, offset)  case offset: return palignr_imm((m128)(a), (m128)(b), (offset)); break;
+
+static really_really_inline
+m128 palignr_sw(m128 r, m128 l, int offset) {
+    switch (offset) {
+    case 0: return l; break;
+    CASE_ALIGN_VECTORS(r, l, 1);
+    CASE_ALIGN_VECTORS(r, l, 2);
+    CASE_ALIGN_VECTORS(r, l, 3);
+    CASE_ALIGN_VECTORS(r, l, 4);
+    CASE_ALIGN_VECTORS(r, l, 5);
+    CASE_ALIGN_VECTORS(r, l, 6);
+    CASE_ALIGN_VECTORS(r, l, 7);
+    CASE_ALIGN_VECTORS(r, l, 8);
+    CASE_ALIGN_VECTORS(r, l, 9);
+    CASE_ALIGN_VECTORS(r, l, 10);
+    CASE_ALIGN_VECTORS(r, l, 11);
+    CASE_ALIGN_VECTORS(r, l, 12);
+    CASE_ALIGN_VECTORS(r, l, 13);
+    CASE_ALIGN_VECTORS(r, l, 14);
+    CASE_ALIGN_VECTORS(r, l, 15);
+    case 16: return r; break;
+    default:
+	    return zeroes128();
+	    break;
+    }
+}
+
+static really_really_inline
+m128 palignr(m128 r, m128 l, int offset) {
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (__builtin_constant_p(offset)) {
+       return palignr_imm(r, l, offset);
+    }
+#endif
+    return palignr_sw(r, l, offset);
+}
+#undef CASE_ALIGN_VECTORS
+
+static really_inline
+m128 variable_byte_shift_m128(m128 in, s32 amount) {
+    assert(amount >= -16 && amount <= 16);
+    if (amount < 0) {
+        return palignr(zeroes128(), in, -amount);
+    } else {
+        return palignr(in, zeroes128(), 16 - amount);
+    }
+}
+/*
 static really_inline
 m128 variable_byte_shift_m128(m128 in, s32 amount) {
     assert(amount >= -16 && amount <= 16);
     m128 shift_mask = loadu128(vbs_mask_data + 16 - amount);
     return pshufb_m128(in, shift_mask);
-}
+}*/
 
 static really_inline
 m128 max_u8_m128(m128 a, m128 b) {

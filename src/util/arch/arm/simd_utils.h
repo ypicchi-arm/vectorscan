@@ -279,7 +279,6 @@ m128 loadbytes128(const void *ptr, unsigned int n) {
     return a;
 }
 
-
 #define CASE_ALIGN_VECTORS(a, b, offset)  case offset: return (m128)vextq_s8((int8x16_t)(a), (int8x16_t)(b), (offset)); break;
 
 static really_really_inline

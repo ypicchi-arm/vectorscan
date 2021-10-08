@@ -664,7 +664,6 @@ set (hs_exec_SRCS
     src/util/scatter.h
     src/util/scatter_runtime.h
     src/util/simd_utils.h
-    src/util/simd_utils.c
     src/util/state_compress.h
     src/util/state_compress.c
     src/util/unaligned.h
