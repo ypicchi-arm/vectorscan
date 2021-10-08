@@ -27,6 +27,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef MATCH_HPP
+#define MATCH_HPP
+
 #include "ue2common.h"
 #include "util/arch.h"
 #include "util/bitutils.h"
@@ -46,3 +49,4 @@ const u8 *lastMatch(const u8 *buf, SuperVector<S> v);
 #include "util/arch/arm/match.hpp"
 #endif
 
+#endif // MATCH_HPP
