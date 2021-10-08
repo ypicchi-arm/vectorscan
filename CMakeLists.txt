@@ -673,7 +673,7 @@ set (hs_exec_SRCS
     src/database.h
 )
 
-if (NOT RELEASE_BUILD)
+if (NOT RELEASE_BUILD OR FAT_RUNTIME)
 if (ARCH_IA32 OR ARCH_X86_64)
 set (hs_exec_SRCS
     ${hs_exec_SRCS}
