@@ -225,7 +225,7 @@ public:
   static SuperVector loadu_maskz(void const *ptr, uint8_t const len);
   SuperVector alignr(SuperVector &other, int8_t offset);
 
-  template<bool emulateIntel>
+  template<bool emulateIntel=true>
   SuperVector pshufb(SuperVector b);
   SuperVector pshufb_maskz(SuperVector b, uint8_t const len);
 
@@ -233,52 +233,58 @@ public:
   template<uint8_t N>
   SuperVector vshl_8_imm() const;
   template<uint8_t N>
-  SuperVector vshl_16_imm() const;
-  template<uint8_t N>
-  SuperVector vshl_32_imm() const;
-  template<uint8_t N>
-  SuperVector vshl_64_imm() const;
-  template<uint8_t N>
-  SuperVector vshl_128_imm() const;
-  #if defined(HAVE_SIMD_256_BITS)
-  template<uint8_t N>
-  SuperVector vshl_256_imm() const;
-  #endif
-  template<uint8_t N>
-  SuperVector vshl_imm() const;
-  template<uint8_t N>
   SuperVector vshr_8_imm() const;
+  template<uint8_t N>
+  SuperVector vshl_16_imm() const;
   template<uint8_t N>
   SuperVector vshr_16_imm() const;
   template<uint8_t N>
+  SuperVector vshl_32_imm() const;
+  template<uint8_t N>
   SuperVector vshr_32_imm() const;
   template<uint8_t N>
+  SuperVector vshl_64_imm() const;
+  template<uint8_t N>
   SuperVector vshr_64_imm() const;
+  template<uint8_t N>
+  SuperVector vshl_128_imm() const;
   template<uint8_t N>
   SuperVector vshr_128_imm() const;
   #if defined(HAVE_SIMD_256_BITS)
   template<uint8_t N>
+  SuperVector vshl_256_imm() const;
+  template<uint8_t N>
   SuperVector vshr_256_imm() const;
   #endif
+  #if defined(HAVE_SIMD_512_BITS)
+  template<uint8_t N>
+  SuperVector vshl_512_imm() const;
+  template<uint8_t N>
+  SuperVector vshr_512_imm() const;
+  #endif
+  template<uint8_t N>
+  SuperVector vshl_imm() const;
   template<uint8_t N>
   SuperVector vshr_imm() const;
   SuperVector vshl_8  (uint8_t const N) const;
-  SuperVector vshl_16 (uint8_t const N) const;
-  SuperVector vshl_32 (uint8_t const N) const;
-  SuperVector vshl_64 (uint8_t const N) const;
-  SuperVector vshl_128(uint8_t const N) const;
-  #if defined(HAVE_SIMD_256_BITS)
-  SuperVector vshl_256(uint8_t const N) const;
-  #endif
-  SuperVector vshl    (uint8_t const N) const;
   SuperVector vshr_8  (uint8_t const N) const;
+  SuperVector vshl_16 (uint8_t const N) const;
   SuperVector vshr_16 (uint8_t const N) const;
+  SuperVector vshl_32 (uint8_t const N) const;
   SuperVector vshr_32 (uint8_t const N) const;
+  SuperVector vshl_64 (uint8_t const N) const;
   SuperVector vshr_64 (uint8_t const N) const;
+  SuperVector vshl_128(uint8_t const N) const;
   SuperVector vshr_128(uint8_t const N) const;
   #if defined(HAVE_SIMD_256_BITS)
+  SuperVector vshl_256(uint8_t const N) const;
   SuperVector vshr_256(uint8_t const N) const;
   #endif
+  #if defined(HAVE_SIMD_512_BITS)
+  SuperVector vshl_512(uint8_t const N) const;
+  SuperVector vshr_512(uint8_t const N) const;
+  #endif
+  SuperVector vshl    (uint8_t const N) const;
   SuperVector vshr    (uint8_t const N) const;
 
   // Constants
