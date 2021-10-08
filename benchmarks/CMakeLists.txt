@@ -1,4 +1,10 @@
-add_executable(benchmarks benchmarks.cpp)
-set_source_files_properties(benchmarks.cpp PROPERTIES COMPILE_FLAGS
-    "-Wall -Wno-unused-variable")
-target_link_libraries(benchmarks hs)
+if (NOT FAT_RUNTIME)
+  add_executable(benchmarks benchmarks.cpp)
+  set_source_files_properties(benchmarks.cpp PROPERTIES COMPILE_FLAGS
+      "-Wall -Wno-unused-variable")
+  if (BUILD_STATIC_AND_SHARED OR BUILD_SHARED_LIBS)
+    target_link_libraries(benchmarks hs_shared)
+  else()
+    target_link_libraries(benchmarks hs)
+  endif()
+endif()
