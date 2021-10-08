@@ -58,6 +58,7 @@ ALIGN_CL_DIRECTIVE static const u8 simd_onebit_masks[] = {
     ZEROES_31, 0x80, ZEROES_32,
     ZEROES_32, ZEROES_32,
 };
+
 static really_inline m128 ones128(void) {
 #if defined(__GNUC__) || defined(__INTEL_COMPILER)
     /* gcc gets this right */
