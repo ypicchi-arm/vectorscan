@@ -38,8 +38,8 @@
 #include "util/unaligned.h"
 #include "util/supervector/supervector.hpp"
 
-#if (defined(FAT_RUNTIME) && !defined(HAVE_AVX2) && !defined(HAVE_AVX512)) || (!defined(FAT_RUNTIME) && defined(HAVE_SIMD_128_BITS))
 // 128-bit SSE implementation
+#if !(!defined(RELEASE_BUILD) && defined(FAT_RUNTIME) && (defined(HAVE_AVX2) || defined(HAVE_AVX512))) && defined(HAVE_SIMD_128_BITS)
 
 template<>
 really_inline SuperVector<16>::SuperVector(SuperVector const &other)
@@ -570,7 +570,8 @@ really_inline SuperVector<16> SuperVector<16>::pshufb_maskz(SuperVector<16> b, u
 #endif // !defined(FAT_RUNTIME) && !defined(HAVE_AVX2)
 
 // 256-bit AVX2 implementation
-#if (defined(FAT_RUNTIME) && defined(HAVE_AVX2) && !defined(HAVE_AVX512)) || (!defined(FAT_RUNTIME) && defined(HAVE_AVX2))
+#if !(!defined(RELEASE_BUILD) && defined(FAT_RUNTIME) && defined(HAVE_AVX512)) && defined(HAVE_AVX2)
+
 template<>
 really_inline SuperVector<32>::SuperVector(SuperVector const &other)
 {
@@ -1200,6 +1201,7 @@ really_inline SuperVector<32> SuperVector<32>::pshufb_maskz(SuperVector<32> b, u
 
 // 512-bit AVX512 implementation
 #if defined(HAVE_AVX512)
+
 template<>
 really_inline SuperVector<64>::SuperVector(SuperVector const &o)
 {
