@@ -17,7 +17,6 @@ Pull Requests had been made to the project for this reason ([1], [2]). Unfortuna
 PRs were rejected for now and the forseeable future, thus we have created Vectorscan for 
 our own multi-architectural and opensource collaborative needs.
 
-
 # What is Hyperscan?
 
 Hyperscan is a high-performance multiple regex matching library. It follows the
