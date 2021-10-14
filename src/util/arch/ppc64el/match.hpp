@@ -27,28 +27,38 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MATCH_HPP
-#define MATCH_HPP
+template <>
+really_really_inline
+const u8 *firstMatch<16>(const u8 *buf, SuperVector<16> v) {
+    SuperVector<16>::movemask_type z = v.movemask();
+    DEBUG_PRINTF("buf %p z %08x \n", buf, z);
+    DEBUG_PRINTF("z %08x\n", z);
+    if (unlikely(z != 0xffff)) {
+        u32 pos = ctz32(~z & 0xffff);
+        DEBUG_PRINTF("~z %08x\n", ~z);
+        DEBUG_PRINTF("match @ pos %u\n", pos);
+        assert(pos < 16);
+        return buf + pos;
+    } else {
+        return NULL; // no match
+    }
+}
 
-#include "ue2common.h"
-#include "util/arch.h"
-#include "util/bitutils.h"
-#include "util/unaligned.h"
+template <>
+really_really_inline
+const u8 *lastMatch<16>(const u8 *buf, SuperVector<16> v) {
+    SuperVector<16>::movemask_type z = v.movemask();
+    DEBUG_PRINTF("buf %p z %08x \n", buf, z);
+    DEBUG_PRINTF("z %08x\n", z);
+    if (unlikely(z != 0xffff)) {
+        u32 pos = clz32(~z & 0xffff);
+        DEBUG_PRINTF("~z %08x\n", ~z);
+        DEBUG_PRINTF("match @ pos %u\n", pos);
+        assert(pos >= 16 && pos < 32);
+        return buf + (31 - pos);
+    } else {
+        return NULL; // no match
+    }
+}
 
-#include "util/supervector/supervector.hpp"
 
-template <u16 S>
-const u8 *firstMatch(const u8 *buf, SuperVector<S> v);
-
-template <u16 S>
-const u8 *lastMatch(const u8 *buf, SuperVector<S> v);
-
-#if defined(ARCH_IA32) || defined(ARCH_X86_64)
-#include "util/arch/x86/match.hpp"
-#elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
-#include "util/arch/arm/match.hpp"
-#elif defined(ARCH_PPC64EL)
-#include "util/arch/ppc64el/match.hpp"
-#endif
-
-#endif // MATCH_HPP

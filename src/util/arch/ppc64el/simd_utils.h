@@ -53,6 +53,24 @@ typedef __vector   uint8_t uint8x16_t;
 typedef __vector    int8_t  int8x16_t;
 
 
+#define ZEROES_8 0, 0, 0, 0, 0, 0, 0, 0
+#define ZEROES_31 ZEROES_8, ZEROES_8, ZEROES_8, 0, 0, 0, 0, 0, 0, 0
+#define ZEROES_32 ZEROES_8, ZEROES_8, ZEROES_8, ZEROES_8
+
+/** \brief LUT for the mask1bit functions. */
+ALIGN_CL_DIRECTIVE static const u8 simd_onebit_masks[] = {
+    ZEROES_32, ZEROES_32,
+    ZEROES_31, 0x01, ZEROES_32,
+    ZEROES_31, 0x02, ZEROES_32,
+    ZEROES_31, 0x04, ZEROES_32,
+    ZEROES_31, 0x08, ZEROES_32,
+    ZEROES_31, 0x10, ZEROES_32,
+    ZEROES_31, 0x20, ZEROES_32,
+    ZEROES_31, 0x40, ZEROES_32,
+    ZEROES_31, 0x80, ZEROES_32,
+    ZEROES_32, ZEROES_32,
+};
+
 static really_inline m128 ones128(void) {
     return (m128) vec_splat_s8(-1);
 }
@@ -424,14 +442,6 @@ m128 variable_byte_shift_m128(m128 in, s32 amount) {
 	    return palignr_imm(in, zeroes128(), 16 - amount);
     }
 }
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-extern const u8 simd_onebit_masks[];
-#ifdef __cplusplus
-}
-#endif
 
 static really_inline
 m128 mask1bit128(unsigned int n) {
