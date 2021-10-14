@@ -51,12 +51,6 @@ typedef __vector   int8_t  int8x16_t;
 
 // 128-bit Powerpc64le implementation
 
-union Tmp
-{
-    uint32_t u32;
-    uint16_t u16[2];
-};
-
 template<>
 really_inline SuperVector<16>::SuperVector(SuperVector const &other)
 {
@@ -165,16 +159,70 @@ really_inline SuperVector<16> SuperVector<16>::operator^(SuperVector<16> const &
 }
 
 template <>
+really_inline SuperVector<16> SuperVector<16>::operator!() const
+{
+    return  {(m128) vec_xor(u.v128[0], u.v128[0])};
+}
+
+template <>
 really_inline SuperVector<16> SuperVector<16>::opandnot(SuperVector<16> const &b) const
 {
-    m128 and_res = vec_and(u.v128[0], b.u.v128[0]);
-    return vec_xor(and_res,and_res);
+    //m128 and_res = vec_and(u.v128[0], b.u.v128[0]);
+    //return vec_xor(and_res,and_res);
+    return vec_xor(vec_and(u.v128[0], b.u.v128[0]), vec_and(u.v128[0], b.u.v128[0]));
 }
+
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::operator==(SuperVector<16> const &b) const
+{
+    return {(m128) vec_cmpeq((int8x16_t)u.v128[0], (int8x16_t)b.u.v128[0])};
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::operator!=(SuperVector<16> const &b) const
+{
+    return !(*this == b);
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::operator>(SuperVector<16> const UNUSED &b) const
+{
+    //return {vcgtq_s8((int16x8_t)u.v128[0], (int16x8_t)b.u.v128[0])};
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::operator>=(SuperVector<16> const UNUSED &b) const
+{
+    //return {vcgeq_s8((int16x8_t)u.v128[0], (int16x8_t)b.u.v128[0])};
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::operator<(SuperVector<16> const UNUSED &b) const
+{
+    //return {vcltq_s8((int16x8_t)u.v128[0], (int16x8_t)b.u.v128[0])};
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::operator<=(SuperVector<16> const UNUSED &b) const
+{   
+    //return {vcgeq_s8((int16x8_t)u.v128[0], (int16x8_t)b.u.v128[0])};
+    // #warning FIXME
+    return Zeroes();
+}
+
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::eq(SuperVector<16> const &b) const
 {
-    return {(m128) vec_cmpeq((int8x16_t)u.v128[0], (int8x16_t)b.u.v128[0])};
+    return (*this == b);
+    //return {(m128) vec_cmpeq((int8x16_t)u.v128[0], (int8x16_t)b.u.v128[0])};
 }
 
 template <>
@@ -206,9 +254,264 @@ really_inline typename SuperVector<16>::movemask_type SuperVector<16>::eqmask(Su
     return eq(b).movemask();  
 }
 
+
 template <>
-really_inline SuperVector<16> SuperVector<16>::rshift128_var(uint8_t const N) const
-{   	
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<16>::vshl_8_imm() const
+{
+    //return {(m128)vshlq_n_s8(u.v128[0], N)};
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<16>::vshl_16_imm() const
+{
+    //return {(m128)vshlq_n_s16(u.v128[0], N)};
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<16>::vshl_32_imm() const
+{
+    //return {(m128)vshlq_n_s32(u.v128[0], N)};
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<16>::vshl_64_imm() const
+{
+    //return {(m128)vshlq_n_s64(u.v128[0], N)};
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<16>::vshl_128_imm() const
+{
+    //return {vextq_s8(vdupq_n_u8(0), (int16x8_t)u.v128[0], 16 - N)};
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<16>::vshl_imm() const
+{
+    //return vshl_128_imm<N>();
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<16>::vshr_8_imm() const
+{
+    //return {(m128)vshrq_n_s8(u.v128[0], N)};
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<16>::vshr_16_imm() const
+{
+    //return {(m128)vshrq_n_s16(u.v128[0], N)};
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<16>::vshr_32_imm() const
+{
+    //return {(m128)vshrq_n_s32(u.v128[0], N)};
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<16>::vshr_64_imm() const
+{
+    //return {(m128)vshrq_n_s64(u.v128[0], N)};
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<16>::vshr_128_imm() const
+{
+    //return {vextq_s8((int16x8_t)u.v128[0], vdupq_n_u8(0), N)};
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+template<uint8_t N>
+really_inline SuperVector<16> SuperVector<16>::vshr_imm() const
+{
+    return vshr_128_imm<N>();
+}
+
+#if !defined(HS_OPTIMIZE)
+template SuperVector<16> SuperVector<16>::vshl_8_imm<4>() const;
+template SuperVector<16> SuperVector<16>::vshl_16_imm<1>() const;
+template SuperVector<16> SuperVector<16>::vshl_64_imm<1>() const;
+template SuperVector<16> SuperVector<16>::vshl_64_imm<4>() const;
+template SuperVector<16> SuperVector<16>::vshl_128_imm<1>() const;
+template SuperVector<16> SuperVector<16>::vshl_128_imm<4>() const;
+template SuperVector<16> SuperVector<16>::vshr_8_imm<1>() const;
+template SuperVector<16> SuperVector<16>::vshr_8_imm<4>() const;
+template SuperVector<16> SuperVector<16>::vshr_16_imm<1>() const;
+template SuperVector<16> SuperVector<16>::vshr_64_imm<1>() const;
+template SuperVector<16> SuperVector<16>::vshr_64_imm<4>() const;
+template SuperVector<16> SuperVector<16>::vshr_128_imm<1>() const;
+template SuperVector<16> SuperVector<16>::vshr_128_imm<4>() const;
+#endif
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::vshl_8  (uint8_t const UNUSED N) const
+{
+    //if (N == 0) return *this;
+    //if (N == 16) return Zeroes();
+    //SuperVector result;
+    //Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128)vshlq_n_s8(u.v128[0], n)}; });
+    //return result;
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::vshl_16 (uint8_t const UNUSED N) const
+{
+    //if (N == 0) return *this;
+    //if (N == 16) return Zeroes();
+    //SuperVector result;
+    //Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128)vshlq_n_s16(u.v128[0], n)}; });
+    //return result;
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::vshl_32 (uint8_t const UNUSED N) const
+{
+    //if (N == 0) return *this;
+    //if (N == 16) return Zeroes();
+    //SuperVector result;
+    //Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128)vshlq_n_s32(u.v128[0], n)}; });
+    //return result;
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::vshl_64 (uint8_t const UNUSED N) const
+{
+    //if (N == 0) return *this;
+    //if (N == 16) return Zeroes();
+    //SuperVector result;
+    //Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128)vshlq_n_s64(u.v128[0], n)}; });
+    //return result;
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::vshl_128(uint8_t const UNUSED N) const
+{
+    //if (N == 0) return *this;
+    //if (N == 16) return Zeroes();
+    //SuperVector result;
+    //Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {vextq_s8(vdupq_n_u8(0), (int16x8_t)u.v128[0], 16 - n)}; });
+    //return result;
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::vshl(uint8_t const N) const
+{
+    return vshl_128(N);
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::vshr_8  (uint8_t const N) const
+{
+    //if (N == 0) return *this;
+    //if (N == 16) return Zeroes();
+    //SuperVector result;
+    //Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128)vshrq_n_s8(u.v128[0], n)}; });
+    //return result;
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::vshr_16 (uint8_t const N) const
+{
+    //if (N == 0) return *this;
+    //if (N == 16) return Zeroes();
+    //SuperVector result;
+    //Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128)vshrq_n_s16(u.v128[0], n)}; });
+    //return result;
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::vshr_32 (uint8_t const N) const
+{
+    //if (N == 0) return *this;
+    //if (N == 16) return Zeroes();
+    //SuperVector result;
+    //Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128)vshrq_n_s32(u.v128[0], n)}; });
+    //return result;
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::vshr_64 (uint8_t const N) const
+{
+    //if (N == 0) return *this;
+    //if (N == 16) return Zeroes();
+    //SuperVector result;
+    //Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128)vshrq_n_s64(u.v128[0], n)}; });
+    //return result;
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::vshr_128(uint8_t const N) const
+{
+    //if (N == 0) return *this;
+    //if (N == 16) return Zeroes();
+    //SuperVector result;
+    //Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {vextq_s8((int16x8_t)u.v128[0], vdupq_n_u8(0), n)}; });
+    //return result;
+    // #warning FIXME
+    return Zeroes();
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::vshr(uint8_t const N) const
+{
+    return vshr_128(N);
+}
+
+template <>
+really_inline SuperVector<16> SuperVector<16>::operator>>(uint8_t const N) const
+{
     switch(N) {
     case 1: return {(m128) vec_sld((int16x8_t) vec_splat_s8(0), (int16x8_t) u.v128[0], 15)}; break;
     case 2: return {(m128) vec_sld((int16x8_t) vec_splat_s8(0), (int16x8_t) u.v128[0], 14)}; break;
@@ -232,14 +535,8 @@ really_inline SuperVector<16> SuperVector<16>::rshift128_var(uint8_t const N) co
 }
 
 template <>
-really_inline SuperVector<16> SuperVector<16>::operator>>(uint8_t const N) const
+really_inline SuperVector<16> SuperVector<16>::operator<<(uint8_t const N) const
 {
-    return rshift128_var(N);
-}
-
-template <>
-really_inline SuperVector<16> SuperVector<16>::lshift128_var(uint8_t const N) const
-{   
     switch(N) {
     case 1: return {(m128) vec_sld((int16x8_t) u.v128[0], (int16x8_t) vec_splat_s8(0), 1)}; break;
     case 2: return {(m128) vec_sld((int16x8_t) u.v128[0], (int16x8_t) vec_splat_s8(0), 2)}; break;
@@ -262,12 +559,17 @@ really_inline SuperVector<16> SuperVector<16>::lshift128_var(uint8_t const N) co
     return *this;
 }
 
-template <>
-really_inline SuperVector<16> SuperVector<16>::operator<<(uint8_t const N) const
+template<>
+really_inline SuperVector<16> SuperVector<16>::Ones_vshr(uint8_t const N)
 {
-    return lshift128_var(N);
+    return Ones().vshr_128(N);
 }
 
+template<>
+really_inline SuperVector<16> SuperVector<16>::Ones_vshl(uint8_t const N)
+{
+    return Ones().vshl_128(N);
+}
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::loadu(void const *ptr)
