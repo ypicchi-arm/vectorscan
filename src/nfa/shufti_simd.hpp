@@ -56,6 +56,8 @@ SuperVector<S> blockDoubleMask(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi,
 #include "x86/shufti.hpp"
 #elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
 #include "arm/shufti.hpp"
+#elif defined(ARCH_PPC64EL)
+#include "ppc64el/shufti.hpp"
 #endif
 
 template <uint16_t S>

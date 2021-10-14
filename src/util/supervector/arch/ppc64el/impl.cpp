@@ -444,7 +444,7 @@ really_inline SuperVector<16> SuperVector<16>::vshl(uint8_t const N) const
 }
 
 template <>
-really_inline SuperVector<16> SuperVector<16>::vshr_8  (uint8_t const N) const
+really_inline SuperVector<16> SuperVector<16>::vshr_8  (uint8_t const UNUSED N) const
 {
     //if (N == 0) return *this;
     //if (N == 16) return Zeroes();
@@ -456,7 +456,7 @@ really_inline SuperVector<16> SuperVector<16>::vshr_8  (uint8_t const N) const
 }
 
 template <>
-really_inline SuperVector<16> SuperVector<16>::vshr_16 (uint8_t const N) const
+really_inline SuperVector<16> SuperVector<16>::vshr_16 (uint8_t const UNUSED N) const
 {
     //if (N == 0) return *this;
     //if (N == 16) return Zeroes();
@@ -468,7 +468,7 @@ really_inline SuperVector<16> SuperVector<16>::vshr_16 (uint8_t const N) const
 }
 
 template <>
-really_inline SuperVector<16> SuperVector<16>::vshr_32 (uint8_t const N) const
+really_inline SuperVector<16> SuperVector<16>::vshr_32 (uint8_t const UNUSED N) const
 {
     //if (N == 0) return *this;
     //if (N == 16) return Zeroes();
@@ -480,7 +480,7 @@ really_inline SuperVector<16> SuperVector<16>::vshr_32 (uint8_t const N) const
 }
 
 template <>
-really_inline SuperVector<16> SuperVector<16>::vshr_64 (uint8_t const N) const
+really_inline SuperVector<16> SuperVector<16>::vshr_64 (uint8_t const UNUSED N) const
 {
     //if (N == 0) return *this;
     //if (N == 16) return Zeroes();
@@ -492,7 +492,7 @@ really_inline SuperVector<16> SuperVector<16>::vshr_64 (uint8_t const N) const
 }
 
 template <>
-really_inline SuperVector<16> SuperVector<16>::vshr_128(uint8_t const N) const
+really_inline SuperVector<16> SuperVector<16>::vshr_128(uint8_t const UNUSED N) const
 {
     //if (N == 0) return *this;
     //if (N == 16) return Zeroes();
@@ -595,12 +595,6 @@ really_inline SuperVector<16> SuperVector<16>::loadu_maskz(void const *ptr, uint
 }
 
 template<>
-really_inline SuperVector<16> SuperVector<16>::pshufb(SuperVector<16> b)
-{
-    return (m128) vec_permxor((int8x16_t)vec_splat_s8(0), (int8x16_t)u.v128[0], (int8x16_t) b.u.v128[0]);
-}
-
-template<>
 really_inline SuperVector<16> SuperVector<16>::alignr(SuperVector<16> &other, int8_t offset)
 {   
     
@@ -626,6 +620,24 @@ really_inline SuperVector<16> SuperVector<16>::alignr(SuperVector<16> &other, in
     return *this;
 }
 
+template<>
+template<>
+really_inline SuperVector<16> SuperVector<16>::pshufb<false>(SuperVector<16> b)
+{
+    return (m128) vec_permxor((int8x16_t)vec_splat_s8(0), (int8x16_t)u.v128[0], (int8x16_t) b.u.v128[0]);
+}
+
+template<>
+template<>
+really_inline SuperVector<16> SuperVector<16>::pshufb<true>(SuperVector<16> b)
+{
+    /* On Intel, if bit 0x80 is set, then result is zero, otherwise which the lane it is &0xf.
+       In NEON, if >=16, then the result is zero, otherwise it is that lane.
+       btranslated is the version that is converted from Intel to NEON.  */
+    SuperVector<16> btranslated = b & SuperVector<16>::dup_s8(0x8f);
+    return pshufb<false>(btranslated);
+}
+
 
 template<>
 really_inline SuperVector<16> SuperVector<16>::pshufb_maskz(SuperVector<16> b, uint8_t const len)
@@ -635,6 +647,8 @@ really_inline SuperVector<16> SuperVector<16>::pshufb_maskz(SuperVector<16> b, u
 }
 
 
+
+/*
 template<>
 really_inline SuperVector<16> SuperVector<16>::lshift64(uint8_t const N)
 {
@@ -661,4 +675,5 @@ really_inline SuperVector<16> SuperVector<16>::rshift128(uint8_t const N)
 {
     return *this >> N;
 }
+*/
 #endif
