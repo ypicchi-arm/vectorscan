@@ -235,15 +235,15 @@ static really_inline m128 set1_2x64(u64a c) {
 }
 
 static really_inline u32 movd(const m128 in) {
-    //return vgetq_lane_u32((uint32x4_t) in, 0);
-    return  !!diff128(in, zeroes128());
-    //  #warning FIXME
+    u32 ALIGN_ATTR(16) a[4];
+    vec_xst((uint32x4_t) in, 0, a);
+    return a[0];      
 }
 
 static really_inline u64a movq(const m128 in) {
     u64a ALIGN_ATTR(16) a[2];
     vec_xst((uint64x2_t) in, 0, a);
-    return a[0];
+    return a[0];  
 }
 
 /* another form of movq */
@@ -254,68 +254,41 @@ m128 load_m128_from_u64a(const u64a *p) {
 
 
 static really_inline u32 extract32from128(const m128 in, unsigned imm) {
-/*
-#if defined(HS_OPTIMIZE)
-    return vgetq_lane_u32((uint32x4_t) in, imm);
-#else
-    switch (imm) {
+u32 ALIGN_ATTR(16) a[4];
+vec_xst((uint32x4_t) in, 0, a);
+switch (imm) {
     case 0:
-        return vgetq_lane_u32((uint32x4_t) in, 0);
-	break;
+        return a[0];break;
     case 1:
-        return vgetq_lane_u32((uint32x4_t) in, 1);
-	break;
+        return a[1];break;
     case 2:
-        return vgetq_lane_u32((uint32x4_t) in, 2);
-	break;
+        return a[2];break;
     case 3:
-        return vgetq_lane_u32((uint32x4_t) in, 3);
-	break;
+        return a[3];break;
     default:
-	return 0;
-	break;
+	return 0;break;
     }
-#endif
-*/
-// #warning FIXME
-return vec_any_ne(in,lshift_m128(in,imm));
 }
 
-static really_inline u64a extract64from128(const m128 UNUSED in, unsigned UNUSED imm) {
-/*                    is this 
-#if defined(HS_OPTIMIZE)
-    return vgetq_lane_u64((uint64x2_t) in, imm);
-#else
-    switch (imm) {
+static really_inline u64a extract64from128(const m128 in, unsigned UNUSED imm) {
+u64a ALIGN_ATTR(16) a[2];
+vec_xst((uint64x2_t) in, 0, a);
+switch (imm) {
     case 0:
-        return vgetq_lane_u64((uint32x4_t) in, 0);
-	break;
+        return a[0];break;
     case 1:
-        return vgetq_lane_u64((uint32x4_t) in, 1);
-	break;
+        return a[1];break;
     default:
 	return 0;
 	break;
     }
-#endif
-*/ 
-   /*
-    u64a ALIGN_ATTR(16) a[2];
-    vec_xst((uint64x2_t) in, 0, a);
-    switch(imm) {
-    case 0: return a[0]; break;
-    case 1: return a[1]; break;
-    default: return 0; break;   
-    }
-   */
-return 0;
- 
 }
 
 static really_inline m128 low64from128(const m128 in) {
     //u64a ALIGN_ATTR(16) a[2];
     //vec_xst((uint64x2_t) in, 0, a);
     //return a[1];
+    // #warning FIXME
     return vec_add(in, in);
 }
 
@@ -323,6 +296,7 @@ static really_inline m128 high64from128(const m128 in) {
     //u64a ALIGN_ATTR(16) a[2];
     //vec_xst((uint64x2_t) in, 0, a);
     //return a[0];
+    // #warning FIXME
     return vec_add(in, in);
 }
 
