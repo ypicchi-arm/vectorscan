@@ -186,29 +186,25 @@ really_inline SuperVector<16> SuperVector<16>::operator!=(SuperVector<16> const 
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator>(SuperVector<16> const &b) const
 { 
-    int32x4_t v = {u.s32[0] > b.u.s32[0], u.s32[1] > b.u.s32[1], u.s32[2] > b.u.s32[2], u.s32[3] > b.u.s32[3]};
-    return (m128) v; 
+    return {(m128) vec_cmpgt(u.v128[0], b.u.v128[0])}; 
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator>=(SuperVector<16> const &b) const
 {
-    int32x4_t v = {u.s32[0] >= b.u.s32[0], u.s32[1] >= b.u.s32[1], u.s32[2] >= b.u.s32[2], u.s32[3] >= b.u.s32[3]};
-    return (m128) v; 
+    return {(m128) vec_cmpge(u.v128[0], b.u.v128[0])};  
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator<(SuperVector<16> const &b) const
 {
-    int32x4_t v = {u.s32[0] < b.u.s32[0], u.s32[1] < b.u.s32[1], u.s32[2] < b.u.s32[2], u.s32[3] < b.u.s32[3]};
-    return (m128) v; 
+    return {(m128) vec_cmpgt(b.u.v128[0], u.v128[0])};  
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator<=(SuperVector<16> const &b) const
 {   
-    int32x4_t v = {u.s32[0] <= b.u.s32[0], u.s32[1] <= b.u.s32[1], u.s32[2] <= b.u.s32[2], u.s32[3] <= b.u.s32[3]};
-    return (m128) v; 
+    return {(m128) vec_cmpge(b.u.v128[0], u.v128[0])};   
 }
 
 
@@ -222,9 +218,21 @@ template <>
 really_inline typename SuperVector<16>::movemask_type SuperVector<16>::movemask(void)const
 { 
     uint8x16_t s1 = vec_sr((uint8x16_t)u.v128[0], vec_splat_u8(7));
+    //printf("s1:");
+    //for(int i=15; i>=0; i--) {printf("%02x, ",s1[i]);}
+    //printf("\n");
     uint16x8_t ss = vec_sr((uint16x8_t)s1, vec_splat_u16(7));
+    //printf("ss:");
+    //for(int i=7; i>=0; i--) {printf("%04x, ",ss[i]);}
+    //printf("\n");
     uint16x8_t res_and = vec_and((uint16x8_t)s1, vec_splats((uint16_t)0xff));
+    //printf("res_and:");
+    //for(int i=7; i>=0; i--) {printf("%04x, ",res_and[i]);}
+    //printf("\n");
     uint16x8_t s2 = vec_or((uint16x8_t)ss, res_and);
+    //printf("s2:");
+    //for(int i=7; i>=0; i--) {printf("%04x, ",s2[i]);}
+    //printf("\n");
 
     uint32x4_t ss2 = vec_sr((uint32x4_t)s2 , vec_splat_u32(14));
     uint32x4_t res_and2 = vec_and((uint32x4_t)s2, vec_splats((uint32_t)0xff));
@@ -238,6 +246,9 @@ really_inline typename SuperVector<16>::movemask_type SuperVector<16>::movemask(
     uint64x2_t res_and4 = vec_and((uint64x2_t)s4, vec_splats((uint64_t)0xff));
     uint64x2_t s5 = vec_or((uint64x2_t)ss4, res_and4);
     
+    //printf("s5:");
+    //for(int i=1; i>=0; i--) {printf("%016llx, ",s5[i]);}
+    //printf("\n");
     return s5[0];
 }
 

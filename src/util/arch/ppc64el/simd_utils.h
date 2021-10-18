@@ -270,7 +270,7 @@ switch (imm) {
     }
 }
 
-static really_inline u64a extract64from128(const m128 in, unsigned UNUSED imm) {
+static really_inline u64a extract64from128(const m128 in, unsigned imm) {
 u64a ALIGN_ATTR(16) a[2];
 vec_xst((uint64x2_t) in, 0, a);
 switch (imm) {
@@ -285,19 +285,11 @@ switch (imm) {
 }
 
 static really_inline m128 low64from128(const m128 in) {
-    //u64a ALIGN_ATTR(16) a[2];
-    //vec_xst((uint64x2_t) in, 0, a);
-    //return a[1];
-    // #warning FIXME
-    return vec_add(in, in);
+    return (m128) vec_perm((int64x2_t)in, (int64x2_t)vec_splats((uint64_t)0), (uint8x16_t)vec_splat_u8(1));
 }
 
 static really_inline m128 high64from128(const m128 in) {
-    //u64a ALIGN_ATTR(16) a[2];
-    //vec_xst((uint64x2_t) in, 0, a);
-    //return a[0];
-    // #warning FIXME
-    return vec_add(in, in);
+    return (m128) vec_perm((int64x2_t)in, (int64x2_t)vec_splats((uint64_t)0), (uint8x16_t)vec_splat_u8(0));
 }
 
 
