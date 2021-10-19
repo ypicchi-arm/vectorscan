@@ -30,8 +30,8 @@
 template <>
 really_really_inline
 const u8 *firstMatch<16>(const u8 *buf, SuperVector<16> mask) {
-    uint32x4_t res_t = vreinterpretq_u32_u8(mask.u.v128[0]);
-    uint64_t vmax = vgetq_lane_u64 (vreinterpretq_u64_u32 (vpmaxq_u32(res_t, res_t)), 0);
+    uint32x4_t m = mask.u.u32x4[0];
+    uint64_t vmax = vgetq_lane_u64 (vreinterpretq_u64_u32 (vpmaxq_u32(m, m)), 0);
     if (vmax != 0) {
 	typename SuperVector<16>::movemask_type z = mask.movemask();
         DEBUG_PRINTF("z %08x\n", z);
@@ -49,8 +49,8 @@ const u8 *firstMatch<16>(const u8 *buf, SuperVector<16> mask) {
 template <>
 really_really_inline
 const u8 *lastMatch<16>(const u8 *buf, SuperVector<16> mask) {
-    uint32x4_t res_t = vreinterpretq_u32_u8(mask.u.v128[0]);
-    uint64_t vmax = vgetq_lane_u64 (vreinterpretq_u64_u32 (vpmaxq_u32(res_t, res_t)), 0);
+    uint32x4_t m = mask.u.u32x4[0];
+    uint64_t vmax = vgetq_lane_u64 (vreinterpretq_u64_u32 (vpmaxq_u32(m, m)), 0);
     if (vmax != 0) {
 	typename SuperVector<16>::movemask_type z = mask.movemask();
         DEBUG_PRINTF("buf %p z %08x \n", buf, z);

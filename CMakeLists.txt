@@ -277,8 +277,6 @@ elseif (ARCH_ARM32 OR ARCH_AARCH64)
       message(FATAL_ERROR "arm_sve.h is required to build for SVE.")
     endif()
   endif()
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -flax-vector-conversions")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flax-vector-conversions")
 endif()
 
 CHECK_FUNCTION_EXISTS(posix_memalign HAVE_POSIX_MEMALIGN)
