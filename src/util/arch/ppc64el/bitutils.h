@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2017, Intel Corporation
+ * Copyright (c) 2020-2021, VectorCamp PC
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -134,22 +135,15 @@ u64a expand64_impl(u64a x, u64a m) {
 }
 
 static really_inline
-m128 expand128_impl(m128 x, m128 m) {
-    m128 one = set1_2x64(1);
-    m128 bitset = one;
-    m128 vres = zeroes128();
-    while (isnonzero128(m)) {
-	m128 tv = and128(x, m);
-
-	m128 mm = sub_2x64(zeroes128(), m);
-	m128 mask = not128(eq64_m128(tv, zeroes128()));
-	mask = and128(bitset, mask);
-	mask = and128(mask, mm);
-        vres = or128(vres, mask);
-	m = and128(m, sub_2x64(m, one));
-        bitset = lshift64_m128(bitset, 1);
-    }
-    return vres;
+m128 expand128_impl(m128 xvec, m128 mvec) {
+    u64a ALIGN_ATTR(16) x[2];
+    u64a ALIGN_ATTR(16) m[2];
+    vec_xst((uint64x2_t)xvec, 0, x);
+    vec_xst((uint64x2_t)mvec, 0, m);
+    DEBUG_PRINTF("calling expand64_impl:\n");
+    x[0] = expand64_impl(x[0], m[0]);  
+    x[1] = expand64_impl(x[1], m[1]);
+    return load128(x);  
 }
 
 /* returns the first set bit after begin (if not ~0U). If no bit is set after

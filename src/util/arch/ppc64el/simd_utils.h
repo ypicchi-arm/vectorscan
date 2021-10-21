@@ -72,7 +72,7 @@ ALIGN_CL_DIRECTIVE static const u8 simd_onebit_masks[] = {
 };
 
 static really_inline m128 ones128(void) {
-    return (m128) vec_splat_s8(-1);
+    return (m128) vec_splat_u8(-1);
 }
 
 static really_inline m128 zeroes128(void) {
@@ -202,23 +202,43 @@ static really_inline m128 eq64_m128(m128 a, m128 b) {
 
 
 static really_inline u32 movemask128(m128 a) {
+   //printf("input vector:");
+   //for (int i=3; i>=0; i--) {printf("%04x, ", a[i]);}
+   //printf("\n");
    uint8x16_t s1 = vec_sr((uint8x16_t)a, vec_splat_u8(7));
+   //printf("s1:");
+   //for (int i=15; i>=0; i--) {printf("%02x, ", s1[i]);}
+   //printf("\n");
    uint16x8_t ss = vec_sr((uint16x8_t)s1, vec_splat_u16(7));
    uint16x8_t res_and = vec_and((uint16x8_t)s1, vec_splats((uint16_t)0xff));
    uint16x8_t s2 = vec_or((uint16x8_t)ss, res_and);
+   //printf("s2:");
+   //for (int i=7; i>=0; i--) {printf("%04x, ", s2[i]);}
+   //printf("\n");
 
    uint32x4_t ss2 = vec_sr((uint32x4_t)s2, vec_splat_u32(14));
    uint32x4_t res_and2 = vec_and((uint32x4_t)s2, vec_splats((uint32_t)0xff));
    uint32x4_t s3 = vec_or((uint32x4_t)ss2, res_and2);
+   //printf("s3:");
+   //for (int i=3; i>=0; i--) {printf("%08x, ", s3[i]);}
+   //printf("\n");
 
    uint64x2_t ss3 = vec_sr((uint64x2_t)s3, (uint64x2_t)vec_splats(28));
    uint64x2_t res_and3 = vec_and((uint64x2_t)s3, vec_splats((uint64_t)0xff));
    uint64x2_t s4 = vec_or((uint64x2_t)ss3, res_and3);
+   //printf("s4:");
+   //for (int i=1; i>=0; i--) {printf("%016llx, ", s4[i]);}
+   //printf("\n");
 
    uint64x2_t ss4 = vec_sld((uint64x2_t)vec_splats(0), s4, 9);
-   uint64x2_t res_and4 = vec_and((uint64x2_t)ss4, vec_splats((uint64_t)0xff));
+   uint64x2_t res_and4 = vec_and((uint64x2_t)s4, vec_splats((uint64_t)0xff));
    uint64x2_t s5 = vec_or((uint64x2_t)ss4, res_and4);
+   //printf("s5:");
+   //for (int i=1; i>=0; i--) {printf("%016llx, ", s5[i]);}
+   //printf("\n");
    
+
+   //printf("%lld and %lld\n", s5[0],s5[1]); 
    return s5[0];
 }
 
@@ -285,6 +305,10 @@ switch (imm) {
 }
 
 static really_inline m128 low64from128(const m128 in) {
+    //int64x2_t v = vec_perm((int64x2_t)in, (int64x2_t)vec_splats((uint64_t)0), (uint8x16_t)vec_splat_u8(1));
+    //printf("v:");
+    //for (int i=1; i>=0; i++) {printf("%016llx",v[i]);}
+    //printf("\n"); 
     return (m128) vec_perm((int64x2_t)in, (int64x2_t)vec_splats((uint64_t)0), (uint8x16_t)vec_splat_u8(1));
 }
 
@@ -316,11 +340,11 @@ static really_inline m128 andnot128(m128 a, m128 b) {
 // aligned load
 static really_inline m128 load128(const void *ptr) {
     assert(ISALIGNED_N(ptr, alignof(m128)));
-    return (m128) vec_xl(0, (const int32_t*)ptr);
+    return (m128) vec_xl(0, (const int64_t*)ptr);
 }
 
 // aligned store
-static really_inline void store128(void *ptr, m128 a) {
+static really_inline void store128(void *ptr, m128 a) { 	
     assert(ISALIGNED_N(ptr, alignof(m128)));
     vec_st(a, 0, (int32_t*)ptr);
 }
@@ -332,7 +356,7 @@ static really_inline m128 loadu128(const void *ptr) {
 
 // unaligned store
 static really_inline void storeu128(void *ptr, m128 a) {
-    vec_st(a, 0, (int32_t*)ptr);
+    vec_xst(a, 0, (int32_t*)ptr);
 }
 
 // packed unaligned store of first N bytes
@@ -438,7 +462,15 @@ char testbit128(m128 val, unsigned int n) {
 
 static really_inline
 m128 pshufb_m128(m128 a, m128 b) {
-    return (m128) vec_permxor((int8x16_t)vec_splat_s8(0), (int8x16_t)a, (int8x16_t)b);
+    return (m128) vec_perm((uint8x16_t)a, (uint8x16_t)a, (uint8x16_t)b);
+    //return (m128) vec_perm((int8x16_t)vec_splat_s8(0), (int8x16_t)a, (uint8x16_t)b);;
+    //uint8x16_t btransparent = vec_and((uint8x16_t)b, (uint8x16_t)vec_splats(0x8f));
+    //return (m128) vec_perm(a, a, btransparent);
+    //return (m128) vec_perm((int8x16_t)vec_splat_s8(0), (int8x16_t)b, (uint8x16_t)a);
+    
+    //return (m128) vec_perm((int8x16_t)a, (int8x16_t)b, (uint8x16_t)vec_splat_s8(0));
+    //return (m128) vec_perm((int8x16_t)b, (int8x16_t)a, (uint8x16_t)vec_splat_s8(0));
+
 }
 
 static really_inline

@@ -155,6 +155,18 @@ const u8 *rvermSearchAligned(m128 chars, const u8 *buf, const u8 *buf_end,
     assert((size_t)buf_end % 16 == 0);
     for (; buf + 15 < buf_end; buf_end -= 16) {
         m128 data = load128(buf_end - 16);
+	/*
+	{
+            printf("after_load128 data:");
+	    for (int i=3; i>=0; i--) {printf("%d, ",data[i]);}
+	    printf("\n");
+	}
+	{
+	    m128 res_eq = eq128(chars, data);
+	    printf("dd:");
+	    for (int i=3; i>=0; i--) { printf("%d, ", res_eq[i]);  }
+	}
+	*/
         u32 z = movemask128(eq128(chars, data));
         if (negate) {
             z = ~z & 0xffff;
