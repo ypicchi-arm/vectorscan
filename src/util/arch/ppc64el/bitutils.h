@@ -135,17 +135,16 @@ u64a expand64_impl(u64a x, u64a m) {
 }
 
 static really_inline
-m128 expand128_impl(m128 xvec, m128 mvec) {
+m128 expand128_impl(m128 x, m128 m) {
     m128 one = set1_2x64(1);
     m128 bb = one;
     m128 res = zeroes128();
     while (isnonzero128(m)) {
+	m128 xm = and128(x, bb);
         m128 mm = sub_2x64(zeroes128(), m);
-        m128 xm = and128(x, m);
-        xm = and128(xm, mm);
-
         m128 mask = not128(eq64_m128(xm, zeroes128()));
-        res = or128(res, and128(bb, mask));
+	mask = and128(mask, and128(m,mm));
+        res = or128(res, mask);
         m = and128(m, sub_2x64(m, one));
         bb = lshift64_m128(bb, 1);
     }
