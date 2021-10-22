@@ -66,7 +66,7 @@ static inline void print_m128_8x16(const char *label, m128 vec) {
 
 static inline void print_m128_4x32(const char *label, m128 vec) {
     uint32_t ALIGN_ATTR(16) data[4];
-    store128(data, vector);
+    store128(data, vec);
     DEBUG_PRINTF("%12s: ", label);
     for(int i=3; i >= 0; i--)
         printf("%08x ", data[i]);
@@ -75,7 +75,7 @@ static inline void print_m128_4x32(const char *label, m128 vec) {
 
 static inline void print_m128_2x64(const char *label, m128 vec) {
     uint64_t ALIGN_ATTR(16) data[2];
-    store128(data, vector);
+    store128(data, vec);
     DEBUG_PRINTF("%12s: ", label);
     for(int i=1; i >= 0; i--)
         printf("%016lx ", data[i]);
