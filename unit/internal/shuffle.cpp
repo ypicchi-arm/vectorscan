@@ -187,7 +187,7 @@ TEST(Shuffle, PackedExtract128_1) {
         // shuffle a single 1 bit to the front
         m128 permute, compare;
         build_pshufb_masks_onebit(i, &permute, &compare);
-	EXPECT_EQ(1U, packedExtract128(setbit<m128>(i), permute, compare));
+	    EXPECT_EQ(1U, packedExtract128(setbit<m128>(i), permute, compare));
         EXPECT_EQ(1U, packedExtract128(ones128(), permute, compare));
         // we should get zero out of these cases
         EXPECT_EQ(0U, packedExtract128(zeroes128(), permute, compare));

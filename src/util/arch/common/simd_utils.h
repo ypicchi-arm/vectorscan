@@ -46,25 +46,25 @@
 #endif // HAVE_SIMD_128_BITS
 
 #ifdef DEBUG
-static inline void print_m128_16x8(const char *label, m128 vector) {
+static inline void print_m128_16x8(const char *label, m128 vec) {
     uint8_t ALIGN_ATTR(16) data[16];
-    store128(data, vector);
+    store128(data, vec);
     DEBUG_PRINTF("%12s: ", label);
     for(int i=15; i >=0; i--)
         printf("%02x ", data[i]);
     printf("\n");
 }
 
-static inline void print_m128_8x16(const char *label, m128 vector) {
+static inline void print_m128_8x16(const char *label, m128 vec) {
     uint16_t ALIGN_ATTR(16) data[8];
-    store128(data, vector);
+    store128(data, vec);
     DEBUG_PRINTF("%12s: ", label);
     for(int i=7; i >= 0; i--)
         printf("%04x ", data[i]);
     printf("\n");
 }
 
-static inline void print_m128_4x32(const char *label, m128 vector) {
+static inline void print_m128_4x32(const char *label, m128 vec) {
     uint32_t ALIGN_ATTR(16) data[4];
     store128(data, vector);
     DEBUG_PRINTF("%12s: ", label);
@@ -73,7 +73,7 @@ static inline void print_m128_4x32(const char *label, m128 vector) {
     printf("\n");
 }
 
-static inline void print_m128_2x64(const char *label, m128 vector) {
+static inline void print_m128_2x64(const char *label, m128 vec) {
     uint64_t ALIGN_ATTR(16) data[2];
     store128(data, vector);
     DEBUG_PRINTF("%12s: ", label);
@@ -82,10 +82,10 @@ static inline void print_m128_2x64(const char *label, m128 vector) {
     printf("\n");
 }
 #else
-#define print_m128_16x8(label, vector) ;
-#define print_m128_8x16(label, vector) ;
-#define print_m128_4x32(label, vector) ;
-#define print_m128_2x64(label, vector) ;
+#define print_m128_16x8(label, vec) ;
+#define print_m128_8x16(label, vec) ;
+#define print_m128_4x32(label, vec) ;
+#define print_m128_2x64(label, vec) ;
 #endif
 
 /****
