@@ -136,14 +136,20 @@ u64a expand64_impl(u64a x, u64a m) {
 
 static really_inline
 m128 expand128_impl(m128 xvec, m128 mvec) {
-    u64a ALIGN_ATTR(16) x[2];
-    u64a ALIGN_ATTR(16) m[2];
-    vec_xst((uint64x2_t)xvec, 0, x);
-    vec_xst((uint64x2_t)mvec, 0, m);
-    DEBUG_PRINTF("calling expand64_impl:\n");
-    x[0] = expand64_impl(x[0], m[0]);  
-    x[1] = expand64_impl(x[1], m[1]);
-    return load128(x);  
+    m128 one = set1_2x64(1);
+    m128 bb = one;
+    m128 res = zeroes128();
+    while (isnonzero128(m)) {
+        m128 mm = sub_2x64(zeroes128(), m);
+        m128 xm = and128(x, m);
+        xm = and128(xm, mm);
+
+        m128 mask = not128(eq64_m128(xm, zeroes128()));
+        res = or128(res, and128(bb, mask));
+        m = and128(m, sub_2x64(m, one));
+        bb = lshift64_m128(bb, 1);
+    }
+    return res;
 }
 
 /* returns the first set bit after begin (if not ~0U). If no bit is set after
