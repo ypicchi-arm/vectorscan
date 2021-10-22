@@ -45,10 +45,7 @@
 static really_inline
 u32 packedExtract128(m128 s, const m128 permute, const m128 compare) {
     m128 shuffled = pshufb_m128(s, permute);
-    //int8x16_t res = (int8x16_t) pshufb_m128(s, permute);
-    //printf("shufled:");
-    //for(int i=15; i>=0; i--) {printf("%02x ", res[i]);}
-    //printf("\n");
+    print_m128_16x8("shufled", shuffled);
     m128 compared = and128(shuffled, compare);
     u16 rv = ~movemask128(eq128(compared, shuffled));
     return (u32)rv;

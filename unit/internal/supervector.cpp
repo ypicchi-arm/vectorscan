@@ -280,13 +280,13 @@ TEST(SuperVectorUtilsTest,pshufb128c) {
     }
     u8 vec2[16];
     for (int i=0; i<16; i++) {
-        vec2[i]=i;
+        vec2[i]=i + (rand() % 15 + 0);
     }
     auto SP1 = SuperVector<16>::loadu(vec);
     auto SP2 = SuperVector<16>::loadu(vec2);
     auto SResult = SP1.template pshufb<true>(SP2);
     for (int i=0; i<16; i++) {
-        ASSERT_EQ(vec[vec2[i]],SResult.u.u8[i]);
+        ASSERT_EQ(vec[vec2[i] % 16 ],SResult.u.u8[i]);
     }
 }
 

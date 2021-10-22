@@ -463,14 +463,6 @@ char testbit128(m128 val, unsigned int n) {
 static really_inline
 m128 pshufb_m128(m128 a, m128 b) {
     return (m128) vec_perm((uint8x16_t)a, (uint8x16_t)a, (uint8x16_t)b);
-    //return (m128) vec_perm((int8x16_t)vec_splat_s8(0), (int8x16_t)a, (uint8x16_t)b);;
-    //uint8x16_t btransparent = vec_and((uint8x16_t)b, (uint8x16_t)vec_splats(0x8f));
-    //return (m128) vec_perm(a, a, btransparent);
-    //return (m128) vec_perm((int8x16_t)vec_splat_s8(0), (int8x16_t)b, (uint8x16_t)a);
-    
-    //return (m128) vec_perm((int8x16_t)a, (int8x16_t)b, (uint8x16_t)vec_splat_s8(0));
-    //return (m128) vec_perm((int8x16_t)b, (int8x16_t)a, (uint8x16_t)vec_splat_s8(0));
-
 }
 
 static really_inline

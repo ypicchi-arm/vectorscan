@@ -603,7 +603,7 @@ template<>
 template<>
 really_inline SuperVector<16> SuperVector<16>::pshufb<false>(SuperVector<16> b)
 {
-    return (m128) vec_permxor((int8x16_t)vec_splat_s8(0), (int8x16_t)u.v128[0], (int8x16_t) b.u.v128[0]);
+    return (m128) vec_perm((uint8x16_t)u.v128[0], (uint8x16_t)u.v128[0], (uint8x16_t)b.u.v128[0]);
 }
 
 template<>

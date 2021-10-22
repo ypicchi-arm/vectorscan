@@ -849,15 +849,15 @@ TEST(SimdUtilsTest, pshufb_m128) {
     }
     u8 vec2[16];
     for (int i=0; i<16; i++) {
-        vec2[i]=i;
-    }
+        vec2[i]=i + (rand() % 16 + 0);
+    } 
     m128 v1 = loadu128(vec);
     m128 v2 = loadu128(vec2);
     m128 vres = pshufb_m128(v1, v2);
     u8 res[16];
     store128(res, vres);
     for (int i=0; i<16; i++) {
-        ASSERT_EQ(vec[vec2[i]], res[i]);
+        ASSERT_EQ(vec[vec2[i] % 16 ], res[i]);
     }
 }
 
