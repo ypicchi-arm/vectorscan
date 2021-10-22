@@ -819,4 +819,47 @@ TEST(SimdUtilsTest, sub_u8_m128) {
     EXPECT_TRUE(!diff128(result, loadu128(expec)));
 }
 
+TEST(SimdUtilsTest, movemask_128) {
+    srand (time(NULL));
+    u8 vec[16] = {0};
+    u8 vec2[16] = {0};
+    u16 r = rand() % 100 + 1;
+    for(int i=0; i<16; i++) {
+        if (r & (1 << i)) {
+            vec[i] = 0xff;
+        }
+    }
+    m128 v = loadu128(vec);
+    u16 mask = movemask128(v);
+    for(int i=0; i<16; i++) {
+        if (mask & (1 << i)) {
+            vec2[i] = 0xff;
+        }
+    }
+    for (int i=0; i<16; i++) {
+        ASSERT_EQ(vec[i],vec2[i]);
+    }
+}
+
+TEST(SimdUtilsTest, pshufb_m128) {
+    srand (time(NULL));
+    u8 vec[16];
+    for (int i=0; i<16; i++) {
+        vec[i] = rand() % 100 + 1;
+    }
+    u8 vec2[16];
+    for (int i=0; i<16; i++) {
+        vec2[i]=i;
+    }
+    m128 v1 = loadu128(vec);
+    m128 v2 = loadu128(vec2);
+    m128 vres = pshufb_m128(v1, v2);
+    u8 res[16];
+    store128(res, vres);
+    for (int i=0; i<16; i++) {
+        ASSERT_EQ(vec[vec2[i]], res[i]);
+    }
+}
+
+
 } // namespace
