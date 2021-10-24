@@ -286,7 +286,11 @@ TEST(SuperVectorUtilsTest,pshufb128c) {
     auto SP2 = SuperVector<16>::loadu(vec2);
     auto SResult = SP1.template pshufb<true>(SP2);
     for (int i=0; i<16; i++) {
-        ASSERT_EQ(vec[vec2[i] % 16 ],SResult.u.u8[i]);
+	if(vec2[i] & 0x80){
+	   ASSERT_EQ(SResult.u.u8[i], 0);
+	}else{
+           ASSERT_EQ(vec[vec2[i] % 16 ],SResult.u.u8[i]);
+	}
     }
 }
 

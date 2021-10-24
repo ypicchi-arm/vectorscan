@@ -462,7 +462,9 @@ char testbit128(m128 val, unsigned int n) {
 
 static really_inline
 m128 pshufb_m128(m128 a, m128 b) {
-    return (m128) vec_perm((uint8x16_t)a, (uint8x16_t)a, (uint8x16_t)b);
+    uint8x16_t mask =(uint8x16_t)vec_cmpge((uint8x16_t)b, (uint8x16_t)vec_splats((uint8_t)0x80));
+    uint8x16_t res = vec_perm ((uint8x16_t)a, (uint8x16_t)a, (uint8x16_t)b);
+    return (m128) vec_sel((uint8x16_t)res, (uint8x16_t)zeroes128(), (uint8x16_t)mask);
 }
 
 static really_inline

@@ -603,7 +603,9 @@ template<>
 template<>
 really_inline SuperVector<16> SuperVector<16>::pshufb<false>(SuperVector<16> b)
 {
-    return (m128) vec_perm((uint8x16_t)u.v128[0], (uint8x16_t)u.v128[0], (uint8x16_t)b.u.v128[0]);
+    uint8x16_t mask =(uint8x16_t)vec_cmpge((uint8x16_t)b.u.v128[0], (uint8x16_t)vec_splats((uint8_t)0x80));
+    uint8x16_t res = vec_perm ((uint8x16_t)u.v128[0], (uint8x16_t)u.v128[0], (uint8x16_t)b.u.v128[0]);
+    return (m128) vec_sel((uint8x16_t)res, (uint8x16_t)vec_splat_s8(0), (uint8x16_t)mask);
 }
 
 template<>
