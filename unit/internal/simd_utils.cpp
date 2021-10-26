@@ -845,18 +845,55 @@ TEST(SimdUtilsTest, pshufb_m128) {
     srand (time(NULL));
     u8 vec[16];
     for (int i=0; i<16; i++) {
-        vec[i] = rand() % 100 + 1;
+        vec[i] = rand() % 1000 + 1;
     }
     u8 vec2[16];
     for (int i=0; i<16; i++) {
-        vec2[i]=i + (rand() % 15 + 0);
+        vec2[i]=i + (rand() % 100 + 0);
     }
 
+    /* On Intel, if bit 0x80 is set, then result is zero, otherwise which the lane it is &0xf.
+       In NEON or PPC, if >=16, then the result is zero, otherwise it is that lane.
+       Thus bellow we have to check thah case to NEON or PPC.  */
+    
+    /*Insure that vec2 has at least 1 or more 0x80*/
+    u8 vec3[16] = {0};
+    vec3[15] = 0x80;
+
+    for (int i=0; i<15; i++) {
+        int l = rand() % 1000 + 0;
+        if (l % 16 ==0){
+            vec3[i]= 0x80;
+        } else{
+            vec3[i]= vec2[i];
+        }
+    }
+    /*
+        printf("vec3: ");
+        for(int i=15; i>=0; i--) { printf("%02x, ", vec3[i]); }
+        printf("\n");
+    */
+
+    /*Test Special Case*/
     m128 v1 = loadu128(vec);
-    m128 v2 = loadu128(vec2);
+    m128 v2 = loadu128(vec3);
     m128 vres = pshufb_m128(v1, v2); 
     
     u8 res[16];
+    storeu128(res, vres);
+
+    for (int i=0; i<16; i++) {
+	if(vec3[i] & 0x80){
+	   ASSERT_EQ(res[i], 0);
+        }else{	   
+           ASSERT_EQ(vec[vec3[i] % 16 ], res[i]);
+	    }
+    }
+       
+    /*Test Other Cases*/
+    v1 = loadu128(vec);
+    v2 = loadu128(vec2);
+    vres = pshufb_m128(v1, v2); 
     storeu128(res, vres);
 
     for (int i=0; i<16; i++) {
@@ -864,7 +901,7 @@ TEST(SimdUtilsTest, pshufb_m128) {
 	   ASSERT_EQ(res[i], 0);
         }else{	   
            ASSERT_EQ(vec[vec2[i] % 16 ], res[i]);
-	}
+	    }
     }
 }
 
