@@ -854,9 +854,9 @@ TEST(SimdUtilsTest, pshufb_m128) {
 
     /* On Intel, if bit 0x80 is set, then result is zero, otherwise which the lane it is &0xf.
        In NEON or PPC, if >=16, then the result is zero, otherwise it is that lane.
-       Thus bellow we have to check thah case to NEON or PPC.  */
+       Thus bellow we have to check that case to NEON or PPC.  */
     
-    /*Insure that vec2 has at least 1 or more 0x80*/
+    /*Insure that vec3 has at least 1 or more 0x80 elements*/
     u8 vec3[16] = {0};
     vec3[15] = 0x80;
 
