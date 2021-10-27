@@ -27,6 +27,7 @@
  */
 
 #include "vermicelli.h"
+#include "vermicelli.hpp"
 
 static really_inline
 const u8 *find_xverm_run(char c, char nocase, u32 repeat, UNUSED const u8 *buf,
