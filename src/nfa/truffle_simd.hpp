@@ -56,7 +56,7 @@ static really_inline
 const u8 *fwdBlock(SuperVector<S> shuf_mask_lo_highclear, SuperVector<S> shuf_mask_lo_highset, SuperVector<S> chars, const u8 *buf) {
     SuperVector<S> res = blockSingleMask(shuf_mask_lo_highclear, shuf_mask_lo_highset, chars);
 
-    return firstMatch<S>(buf, res);
+    return first_zero_match_inverted<S>(buf, res);
 }
 
 template <uint16_t S>
@@ -120,7 +120,7 @@ static really_inline
 const u8 *revBlock(SuperVector<S> shuf_mask_lo_highclear, SuperVector<S> shuf_mask_lo_highset, SuperVector<S> v, 
                     const u8 *buf) {
     SuperVector<S> res = blockSingleMask(shuf_mask_lo_highclear, shuf_mask_lo_highset, v);
-    return lastMatch<S>(buf, res);
+    return last_zero_match_inverted<S>(buf, res);
 }
 
 template <uint16_t S>

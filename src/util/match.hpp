@@ -38,10 +38,16 @@
 #include "util/supervector/supervector.hpp"
 
 template <u16 S>
-const u8 *firstMatch(const u8 *buf, SuperVector<S> v);
+const u8 *first_non_zero_match(const u8 *buf, SuperVector<S> v);
 
 template <u16 S>
-const u8 *lastMatch(const u8 *buf, SuperVector<S> v);
+const u8 *last_non_zero_match(const u8 *buf, SuperVector<S> v);
+
+template <u16 S>
+const u8 *first_zero_match_inverted(const u8 *buf, SuperVector<S> v);
+
+template <u16 S>
+const u8 *last_zero_match_inverted(const u8 *buf, SuperVector<S> v);
 
 #if defined(ARCH_IA32) || defined(ARCH_X86_64)
 #include "util/arch/x86/match.hpp"
