@@ -31,12 +31,6 @@
  * \brief Shufti: character class acceleration.
  */
 
-#ifndef SHUFTI_SIMD_X86_HPP
-#define SHUFTI_SIMD_X86_HPP
-
-#include "util/supervector/supervector.hpp"
-#include "util/match.hpp"
-
 template <uint16_t S>
 static really_inline
 const SuperVector<S> blockSingleMask(SuperVector<S> mask_lo, SuperVector<S> mask_hi, SuperVector<S> chars) {
@@ -44,12 +38,10 @@ const SuperVector<S> blockSingleMask(SuperVector<S> mask_lo, SuperVector<S> mask
 
     SuperVector<S> c_lo = chars & low4bits;
     SuperVector<S> c_hi = chars.template vshr_64_imm<4>() & low4bits;
-    c_lo = mask_lo.template pshufb(c_lo);
-    c_hi = mask_hi.template pshufb(c_hi);
+    c_lo = mask_lo.pshufb(c_lo);
+    c_hi = mask_hi.pshufb(c_hi);
 
-    SuperVector c = c_lo & c_hi;
-
-    return c.eq(SuperVector<S>::Zeroes());
+    return (c_lo & c_hi).eq(SuperVector<S>::Zeroes());
 }
 
 template <uint16_t S>
@@ -80,5 +72,3 @@ SuperVector<S> blockDoubleMask(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi,
 
     return c.eq(SuperVector<S>::Ones());
 }
-
-#endif // SHUFTI_SIMD_X86_HPP
