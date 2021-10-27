@@ -40,6 +40,7 @@
 #include "nfa/shufti.h"
 #include "nfa/truffle.h"
 #include "nfa/vermicelli.h"
+#include "nfa/vermicelli.hpp"
 #include <string.h>
 
 #define MIN_ACCEL_LEN_BLOCK  16

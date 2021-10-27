@@ -31,6 +31,7 @@
 
 #include "gtest/gtest.h"
 #include "nfa/vermicelli.h"
+#include "nfa/vermicelli.hpp"
 
 #define BOUND (~(VERM_BOUNDARY - 1))
 
