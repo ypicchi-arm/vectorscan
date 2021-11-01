@@ -30,6 +30,7 @@
 #include "nfa/shufticompile.h"
 #include "nfa/truffle.h"
 #include "nfa/trufflecompile.h"
+#include "nfa/vermicelli.h"
 #include "hwlm/noodle_build.h"
 #include "hwlm/noodle_engine.h"
 #include "hwlm/noodle_internal.h"
