@@ -58,5 +58,5 @@ const SuperVector<S> blockSingleMask(SuperVector<S> shuf_mask_lo_highclear, Supe
     SuperVector<S> res = (shuf1 | shuf2) & shuf3;
     res.print8("(shuf1 | shuf2) & shuf3");
 
-    return !res.eq(SuperVector<S>::Zeroes());
+    return res.eq(SuperVector<S>::Zeroes());
 }

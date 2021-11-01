@@ -852,11 +852,11 @@ TEST(SimdUtilsTest, pshufb_m128) {
         vec2[i]=i + (rand() % 100 + 0);
     }
 
-    /* On Intel, if bit 0x80 is set, then result is zero, otherwise which the lane it is &0xf.
-       In NEON or PPC, if >=16, then the result is zero, otherwise it is that lane.
-       Thus bellow we have to check that case to NEON or PPC.  */
+    // On Intel, if bit 0x80 is set, then result is zero, otherwise which the lane it is &0xf.
+    // In NEON or PPC, if >=16, then the result is zero, otherwise it is that lane.
+    // Thus bellow we have to check that case to NEON or PPC. 
     
-    /*Insure that vec3 has at least 1 or more 0x80 elements*/
+    //Insure that vec3 has at least 1 or more 0x80 elements
     u8 vec3[16] = {0};
     vec3[15] = 0x80;
 
@@ -874,7 +874,7 @@ TEST(SimdUtilsTest, pshufb_m128) {
         printf("\n");
     */
 
-    /*Test Special Case*/
+    //Test Special Case
     m128 v1 = loadu128(vec);
     m128 v2 = loadu128(vec3);
     m128 vres = pshufb_m128(v1, v2); 
@@ -890,7 +890,7 @@ TEST(SimdUtilsTest, pshufb_m128) {
 	    }
     }
        
-    /*Test Other Cases*/
+    //Test Other Cases
     v1 = loadu128(vec);
     v2 = loadu128(vec2);
     vres = pshufb_m128(v1, v2); 
