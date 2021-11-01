@@ -75,4 +75,12 @@ const u8 *vermicelliDoubleExec(char c1, char c2, char nocase, const u8 *buf, con
 }
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+const u8 *rvermicelliDoubleExec(char c1, char c2, char nocase, const u8 *buf, const u8 *buf_end);
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* VERMICELLI_HPP */
