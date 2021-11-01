@@ -618,7 +618,6 @@ set (hs_exec_SRCS
     src/nfa/truffle.h
     src/nfa/vermicelli.h
     src/nfa/vermicelli_run.h
-    src/nfa/vermicelli_sse.h
     src/nfa/vermicelli_simd.cpp
     src/som/som.h
     src/som/som_operation.h
