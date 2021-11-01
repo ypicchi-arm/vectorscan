@@ -44,8 +44,6 @@
 
 #ifdef HAVE_SVE2
 #include "vermicelli_sve.h"
-#else
-#include "vermicelli_sse.h"
 #endif
 
 static really_inline
