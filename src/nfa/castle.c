@@ -40,7 +40,6 @@
 #include "repeat.h"
 #include "shufti.h"
 #include "truffle.h"
-#include "vermicelli.h"
 #include "vermicelli.hpp"
 #include "util/bitutils.h"
 #include "util/multibit.h"

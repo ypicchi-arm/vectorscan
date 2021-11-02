@@ -39,7 +39,6 @@
 #include "nfa/accel.h"
 #include "nfa/shufti.h"
 #include "nfa/truffle.h"
-#include "nfa/vermicelli.h"
 #include "nfa/vermicelli.hpp"
 #include <string.h>
 

@@ -616,7 +616,7 @@ set (hs_exec_SRCS
     src/nfa/tamarama_internal.h
     src/nfa/truffle.cpp
     src/nfa/truffle.h
-    src/nfa/vermicelli.h
+    src/nfa/vermicelli.hpp
     src/nfa/vermicelli_run.h
     src/nfa/vermicelli_simd.cpp
     src/som/som.h

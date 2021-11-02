@@ -30,7 +30,6 @@
 #include "accel.h"
 #include "shufti.h"
 #include "truffle.h"
-#include "vermicelli.h"
 #include "vermicelli.hpp"
 #include "ue2common.h"
 

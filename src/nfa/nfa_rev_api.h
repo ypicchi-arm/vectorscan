@@ -35,7 +35,6 @@
 
 #include "accel.h"
 #include "nfa_internal.h"
-#include "vermicelli.h"
 #include "vermicelli.hpp"
 #include "util/unaligned.h"
 
