@@ -112,6 +112,24 @@ const u8 *rvermicelliDoubleBlock(SuperVector<S> data, SuperVector<S> chars1, Sup
 }
 
 template <uint16_t S>
+static really_inline
+const u8 *vermicelliDoubleMaskedBlock(SuperVector<S> data, SuperVector<S> chars1, SuperVector<S> chars2,
+                                      SuperVector<S> mask1, SuperVector<S> mask2,
+                                      u8 const c1, u8 const c2, u8 const m1, u8 const m2, const u8 *buf) {
+
+    SuperVector<S> v1 = chars1.eq(data & mask1);
+    SuperVector<S> v2 = chars2.eq(data & mask2);
+    SuperVector<S> mask = v1 & (v2 >> 1);
+
+    DEBUG_PRINTF("rv[0] = %02hhx, rv[-1] = %02hhx\n", buf[0], buf[-1]);
+    bool partial_match = (((buf[0] & m1) == c2) && ((buf[-1] & m2) == c1));
+    DEBUG_PRINTF("partial = %d\n", partial_match);
+    if (partial_match) return buf - 1;
+
+    return first_non_zero_match<S>(buf, mask);
+}
+
+template <uint16_t S>
 static const u8 *vermicelliExecReal(SuperVector<S> const chars, SuperVector<S> const casemask, const u8 *buf, const u8 *buf_end) {
     assert(buf && buf_end);
     assert(buf < buf_end);
@@ -343,7 +361,7 @@ static const u8 *vermicelliDoubleExecReal(u8 const c1, u8 const c2, SuperVector<
         DEBUG_PRINTF("until aligned %p \n", ROUNDUP_PTR(d, S));
         if (!ISALIGNED_N(d, S)) {
             SuperVector<S> data = SuperVector<S>::loadu(d);
-            rv = vermicelliDoubleBlock(data, chars1, chars2, casemask, c1, c2, casechar, d);//, &lastmask1);
+            rv = vermicelliDoubleBlock(data, chars1, chars2, casemask, c1, c2, casechar, d);
             if (rv) return rv;
             d = ROUNDUP_PTR(d, S);
         }
@@ -352,7 +370,7 @@ static const u8 *vermicelliDoubleExecReal(u8 const c1, u8 const c2, SuperVector<
             __builtin_prefetch(d + 64);
             DEBUG_PRINTF("d %p \n", d);
             SuperVector<S> data = SuperVector<S>::load(d);
-            rv = vermicelliDoubleBlock(data, chars1, chars2, casemask, c1, c2, casechar, d);//, &lastmask1);
+            rv = vermicelliDoubleBlock(data, chars1, chars2, casemask, c1, c2, casechar, d);
             if (rv) return rv;
             d += S;
         }
@@ -363,7 +381,7 @@ static const u8 *vermicelliDoubleExecReal(u8 const c1, u8 const c2, SuperVector<
 
     if (d != buf_end) {
         SuperVector<S> data = SuperVector<S>::loadu_maskz(d, buf_end - d);
-        rv = vermicelliDoubleBlock(data, chars1, chars2, casemask, c1, c2, casechar, d);//, buf_end - d);
+        rv = vermicelliDoubleBlock(data, chars1, chars2, casemask, c1, c2, casechar, d);
         DEBUG_PRINTF("rv %p \n", rv);
         if (rv && rv < buf_end) return rv;
     }
@@ -371,7 +389,6 @@ static const u8 *vermicelliDoubleExecReal(u8 const c1, u8 const c2, SuperVector<
     DEBUG_PRINTF("real tail d %p e %p \n", d, buf_end);
     /* check for partial match at end */
     u8 mask = casemask.u.u8[0];
-    // u8 c1 = chars1.u.u8[0];
     if ((buf_end[-1] & mask) == (u8)c1) {
         DEBUG_PRINTF("partial!!!\n");
         return buf_end - 1;
@@ -439,6 +456,68 @@ const u8 *rvermicelliDoubleExecReal(char c1, char c2, SuperVector<S> const casem
     return buf - 1;
 }
 
+template <uint16_t S>
+static const u8 *vermicelliDoubleMaskedExecReal(u8 const c1, u8 const c2, u8 const m1, u8 const m2,
+                                                const u8 *buf, const u8 *buf_end) {
+    assert(buf && buf_end);
+    assert(buf < buf_end);
+    DEBUG_PRINTF("verm %p len %zu\n", buf, buf_end - buf);
+    DEBUG_PRINTF("b %s\n", buf);
+
+    const u8 *d = buf;
+    const u8 *rv;
+    // SuperVector<S> lastmask1{0};
+    const SuperVector<VECTORSIZE> chars1 = SuperVector<VECTORSIZE>::dup_u8(c1);
+    const SuperVector<VECTORSIZE> chars2 = SuperVector<VECTORSIZE>::dup_u8(c2);
+    const SuperVector<VECTORSIZE> mask1 = SuperVector<VECTORSIZE>::dup_u8(m1);
+    const SuperVector<VECTORSIZE> mask2 = SuperVector<VECTORSIZE>::dup_u8(m2);
+
+    __builtin_prefetch(d +   64);
+    __builtin_prefetch(d + 2*64);
+    __builtin_prefetch(d + 3*64);
+    __builtin_prefetch(d + 4*64);
+    DEBUG_PRINTF("start %p end %p \n", d, buf_end);
+    assert(d < buf_end);
+    if (d + S <= buf_end) {
+        // Reach vector aligned boundaries
+        DEBUG_PRINTF("until aligned %p \n", ROUNDUP_PTR(d, S));
+        if (!ISALIGNED_N(d, S)) {
+            SuperVector<S> data = SuperVector<S>::loadu(d);
+            rv = vermicelliDoubleMaskedBlock(data, chars1, chars2, mask1, mask2, c1, c2, m1, m2, d);
+            if (rv) return rv;
+            d = ROUNDUP_PTR(d, S);
+        }
+
+        while(d + S <= buf_end) {
+            __builtin_prefetch(d + 64);
+            DEBUG_PRINTF("d %p \n", d);
+            SuperVector<S> data = SuperVector<S>::load(d);
+            rv = vermicelliDoubleMaskedBlock(data, chars1, chars2, mask1, mask2, c1, c2, m1, m2, d);
+            if (rv) return rv;
+            d += S;
+        }
+    }
+
+    DEBUG_PRINTF("tail d %p e %p \n", d, buf_end);
+    // finish off tail
+
+    if (d != buf_end) {
+        SuperVector<S> data = SuperVector<S>::loadu_maskz(d, buf_end - d);
+        rv = vermicelliDoubleMaskedBlock(data, chars1, chars2, mask1, mask2, c1, c2, m1, m2, d);
+        DEBUG_PRINTF("rv %p \n", rv);
+        if (rv && rv < buf_end) return rv;
+    }
+
+    DEBUG_PRINTF("real tail d %p e %p \n", d, buf_end);
+    /* check for partial match at end */
+    if ((buf_end[-1] & m1) == (u8)c1) {
+        DEBUG_PRINTF("partial!!!\n");
+        return buf_end - 1;
+    }
+
+    return buf_end;
+}
+
 extern "C" const u8 *vermicelliExec(char c, char nocase, const u8 *buf, const u8 *buf_end) {
     DEBUG_PRINTF("verm scan %s\\x%02hhx over %zu bytes\n",
                  nocase ? "nocase " : "", c, (size_t)(buf_end - buf));
@@ -503,4 +582,13 @@ extern "C" const u8 *rvermicelliDoubleExec(char c1, char c2, char nocase, const 
     const SuperVector<VECTORSIZE> casemask{nocase ? getCaseMask<VECTORSIZE>() : SuperVector<VECTORSIZE>::Ones()};
 
     return rvermicelliDoubleExecReal<VECTORSIZE>(c1, c2, casemask, buf, buf_end);
+}
+
+extern "C" const u8 *vermicelliDoubleMaskedExec(char c1, char c2, char m1, char m2,
+                                     const u8 *buf, const u8 *buf_end) {
+    DEBUG_PRINTF("double verm scan (\\x%02hhx&\\x%02hhx)(\\x%02hhx&\\x%02hhx) "
+                 "over %zu bytes\n", c1, m1, c2, m2, (size_t)(buf_end - buf));
+    assert(buf < buf_end);
+
+    return vermicelliDoubleMaskedExecReal<VECTORSIZE>(c1, c2, m1, m2, buf, buf_end);
 }

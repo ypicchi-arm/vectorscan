@@ -35,6 +35,12 @@
 #ifndef VERMICELLI_HPP
 #define VERMICELLI_HPP
 
+#include "util/bitutils.h"
+
+#ifdef HAVE_SVE2
+#include "vermicelli_sve.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -79,6 +85,14 @@ const u8 *vermicelliDoubleExec(char c1, char c2, char nocase, const u8 *buf, con
 extern "C" {
 #endif
 const u8 *rvermicelliDoubleExec(char c1, char c2, char nocase, const u8 *buf, const u8 *buf_end);
+#ifdef __cplusplus
+}
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+const u8 *vermicelliDoubleMaskedExec(char c1, char c2, char m1, char m2, const u8 *buf, const u8 *buf_end);
 #ifdef __cplusplus
 }
 #endif
