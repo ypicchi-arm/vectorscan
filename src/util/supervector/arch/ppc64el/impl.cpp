@@ -74,7 +74,7 @@ template<>
 template<>
 really_inline SuperVector<16>::SuperVector<uint8_t>(uint8_t const other)
 {
-    u.v128[0] = (m128) vec_splats(static_cast<int8_t>(other));
+    u.v128[0] = (m128) vec_splats(static_cast<uint8_t>(other));
 }
 
 template<>
@@ -88,7 +88,7 @@ template<>
 template<>
 really_inline SuperVector<16>::SuperVector<uint16_t>(uint16_t const other)
 {
-    u.v128[0] = (m128) vec_splats(static_cast<int8_t>(other));
+    u.v128[0] = (m128) vec_splats(static_cast<uint16_t>(other));
 }
 
 template<>
@@ -102,7 +102,7 @@ template<>
 template<>
 really_inline SuperVector<16>::SuperVector<uint32_t>(uint32_t const other)
 {
-    u.v128[0] = (m128) vec_splats(static_cast<int8_t>(other));
+    u.v128[0] = (m128) vec_splats(static_cast<uint32_t>(other));
 }
 
 template<>
@@ -116,7 +116,7 @@ template<>
 template<>
 really_inline SuperVector<16>::SuperVector<uint64_t>(uint64_t const other)
 {
-    u.v128[0] = (m128) vec_splats(static_cast<int8_t>(other));
+    u.v128[0] = (m128) vec_splats(static_cast<uint64_t>(other));
 }
 
 // Constants
@@ -167,7 +167,8 @@ really_inline SuperVector<16> SuperVector<16>::operator!() const
 template <>
 really_inline SuperVector<16> SuperVector<16>::opandnot(SuperVector<16> const &b) const
 {
-    return vec_xor(vec_and(u.v128[0], b.u.v128[0]), vec_and(u.v128[0], b.u.v128[0]));
+   m128 not_res = vec_xor(u.v128[0], (m128)vec_splat_s8(-1));
+   return {(m128) vec_and(not_res, (m128)b.u.v128[0]) };
 }
 
 
@@ -311,8 +312,8 @@ really_inline SuperVector<16> SuperVector<16>::vshr_32_imm() const
 template <>
 template<uint8_t N>
 really_inline SuperVector<16> SuperVector<16>::vshr_64_imm() const
-{		
-    return { (m128) vec_sr((int64x2_t)u.v128[0], vec_splats((uint64_t)N)) }; 
+{		 
+   return { (m128) vec_sr((int64x2_t)u.v128[0], vec_splats((uint64_t)N)) }; 
 }
 
 template <>
