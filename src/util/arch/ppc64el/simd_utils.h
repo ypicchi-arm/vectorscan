@@ -236,9 +236,7 @@ static really_inline m128 set1_2x64(u64a c) {
 }
 
 static really_inline u32 movd(const m128 in) {
-    u32 ALIGN_ATTR(16) a[4];
-    vec_xst((uint32x4_t) in, 0, a);
-    return a[0];      
+   return (u32) vec_extract((uint32x4_t)in, 0);
 }
 
 static really_inline u64a movq(const m128 in) {
@@ -250,7 +248,8 @@ static really_inline u64a movq(const m128 in) {
 /* another form of movq */
 static really_inline
 m128 load_m128_from_u64a(const u64a *p) {
-    return (m128) vec_ld(0, p);
+    m128 vec =(m128) vec_splats(*p);
+    return rshift_m128(vec,8);
 }
 
 
@@ -286,11 +285,11 @@ switch (imm) {
 }
 
 static really_inline m128 low64from128(const m128 in) {
-    return (m128) vec_perm((int64x2_t)in, (int64x2_t)vec_splats((uint64_t)0), (uint8x16_t)vec_splat_u8(1));
+    return rshift_m128(in,8); 
 }
 
 static really_inline m128 high64from128(const m128 in) {
-    return (m128) vec_perm((int64x2_t)in, (int64x2_t)vec_splats((uint64_t)0), (uint8x16_t)vec_splat_u8(0));
+    return lshift_m128(in,8); 
 }
 
 
