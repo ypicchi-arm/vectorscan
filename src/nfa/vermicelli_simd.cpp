@@ -41,97 +41,41 @@
 
 template <uint16_t S>
 static really_inline
-const u8 *vermicelliBlock(SuperVector<S> const data, SuperVector<S> const chars, SuperVector<S> const casemask, u8 const *buf, u16 const len) {
-
-    SuperVector<S> mask = chars.eq(casemask & data);
-    return first_non_zero_match<S>(buf, mask, len);
-}
-
+const u8 *vermicelliBlock(SuperVector<S> const data, SuperVector<S> const chars, SuperVector<S> const casemask, u8 const *buf, u16 const len);
 
 template <uint16_t S>
 static really_inline
-const u8 *vermicelliBlockNeg(SuperVector<S> const data, SuperVector<S> const chars, SuperVector<S> const casemask, u8 const *buf, u16 const len) {
-
-    SuperVector<S> mask = chars.eq(casemask & data);
-    return first_zero_match_inverted<S>(buf, mask, len);
-}
+const u8 *vermicelliBlockNeg(SuperVector<S> const data, SuperVector<S> const chars, SuperVector<S> const casemask, u8 const *buf, u16 const len);
 
 template <uint16_t S>
 static really_inline
-const u8 *rvermicelliBlock(SuperVector<S> const data, SuperVector<S> const chars, SuperVector<S> const casemask, u8 const *buf, u16 const len) {
-
-    SuperVector<S> mask = chars.eq(casemask & data);
-    return last_non_zero_match<S>(buf, mask, len);
-}
-
+const u8 *rvermicelliBlock(SuperVector<S> const data, SuperVector<S> const chars, SuperVector<S> const casemask, u8 const *buf, u16 const len);
 
 template <uint16_t S>
 static really_inline
-const u8 *rvermicelliBlockNeg(SuperVector<S> const data, SuperVector<S> const chars, SuperVector<S> const casemask, const u8 *buf, u16 const len) {
-
-    data.print8("data");
-    chars.print8("chars");
-    casemask.print8("casemask");
-    SuperVector<S> mask = chars.eq(casemask & data);
-    mask.print8("mask");
-    return last_zero_match_inverted<S>(buf, mask, len);
-}
+const u8 *rvermicelliBlockNeg(SuperVector<S> const data, SuperVector<S> const chars, SuperVector<S> const casemask, const u8 *buf, u16 const len);
 
 template <uint16_t S>
 static really_inline
 const u8 *vermicelliDoubleBlock(SuperVector<S> const data, SuperVector<S> const chars1, SuperVector<S> const chars2, SuperVector<S> const casemask,
-                                u8 const c1, u8 const c2, u8 const casechar, u8 const *buf, u16 const len) {
-
-    SuperVector<S> v = casemask & data;
-    SuperVector<S> mask1 = chars1.eq(v);
-    SuperVector<S> mask2 = chars2.eq(v);
-    SuperVector<S> mask = mask1 & (mask2 >> 1);
-
-    DEBUG_PRINTF("rv[0] = %02hhx, rv[-1] = %02hhx\n", buf[0], buf[-1]);
-    bool partial_match = (((buf[0] & casechar) == c2) && ((buf[-1] & casechar) == c1));
-    DEBUG_PRINTF("partial = %d\n", partial_match);
-    if (partial_match) return buf - 1;
-
-    return first_non_zero_match<S>(buf, mask, len);
-}
+                                u8 const c1, u8 const c2, u8 const casechar, u8 const *buf, u16 const len);
 
 template <uint16_t S>
 static really_inline
 const u8 *rvermicelliDoubleBlock(SuperVector<S> const data, SuperVector<S> const chars1, SuperVector<S> const chars2, SuperVector<S> const casemask,
-                                 u8 const c1, u8 const c2, u8 const casechar, u8 const *buf, u16 const len) {
-
-    SuperVector<S> v = casemask & data;
-    SuperVector<S> mask1 = chars1.eq(v);
-    SuperVector<S> mask2 = chars2.eq(v);
-    SuperVector<S> mask = (mask1 << 1)& mask2;
-
-    DEBUG_PRINTF("buf[0] = %02hhx, buf[-1] = %02hhx\n", buf[0], buf[-1]);
-    bool partial_match = (((buf[0] & casechar) == c2) && ((buf[-1] & casechar) == c1));
-    DEBUG_PRINTF("partial = %d\n", partial_match);
-    if (partial_match) {
-        mask = mask | (SuperVector<S>::Ones() >> (S-1));
-    }
-
-    return last_non_zero_match<S>(buf, mask, len);
-}
+                                 u8 const c1, u8 const c2, u8 const casechar, u8 const *buf, u16 const len);
 
 template <uint16_t S>
 static really_inline
 const u8 *vermicelliDoubleMaskedBlock(SuperVector<S> const data, SuperVector<S> const chars1, SuperVector<S> const chars2,
                                       SuperVector<S> const mask1, SuperVector<S> const mask2,
-                                      u8 const c1, u8 const c2, u8 const m1, u8 const m2, u8 const *buf, u16 const len) {
+                                      u8 const c1, u8 const c2, u8 const m1, u8 const m2, u8 const *buf, u16 const len);
 
-    SuperVector<S> v1 = chars1.eq(data & mask1);
-    SuperVector<S> v2 = chars2.eq(data & mask2);
-    SuperVector<S> mask = v1 & (v2 >> 1);
-
-    DEBUG_PRINTF("rv[0] = %02hhx, rv[-1] = %02hhx\n", buf[0], buf[-1]);
-    bool partial_match = (((buf[0] & m1) == c2) && ((buf[-1] & m2) == c1));
-    DEBUG_PRINTF("partial = %d\n", partial_match);
-    if (partial_match) return buf - 1;
-
-    return first_non_zero_match<S>(buf, mask, len);
-}
+#if defined(ARCH_IA32) || defined(ARCH_X86_64)
+#include "x86/vermicelli.hpp"
+#elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
+#include "arm/vermicelli.hpp"
+#endif
 
 template <uint16_t S>
 static const u8 *vermicelliExecReal(SuperVector<S> const chars, SuperVector<S> const casemask, u8 const *buf, u8 const *buf_end) {
