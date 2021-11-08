@@ -29,7 +29,7 @@
 
 template <>
 really_really_inline
-const u8 *first_non_zero_match<16>(const u8 *buf, SuperVector<16> mask) {
+const u8 *first_non_zero_match<16>(const u8 *buf, SuperVector<16> mask, u16 const UNUSED len) {
     uint32x4_t m = mask.u.u32x4[0];
     uint64_t vmax = vgetq_lane_u64 (vreinterpretq_u64_u32 (vpmaxq_u32(m, m)), 0);
     if (vmax != 0) {
@@ -48,7 +48,7 @@ const u8 *first_non_zero_match<16>(const u8 *buf, SuperVector<16> mask) {
 
 template <>
 really_really_inline
-const u8 *last_non_zero_match<16>(const u8 *buf, SuperVector<16> mask) {
+const u8 *last_non_zero_match<16>(const u8 *buf, SuperVector<16> mask, u16 const UNUSED len) {
     uint32x4_t m = mask.u.u32x4[0];
     uint64_t vmax = vgetq_lane_u64 (vreinterpretq_u64_u32 (vpmaxq_u32(m, m)), 0);
     if (vmax != 0) {
@@ -66,7 +66,7 @@ const u8 *last_non_zero_match<16>(const u8 *buf, SuperVector<16> mask) {
 
 template <>
 really_really_inline
-const u8 *first_zero_match_inverted<16>(const u8 *buf, SuperVector<16> mask) {
+const u8 *first_zero_match_inverted<16>(const u8 *buf, SuperVector<16> mask, u16 const UNUSED len) {
     uint32x4_t m = mask.u.u32x4[0];
     uint64_t vmax = vgetq_lane_u64 (vreinterpretq_u64_u32 (vpmaxq_u32(m, m)), 0);
     if (vmax != 0) {
@@ -85,7 +85,7 @@ const u8 *first_zero_match_inverted<16>(const u8 *buf, SuperVector<16> mask) {
 
 template <>
 really_really_inline
-const u8 *last_zero_match_inverted<16>(const u8 *buf, SuperVector<16> mask) {
+const u8 *last_zero_match_inverted<16>(const u8 *buf, SuperVector<16> mask, u16 const UNUSED len) {
     uint32x4_t m = mask.u.u32x4[0];
     uint64_t vmax = vgetq_lane_u64 (vreinterpretq_u64_u32 (vpmaxq_u32(m, m)), 0);
     if (vmax != 0) {
