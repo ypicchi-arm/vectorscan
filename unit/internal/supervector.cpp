@@ -155,10 +155,14 @@ TEST(SuperVectorUtilsTest,OPXOR128c){
 TEST(SuperVectorUtilsTest,OPANDNOT128c){
     auto SP1 = SuperVector<16>::Zeroes(); 
     auto SP2 = SuperVector<16>::Ones();
+    SP1 = SP1.opandnot(SP2);
+    for (int i=0; i<16; i++) {
+        ASSERT_EQ(SP1.u.u8[i],0xff);
+    }
     SP2 = SP2.opandnot(SP1);
     for (int i=0; i<16; i++) {
-        ASSERT_EQ(SP2.u.s8[i],0);
-    }
+        ASSERT_EQ(SP2.u.u8[i],0);
+    }    
 }
 
 TEST(SuperVectorUtilsTest,Movemask128c){
