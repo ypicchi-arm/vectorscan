@@ -819,6 +819,17 @@ TEST(SimdUtilsTest, sub_u8_m128) {
     EXPECT_TRUE(!diff128(result, loadu128(expec)));
 }
 
+TEST(SimdUtilsTest, load_m128_from_u64a) {
+    srand (time(NULL));
+    u64a tmp = rand();
+    m128 res = load_m128_from_u64a(&tmp);
+    m128 cmp = set2x64(0LL, tmp);
+    //print_m128_16x8("res",res);
+    //print_m128_16x8("cmp",cmp);
+    EXPECT_TRUE(!diff128(res, cmp));
+}
+
+
 TEST(SimdUtilsTest, movemask_128) {
     srand (time(NULL));
     u8 vec[16] = {0};
