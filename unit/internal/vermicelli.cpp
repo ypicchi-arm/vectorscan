@@ -30,7 +30,7 @@
 #include "config.h"
 
 #include "gtest/gtest.h"
-#include "nfa/vermicelli.h"
+#include "nfa/vermicelli.hpp"
 
 TEST(Vermicelli, ExecNoMatch1) {
     char t1[] = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";

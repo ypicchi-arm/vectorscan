@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Intel Corporation
+ * Copyright (c) 2017, Intel Corporation
  * Copyright (c) 2020-2021, VectorCamp PC
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,32 +27,28 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MATCH_HPP
-#define MATCH_HPP
-
-#include "ue2common.h"
-#include "util/arch.h"
-#include "util/bitutils.h"
-#include "util/unaligned.h"
+#ifndef CASEMASK_HPP
+#define CASEMASK_HPP
 
 #include "util/supervector/supervector.hpp"
 
-template <u16 S>
-const u8 *first_non_zero_match(const u8 *buf, SuperVector<S> v, u16 const len = S);
+static u8 CASEMASK[] = { 0xff, 0xdf };
 
-template <u16 S>
-const u8 *last_non_zero_match(const u8 *buf, SuperVector<S> v, u16 const len = S);
+static really_inline
+u8 caseClear8(u8 x, bool noCase)
+{
+    return static_cast<u8>(x & CASEMASK[(u8)noCase]);
+}
 
-template <u16 S>
-const u8 *first_zero_match_inverted(const u8 *buf, SuperVector<S> v, u16 const len = S);
+template<uint16_t S>
+static really_inline SuperVector<S> getMask(u8 c, bool noCase) {
+    u8 k = caseClear8(c, noCase);
+    return SuperVector<S>(k);
+}
 
-template <u16 S>
-const u8 *last_zero_match_inverted(const u8 *buf, SuperVector<S> v, u16 len = S);
+template<uint16_t S>
+static really_inline SuperVector<S> getCaseMask(void) {
+    return SuperVector<S>(CASEMASK[1]);
+}
 
-#if defined(ARCH_IA32) || defined(ARCH_X86_64)
-#include "util/arch/x86/match.hpp"
-#elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
-#include "util/arch/arm/match.hpp"
-#endif
-
-#endif // MATCH_HPP
+#endif // CASEMASK_HPP

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2020, Intel Corporation
+ * Copyright (c) 2020-2021, VectorCamp PC
  * Copyright (c) 2021, Arm Limited
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,52 +29,72 @@
  */
 
 /** \file
- * \brief Vermicelli: Implementation shared between architectures.
- *
- * (users should include vermicelli.h instead of this)
+ * \brief Vermicelli: single-byte and double-byte acceleration.
  */
 
-#define VERM_BOUNDARY 16
-#define VERM_TYPE m128
-#define VERM_SET_FN set1_16x8
+#ifndef VERMICELLI_HPP
+#define VERMICELLI_HPP
 
-// returns NULL if not found
-static really_inline
-const u8 *dvermPreconditionMasked(m128 chars1, m128 chars2,
-                                  m128 mask1, m128 mask2, const u8 *buf) {
-    m128 data = loadu128(buf); // unaligned
-    m128 v1 = eq128(chars1, and128(data, mask1));
-    m128 v2 = eq128(chars2, and128(data, mask2));
-    u32 z = movemask128(and128(v1, rshiftbyte_m128(v2, 1)));
+#include "util/bitutils.h"
 
-    /* no fixup of the boundary required - the aligned run will pick it up */
-    if (unlikely(z)) {
-        u32 pos = ctz32(z);
-        return buf + pos;
-    }
-    return NULL;
+#ifdef HAVE_SVE2
+#include "vermicelli_sve.h"
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+const u8 *vermicelliExec(char c, char noCase, const u8 *buf, const u8 *buf_end);
+#ifdef __cplusplus
 }
+#endif
 
-static really_inline
-const u8 *dvermSearchAlignedMasked(m128 chars1, m128 chars2,
-                                   m128 mask1, m128 mask2, u8 c1, u8 c2, u8 m1,
-                                   u8 m2, const u8 *buf, const u8 *buf_end) {
-    assert((size_t)buf % 16 == 0);
-
-    for (; buf + 16 < buf_end; buf += 16) {
-        m128 data = load128(buf);
-        m128 v1 = eq128(chars1, and128(data, mask1));
-        m128 v2 = eq128(chars2, and128(data, mask2));
-        u32 z = movemask128(and128(v1, rshiftbyte_m128(v2, 1)));
-
-        if ((buf[15] & m1) == c1 && (buf[16] & m2) == c2) {
-            z |= (1 << 15);
-        }
-        if (unlikely(z)) {
-            u32 pos = ctz32(z);
-            return buf + pos;
-        }
-    }
-
-    return NULL;
+#ifdef __cplusplus
+extern "C" {
+#endif
+const u8 *nvermicelliExec(char c, char noCase, const u8 *buf, const u8 *buf_end);
+#ifdef __cplusplus
 }
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+const u8 *rvermicelliExec(char c, char nocase, const u8 *buf, const u8 *buf_end);
+#ifdef __cplusplus
+}
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+const u8 *rnvermicelliExec(char c, char nocase, const u8 *buf, const u8 *buf_end);
+#ifdef __cplusplus
+}
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+const u8 *vermicelliDoubleExec(char c1, char c2, char nocase, const u8 *buf, const u8 *buf_end);
+#ifdef __cplusplus
+}
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+const u8 *rvermicelliDoubleExec(char c1, char c2, char nocase, const u8 *buf, const u8 *buf_end);
+#ifdef __cplusplus
+}
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+const u8 *vermicelliDoubleMaskedExec(char c1, char c2, char m1, char m2, const u8 *buf, const u8 *buf_end);
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* VERMICELLI_HPP */

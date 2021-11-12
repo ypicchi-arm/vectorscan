@@ -26,7 +26,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "vermicelli.h"
+#include "vermicelli.hpp"
+
+#define VERM_BOUNDARY 16
+#define VERM_TYPE m128
 
 static really_inline
 const u8 *find_xverm_run(char c, char nocase, u32 repeat, UNUSED const u8 *buf,
