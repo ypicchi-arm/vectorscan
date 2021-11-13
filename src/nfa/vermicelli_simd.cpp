@@ -75,6 +75,8 @@ const u8 *vermicelliDoubleMaskedBlock(SuperVector<S> const data, SuperVector<S> 
 #include "x86/vermicelli.hpp"
 #elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
 #include "arm/vermicelli.hpp"
+#elif defined(ARCH_PPC64EL)
+#include "ppc64el/vermicelli.hpp"
 #endif
 
 template <uint16_t S>
