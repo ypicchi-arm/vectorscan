@@ -192,6 +192,34 @@ int main(){
         }
 
         for (size_t i = 0; i < std::size(sizes); i++) {
+            MicroBenchmark bench("Vermicelli", sizes[i]);
+            run_benchmarks(sizes[i], MAX_LOOPS / sizes[i], matches[m], false, bench,
+                [&](MicroBenchmark &b) {
+                    b.chars.set('a');
+                    ue2::truffleBuildMasks(b.chars, (u8 *)&b.lo, (u8 *)&b.hi);
+                    memset(b.buf.data(), 'b', b.size);
+                },
+                [&](MicroBenchmark &b) {
+                    return vermicelliExec('a', 'b', b.buf.data(), b.buf.data() + b.size);
+                }
+            );
+        }
+
+        for (size_t i = 0; i < std::size(sizes); i++) {
+            MicroBenchmark bench("Reverse Vermicelli", sizes[i]);
+            run_benchmarks(sizes[i], MAX_LOOPS / sizes[i], matches[m], true, bench,
+                [&](MicroBenchmark &b) {
+                    b.chars.set('a');
+                    ue2::truffleBuildMasks(b.chars, (u8 *)&b.lo, (u8 *)&b.hi);
+                    memset(b.buf.data(), 'b', b.size);
+                },
+                [&](MicroBenchmark &b) {
+                    return rvermicelliExec('a', 'b', b.buf.data(), b.buf.data() + b.size);
+                }
+            );
+        }
+
+        for (size_t i = 0; i < std::size(sizes); i++) {
             //we imitate the noodle unit tests
             std::string str;
             const size_t char_len = 5;

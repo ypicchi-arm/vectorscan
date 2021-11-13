@@ -30,26 +30,7 @@
 /* SIMD engine agnostic noodle scan parts */
 
 #include "util/supervector/supervector.hpp"
-
-static u8 CASEMASK[] = { 0xff, 0xdf };
-
-static really_inline
-u8 caseClear8(u8 x, bool noCase)
-{
-    return static_cast<u8>(x & CASEMASK[(u8)noCase]);
-}
-
-template<uint16_t S>
-static really_inline SuperVector<S> getMask(u8 c, bool noCase) {
-    u8 k = caseClear8(c, noCase);
-    return SuperVector<S>(k);
-}
-
-template<uint16_t S>
-static really_inline SuperVector<S> getCaseMask(void) {
-    return SuperVector<S>(CASEMASK[1]);
-}
-
+#include "util/supervector/casemask.hpp"
 
 static really_really_inline
 hwlm_error_t single_zscan(const struct noodTable *n,const u8 *d, const u8 *buf,

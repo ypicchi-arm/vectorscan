@@ -40,7 +40,7 @@
 #include "shufti.h"
 #include "truffle.h"
 #include "ue2common.h"
-#include "vermicelli.h"
+#include "vermicelli.hpp"
 #include "util/arch.h"
 #include "util/bitutils.h"
 #include "util/simd_utils.h"

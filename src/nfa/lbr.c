@@ -40,7 +40,7 @@
 #include "repeat_internal.h"
 #include "shufti.h"
 #include "truffle.h"
-#include "vermicelli.h"
+#include "vermicelli.hpp"
 #include "util/partial_store.h"
 #include "util/unaligned.h"
 

@@ -671,6 +671,7 @@ TEST(SimdUtilsTest, movq) {
 #elif defined(ARCH_PPC64EL)
     int64x2_t a = {0x123456789abcdefLL, ~0LL };
     simd = (m128) a;
+    simd = vreinterpretq_s32_s64(a);
 #endif
 #endif
     r = movq(simd);
