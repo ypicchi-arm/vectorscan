@@ -176,6 +176,17 @@ public:
     int8x16_t  ALIGN_ATTR(BaseVector<16>::size) s8x16[SIZE / BaseVector<16>::size];
 #endif
 
+#if defined(ARCH_PPC64EL)
+    __vector uint64_t ALIGN_ATTR(BaseVector<16>::size) u64x2[SIZE / BaseVector<16>::size];
+    __vector int64_t  ALIGN_ATTR(BaseVector<16>::size) s64x2[SIZE / BaseVector<16>::size];
+    __vector uint32_t ALIGN_ATTR(BaseVector<16>::size) u32x4[SIZE / BaseVector<16>::size];
+    __vector int32_t  ALIGN_ATTR(BaseVector<16>::size) s32x4[SIZE / BaseVector<16>::size];
+    __vector uint16_t ALIGN_ATTR(BaseVector<16>::size) u16x8[SIZE / BaseVector<16>::size];
+    __vector int16_t  ALIGN_ATTR(BaseVector<16>::size) s16x8[SIZE / BaseVector<16>::size];
+    __vector uint8_t  ALIGN_ATTR(BaseVector<16>::size) u8x16[SIZE / BaseVector<16>::size];
+    __vector int8_t   ALIGN_ATTR(BaseVector<16>::size) s8x16[SIZE / BaseVector<16>::size];	
+#endif
+
     uint64_t u64[SIZE / sizeof(uint64_t)];
     int64_t  s64[SIZE / sizeof(int64_t)];
     uint32_t u32[SIZE / sizeof(uint32_t)];
