@@ -381,7 +381,7 @@ m128 palignr_imm(m128 r, m128 l, int offset) {
 static really_really_inline
 m128 palignr(m128 r, m128 l, int offset) {
 #if defined(HS_OPTIMIZE)
-    return (m128)vec_sld((int8x16_t)l, (int8x16_t)r, offset);
+    return palignr_imm(r, l, offset);
 #else
     return palignr_imm(r, l, offset);
 #endif
