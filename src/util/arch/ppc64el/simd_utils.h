@@ -381,6 +381,7 @@ m128 palignr_imm(m128 r, m128 l, int offset) {
 static really_really_inline
 m128 palignr(m128 r, m128 l, int offset) {
 #if defined(HS_OPTIMIZE)
+    // need a faster way to do this.
     return palignr_imm(r, l, offset);
 #else
     return palignr_imm(r, l, offset);

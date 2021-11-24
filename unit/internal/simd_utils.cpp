@@ -917,4 +917,29 @@ TEST(SimdUtilsTest, pshufb_m128) {
 }
 
 
+/*Define ALIGNR128 macro*/
+#define TEST_ALIGNR128(v1, v2, buf, l) {                                                 \
+                                           m128 v_aligned =palignr(v2,v1, l);            \
+                                           storeu128(res, v_aligned);                    \
+                                           for (size_t i=0; i<16; i++) {                 \
+                                               ASSERT_EQ(res[i], vec[i + l]);            \
+                                           }                                             \
+                                       }
+
+TEST(SimdUtilsTest, Alignr128){
+    u8 vec[32];
+    u8 res[16];
+    for (int i=0; i<32; i++) {
+        vec[i]=i;
+    }
+    m128 v1 = loadu128(vec);
+    m128 v2 = loadu128(vec+16);
+    for (int j = 0; j<16; j++){
+        TEST_ALIGNR128(v1, v2, vec, j);
+    }
+}
+
+
+
+
 } // namespace
