@@ -72,8 +72,6 @@ set(unit_internal_SOURCES
     internal/compare.cpp
     internal/database.cpp
     internal/depth.cpp
-    #internal/fdr.cpp
-    #internal/fdr_flood.cpp
     internal/fdr_loadval.cpp
     internal/flat_set.cpp
     internal/flat_map.cpp
@@ -81,7 +79,6 @@ set(unit_internal_SOURCES
     internal/graph_undirected.cpp
     internal/insertion_ordered.cpp
     internal/lbr.cpp
-    #internal/limex_nfa.cpp
     internal/multi_bit.cpp
     internal/multi_bit_compress.cpp
     internal/nfagraph_common.h
