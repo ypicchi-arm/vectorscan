@@ -634,7 +634,6 @@ set (hs_exec_SRCS
     src/nfa/truffle.h
     src/nfa/vermicelli.hpp
     src/nfa/vermicelli_run.h
-    src/nfa/vermicelli_simd.cpp
     src/som/som.h
     src/som/som_operation.h
     src/som/som_runtime.h
@@ -700,6 +699,12 @@ set (hs_exec_SRCS
     ${hs_exec_SRCS}
     src/util/supervector/arch/ppc64el/impl.cpp)
 endif ()
+endif()
+
+if (NOT BUILD_SVE2)
+set (hs_exec_SRCS
+    ${hs_exec_SRCS}
+    src/nfa/vermicelli_simd.cpp)
 endif()
 
 set (hs_exec_avx2_SRCS

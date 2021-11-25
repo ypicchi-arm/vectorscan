@@ -270,25 +270,24 @@ static really_inline
 const u8 *dvermSearch(svuint8_t chars, const u8 *buf, const u8 *buf_end) {
     size_t len = buf_end - buf;
     if (len <= svcntb()) {
-        return dvermSearchOnce(chars, buf, buf_end);
+        return dvermSearchOnce(svreinterpret_u16(chars), buf, buf_end);
     }
     // peel off first part to align to the vector size
     const u8 *aligned_buf = ROUNDUP_PTR(buf, svcntb_pat(SV_POW2));
     assert(aligned_buf < buf_end);
     if (buf != aligned_buf) {
-        const u8 *ptr = dvermSearchLoopBody(chars, buf);
+        const u8 *ptr = dvermSearchLoopBody(svreinterpret_u16(chars), buf);
         if (ptr) return ptr;
     }
     buf = aligned_buf;
     size_t loops = (buf_end - buf) / svcntb();
     DEBUG_PRINTF("loops %zu \n", loops);
     for (size_t i = 0; i < loops; i++, buf += svcntb()) {
-        const u8 *ptr = dvermSearchLoopBody(chars, buf);
+        const u8 *ptr = dvermSearchLoopBody(svreinterpret_u16(chars), buf);
         if (ptr) return ptr;
     }
     DEBUG_PRINTF("buf %p buf_end %p \n", buf, buf_end);
-    return buf == buf_end ? NULL : dvermSearchLoopBody(chars,
-                                                       buf_end - svcntb());
+    return buf == buf_end ? NULL : dvermSearchLoopBody(svreinterpret_u16(chars), buf_end - svcntb());
 }
 
 static really_inline
@@ -372,7 +371,7 @@ const u8 *vermicelliDoubleExec(char c1, char c2, bool nocase, const u8 *buf,
     assert(buf < buf_end);
     if (buf_end - buf > 1) {
         ++buf;
-        svuint16_t chars = getCharMaskDouble(c1, c2, nocase);
+        svuint8_t chars = svreinterpret_u8(getCharMaskDouble(c1, c2, nocase));
         const u8 *ptr = dvermSearch(chars, buf, buf_end);
         if (ptr) {
             return ptr;
@@ -459,7 +458,7 @@ const u8 *vermicelliDouble16Exec(const m128 mask, const u64a firsts,
     DEBUG_PRINTF("double verm16 scan over %td bytes\n", buf_end - buf);
     if (buf_end - buf > 1) {
         ++buf;
-        svuint16_t chars = svreinterpret_u16(getDupSVEMaskFrom128(mask));
+        svuint8_t chars = svreinterpret_u8(getDupSVEMaskFrom128(mask));
         const u8 *ptr = dvermSearch(chars, buf, buf_end);
         if (ptr) {
             return ptr;
@@ -480,12 +479,105 @@ const u8 *vermicelliDoubleMasked16Exec(const m128 mask, char c1, char m1,
     DEBUG_PRINTF("double verm16 masked scan over %td bytes\n", buf_end - buf);
     if (buf_end - buf > 1) {
         ++buf;
-        svuint16_t chars = svreinterpret_u16(getDupSVEMaskFrom128(mask));
+        svuint8_t chars = getDupSVEMaskFrom128(mask);
         const u8 *ptr = dvermSearch(chars, buf, buf_end);
         if (ptr) {
             return ptr;
         }
     }
+    /* check for partial match at end */
+    if ((buf_end[-1] & m1) == (u8)c1) {
+        DEBUG_PRINTF("partial!!!\n");
+        return buf_end - 1;
+    }
+
+    return buf_end;
+}
+
+// returns NULL if not found
+static really_inline
+const u8 *dvermPreconditionMasked(m128 chars1, m128 chars2,
+                                  m128 mask1, m128 mask2, const u8 *buf) {
+    m128 data = loadu128(buf); // unaligned
+    m128 v1 = eq128(chars1, and128(data, mask1));
+    m128 v2 = eq128(chars2, and128(data, mask2));
+    u32 z = movemask128(and128(v1, rshiftbyte_m128(v2, 1)));
+
+    /* no fixup of the boundary required - the aligned run will pick it up */
+    if (unlikely(z)) {
+        u32 pos = ctz32(z);
+        return buf + pos;
+    }
+    return NULL;
+}
+
+static really_inline
+const u8 *dvermSearchAlignedMasked(m128 chars1, m128 chars2,
+                                   m128 mask1, m128 mask2, u8 c1, u8 c2, u8 m1,
+                                   u8 m2, const u8 *buf, const u8 *buf_end) {
+    assert((size_t)buf % 16 == 0);
+
+    for (; buf + 16 < buf_end; buf += 16) {
+        m128 data = load128(buf);
+        m128 v1 = eq128(chars1, and128(data, mask1));
+        m128 v2 = eq128(chars2, and128(data, mask2));
+        u32 z = movemask128(and128(v1, rshiftbyte_m128(v2, 1)));
+
+        if ((buf[15] & m1) == c1 && (buf[16] & m2) == c2) {
+            z |= (1 << 15);
+        }
+        if (unlikely(z)) {
+            u32 pos = ctz32(z);
+            return buf + pos;
+        }
+    }
+
+    return NULL;
+}
+
+static really_inline
+const u8 *vermicelliDoubleMaskedExec(char c1, char c2, char m1, char m2,
+                                     const u8 *buf, const u8 *buf_end) {
+    DEBUG_PRINTF("double verm scan (\\x%02hhx&\\x%02hhx)(\\x%02hhx&\\x%02hhx) "
+                 "over %zu bytes\n", c1, m1, c2, m2, (size_t)(buf_end - buf));
+    assert(buf < buf_end);
+
+    m128 chars1 = set1_16x8(c1);
+    m128 chars2 = set1_16x8(c2);
+    m128 mask1 = set1_16x8(m1);
+    m128 mask2 = set1_16x8(m2);
+
+    assert((buf_end - buf) >= 16);
+    uintptr_t min = (uintptr_t)buf % 16;
+    if (min) {
+        // Input isn't aligned, so we need to run one iteration with an
+        // unaligned load, then skip buf forward to the next aligned address.
+        // There's some small overlap here, but we don't mind scanning it twice
+        // if we can do it quickly, do we?
+        const u8 *p = dvermPreconditionMasked(chars1, chars2, mask1, mask2, buf);
+        if (p) {
+            return p;
+        }
+
+        buf += 16 - min;
+        assert(buf < buf_end);
+    }
+
+    // Aligned loops from here on in
+    const u8 *ptr = dvermSearchAlignedMasked(chars1, chars2, mask1, mask2, c1,
+                                             c2, m1, m2, buf, buf_end);
+    if (ptr) {
+        return ptr;
+    }
+
+    // Tidy up the mess at the end
+    ptr = dvermPreconditionMasked(chars1, chars2, mask1, mask2,
+                                  buf_end - 16);
+
+    if (ptr) {
+        return ptr;
+    }
+
     /* check for partial match at end */
     if ((buf_end[-1] & m1) == (u8)c1) {
         DEBUG_PRINTF("partial!!!\n");
