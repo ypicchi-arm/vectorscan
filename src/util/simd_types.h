@@ -38,6 +38,8 @@
 #include "util/arch/x86/simd_types.h"
 #elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
 #include "util/arch/arm/simd_types.h"
+#elif defined(ARCH_PPC64EL)
+#include "util/arch/ppc64el/simd_types.h"
 #endif
 
 #if !defined(m128) && !defined(HAVE_SIMD_128_BITS)

@@ -27,34 +27,36 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MATCH_HPP
-#define MATCH_HPP
+/** \file
+ * \brief Truffle: character class acceleration.
+ *
+ */
 
-#include "ue2common.h"
-#include "util/arch.h"
-#include "util/bitutils.h"
-#include "util/unaligned.h"
+template <uint16_t S>
+static really_inline
+const SuperVector<S> blockSingleMask(SuperVector<S> shuf_mask_lo_highclear, SuperVector<S> shuf_mask_lo_highset, SuperVector<S> chars) {
 
-#include "util/supervector/supervector.hpp"
+    chars.print8("chars");
+    shuf_mask_lo_highclear.print8("shuf_mask_lo_highclear");
+    shuf_mask_lo_highset.print8("shuf_mask_lo_highset");
 
-template <u16 S>
-const u8 *first_non_zero_match(const u8 *buf, SuperVector<S> v, u16 const len = S);
+    SuperVector<S> highconst = SuperVector<S>::dup_u8(0x80);
+    highconst.print8("highconst");
+    SuperVector<S> shuf_mask_hi = SuperVector<S>::dup_u64(0x8040201008040201);
+    shuf_mask_hi.print8("shuf_mask_hi");
+    
+    SuperVector<S> shuf1 = shuf_mask_lo_highclear.pshufb(chars);
+    shuf1.print8("shuf1");
+    SuperVector<S> t1 = chars ^ highconst;
+    t1.print8("t1");
+    SuperVector<S> shuf2 = shuf_mask_lo_highset.pshufb(t1);
+    shuf2.print8("shuf2");
+    SuperVector<S> t2 = highconst.opandnot(chars.template vshr_64_imm<4>());
+    t2.print8("t2");
+    SuperVector<S> shuf3 = shuf_mask_hi.pshufb(t2);
+    shuf3.print8("shuf3");
+    SuperVector<S> res = (shuf1 | shuf2) & shuf3;
+    res.print8("(shuf1 | shuf2) & shuf3");
 
-template <u16 S>
-const u8 *last_non_zero_match(const u8 *buf, SuperVector<S> v, u16 const len = S);
-
-template <u16 S>
-const u8 *first_zero_match_inverted(const u8 *buf, SuperVector<S> v, u16 const len = S);
-
-template <u16 S>
-const u8 *last_zero_match_inverted(const u8 *buf, SuperVector<S> v, u16 len = S);
-
-#if defined(ARCH_IA32) || defined(ARCH_X86_64)
-#include "util/arch/x86/match.hpp"
-#elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
-#include "util/arch/arm/match.hpp"
-#elif defined(ARCH_PPC64EL)
-#include "util/arch/ppc64el/match.hpp"
-#endif
-
-#endif // MATCH_HPP
+    return res.eq(SuperVector<S>::Zeroes());
+}

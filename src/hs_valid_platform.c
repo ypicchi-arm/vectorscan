@@ -44,5 +44,7 @@ hs_error_t HS_CDECL hs_valid_platform(void) {
     }
 #elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
     return HS_SUCCESS;
+#elif defined(ARCH_PPC64EL)
+    return HS_SUCCESS;    
 #endif
 }

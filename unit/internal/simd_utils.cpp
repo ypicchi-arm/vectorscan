@@ -667,7 +667,10 @@ TEST(SimdUtilsTest, movq) {
     simd = _mm_set_epi64x(~0LL, 0x123456789abcdef);
 #elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
     int64x2_t a = { 0x123456789abcdefLL, ~0LL };
-    simd = vreinterpretq_s32_s64(a);
+    simd = vreinterpretq_s64_s8(a);
+#elif defined(ARCH_PPC64EL)
+    int64x2_t a = {0x123456789abcdefLL, ~0LL };
+    simd = (m128) a;
 #endif
 #endif
     r = movq(simd);
@@ -815,5 +818,127 @@ TEST(SimdUtilsTest, sub_u8_m128) {
     m128 result = sub_u8_m128(in1, in2);
     EXPECT_TRUE(!diff128(result, loadu128(expec)));
 }
+
+TEST(SimdUtilsTest, load_m128_from_u64a) {
+    srand (time(NULL));
+    u64a tmp = rand();
+    m128 res = load_m128_from_u64a(&tmp);
+    m128 cmp = set2x64(0LL, tmp);
+    //print_m128_16x8("res",res);
+    //print_m128_16x8("cmp",cmp);
+    EXPECT_TRUE(!diff128(res, cmp));
+}
+
+
+TEST(SimdUtilsTest, movemask_128) {
+    srand (time(NULL));
+    u8 vec[16] = {0};
+    u8 vec2[16] = {0};
+    u16 r = rand() % 100 + 1;
+    for(int i=0; i<16; i++) {
+        if (r & (1 << i)) {
+            vec[i] = 0xff;
+        }
+    }
+    m128 v = loadu128(vec);
+    u16 mask = movemask128(v);
+    for(int i=0; i<16; i++) {
+        if (mask & (1 << i)) {
+            vec2[i] = 0xff;
+        }
+    }
+    for (int i=0; i<16; i++) {
+        ASSERT_EQ(vec[i],vec2[i]);
+    }
+}
+
+TEST(SimdUtilsTest, pshufb_m128) {
+    srand (time(NULL));
+    u8 vec[16];
+    for (int i=0; i<16; i++) {
+        vec[i] = rand() % 1000 + 1;
+    }
+    u8 vec2[16];
+    for (int i=0; i<16; i++) {
+        vec2[i]=i + (rand() % 100 + 0);
+    }
+
+    // On Intel, if bit 0x80 is set, then result is zero, otherwise which the lane it is &0xf.
+    // In NEON or PPC, if >=16, then the result is zero, otherwise it is that lane.
+    // Thus bellow we have to check that case to NEON or PPC. 
+    
+    //Insure that vec3 has at least 1 or more 0x80 elements
+    u8 vec3[16] = {0};
+    vec3[15] = 0x80;
+
+    for (int i=0; i<15; i++) {
+        int l = rand() % 1000 + 0;
+        if (l % 16 ==0){
+            vec3[i]= 0x80;
+        } else{
+            vec3[i]= vec2[i];
+        }
+    }
+    /*
+        printf("vec3: ");
+        for(int i=15; i>=0; i--) { printf("%02x, ", vec3[i]); }
+        printf("\n");
+    */
+
+    //Test Special Case
+    m128 v1 = loadu128(vec);
+    m128 v2 = loadu128(vec3);
+    m128 vres = pshufb_m128(v1, v2); 
+    
+    u8 res[16];
+    storeu128(res, vres);
+
+    for (int i=0; i<16; i++) {
+	if(vec3[i] & 0x80){
+	   ASSERT_EQ(res[i], 0);
+        }else{	   
+           ASSERT_EQ(vec[vec3[i] % 16 ], res[i]);
+	    }
+    }
+       
+    //Test Other Cases
+    v1 = loadu128(vec);
+    v2 = loadu128(vec2);
+    vres = pshufb_m128(v1, v2); 
+    storeu128(res, vres);
+
+    for (int i=0; i<16; i++) {
+	if(vec2[i] & 0x80){
+	   ASSERT_EQ(res[i], 0);
+        }else{	   
+           ASSERT_EQ(vec[vec2[i] % 16 ], res[i]);
+	    }
+    }
+}
+
+/*Define ALIGNR128 macro*/
+#define TEST_ALIGNR128(v1, v2, buf, l) {                                                 \
+                                           m128 v_aligned = palignr(v2,v1, l);           \
+                                           storeu128(res, v_aligned);                    \
+                                           for (size_t i=0; i<16; i++) {                 \
+                                               ASSERT_EQ(res[i], vec[i + l]);            \
+                                           }                                             \
+                                       }
+
+TEST(SimdUtilsTest, Alignr128){
+    u8 vec[32];
+    u8 res[16];
+    for (int i=0; i<32; i++) {
+        vec[i]=i;
+    }
+    m128 v1 = loadu128(vec);
+    m128 v2 = loadu128(vec+16);
+    for (int j = 0; j<16; j++){
+        TEST_ALIGNR128(v1, v2, vec, j);
+    }
+}
+
+
+
 
 } // namespace

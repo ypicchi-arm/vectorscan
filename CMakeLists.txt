@@ -146,7 +146,7 @@ endif ()
         string(REGEX REPLACE "-O[^ ]*" "" CMAKE_CXX_FLAGS_${CONFIG} "${CMAKE_CXX_FLAGS_${CONFIG}}")
     endforeach ()
 
-    if (CMAKE_COMPILER_IS_GNUCC AND NOT CROSS_COMPILE_AARCH64)
+    if (CMAKE_COMPILER_IS_GNUCC AND NOT CROSS_COMPILE_AARCH64 AND NOT ARCH_PPC64EL)
         message(STATUS "gcc version ${CMAKE_C_COMPILER_VERSION}")
         # If gcc doesn't recognise the host cpu, then mtune=native becomes
         # generic, which isn't very good in some cases. march=native looks at
@@ -227,12 +227,24 @@ endif ()
         set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -DNDEBUG")
     endif()
 
-    if (NOT CMAKE_C_FLAGS MATCHES .*march.* AND NOT CMAKE_C_FLAGS MATCHES .*mtune.*)
-        set(ARCH_C_FLAGS "-march=${GNUCC_ARCH} -mtune=${TUNE_FLAG}")
+    
+    if (ARCH_IA32 OR ARCH_X86_64 OR ARCH_ARM32 OR ARCH_AARCH64)
+	 if (NOT CMAKE_C_FLAGS MATCHES .*march.* AND NOT CMAKE_C_FLAGS MATCHES .*mtune.*)
+            set(ARCH_C_FLAGS "-march=${GNUCC_ARCH} -mtune=${TUNE_FLAG}")
+   	 endif()
+	 
+	 if (NOT CMAKE_CXX_FLAGS MATCHES .*march.* AND NOT CMAKE_CXX_FLAGS MATCHES .*mtune.*)
+            set(ARCH_CXX_FLAGS "-march=${GNUCC_ARCH} -mtune=${TUNE_FLAG}")
+         endif()
     endif()
-
-    if (NOT CMAKE_CXX_FLAGS MATCHES .*march.* AND NOT CMAKE_CXX_FLAGS MATCHES .*mtune.*)
-        set(ARCH_CXX_FLAGS "-march=${GNUCC_ARCH} -mtune=${TUNE_FLAG}")
+    
+    if(ARCH_PPC64EL)
+        if (NOT CMAKE_C_FLAGS MATCHES .*march.* AND NOT CMAKE_C_FLAGS MATCHES .*mtune.*)
+            set(ARCH_C_FLAGS "-mtune=${TUNE_FLAG}")
+        endif()
+        if (NOT CMAKE_CXX_FLAGS MATCHES .*march.* AND NOT CMAKE_CXX_FLAGS MATCHES .*mtune.*)
+            set(ARCH_CXX_FLAGS "-mtune=${TUNE_FLAG}")
+        endif()
     endif()
 
     if(CMAKE_COMPILER_IS_GNUCC)
@@ -277,6 +289,10 @@ elseif (ARCH_ARM32 OR ARCH_AARCH64)
       message(FATAL_ERROR "arm_sve.h is required to build for SVE.")
     endif()
   endif()
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -flax-vector-conversions")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flax-vector-conversions")
+elseif (ARCH_PPC64EL)
+  CHECK_INCLUDE_FILE_CXX(altivec.h HAVE_C_PPC64EL_ALTIVEC_H)
 endif()
 
 CHECK_FUNCTION_EXISTS(posix_memalign HAVE_POSIX_MEMALIGN)
@@ -520,7 +536,7 @@ set (hs_exec_common_SRCS
     ${hs_exec_common_SRCS}
     src/util/arch/x86/cpuid_flags.c
     )
-elseif (ARCH_ARM32 OR ARCH_AARCH64)
+elseif (ARCH_ARM32 OR ARCH_AARCH64 OR ARCH_PPC64EL)
 set (hs_exec_common_SRCS
     ${hs_exec_common_SRCS}
     src/util/arch/arm/cpuid_flags.c
@@ -679,6 +695,10 @@ elseif (ARCH_ARM32 OR ARCH_AARCH64)
 set (hs_exec_SRCS
     ${hs_exec_SRCS}
     src/util/supervector/arch/arm/impl.cpp)
+elseif (ARCH_PPC64EL)
+set (hs_exec_SRCS
+    ${hs_exec_SRCS}
+    src/util/supervector/arch/ppc64el/impl.cpp)
 endif ()
 endif()
 
