@@ -39,7 +39,7 @@
 
 #ifdef HAVE_SVE2
 #include "vermicelli_sve.h"
-#endif
+#else
 
 #ifdef __cplusplus
 extern "C" {
@@ -95,6 +95,8 @@ extern "C" {
 const u8 *vermicelliDoubleMaskedExec(char c1, char c2, char m1, char m2, const u8 *buf, const u8 *buf_end);
 #ifdef __cplusplus
 }
+#endif
+
 #endif
 
 #endif /* VERMICELLI_HPP */

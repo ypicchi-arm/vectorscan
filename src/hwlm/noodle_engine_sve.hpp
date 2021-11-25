@@ -170,7 +170,7 @@ hwlm_error_t scanDoubleOnce(const struct noodTable *n, const u8 *buf,
     svbool_t pg = svwhilelt_b8_s64(0, e - d);
     svbool_t pg_rot = svwhilelt_b8_s64(0, e - d + 1);
     svbool_t matched, matched_rot;
-    svbool_t any = doubleMatched(chars, d, pg, pg_rot, &matched, &matched_rot);
+    svbool_t any = doubleMatched(svreinterpret_u16(chars), d, pg, pg_rot, &matched, &matched_rot);
     return doubleCheckMatched(n, buf, len, cbi, d, matched, matched_rot, any);
 }
 
@@ -187,7 +187,7 @@ hwlm_error_t scanDoubleLoop(const struct noodTable *n, const u8 *buf,
     for (size_t i = 0; i < loops; i++, d += svcntb()) {
         DEBUG_PRINTF("d %p \n", d);
         svbool_t matched, matched_rot;
-        svbool_t any = doubleMatched(chars, d, svptrue_b8(), svptrue_b8(),
+        svbool_t any = doubleMatched(svreinterpret_u16(chars), d, svptrue_b8(), svptrue_b8(),
                                      &matched, &matched_rot);
         hwlm_error_t rv = doubleCheckMatched(n, buf, len, cbi, d,
                                              matched, matched_rot, any);
@@ -220,7 +220,7 @@ hwlm_error_t scanDouble(const struct noodTable *n, const u8 *buf, size_t len,
     }
     ++d;
 
-    svuint16_t chars = getCharMaskDouble(n->key0, n->key1, noCase);
+    svuint8_t chars = svreinterpret_u8(getCharMaskDouble(n->key0, n->key1, noCase));
 
     if (scan_len <= svcntb()) {
         return scanDoubleOnce(n, buf, len, cbi, chars, d, e);
