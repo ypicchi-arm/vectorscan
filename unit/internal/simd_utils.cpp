@@ -916,10 +916,9 @@ TEST(SimdUtilsTest, pshufb_m128) {
     }
 }
 
-
 /*Define ALIGNR128 macro*/
 #define TEST_ALIGNR128(v1, v2, buf, l) {                                                 \
-                                           m128 v_aligned =palignr(v2,v1, l);            \
+                                           m128 v_aligned = palignr(v2,v1, l);           \
                                            storeu128(res, v_aligned);                    \
                                            for (size_t i=0; i<16; i++) {                 \
                                                ASSERT_EQ(res[i], vec[i + l]);            \
