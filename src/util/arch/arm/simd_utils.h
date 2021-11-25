@@ -328,11 +328,12 @@ m128 palignr_imm(m128 r, m128 l, int offset) {
 
 static really_really_inline
 m128 palignr(m128 r, m128 l, int offset) {
-#if defined(HS_OPTIMIZE)
-    return (m128)vextq_s8((int8x16_t)l, (int8x16_t)r, offset);
-#else
-    return palignr_imm(r, l, offset);
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (__builtin_constant_p(offset)) {
+        return (m128)vextq_s8((int8x16_t)l, (int8x16_t)r, offset);
+    }
 #endif
+    return palignr_imm(r, l, offset);
 }
 #undef CASE_ALIGN_VECTORS
 

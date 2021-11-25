@@ -482,34 +482,27 @@ really_inline SuperVector<16> SuperVector<16>::vshr(uint8_t const N) const
     return vshr_128(N);
 }
 
-#ifdef HS_OPTIMIZE
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator>>(uint8_t const N) const
 {
-    return {vextq_u8(u.u8x16[0], vdupq_n_u8(0), N)};
-}
-#else
-template <>
-really_inline SuperVector<16> SuperVector<16>::operator>>(uint8_t const N) const
-{
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (__builtin_constant_p(N)) {
+         return {vextq_u8(u.u8x16[0], vdupq_n_u8(0), N)};
+    }
+#endif
     return vshr_128(N);
 }
-#endif
 
-#ifdef HS_OPTIMIZE
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator<<(uint8_t const N) const
 {
-    return {vextq_u8(vdupq_n_u8(0), u.u8x16[0], 16 - N)};
-}
-#else
-template <>
-really_inline SuperVector<16> SuperVector<16>::operator<<(uint8_t const N) const
-{
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (__builtin_constant_p(N)) {
+        return {vextq_u8(vdupq_n_u8(0), u.u8x16[0], 16 - N)};
+    }
+#endif
     return vshl_128(N);
 }
-#endif
-
 
 template<>
 really_inline SuperVector<16> SuperVector<16>::Ones_vshr(uint8_t const N)
@@ -547,20 +540,18 @@ really_inline SuperVector<16> SuperVector<16>::loadu_maskz(void const *ptr, uint
     return mask & v;
 }
 
-#ifdef HS_OPTIMIZE
 template<>
 really_inline SuperVector<16> SuperVector<16>::alignr(SuperVector<16> &other, int8_t offset)
 {
-    if (offset == 16) {
-        return *this;
-    } else {
-        return {vextq_u8(other.u.u8x16[0], u.u8x16[0], offset)};
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (__builtin_constant_p(offset)) {
+        if (offset == 16) {
+            return *this;
+        } else {
+            return {vextq_u8(other.u.u8x16[0], u.u8x16[0], offset)};
+        }
     }
-}
-#else
-template<>
-really_inline SuperVector<16> SuperVector<16>::alignr(SuperVector<16> &other, int8_t offset)
-{
+#endif
     switch(offset) {
     case 0: return other; break;
     case 1: return {vextq_u8( other.u.u8x16[0], u.u8x16[0], 1)}; break;
@@ -583,7 +574,6 @@ really_inline SuperVector<16> SuperVector<16>::alignr(SuperVector<16> &other, in
     }
     return *this;
 }
-#endif
 
 template<>
 template<>
