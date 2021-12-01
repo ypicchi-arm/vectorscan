@@ -174,9 +174,7 @@ public:
     int16x8_t  ALIGN_ATTR(BaseVector<16>::size) s16x8[SIZE / BaseVector<16>::size];
     uint8x16_t ALIGN_ATTR(BaseVector<16>::size) u8x16[SIZE / BaseVector<16>::size];
     int8x16_t  ALIGN_ATTR(BaseVector<16>::size) s8x16[SIZE / BaseVector<16>::size];
-#endif
-
-#if defined(ARCH_PPC64EL)
+#elif defined(ARCH_PPC64EL)
     __vector uint64_t ALIGN_ATTR(BaseVector<16>::size) u64x2[SIZE / BaseVector<16>::size];
     __vector int64_t  ALIGN_ATTR(BaseVector<16>::size) s64x2[SIZE / BaseVector<16>::size];
     __vector uint32_t ALIGN_ATTR(BaseVector<16>::size) u32x4[SIZE / BaseVector<16>::size];
@@ -200,7 +198,7 @@ public:
   } u;
 
   constexpr SuperVector() {};
-  constexpr SuperVector(SuperVector const &other)
+  SuperVector(SuperVector const &other)
   :u(other.u) {};
   SuperVector(typename base_type::type const v);
 
