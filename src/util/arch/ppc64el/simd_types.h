@@ -30,7 +30,7 @@
 #define ARCH_PPC64EL_SIMD_TYPES_H
 
 #if !defined(m128) && defined(HAVE_VSX)
-typedef __vector int32_t m128;
+typedef __vector int m128;
 #endif
 
 #endif /* ARCH_PPC64EL_SIMD_TYPES_H  */
