@@ -154,6 +154,12 @@ endif ()
 # Detect best GNUCC_ARCH to tune for
 if (CMAKE_COMPILER_IS_GNUCC AND NOT CROSS_COMPILE)
     message(STATUS "gcc version ${CMAKE_C_COMPILER_VERSION}")
+
+    if(ARCH_PPC64EL)
+        set(ARCH_FLAG mcpu)
+    else()
+        set(ARCH_FLAG march)
+    endif()
     # If gcc doesn't recognise the host cpu, then mtune=native becomes
     # generic, which isn't very good in some cases. march=native looks at
     # cpuid info and then chooses the best microarch it can (and replaces
@@ -161,12 +167,12 @@ if (CMAKE_COMPILER_IS_GNUCC AND NOT CROSS_COMPILE)
 
     # arg1 might exist if using ccache
     string (STRIP "${CMAKE_C_COMPILER_ARG1}" CC_ARG1)
-    set (EXEC_ARGS ${CC_ARG1} -c -Q --help=target -march=native -mtune=native)
+    set (EXEC_ARGS ${CC_ARG1} -c -Q --help=target -${ARCH_FLAG}=native -mtune=native)
     execute_process(COMMAND ${CMAKE_C_COMPILER} ${EXEC_ARGS}
         OUTPUT_VARIABLE _GCC_OUTPUT)
-    string(FIND "${_GCC_OUTPUT}" "march" POS)
+    string(FIND "${_GCC_OUTPUT}" "${ARCH_FLAG}" POS)
     string(SUBSTRING "${_GCC_OUTPUT}" ${POS} -1 _GCC_OUTPUT)
-    string(REGEX REPLACE "march=[ \t]*([^ \n]*)[ \n].*" "\\1" GNUCC_ARCH "${_GCC_OUTPUT}")
+    string(REGEX REPLACE "${ARCH_FLAG}=[ \t]*([^ \n]*)[ \n].*" "\\1" GNUCC_ARCH "${_GCC_OUTPUT}")
 
     # test the parsed flag
     set (EXEC_ARGS ${CC_ARG1} -E - -mtune=${GNUCC_ARCH})
