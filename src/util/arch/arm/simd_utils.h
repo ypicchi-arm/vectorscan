@@ -129,7 +129,7 @@ m128 lshift_m128(m128 a, unsigned b) {
         return (m128) vshlq_n_u32((uint32x4_t)a, b);
     }
 #endif
-#define CASE_LSHIFT_m128(a, offset)  case offset: return (m128)vshlq_n_u32((int8x16_t)(a), (offset)); break;
+#define CASE_LSHIFT_m128(a, offset)  case offset: return (m128)vshlq_n_u32((uint32x4_t)(a), (offset)); break;
     switch (b) {
     case 0:  return a; break;
     CASE_LSHIFT_m128(a,  1);
@@ -175,7 +175,7 @@ m128 rshift_m128(m128 a, unsigned b) {
         return (m128) vshrq_n_u32((uint32x4_t)a, b);
     }
 #endif
-#define CASE_RSHIFT_m128(a, offset)  case offset: return (m128)vshrq_n_u32((int8x16_t)(a), (offset)); break;
+#define CASE_RSHIFT_m128(a, offset)  case offset: return (m128)vshrq_n_u32((uint32x4_t)(a), (offset)); break;
     switch (b) {
     case 0:  return a; break;
     CASE_RSHIFT_m128(a,  1);
@@ -221,7 +221,7 @@ m128 lshift64_m128(m128 a, unsigned b) {
         return (m128) vshlq_n_u64((uint64x2_t)a, b);
     }
 #endif
-#define CASE_LSHIFT64_m128(a, offset)  case offset: return (m128)vshlq_n_u64((int8x16_t)(a), (offset)); break;
+#define CASE_LSHIFT64_m128(a, offset)  case offset: return (m128)vshlq_n_u64((uint64x2_t)(a), (offset)); break;
     switch (b) {
     case 0:  return a; break;
     CASE_LSHIFT64_m128(a,  1);
@@ -299,7 +299,7 @@ m128 rshift64_m128(m128 a, unsigned b) {
         return (m128) vshrq_n_u64((uint64x2_t)a, b);
     }
 #endif
-#define CASE_RSHIFT64_m128(a, offset)  case offset: return (m128)vshrq_n_u64((int8x16_t)(a), (offset)); break;
+#define CASE_RSHIFT64_m128(a, offset)  case offset: return (m128)vshrq_n_u64((uint64x2_t)(a), (offset)); break;
     switch (b) {
     case 0:  return a; break;
     CASE_RSHIFT64_m128(a,  1);
