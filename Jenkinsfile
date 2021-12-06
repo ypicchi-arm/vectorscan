@@ -318,7 +318,8 @@ pipeline {
                             }
                         }
                     }
-                    stage("Clang-Release/AVX2") {
+                }
+                stage("Clang-Release/AVX2") {
                     agent { label "x86" }
                     stages {
                         stage("Git checkout") {
