@@ -419,9 +419,10 @@ m128 load_m128_from_u64a(const u64a *p) {
 }
 
 static really_inline u32 extract32from128(const m128 in, unsigned imm) {
-#if defined(HS_OPTIMIZE)
-    return vgetq_lane_u32((uint32x4_t) in, imm);
-#else
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (__builtin_constant_p(b)) {
+        return vgetq_lane_u32((uint32x4_t) in, imm);
+#endif
     switch (imm) {
     case 0:
         return vgetq_lane_u32((uint32x4_t) in, 0);
@@ -439,13 +440,13 @@ static really_inline u32 extract32from128(const m128 in, unsigned imm) {
 	return 0;
 	break;
     }
-#endif
 }
 
 static really_inline u64a extract64from128(const m128 in, unsigned imm) {
-#if defined(HS_OPTIMIZE)
-    return vgetq_lane_u64((uint64x2_t) in, imm);
-#else
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (__builtin_constant_p(b)) {
+        return vgetq_lane_u64((uint64x2_t) in, imm);
+#endif
     switch (imm) {
     case 0:
         return vgetq_lane_u64((uint64x2_t) in, 0);
@@ -457,7 +458,6 @@ static really_inline u64a extract64from128(const m128 in, unsigned imm) {
 	return 0;
 	break;
     }
-#endif
 }
 
 static really_inline m128 low64from128(const m128 in) {
