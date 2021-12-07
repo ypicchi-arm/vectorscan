@@ -43,6 +43,18 @@
 
 #include <string.h> // for memcpy
 
+typedef __vector unsigned long long int  uint64x2_t;
+typedef __vector   signed long long int   int64x2_t;
+typedef __vector unsigned int            uint32x4_t;
+typedef __vector   signed int             int32x4_t;
+typedef __vector unsigned short int      uint16x8_t;
+typedef __vector   signed short int       int16x8_t;
+typedef __vector unsigned char           uint8x16_t;
+typedef __vector  signed char             int8x16_t;
+
+typedef unsigned long long int ulong64_t;
+typedef   signed long long int  long64_t;
+/*
 typedef __vector  uint64_t uint64x2_t;
 typedef __vector   int64_t  int64x2_t;
 typedef __vector  uint32_t uint32x4_t;
@@ -50,7 +62,7 @@ typedef __vector   int32_t  int32x4_t;
 typedef __vector  uint16_t uint16x8_t;
 typedef __vector   int16_t  int16x8_t;
 typedef __vector   uint8_t uint8x16_t;
-typedef __vector    int8_t  int8x16_t;
+typedef __vector    int8_t  int8x16_t;*/
 
 
 #define ZEROES_8 0, 0, 0, 0, 0, 0, 0, 0
@@ -182,13 +194,13 @@ m128 rshift_m128(m128 a, unsigned b) {
 
 static really_really_inline
 m128 lshift64_m128(m128 a, unsigned b) {
-  uint64x2_t shift_indices = vec_splats((uint64_t)b); 
+  uint64x2_t shift_indices = vec_splats((ulong64_t)b); 
   return (m128) vec_sl((int64x2_t)a, shift_indices);
 }
 
 static really_really_inline
 m128 rshift64_m128(m128 a, unsigned  b) {
-  uint64x2_t shift_indices = vec_splats((uint64_t)b); 
+  uint64x2_t shift_indices = vec_splats((ulong64_t)b); 
   return (m128) vec_sr((int64x2_t)a, shift_indices);
 }
 
@@ -213,11 +225,11 @@ static really_inline u32 movemask128(m128 a) {
    uint32x4_t s3 = vec_or((uint32x4_t)ss2, res_and2);
    
    uint64x2_t ss3 = vec_sr((uint64x2_t)s3, (uint64x2_t)vec_splats(28));
-   uint64x2_t res_and3 = vec_and((uint64x2_t)s3, vec_splats((uint64_t)0xff));
+   uint64x2_t res_and3 = vec_and((uint64x2_t)s3, vec_splats((ulong64_t)0xff));
    uint64x2_t s4 = vec_or((uint64x2_t)ss3, res_and3);
   
    uint64x2_t ss4 = vec_sld((uint64x2_t)vec_splats(0), s4, 9);
-   uint64x2_t res_and4 = vec_and((uint64x2_t)s4, vec_splats((uint64_t)0xff));
+   uint64x2_t res_and4 = vec_and((uint64x2_t)s4, vec_splats((ulong64_t)0xff));
    uint64x2_t s5 = vec_or((uint64x2_t)ss4, res_and4);
  
    return s5[0];

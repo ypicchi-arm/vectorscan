@@ -88,7 +88,7 @@ if (FAT_RUNTIME)
             set (CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_C_FLAGS} ${SKYLAKE_FLAG}")
         endif (BUILD_AVX512VBMI)
     elseif (BUILD_AVX2)
-        set (CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_C_FLAGS} -march=core-avx2 -mavx")
+        set (CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_C_FLAGS} -march=core-avx2 -mavx2")
     elseif ()
         set (CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_C_FLAGS} -march=core-i7 -mssse3")
     endif ()
@@ -98,12 +98,12 @@ else (NOT FAT_RUNTIME)
 endif ()
 
 if (ARCH_IA32 OR ARCH_X86_64)
-    # ensure we have the minimum of SSSE3 - call a SSSE3 intrinsic
+    # ensure we have the minimum of SSE4.2 - call a SSE4.2 intrinsic
     CHECK_C_SOURCE_COMPILES("#include <${INTRIN_INC_H}>
 int main() {
     __m128i a = _mm_set1_epi8(1);
     (void)_mm_shuffle_epi8(a, a);
-}" HAVE_SSSE3)
+}" HAVE_SSE42)
 
     # now look for AVX2
     CHECK_C_SOURCE_COMPILES("#include <${INTRIN_INC_H}>
@@ -157,8 +157,8 @@ else ()
 endif ()
 
 if (FAT_RUNTIME)
-    if ((ARCH_IA32 OR ARCH_X86_64) AND NOT HAVE_SSSE3)
-        message(FATAL_ERROR "SSSE3 support required to build fat runtime")
+    if ((ARCH_IA32 OR ARCH_X86_64) AND NOT HAVE_SSE42)
+        message(FATAL_ERROR "SSE4.2 support required to build fat runtime")
     endif ()
     if ((ARCH_IA32 OR ARCH_X86_64) AND BUILD_AVX2 AND NOT HAVE_AVX2)
         message(FATAL_ERROR "AVX2 support required to build fat runtime")
@@ -179,8 +179,8 @@ else (NOT FAT_RUNTIME)
     if ((ARCH_IA32 OR ARCH_X86_64) AND NOT HAVE_AVX512VBMI)
         message(STATUS "Building without AVX512VBMI support")
     endif ()
-    if ((ARCH_IA32 OR ARCH_X86_64) AND NOT HAVE_SSSE3)
-        message(FATAL_ERROR "A minimum of SSSE3 compiler support is required")
+    if ((ARCH_IA32 OR ARCH_X86_64) AND NOT HAVE_SSE42)
+        message(FATAL_ERROR "A minimum of SSE4.2 compiler support is required")
     endif ()
     if ((ARCH_ARM32 OR ARCH_AARCH64) AND NOT HAVE_NEON)
         message(FATAL_ERROR "NEON support required for ARM support")

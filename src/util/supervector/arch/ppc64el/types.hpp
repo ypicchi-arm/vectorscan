@@ -27,6 +27,18 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+typedef __vector unsigned long long int  uint64x2_t;
+typedef __vector   signed long long int   int64x2_t;
+typedef __vector unsigned int            uint32x4_t;
+typedef __vector   signed int             int32x4_t;
+typedef __vector unsigned short int      uint16x8_t;
+typedef __vector   signed short int       int16x8_t;
+typedef __vector unsigned char           uint8x16_t;
+typedef __vector  signed char             int8x16_t;
+
+typedef unsigned long long int ulong64_t;
+typedef   signed long long int  long64_t;
+
 #if !defined(m128) && defined(HAVE_VSX)
-typedef __vector int32_t m128;
+typedef __vector int m128;
 #endif

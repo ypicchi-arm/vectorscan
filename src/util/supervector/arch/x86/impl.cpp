@@ -55,56 +55,56 @@ really_inline SuperVector<16>::SuperVector(typename base_type::type const v)
 
 template<>
 template<>
-really_inline SuperVector<16>::SuperVector<int8_t>(int8_t const other)
+really_inline SuperVector<16>::SuperVector(int8_t const other)
 {
     u.v128[0] = _mm_set1_epi8(other);
 }
 
 template<>
 template<>
-really_inline SuperVector<16>::SuperVector<uint8_t>(uint8_t const other)
+really_inline SuperVector<16>::SuperVector(uint8_t const other)
 {
     u.v128[0] = _mm_set1_epi8(static_cast<int8_t>(other));
 }
 
 template<>
 template<>
-really_inline SuperVector<16>::SuperVector<int16_t>(int16_t const other)
+really_inline SuperVector<16>::SuperVector(int16_t const other)
 {
     u.v128[0] = _mm_set1_epi16(other);
 }
 
 template<>
 template<>
-really_inline SuperVector<16>::SuperVector<uint16_t>(uint16_t const other)
+really_inline SuperVector<16>::SuperVector(uint16_t const other)
 {
     u.v128[0] = _mm_set1_epi16(static_cast<int16_t>(other));
 }
 
 template<>
 template<>
-really_inline SuperVector<16>::SuperVector<int32_t>(int32_t const other)
+really_inline SuperVector<16>::SuperVector(int32_t const other)
 {
     u.v128[0] = _mm_set1_epi32(other);
 }
 
 template<>
 template<>
-really_inline SuperVector<16>::SuperVector<uint32_t>(uint32_t const other)
+really_inline SuperVector<16>::SuperVector(uint32_t const other)
 {
     u.v128[0] = _mm_set1_epi32(static_cast<int32_t>(other));
 }
 
 template<>
 template<>
-really_inline SuperVector<16>::SuperVector<int64_t>(int64_t const other)
+really_inline SuperVector<16>::SuperVector(int64_t const other)
 {
     u.v128[0] = _mm_set1_epi64x(other);
 }
 
 template<>
 template<>
-really_inline SuperVector<16>::SuperVector<uint64_t>(uint64_t const other)
+really_inline SuperVector<16>::SuperVector(uint64_t const other)
 {
     u.v128[0] = _mm_set1_epi64x(static_cast<int64_t>(other));
 }
@@ -608,56 +608,56 @@ really_inline SuperVector<32>::SuperVector(SuperVector<16> const lo, SuperVector
 
 template<>
 template<>
-really_inline SuperVector<32>::SuperVector<int8_t>(int8_t const other)
+really_inline SuperVector<32>::SuperVector(int8_t const other)
 {
     u.v256[0] = _mm256_set1_epi8(other);
 }
 
 template<>
 template<>
-really_inline SuperVector<32>::SuperVector<uint8_t>(uint8_t const other)
+really_inline SuperVector<32>::SuperVector(uint8_t const other)
 {
     u.v256[0] = _mm256_set1_epi8(static_cast<int8_t>(other));
 }
 
 template<>
 template<>
-really_inline SuperVector<32>::SuperVector<int16_t>(int16_t const other)
+really_inline SuperVector<32>::SuperVector(int16_t const other)
 {
     u.v256[0] = _mm256_set1_epi16(other);
 }
 
 template<>
 template<>
-really_inline SuperVector<32>::SuperVector<uint16_t>(uint16_t const other)
+really_inline SuperVector<32>::SuperVector(uint16_t const other)
 {
     u.v256[0] = _mm256_set1_epi16(static_cast<int16_t>(other));
 }
 
 template<>
 template<>
-really_inline SuperVector<32>::SuperVector<int32_t>(int32_t const other)
+really_inline SuperVector<32>::SuperVector(int32_t const other)
 {
     u.v256[0] = _mm256_set1_epi32(other);
 }
 
 template<>
 template<>
-really_inline SuperVector<32>::SuperVector<uint32_t>(uint32_t const other)
+really_inline SuperVector<32>::SuperVector(uint32_t const other)
 {
     u.v256[0] = _mm256_set1_epi32(static_cast<int32_t>(other));
 }
 
 template<>
 template<>
-really_inline SuperVector<32>::SuperVector<int64_t>(int64_t const other)
+really_inline SuperVector<32>::SuperVector(int64_t const other)
 {
     u.v256[0] = _mm256_set1_epi64x(other);
 }
 
 template<>
 template<>
-really_inline SuperVector<32>::SuperVector<uint64_t>(uint64_t const other)
+really_inline SuperVector<32>::SuperVector(uint64_t const other)
 {
     u.v256[0] = _mm256_set1_epi64x(static_cast<int64_t>(other));
 }
@@ -804,7 +804,7 @@ really_inline SuperVector<32> SuperVector<32>::vshl_128_imm() const
 
 template <>
 template<uint8_t N>
-really_inline SuperVector<16> SuperVector<32>::vshl_256_imm() const
+really_inline SuperVector<32> SuperVector<32>::vshl_256_imm() const
 {
     if (N == 0) return *this;
     if (N == 16) return {_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0))};
@@ -950,11 +950,11 @@ really_inline SuperVector<32> SuperVector<32>::vshl_256(uint8_t const N) const
     SuperVector result;
     Unroller<1, 16>::iterator([&,v=this](auto const i) {
         constexpr uint8_t n = i.value;
-        if (N == n) result = {_mm256_alignr_epi8(u.v256[0], _mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 16 - n)};;
+        if (N == n) result = {_mm256_alignr_epi8(u.v256[0], _mm256_permute2x128_si256(v->u.v256[0], v->u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 16 - n)};;
     });
     Unroller<17, 32>::iterator([&,v=this](auto const i) {
         constexpr uint8_t n = i.value;
-        if (N == n) result = {_mm256_slli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), n - 16)};
+        if (N == n) result = {_mm256_slli_si256(_mm256_permute2x128_si256(v->u.v256[0], v->u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), n - 16)};
     });
     return result;
 }
@@ -1240,56 +1240,56 @@ really_inline SuperVector<64>::SuperVector(m128 const v)
 
 template<>
 template<>
-really_inline SuperVector<64>::SuperVector<int8_t>(int8_t const o)
+really_inline SuperVector<64>::SuperVector(int8_t const o)
 {
     u.v512[0] = _mm512_set1_epi8(o);
 }
 
 template<>
 template<>
-really_inline SuperVector<64>::SuperVector<uint8_t>(uint8_t const o)
+really_inline SuperVector<64>::SuperVector(uint8_t const o)
 {
     u.v512[0] = _mm512_set1_epi8(static_cast<int8_t>(o));
 }
 
 template<>
 template<>
-really_inline SuperVector<64>::SuperVector<int16_t>(int16_t const o)
+really_inline SuperVector<64>::SuperVector(int16_t const o)
 {
     u.v512[0] = _mm512_set1_epi16(o);
 }
 
 template<>
 template<>
-really_inline SuperVector<64>::SuperVector<uint16_t>(uint16_t const o)
+really_inline SuperVector<64>::SuperVector(uint16_t const o)
 {
     u.v512[0] = _mm512_set1_epi16(static_cast<int16_t>(o));
 }
 
 template<>
 template<>
-really_inline SuperVector<64>::SuperVector<int32_t>(int32_t const o)
+really_inline SuperVector<64>::SuperVector(int32_t const o)
 {
     u.v512[0] = _mm512_set1_epi32(o);
 }
 
 template<>
 template<>
-really_inline SuperVector<64>::SuperVector<uint32_t>(uint32_t const o)
+really_inline SuperVector<64>::SuperVector(uint32_t const o)
 {
     u.v512[0] = _mm512_set1_epi32(static_cast<int32_t>(o));
 }
 
 template<>
 template<>
-really_inline SuperVector<64>::SuperVector<int64_t>(int64_t const o)
+really_inline SuperVector<64>::SuperVector(int64_t const o)
 {
     u.v512[0] = _mm512_set1_epi64(o);
 }
 
 template<>
 template<>
-really_inline SuperVector<64>::SuperVector<uint64_t>(uint64_t const o)
+really_inline SuperVector<64>::SuperVector(uint64_t const o)
 {
     u.v512[0] = _mm512_set1_epi64(static_cast<int64_t>(o));
 }

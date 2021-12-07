@@ -30,7 +30,7 @@
 #ifndef SIMD_TYPES_X86_H
 #define SIMD_TYPES_X86_H
 
-#if !defined(m128) && defined(HAVE_SSE2)
+#if !defined(m128) && defined(HAVE_SSE42)
 typedef __m128i m128;
 #endif
 

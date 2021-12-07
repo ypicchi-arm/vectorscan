@@ -3,7 +3,7 @@ project (vectorscan C CXX)
 
 set (HS_MAJOR_VERSION 5)
 set (HS_MINOR_VERSION 4)
-set (HS_PATCH_VERSION 3)
+set (HS_PATCH_VERSION 5)
 set (HS_VERSION ${HS_MAJOR_VERSION}.${HS_MINOR_VERSION}.${HS_PATCH_VERSION})
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
@@ -128,11 +128,9 @@ CMAKE_DEPENDENT_OPTION(DUMP_SUPPORT "Dump code support; normally on, except in r
 
 CMAKE_DEPENDENT_OPTION(DISABLE_ASSERTS "Disable assert(); Asserts are enabled in debug builds, disabled in release builds" OFF "NOT RELEASE_BUILD" ON)
 
-option(BUILD_AVX512 "Experimental: support avx512 in the fat runtime"
-    OFF)
+option(BUILD_AVX512 "Experimental: support avx512 in the fat runtime" OFF)
 
-option(BUILD_AVX512VBMI "Experimental: support avx512vbmi in the fat runtime"
-    OFF)
+option(BUILD_AVX512VBMI "Experimental: support avx512vbmi in the fat runtime" OFF)
 
 if (BUILD_AVX512VBMI)
     set(BUILD_AVX512 ON)
@@ -140,47 +138,95 @@ endif ()
 
 # TODO: per platform config files?
 
-    # remove CMake's idea of optimisation
-    foreach (CONFIG ${CMAKE_BUILD_TYPE} ${CMAKE_CONFIGURATION_TYPES})
-        string(REGEX REPLACE "-O[^ ]*" "" CMAKE_C_FLAGS_${CONFIG} "${CMAKE_C_FLAGS_${CONFIG}}")
-        string(REGEX REPLACE "-O[^ ]*" "" CMAKE_CXX_FLAGS_${CONFIG} "${CMAKE_CXX_FLAGS_${CONFIG}}")
-    endforeach ()
+# remove CMake's idea of optimisation
+foreach (CONFIG ${CMAKE_BUILD_TYPE} ${CMAKE_CONFIGURATION_TYPES})
+    string(REGEX REPLACE "-O[^ ]*" "" CMAKE_C_FLAGS_${CONFIG} "${CMAKE_C_FLAGS_${CONFIG}}")
+    string(REGEX REPLACE "-O[^ ]*" "" CMAKE_CXX_FLAGS_${CONFIG} "${CMAKE_CXX_FLAGS_${CONFIG}}")
+endforeach ()
 
-    if (CMAKE_COMPILER_IS_GNUCC AND NOT CROSS_COMPILE_AARCH64 AND NOT ARCH_PPC64EL)
-        message(STATUS "gcc version ${CMAKE_C_COMPILER_VERSION}")
-        # If gcc doesn't recognise the host cpu, then mtune=native becomes
-        # generic, which isn't very good in some cases. march=native looks at
-        # cpuid info and then chooses the best microarch it can (and replaces
-        # the flag), so use that for tune.
+if (CMAKE_C_COMPILER_ID MATCHES "Intel")
+    set(SKYLAKE_FLAG "-xCORE-AVX512")
+else ()
+    set(SKYLAKE_FLAG "-march=skylake-avx512")
+    set(ICELAKE_FLAG "-march=icelake-server")
+endif ()
 
-        # arg1 might exist if using ccache
-        string (STRIP "${CMAKE_C_COMPILER_ARG1}" CC_ARG1)
-        set (EXEC_ARGS ${CC_ARG1} -c -Q --help=target -march=native -mtune=native)
-        execute_process(COMMAND ${CMAKE_C_COMPILER} ${EXEC_ARGS}
-            OUTPUT_VARIABLE _GCC_OUTPUT)
-        string(FIND "${_GCC_OUTPUT}" "march" POS)
-        string(SUBSTRING "${_GCC_OUTPUT}" ${POS} -1 _GCC_OUTPUT)
-        string(REGEX REPLACE "march=[ \t]*([^ \n]*)[ \n].*" "\\1"
-            GNUCC_ARCH "${_GCC_OUTPUT}")
+if(ARCH_PPC64EL)
+    set(ARCH_FLAG mcpu)
+else()
+    set(ARCH_FLAG march)
+endif()
 
-        if (ARCH_IA32 OR ARCH_X86_64)
-            # test the parsed flag
-            set (EXEC_ARGS ${CC_ARG1} -E - -mtune=${GNUCC_ARCH})
-            execute_process(COMMAND ${CMAKE_C_COMPILER} ${EXEC_ARGS}
-                OUTPUT_QUIET ERROR_QUIET
-                INPUT_FILE /dev/null
-                RESULT_VARIABLE GNUCC_TUNE_TEST)
-            if (NOT GNUCC_TUNE_TEST EQUAL 0)
-                message(SEND_ERROR "Something went wrong determining gcc tune: -mtune=${GNUCC_ARCH} not valid")
-            endif()
-            set(TUNE_FLAG ${GNUCC_ARCH})
-        else()
-            set(TUNE_FLAG native)
-        endif()
-    elseif (NOT TUNE_FLAG)
+# Detect best GNUCC_ARCH to tune for
+if (CMAKE_COMPILER_IS_GNUCC AND NOT CROSS_COMPILE)
+    message(STATUS "gcc version ${CMAKE_C_COMPILER_VERSION}")
+
+    # If gcc doesn't recognise the host cpu, then mtune=native becomes
+    # generic, which isn't very good in some cases. march=native looks at
+    # cpuid info and then chooses the best microarch it can (and replaces
+    # the flag), so use that for tune.
+
+    # arg1 might exist if using ccache
+    string (STRIP "${CMAKE_C_COMPILER_ARG1}" CC_ARG1)
+    set (EXEC_ARGS ${CC_ARG1} -c -Q --help=target -${ARCH_FLAG}=native -mtune=native)
+    execute_process(COMMAND ${CMAKE_C_COMPILER} ${EXEC_ARGS}
+        OUTPUT_VARIABLE _GCC_OUTPUT)
+    string(FIND "${_GCC_OUTPUT}" "${ARCH_FLAG}" POS)
+    string(SUBSTRING "${_GCC_OUTPUT}" ${POS} -1 _GCC_OUTPUT)
+    string(REGEX REPLACE "${ARCH_FLAG}=[ \t]*([^ \n]*)[ \n].*" "\\1" GNUCC_ARCH "${_GCC_OUTPUT}")
+
+    # test the parsed flag
+    set (EXEC_ARGS ${CC_ARG1} -E - -mtune=${GNUCC_ARCH})
+    execute_process(COMMAND ${CMAKE_C_COMPILER} ${EXEC_ARGS}
+        OUTPUT_QUIET ERROR_QUIET
+        INPUT_FILE /dev/null
+        RESULT_VARIABLE GNUCC_TUNE_TEST)
+    if (NOT GNUCC_TUNE_TEST EQUAL 0)
+        message(WARNING "Something went wrong determining gcc tune: -mtune=${GNUCC_ARCH} not valid, falling back to -mtune=native")
         set(TUNE_FLAG native)
+    else()
+        set(TUNE_FLAG ${GNUCC_ARCH})
+        message(STATUS "gcc will tune for ${GNUCC_ARCH}, ${TUNE_FLAG}")
     endif()
+elseif (CMAKE_COMPILER_IS_CLANG AND NOT CROSS_COMPILE)
+    if (ARCH_IA32 OR ARCH_X86_64)
+        set(GNUCC_ARCH native)
+        set(TUNE_FLAG generic)
+    elseif(ARCH_AARCH64)
+       set(GNUCC_ARCH armv8)
+       set(TUNE_FLAG generic)
+    elseif(ARCH_ARM32)
+       set(GNUCC_ARCH armv7a)
+       set(TUNE_FLAG generic)
+    else()
+       set(GNUCC_ARCH native)
+       set(TUNE_FLAG generic)
+    endif()
+    message(STATUS "clang will tune for ${GNUCC_ARCH}, ${TUNE_FLAG}")
+elseif (CROSS_COMPILE)
+    set(GNUCC_ARCH generic)
+    set(TUNE_FLAG generic)
+endif()
 
+if (ARCH_IA32 OR ARCH_X86_64)
+    if (NOT FAT_RUNTIME)
+        if (BUILD_AVX512)
+            set(ARCH_C_FLAGS "${SKYLAKE_FLAG}")
+            set(ARCH_CXX_FLAGS "${SKYLAKE_FLAG}")
+        elseif (BUILD_AVX2)
+            set(ARCH_C_FLAGS "-mavx2")
+            set(ARCH_CXX_FLAGS "-mavx2")
+        else()
+            set(ARCH_C_FLAGS "-msse4.2")
+            set(ARCH_CXX_FLAGS "-msse4.2")
+        endif()
+    else()
+       set(ARCH_C_FLAGS "-msse4.2")
+       set(ARCH_CXX_FLAGS "-msse4.2")
+    endif()
+endif()
+
+if (ARCH_AARCH64)
     if (BUILD_SVE2_BITPERM)
         set(GNUCC_ARCH "${GNUCC_ARCH}+sve2-bitperm")
     elseif (BUILD_SVE2)
@@ -188,92 +234,89 @@ endif ()
     elseif (BUILD_SVE)
         set(GNUCC_ARCH "${GNUCC_ARCH}+sve")
     endif ()
+endif(ARCH_AARCH64)
 
-    # compiler version checks TODO: test more compilers
-    if (CMAKE_COMPILER_IS_GNUCXX)
-        set(GNUCXX_MINVER "4.8.1")
-        message(STATUS "g++ version ${CMAKE_CXX_COMPILER_VERSION}")
-        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS GNUCXX_MINVER)
-            message(FATAL_ERROR "A minimum of g++ ${GNUCXX_MINVER} is required for C++11 support")
-        endif()
-    endif()
+set(ARCH_C_FLAGS "-${ARCH_FLAG}=${GNUCC_ARCH} -mtune=${TUNE_FLAG} ${ARCH_C_FLAGS}")
+set(ARCH_CXX_FLAGS "-${ARCH_FLAG}=${GNUCC_ARCH} -mtune=${TUNE_FLAG} ${ARCH_CXX_FLAGS}")
 
-    if(RELEASE_BUILD)
-        if (NOT CMAKE_BUILD_TYPE MATCHES MINSIZEREL)
-            set(OPT_C_FLAG "-O3")
-            set(OPT_CXX_FLAG "-O3")
-        else ()
-            set(OPT_C_FLAG "-Os")
-            set(OPT_CXX_FLAG "-Os")
-        endif ()
-    else()
-        set(OPT_C_FLAG "-O0")
-        set(OPT_CXX_FLAG "-O0")
-    endif(RELEASE_BUILD)
-
-    # set compiler flags - more are tested and added later
-    set(EXTRA_C_FLAGS "${OPT_C_FLAG} -std=c17 -Wall -Wextra -Wshadow -Wcast-qual -fno-strict-aliasing")
-    set(EXTRA_CXX_FLAGS "${OPT_CXX_FLAG} -std=c++17 -Wall -Wextra -Wshadow -Wswitch -Wreturn-type -Wcast-qual -Wno-deprecated -Wnon-virtual-dtor -fno-strict-aliasing -fno-new-ttp-matching")
-
-    if (NOT RELEASE_BUILD)
-        # -Werror is most useful during development, don't potentially break
-        # release builds
-        set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Werror")
-        set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Werror")
-    endif()
-
-    if (DISABLE_ASSERTS)
-        set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -DNDEBUG")
-        set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -DNDEBUG")
-    endif()
-
+#if (ARCH_IA32 OR ARCH_X86_64 OR ARCH_ARM32 OR ARCH_AARCH64)
+#    if (NOT CMAKE_C_FLAGS MATCHES .*march.* AND NOT CMAKE_C_FLAGS MATCHES .*mtune.*)
+#        set(ARCH_C_FLAGS "-march=${GNUCC_ARCH} -mtune=${TUNE_FLAG}")
+#    endif()
+#    if (NOT CMAKE_CXX_FLAGS MATCHES .*march.* AND NOT CMAKE_CXX_FLAGS MATCHES .*mtune.*)
+#        set(ARCH_CXX_FLAGS "-march=${GNUCC_ARCH} -mtune=${TUNE_FLAG}")
+#    endif()
+#endif()
     
-    if (ARCH_IA32 OR ARCH_X86_64 OR ARCH_ARM32 OR ARCH_AARCH64)
-	 if (NOT CMAKE_C_FLAGS MATCHES .*march.* AND NOT CMAKE_C_FLAGS MATCHES .*mtune.*)
-            set(ARCH_C_FLAGS "-march=${GNUCC_ARCH} -mtune=${TUNE_FLAG}")
-   	 endif()
-	 
-	 if (NOT CMAKE_CXX_FLAGS MATCHES .*march.* AND NOT CMAKE_CXX_FLAGS MATCHES .*mtune.*)
-            set(ARCH_CXX_FLAGS "-march=${GNUCC_ARCH} -mtune=${TUNE_FLAG}")
-         endif()
-    endif()
-    
-    if(ARCH_PPC64EL)
-        if (NOT CMAKE_C_FLAGS MATCHES .*march.* AND NOT CMAKE_C_FLAGS MATCHES .*mtune.*)
-            set(ARCH_C_FLAGS "-mtune=${TUNE_FLAG}")
-        endif()
-        if (NOT CMAKE_CXX_FLAGS MATCHES .*march.* AND NOT CMAKE_CXX_FLAGS MATCHES .*mtune.*)
-            set(ARCH_CXX_FLAGS "-mtune=${TUNE_FLAG}")
-        endif()
-    endif()
+#if(ARCH_PPC64EL)
+#    if (NOT CMAKE_C_FLAGS MATCHES .*march.* AND NOT CMAKE_C_FLAGS MATCHES .*mtune.*)
+#        set(ARCH_C_FLAGS "-mtune=${TUNE_FLAG}")
+#    endif()
+#    if (NOT CMAKE_CXX_FLAGS MATCHES .*march.* AND NOT CMAKE_CXX_FLAGS MATCHES .*mtune.*)
+#        set(ARCH_CXX_FLAGS "-mtune=${TUNE_FLAG}")
+#    endif()
+#endif()
 
-    if(CMAKE_COMPILER_IS_GNUCC)
-        # spurious warnings?
-        set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wno-array-bounds -Wno-maybe-uninitialized")
+# compiler version checks TODO: test more compilers
+if (CMAKE_COMPILER_IS_GNUCXX)
+    set(GNUCXX_MINVER "9")
+    message(STATUS "g++ version ${CMAKE_CXX_COMPILER_VERSION}")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS GNUCXX_MINVER)
+        message(FATAL_ERROR "A minimum of g++ ${GNUCXX_MINVER} is required for C++17 support")
     endif()
+endif()
 
-    if(CMAKE_COMPILER_IS_GNUCXX)
-        set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-maybe-uninitialized")
-        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
-            set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -fabi-version=0")
-        endif ()
-        # don't complain about abi
-        set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wno-abi")
-        set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-abi")
-    endif()
-
-    if (NOT(ARCH_IA32 AND RELEASE_BUILD))
-        set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -fno-omit-frame-pointer")
-        set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -fno-omit-frame-pointer")
-    endif()
-
-
-    if (CMAKE_C_COMPILER_ID MATCHES "Intel")
-        set(SKYLAKE_FLAG "-xCORE-AVX512")
+if(RELEASE_BUILD)
+    if (NOT CMAKE_BUILD_TYPE MATCHES MINSIZEREL)
+        set(OPT_C_FLAG "-O3")
+        set(OPT_CXX_FLAG "-O3")
     else ()
-        set(SKYLAKE_FLAG "-march=skylake-avx512")
-        set(ICELAKE_FLAG "-march=icelake-server")
+        set(OPT_C_FLAG "-Os")
+        set(OPT_CXX_FLAG "-Os")
     endif ()
+else()
+    set(OPT_C_FLAG "-O0")
+    set(OPT_CXX_FLAG "-O0")
+endif(RELEASE_BUILD)
+
+# set compiler flags - more are tested and added later
+set(EXTRA_C_FLAGS "${OPT_C_FLAG} -std=c17 -Wall -Wextra -Wshadow -Wcast-qual -fno-strict-aliasing")
+set(EXTRA_CXX_FLAGS "${OPT_CXX_FLAG} -std=c++17 -Wall -Wextra -Wshadow -Wswitch -Wreturn-type -Wcast-qual -Wno-deprecated -Wnon-virtual-dtor -fno-strict-aliasing")
+if (NOT CMAKE_COMPILER_IS_CLANG)
+    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -fno-new-ttp-matching")
+endif()
+
+if (NOT RELEASE_BUILD)
+    # -Werror is most useful during development, don't potentially break
+    # release builds
+    set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Werror")
+    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Werror")
+endif()
+
+if (DISABLE_ASSERTS)
+    set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -DNDEBUG")
+    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -DNDEBUG")
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCC)
+    # spurious warnings?
+    set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wno-array-bounds -Wno-maybe-uninitialized")
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX)
+    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-maybe-uninitialized")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
+        set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -fabi-version=0")
+    endif ()
+    # don't complain about abi
+    set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wno-abi")
+    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-abi")
+endif()
+
+if (NOT(ARCH_IA32 AND RELEASE_BUILD))
+    set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -fno-omit-frame-pointer")
+    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -fno-omit-frame-pointer")
+endif()
 
 CHECK_INCLUDE_FILES(unistd.h HAVE_UNISTD_H)
 if (ARCH_IA32 OR ARCH_X86_64)
@@ -289,8 +332,6 @@ elseif (ARCH_ARM32 OR ARCH_AARCH64)
       message(FATAL_ERROR "arm_sve.h is required to build for SVE.")
     endif()
   endif()
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -flax-vector-conversions")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flax-vector-conversions")
 elseif (ARCH_PPC64EL)
   CHECK_INCLUDE_FILE_CXX(altivec.h HAVE_C_PPC64EL_ALTIVEC_H)
 endif()
@@ -318,8 +359,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     # This is a Linux-only feature for now - requires platform support
     # elsewhere
     message(STATUS "generator is ${CMAKE_GENERATOR}")
-    if (CMAKE_C_COMPILER_ID MATCHES "Clang" AND
-        CMAKE_C_COMPILER_VERSION VERSION_LESS "3.9")
+    if (CMAKE_C_COMPILER_IS_CLANG AND CMAKE_C_COMPILER_VERSION VERSION_LESS "3.9")
         message (STATUS "Clang v3.9 or higher required for fat runtime, cannot build fat runtime")
         set (FAT_RUNTIME_REQUISITES FALSE)
     elseif (NOT (CMAKE_GENERATOR MATCHES "Unix Makefiles" OR
@@ -343,7 +383,10 @@ include (${CMAKE_MODULE_PATH}/arch.cmake)
 # testing a builtin takes a little more work
 CHECK_C_SOURCE_COMPILES("void *aa_test(void *x) { return __builtin_assume_aligned(x, 16);}\nint main(void) { return 0; }" HAVE_CC_BUILTIN_ASSUME_ALIGNED)
 CHECK_CXX_SOURCE_COMPILES("void *aa_test(void *x) { return __builtin_assume_aligned(x, 16);}\nint main(void) { return 0; }" HAVE_CXX_BUILTIN_ASSUME_ALIGNED)
-CHECK_C_SOURCE_COMPILES("int main(void) { __builtin_constant_p(0); }" HAVE__BUILTIN_CONSTANT_P)
+# Clang does not use __builtin_constant_p() the same way as gcc
+if (NOT CMAKE_COMPILER_IS_CLANG)
+   CHECK_C_SOURCE_COMPILES("int main(void) { __builtin_constant_p(0); }" HAVE__BUILTIN_CONSTANT_P)
+endif()
 
 set(C_FLAGS_TO_CHECK
 # Variable length arrays are way bad, most especially at run time
@@ -442,19 +485,22 @@ if(CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
     set(FREEBSD true)
 endif(CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
 
-if (NOT FAT_RUNTIME)
-    if (CROSS_COMPILE_AARCH64)
+
+if (FAT_RUNTIME)
+    if (NOT (ARCH_IA32 OR ARCH_X86_64))
+        message(FATAL_ERROR "Fat runtime is not supported on non-Intel architectures")
+    else()
+        message(STATUS "Building runtime for multiple microarchitectures")
+    endif()
+else()
+    if (CROSS_COMPILE)
         message(STATUS "Building for target CPU: ${ARCH_C_FLAGS}")
     else()
         message(STATUS "Building for current host CPU: ${ARCH_C_FLAGS}")
     endif()
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ARCH_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ARCH_CXX_FLAGS}")
-else()
-    message(STATUS "Building runtime for multiple microarchitectures")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif()
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ARCH_C_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ARCH_CXX_FLAGS}")
 
 add_subdirectory(util)
 add_subdirectory(doc/dev-reference)
@@ -1171,10 +1217,6 @@ if (NOT FAT_RUNTIME)
         set_target_properties(hs_runtime PROPERTIES LINKER_LANGUAGE C)
 
         add_library(hs_compile OBJECT ${hs_compile_SRCS})
-	if (ARCH_IA32)
-            set_target_properties(hs_compile PROPERTIES COMPILE_FLAGS "-mssse3")
-        endif (ARCH_IA32)
-
         add_library(hs STATIC
             src/hs_version.c
             src/hs_valid_platform.c
@@ -1205,14 +1247,14 @@ else (FAT_RUNTIME)
         add_library(hs_exec_core2 OBJECT ${hs_exec_SRCS})
         list(APPEND RUNTIME_LIBS $<TARGET_OBJECTS:hs_exec_core2>)
         set_target_properties(hs_exec_core2 PROPERTIES
-            COMPILE_FLAGS "-march=core2"
+            COMPILE_FLAGS "-march=core2 -msse4.2"
             RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} core2 ${CMAKE_MODULE_PATH}/keep.syms.in"
             )
 
         add_library(hs_exec_corei7 OBJECT ${hs_exec_SRCS})
         list(APPEND RUNTIME_LIBS $<TARGET_OBJECTS:hs_exec_corei7>)
         set_target_properties(hs_exec_corei7 PROPERTIES
-            COMPILE_FLAGS "-march=corei7 -mssse3"
+            COMPILE_FLAGS "-march=corei7 -msse4.2"
             RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} corei7 ${CMAKE_MODULE_PATH}/keep.syms.in"
             )
 
@@ -1254,10 +1296,6 @@ else (FAT_RUNTIME)
             ${RUNTIME_LIBS})
         set_target_properties(hs_runtime PROPERTIES LINKER_LANGUAGE C)
         add_library(hs_compile OBJECT ${hs_compile_SRCS})
-        if (ARCH_IA32 OR ARCH_X86_64)
-            set_target_properties(hs_exec_common PROPERTIES COMPILE_FLAGS "-mssse3")
-            set_target_properties(hs_compile PROPERTIES COMPILE_FLAGS "-mssse3")
-        endif ()
 
         # we want the static lib for testing
         add_library(hs STATIC src/hs_version.c src/hs_valid_platform.c
@@ -1274,14 +1312,14 @@ else (FAT_RUNTIME)
         add_library(hs_exec_shared_core2 OBJECT ${hs_exec_SRCS})
         list(APPEND RUNTIME_SHLIBS $<TARGET_OBJECTS:hs_exec_shared_core2>)
         set_target_properties(hs_exec_shared_core2 PROPERTIES
-            COMPILE_FLAGS "-march=core2"
+            COMPILE_FLAGS "-march=core2 -msse4.2"
             POSITION_INDEPENDENT_CODE TRUE
             RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} core2 ${CMAKE_MODULE_PATH}/keep.syms.in"
             )
         add_library(hs_exec_shared_corei7 OBJECT ${hs_exec_SRCS})
         list(APPEND RUNTIME_SHLIBS $<TARGET_OBJECTS:hs_exec_shared_corei7>)
         set_target_properties(hs_exec_shared_corei7 PROPERTIES
-            COMPILE_FLAGS "-march=corei7 -mssse3"
+            COMPILE_FLAGS "-march=corei7 -msse4.2"
             POSITION_INDEPENDENT_CODE TRUE
             RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} corei7 ${CMAKE_MODULE_PATH}/keep.syms.in"
             )
