@@ -251,7 +251,7 @@ really_inline SuperVector<16> SuperVector<16>::eq(SuperVector<16> const &b) cons
 template <>
 really_inline typename SuperVector<16>::movemask_type SuperVector<16>::movemask(void) const
 {
-    SuperVector powers{0x8040201008040201UL};
+    SuperVector powers = SuperVector::dup_u64(0x8040201008040201UL);
 
     // Compute the mask from the input
     uint8x16_t mask  = (uint8x16_t) vpaddlq_u32(vpaddlq_u16(vpaddlq_u8(vandq_u8(u.u8x16[0], powers.u.u8x16[0]))));
