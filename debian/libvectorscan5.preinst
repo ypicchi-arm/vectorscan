@@ -1,0 +1,35 @@
+#!/bin/sh
+
+set -e
+
+case "$1" in
+    install|upgrade)
+        if [ "$DEBIAN_FRONTEND" != noninteractive ] && \
+               [ -f /proc/cpuinfo ] && \
+               ! grep -q '^flags[[:space:]]*:.*[[:space:]]sse4_2[[:space:]]' /proc/cpuinfo
+        then
+            . /usr/share/debconf/confmodule
+            db_version 2.0
+            db_input critical libvectorscan/cpu-sse4_2 || true
+            db_go
+            db_get libhyperscan/cpu-sse42
+            if [ "$RET" = 'false' ]; then
+                echo 'Aborting installation because of missing SSE4.2 extension.' >&2
+                db_purge
+                exit 1
+            fi
+        fi
+    ;;
+
+    abort-upgrade)
+    ;;
+
+    *)
+        echo "preinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0
