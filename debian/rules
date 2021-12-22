@@ -2,8 +2,9 @@
 
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
-
+ifeq ($(DEB_HOST_ARCH),amd64)
 export DEB_CMAKE_FLAGS = -DBUILD_AVX2=on -DBUILD_AVX512=on -DBUILD_AVX512VBMI=off
+endif
 
 %:
 	dh $@
