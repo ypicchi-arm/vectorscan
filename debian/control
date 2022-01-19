@@ -8,7 +8,8 @@ Build-Depends: cmake (>=2.8.11),
                pkg-config,
                po-debconf,
                python3,
-               ragel (>=6.9)
+               ragel (>=6.9),
+               sse4.2-support
 Standards-Version: 4.5.1
 Section: libs
 Rules-Requires-Root: no
