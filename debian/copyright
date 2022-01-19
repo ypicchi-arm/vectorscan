@@ -1,9 +1,11 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: hyperscan
-Source: https://github.com/intel/hyperscan
+Upstream-Name: vectorscan
+Source: https://github.com/VectorCamp/vectorscan
 
 Files: *
 Copyright: 2015 Intel Corporation <hyperscan@intel.com>
+           2019-2022 VectorCamp PC <vectorscan@vectorcamp.gr>
+           2021-2022 Arm Limited
 License: BSD-3-Clause-Intel
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
@@ -109,6 +111,7 @@ Files: debian/*
 Copyright: 2016 Robert Haist <rhaist@mailbox.org>
            2016 Hilko Bengen <bengen@debian.org>
            2016 SZLin <szlin@cs.nctu.edu.tw>
+           2021-2022 VectorCamp PC
 License: GPL-2+
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
