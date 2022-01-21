@@ -9,6 +9,9 @@ elseif (HAVE_C_INTRIN_H)
 elseif (HAVE_C_ARM_NEON_H)
     set (INTRIN_INC_H "arm_neon.h")
     set (FAT_RUNTIME OFF)
+elseif (HAVE_C_PPC64EL_ALTIVEC_H)
+    set (INTRIN_INC_H "altivec.h")
+    set (FAT_RUNTIME OFF)
 else()
     message (FATAL_ERROR "No intrinsics header found")
 endif ()
@@ -85,7 +88,7 @@ if (FAT_RUNTIME)
             set (CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_C_FLAGS} ${SKYLAKE_FLAG}")
         endif (BUILD_AVX512VBMI)
     elseif (BUILD_AVX2)
-        set (CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_C_FLAGS} -march=core-avx2 -mavx")
+        set (CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_C_FLAGS} -march=core-avx2 -mavx2")
     elseif ()
         set (CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_C_FLAGS} -march=core-i7 -mssse3")
     endif ()
@@ -95,12 +98,12 @@ else (NOT FAT_RUNTIME)
 endif ()
 
 if (ARCH_IA32 OR ARCH_X86_64)
-    # ensure we have the minimum of SSSE3 - call a SSSE3 intrinsic
+    # ensure we have the minimum of SSE4.2 - call a SSE4.2 intrinsic
     CHECK_C_SOURCE_COMPILES("#include <${INTRIN_INC_H}>
 int main() {
     __m128i a = _mm_set1_epi8(1);
     (void)_mm_shuffle_epi8(a, a);
-}" HAVE_SSSE3)
+}" HAVE_SSE42)
 
     # now look for AVX2
     CHECK_C_SOURCE_COMPILES("#include <${INTRIN_INC_H}>
@@ -136,13 +139,26 @@ int main(){
     (void)_mm512_permutexvar_epi8(idx, a);
 }" HAVE_AVX512VBMI)
 
-elseif (!ARCH_ARM32 AND !ARCH_AARCH64)
+
+elseif (ARCH_ARM32 OR ARCH_AARCH64)
+    CHECK_C_SOURCE_COMPILES("#include <${INTRIN_INC_H}>
+int main() {
+    int32x4_t a = vdupq_n_s32(1);
+    (void)a;
+}" HAVE_NEON)
+elseif (ARCH_PPC64EL)
+    CHECK_C_SOURCE_COMPILES("#include <${INTRIN_INC_H}>
+int main() {
+    vector int a = vec_splat_s32(1);
+    (void)a;
+}" HAVE_VSX)
+else ()
     message (FATAL_ERROR "Unsupported architecture")
 endif ()
 
 if (FAT_RUNTIME)
-    if ((ARCH_IA32 OR ARCH_X86_64) AND NOT HAVE_SSSE3)
-        message(FATAL_ERROR "SSSE3 support required to build fat runtime")
+    if ((ARCH_IA32 OR ARCH_X86_64) AND NOT HAVE_SSE42)
+        message(FATAL_ERROR "SSE4.2 support required to build fat runtime")
     endif ()
     if ((ARCH_IA32 OR ARCH_X86_64) AND BUILD_AVX2 AND NOT HAVE_AVX2)
         message(FATAL_ERROR "AVX2 support required to build fat runtime")
@@ -163,12 +179,16 @@ else (NOT FAT_RUNTIME)
     if ((ARCH_IA32 OR ARCH_X86_64) AND NOT HAVE_AVX512VBMI)
         message(STATUS "Building without AVX512VBMI support")
     endif ()
-    if ((ARCH_IA32 OR ARCH_X86_64) AND NOT HAVE_SSSE3)
-        message(FATAL_ERROR "A minimum of SSSE3 compiler support is required")
+    if ((ARCH_IA32 OR ARCH_X86_64) AND NOT HAVE_SSE42)
+        message(FATAL_ERROR "A minimum of SSE4.2 compiler support is required")
     endif ()
     if ((ARCH_ARM32 OR ARCH_AARCH64) AND NOT HAVE_NEON)
         message(FATAL_ERROR "NEON support required for ARM support")
     endif ()
+    if (ARCH_PPPC64EL AND NOT HAVE_VSX)
+        message(FATAL_ERROR "VSX support required for Power support")
+    endif ()
+
 endif ()
 
 unset (PREV_FLAGS)

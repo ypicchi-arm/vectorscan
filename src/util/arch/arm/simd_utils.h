@@ -100,7 +100,7 @@ static really_inline int isnonzero128(m128 a) {
  */
 static really_inline u32 diffrich128(m128 a, m128 b) {
     static const uint32x4_t movemask = { 1, 2, 4, 8 };
-    return vaddvq_u32(vandq_u32(vmvnq_s32(vceqq_s32((int32x4_t)a, (int32x4_t)b)), movemask));
+    return vaddvq_u32(vandq_u32(vmvnq_u32(vceqq_u32((uint32x4_t)a, (uint32x4_t)b)), movemask));
 }
 
 /**
@@ -109,53 +109,281 @@ static really_inline u32 diffrich128(m128 a, m128 b) {
  */
 static really_inline u32 diffrich64_128(m128 a, m128 b) {
     static const uint64x2_t movemask = { 1, 4 };
-    return vaddvq_u64(vandq_u64(vmvnq_s32(vceqq_s64((int64x2_t)a, (int64x2_t)b)), movemask));
+    return (u32) vaddvq_u64(vandq_u64((uint64x2_t)vmvnq_u32((uint32x4_t)vceqq_u64((uint64x2_t)a, (uint64x2_t)b)), movemask));
 }
 
 static really_really_inline
 m128 add_2x64(m128 a, m128 b) {
-    return (m128) vaddq_u64((int64x2_t)a, (int64x2_t)b);
+    return (m128) vaddq_u64((uint64x2_t)a, (uint64x2_t)b);
 }
 
 static really_really_inline
 m128 sub_2x64(m128 a, m128 b) {
-    return (m128) vsubq_u64((int64x2_t)a, (int64x2_t)b);
+    return (m128) vsubq_u64((uint64x2_t)a, (uint64x2_t)b);
 }
 
-static really_really_inline
+static really_inline
 m128 lshift_m128(m128 a, unsigned b) {
-    return (m128) vshlq_n_s32((int64x2_t)a, b);
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (__builtin_constant_p(b)) {
+        return (m128) vshlq_n_u32((uint32x4_t)a, b);
+    }
+#endif
+#define CASE_LSHIFT_m128(a, offset)  case offset: return (m128)vshlq_n_u32((uint32x4_t)(a), (offset)); break;
+    switch (b) {
+    case 0:  return a; break;
+    CASE_LSHIFT_m128(a,  1);
+    CASE_LSHIFT_m128(a,  2);
+    CASE_LSHIFT_m128(a,  3);
+    CASE_LSHIFT_m128(a,  4);
+    CASE_LSHIFT_m128(a,  5);
+    CASE_LSHIFT_m128(a,  6);
+    CASE_LSHIFT_m128(a,  7);
+    CASE_LSHIFT_m128(a,  8);
+    CASE_LSHIFT_m128(a,  9);
+    CASE_LSHIFT_m128(a, 10);
+    CASE_LSHIFT_m128(a, 11);
+    CASE_LSHIFT_m128(a, 12);
+    CASE_LSHIFT_m128(a, 13);
+    CASE_LSHIFT_m128(a, 14);
+    CASE_LSHIFT_m128(a, 15);
+    CASE_LSHIFT_m128(a, 16);
+    CASE_LSHIFT_m128(a, 17);
+    CASE_LSHIFT_m128(a, 18);
+    CASE_LSHIFT_m128(a, 19);
+    CASE_LSHIFT_m128(a, 20);
+    CASE_LSHIFT_m128(a, 21);
+    CASE_LSHIFT_m128(a, 22);
+    CASE_LSHIFT_m128(a, 23);
+    CASE_LSHIFT_m128(a, 24);
+    CASE_LSHIFT_m128(a, 25);
+    CASE_LSHIFT_m128(a, 26);
+    CASE_LSHIFT_m128(a, 27);
+    CASE_LSHIFT_m128(a, 28);
+    CASE_LSHIFT_m128(a, 29);
+    CASE_LSHIFT_m128(a, 30);
+    CASE_LSHIFT_m128(a, 31);
+    default: return zeroes128(); break;
+    }
+#undef CASE_LSHIFT_m128
 }
 
 static really_really_inline
 m128 rshift_m128(m128 a, unsigned b) {
-    return (m128) vshrq_n_s32((int64x2_t)a, b);
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (__builtin_constant_p(b)) {
+        return (m128) vshrq_n_u32((uint32x4_t)a, b);
+    }
+#endif
+#define CASE_RSHIFT_m128(a, offset)  case offset: return (m128)vshrq_n_u32((uint32x4_t)(a), (offset)); break;
+    switch (b) {
+    case 0:  return a; break;
+    CASE_RSHIFT_m128(a,  1);
+    CASE_RSHIFT_m128(a,  2);
+    CASE_RSHIFT_m128(a,  3);
+    CASE_RSHIFT_m128(a,  4);
+    CASE_RSHIFT_m128(a,  5);
+    CASE_RSHIFT_m128(a,  6);
+    CASE_RSHIFT_m128(a,  7);
+    CASE_RSHIFT_m128(a,  8);
+    CASE_RSHIFT_m128(a,  9);
+    CASE_RSHIFT_m128(a, 10);
+    CASE_RSHIFT_m128(a, 11);
+    CASE_RSHIFT_m128(a, 12);
+    CASE_RSHIFT_m128(a, 13);
+    CASE_RSHIFT_m128(a, 14);
+    CASE_RSHIFT_m128(a, 15);
+    CASE_RSHIFT_m128(a, 16);
+    CASE_RSHIFT_m128(a, 17);
+    CASE_RSHIFT_m128(a, 18);
+    CASE_RSHIFT_m128(a, 19);
+    CASE_RSHIFT_m128(a, 20);
+    CASE_RSHIFT_m128(a, 21);
+    CASE_RSHIFT_m128(a, 22);
+    CASE_RSHIFT_m128(a, 23);
+    CASE_RSHIFT_m128(a, 24);
+    CASE_RSHIFT_m128(a, 25);
+    CASE_RSHIFT_m128(a, 26);
+    CASE_RSHIFT_m128(a, 27);
+    CASE_RSHIFT_m128(a, 28);
+    CASE_RSHIFT_m128(a, 29);
+    CASE_RSHIFT_m128(a, 30);
+    CASE_RSHIFT_m128(a, 31);
+    default: return zeroes128(); break;
+    }
+#undef CASE_RSHIFT_m128
 }
 
 static really_really_inline
 m128 lshift64_m128(m128 a, unsigned b) {
-    return (m128) vshlq_n_s64((int64x2_t)a, b);
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (__builtin_constant_p(b)) {
+        return (m128) vshlq_n_u64((uint64x2_t)a, b);
+    }
+#endif
+#define CASE_LSHIFT64_m128(a, offset)  case offset: return (m128)vshlq_n_u64((uint64x2_t)(a), (offset)); break;
+    switch (b) {
+    case 0:  return a; break;
+    CASE_LSHIFT64_m128(a,  1);
+    CASE_LSHIFT64_m128(a,  2);
+    CASE_LSHIFT64_m128(a,  3);
+    CASE_LSHIFT64_m128(a,  4);
+    CASE_LSHIFT64_m128(a,  5);
+    CASE_LSHIFT64_m128(a,  6);
+    CASE_LSHIFT64_m128(a,  7);
+    CASE_LSHIFT64_m128(a,  8);
+    CASE_LSHIFT64_m128(a,  9);
+    CASE_LSHIFT64_m128(a, 10);
+    CASE_LSHIFT64_m128(a, 11);
+    CASE_LSHIFT64_m128(a, 12);
+    CASE_LSHIFT64_m128(a, 13);
+    CASE_LSHIFT64_m128(a, 14);
+    CASE_LSHIFT64_m128(a, 15);
+    CASE_LSHIFT64_m128(a, 16);
+    CASE_LSHIFT64_m128(a, 17);
+    CASE_LSHIFT64_m128(a, 18);
+    CASE_LSHIFT64_m128(a, 19);
+    CASE_LSHIFT64_m128(a, 20);
+    CASE_LSHIFT64_m128(a, 21);
+    CASE_LSHIFT64_m128(a, 22);
+    CASE_LSHIFT64_m128(a, 23);
+    CASE_LSHIFT64_m128(a, 24);
+    CASE_LSHIFT64_m128(a, 25);
+    CASE_LSHIFT64_m128(a, 26);
+    CASE_LSHIFT64_m128(a, 27);
+    CASE_LSHIFT64_m128(a, 28);
+    CASE_LSHIFT64_m128(a, 29);
+    CASE_LSHIFT64_m128(a, 30);
+    CASE_LSHIFT64_m128(a, 31);
+    CASE_LSHIFT64_m128(a, 32);
+    CASE_LSHIFT64_m128(a, 33);
+    CASE_LSHIFT64_m128(a, 34);
+    CASE_LSHIFT64_m128(a, 35);
+    CASE_LSHIFT64_m128(a, 36);
+    CASE_LSHIFT64_m128(a, 37);
+    CASE_LSHIFT64_m128(a, 38);
+    CASE_LSHIFT64_m128(a, 39);
+    CASE_LSHIFT64_m128(a, 40);
+    CASE_LSHIFT64_m128(a, 41);
+    CASE_LSHIFT64_m128(a, 42);
+    CASE_LSHIFT64_m128(a, 43);
+    CASE_LSHIFT64_m128(a, 44);
+    CASE_LSHIFT64_m128(a, 45);
+    CASE_LSHIFT64_m128(a, 46);
+    CASE_LSHIFT64_m128(a, 47);
+    CASE_LSHIFT64_m128(a, 48);
+    CASE_LSHIFT64_m128(a, 49);
+    CASE_LSHIFT64_m128(a, 50);
+    CASE_LSHIFT64_m128(a, 51);
+    CASE_LSHIFT64_m128(a, 52);
+    CASE_LSHIFT64_m128(a, 53);
+    CASE_LSHIFT64_m128(a, 54);
+    CASE_LSHIFT64_m128(a, 55);
+    CASE_LSHIFT64_m128(a, 56);
+    CASE_LSHIFT64_m128(a, 57);
+    CASE_LSHIFT64_m128(a, 58);
+    CASE_LSHIFT64_m128(a, 59);
+    CASE_LSHIFT64_m128(a, 60);
+    CASE_LSHIFT64_m128(a, 61);
+    CASE_LSHIFT64_m128(a, 62);
+    CASE_LSHIFT64_m128(a, 63);
+    default: return zeroes128(); break;
+    }
+#undef CASE_LSHIFT64_m128
 }
 
 static really_really_inline
 m128 rshift64_m128(m128 a, unsigned b) {
-    return (m128) vshrq_n_s64((int64x2_t)a, b);
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (__builtin_constant_p(b)) {
+        return (m128) vshrq_n_u64((uint64x2_t)a, b);
+    }
+#endif
+#define CASE_RSHIFT64_m128(a, offset)  case offset: return (m128)vshrq_n_u64((uint64x2_t)(a), (offset)); break;
+    switch (b) {
+    case 0:  return a; break;
+    CASE_RSHIFT64_m128(a,  1);
+    CASE_RSHIFT64_m128(a,  2);
+    CASE_RSHIFT64_m128(a,  3);
+    CASE_RSHIFT64_m128(a,  4);
+    CASE_RSHIFT64_m128(a,  5);
+    CASE_RSHIFT64_m128(a,  6);
+    CASE_RSHIFT64_m128(a,  7);
+    CASE_RSHIFT64_m128(a,  8);
+    CASE_RSHIFT64_m128(a,  9);
+    CASE_RSHIFT64_m128(a, 10);
+    CASE_RSHIFT64_m128(a, 11);
+    CASE_RSHIFT64_m128(a, 12);
+    CASE_RSHIFT64_m128(a, 13);
+    CASE_RSHIFT64_m128(a, 14);
+    CASE_RSHIFT64_m128(a, 15);
+    CASE_RSHIFT64_m128(a, 16);
+    CASE_RSHIFT64_m128(a, 17);
+    CASE_RSHIFT64_m128(a, 18);
+    CASE_RSHIFT64_m128(a, 19);
+    CASE_RSHIFT64_m128(a, 20);
+    CASE_RSHIFT64_m128(a, 21);
+    CASE_RSHIFT64_m128(a, 22);
+    CASE_RSHIFT64_m128(a, 23);
+    CASE_RSHIFT64_m128(a, 24);
+    CASE_RSHIFT64_m128(a, 25);
+    CASE_RSHIFT64_m128(a, 26);
+    CASE_RSHIFT64_m128(a, 27);
+    CASE_RSHIFT64_m128(a, 28);
+    CASE_RSHIFT64_m128(a, 29);
+    CASE_RSHIFT64_m128(a, 30);
+    CASE_RSHIFT64_m128(a, 31);
+    CASE_RSHIFT64_m128(a, 32);
+    CASE_RSHIFT64_m128(a, 33);
+    CASE_RSHIFT64_m128(a, 34);
+    CASE_RSHIFT64_m128(a, 35);
+    CASE_RSHIFT64_m128(a, 36);
+    CASE_RSHIFT64_m128(a, 37);
+    CASE_RSHIFT64_m128(a, 38);
+    CASE_RSHIFT64_m128(a, 39);
+    CASE_RSHIFT64_m128(a, 40);
+    CASE_RSHIFT64_m128(a, 41);
+    CASE_RSHIFT64_m128(a, 42);
+    CASE_RSHIFT64_m128(a, 43);
+    CASE_RSHIFT64_m128(a, 44);
+    CASE_RSHIFT64_m128(a, 45);
+    CASE_RSHIFT64_m128(a, 46);
+    CASE_RSHIFT64_m128(a, 47);
+    CASE_RSHIFT64_m128(a, 48);
+    CASE_RSHIFT64_m128(a, 49);
+    CASE_RSHIFT64_m128(a, 50);
+    CASE_RSHIFT64_m128(a, 51);
+    CASE_RSHIFT64_m128(a, 52);
+    CASE_RSHIFT64_m128(a, 53);
+    CASE_RSHIFT64_m128(a, 54);
+    CASE_RSHIFT64_m128(a, 55);
+    CASE_RSHIFT64_m128(a, 56);
+    CASE_RSHIFT64_m128(a, 57);
+    CASE_RSHIFT64_m128(a, 58);
+    CASE_RSHIFT64_m128(a, 59);
+    CASE_RSHIFT64_m128(a, 60);
+    CASE_RSHIFT64_m128(a, 61);
+    CASE_RSHIFT64_m128(a, 62);
+    CASE_RSHIFT64_m128(a, 63);
+    default: return zeroes128(); break;
+    }
+#undef CASE_RSHIFT64_m128
 }
 
 static really_inline m128 eq128(m128 a, m128 b) {
-    return (m128) vceqq_s8((int8x16_t)a, (int8x16_t)b);
+    return (m128) vceqq_u8((uint8x16_t)a, (uint8x16_t)b);
 }
 
 static really_inline m128 eq64_m128(m128 a, m128 b) {
-    return (m128) vceqq_u64((int64x2_t)a, (int64x2_t)b);
+    return (m128) vceqq_u64((uint64x2_t)a, (uint64x2_t)b);
 }
 
 static really_inline u32 movemask128(m128 a) {
     static const uint8x16_t powers = { 1, 2, 4, 8, 16, 32, 64, 128, 1, 2, 4, 8, 16, 32, 64, 128 };
 
     // Compute the mask from the input
-    uint64x2_t mask  = vpaddlq_u32(vpaddlq_u16(vpaddlq_u8(vandq_u8((uint8x16_t)a, powers))));
-    uint64x2_t mask1 = (m128)vextq_s8(mask, zeroes128(), 7);
+    uint8x16_t mask  = (uint8x16_t) vpaddlq_u32(vpaddlq_u16(vpaddlq_u8(vandq_u8((uint8x16_t)a, powers))));
+    uint8x16_t mask1 = vextq_u8(mask, (uint8x16_t)zeroes128(), 7);
     mask = vorrq_u8(mask, mask1);
 
     // Get the resulting bytes
@@ -187,13 +415,15 @@ static really_inline u64a movq(const m128 in) {
 /* another form of movq */
 static really_inline
 m128 load_m128_from_u64a(const u64a *p) {
-    return (m128) vsetq_lane_u64(*p, zeroes128(), 0);
+    return (m128) vsetq_lane_u64(*p, (uint64x2_t) zeroes128(), 0);
 }
 
 static really_inline u32 extract32from128(const m128 in, unsigned imm) {
-#if defined(HS_OPTIMIZE)
-    return vgetq_lane_u32((uint32x4_t) in, imm);
-#else
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (__builtin_constant_p(imm)) {
+        return vgetq_lane_u32((uint32x4_t) in, imm);
+    }
+#endif
     switch (imm) {
     case 0:
         return vgetq_lane_u32((uint32x4_t) in, 0);
@@ -211,33 +441,33 @@ static really_inline u32 extract32from128(const m128 in, unsigned imm) {
 	return 0;
 	break;
     }
-#endif
 }
 
 static really_inline u64a extract64from128(const m128 in, unsigned imm) {
-#if defined(HS_OPTIMIZE)
-    return vgetq_lane_u64((uint64x2_t) in, imm);
-#else
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (__builtin_constant_p(imm)) {
+        return vgetq_lane_u64((uint64x2_t) in, imm);
+    }
+#endif
     switch (imm) {
     case 0:
-        return vgetq_lane_u64((uint32x4_t) in, 0);
+        return vgetq_lane_u64((uint64x2_t) in, 0);
 	break;
     case 1:
-        return vgetq_lane_u64((uint32x4_t) in, 1);
+        return vgetq_lane_u64((uint64x2_t) in, 1);
 	break;
     default:
 	return 0;
 	break;
     }
-#endif
 }
 
 static really_inline m128 low64from128(const m128 in) {
-    return vcombine_u64(vget_low_u64(in), vdup_n_u64(0));
+    return (m128) vcombine_u64(vget_low_u64((uint64x2_t)in), vdup_n_u64(0));
 }
 
 static really_inline m128 high64from128(const m128 in) {
-    return vcombine_u64(vget_high_u64(in), vdup_n_u64(0));
+    return (m128) vcombine_u64(vget_high_u64((uint64x2_t)in), vdup_n_u64(0));
 }
 
 static really_inline m128 add128(m128 a, m128 b) {
@@ -257,7 +487,7 @@ static really_inline m128 or128(m128 a, m128 b) {
 }
 
 static really_inline m128 andnot128(m128 a, m128 b) {
-    return (m128) (m128) vandq_s8( vmvnq_s8(a), b);
+    return (m128) vandq_s8( vmvnq_s8((int8x16_t) a), (int8x16_t) b);
 }
 
 // aligned load
@@ -328,11 +558,12 @@ m128 palignr_imm(m128 r, m128 l, int offset) {
 
 static really_really_inline
 m128 palignr(m128 r, m128 l, int offset) {
-#if defined(HS_OPTIMIZE)
-    return (m128)vextq_s8((int8x16_t)l, (int8x16_t)r, offset);
-#else
-    return palignr_imm(r, l, offset);
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (__builtin_constant_p(offset)) {
+        return (m128)vextq_s8((int8x16_t)l, (int8x16_t)r, offset);
+    }
 #endif
+    return palignr_imm(r, l, offset);
 }
 #undef CASE_ALIGN_VECTORS
 
@@ -401,12 +632,12 @@ m128 pshufb_m128(m128 a, m128 b) {
 
 static really_inline
 m128 max_u8_m128(m128 a, m128 b) {
-    return (m128) vmaxq_u8((int8x16_t)a, (int8x16_t)b);
+    return (m128) vmaxq_u8((uint8x16_t)a, (uint8x16_t)b);
 }
 
 static really_inline
 m128 min_u8_m128(m128 a, m128 b) {
-    return (m128) vminq_u8((int8x16_t)a, (int8x16_t)b);
+    return (m128) vminq_u8((uint8x16_t)a, (uint8x16_t)b);
 }
 
 static really_inline

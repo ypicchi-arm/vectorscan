@@ -56,6 +56,8 @@ SuperVector<S> blockDoubleMask(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi,
 #include "x86/shufti.hpp"
 #elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
 #include "arm/shufti.hpp"
+#elif defined(ARCH_PPC64EL)
+#include "ppc64el/shufti.hpp"
 #endif
 
 template <uint16_t S>
@@ -63,7 +65,7 @@ static really_inline
 const u8 *fwdBlock(SuperVector<S> mask_lo, SuperVector<S> mask_hi, SuperVector<S> chars, const u8 *buf) {
     SuperVector<S> v = blockSingleMask(mask_lo, mask_hi, chars);
 
-    return firstMatch<S>(buf, v);
+    return first_zero_match_inverted<S>(buf, v);
 }
 
 template <uint16_t S>
@@ -71,7 +73,7 @@ static really_inline
 const u8 *revBlock(SuperVector<S> mask_lo, SuperVector<S> mask_hi, SuperVector<S> chars, const u8 *buf) {
     SuperVector<S> v = blockSingleMask(mask_lo, mask_hi, chars);
 
-    return lastMatch<S>(buf, v);
+    return last_zero_match_inverted<S>(buf, v);
 }
 
 template <uint16_t S>
@@ -80,7 +82,7 @@ const u8 *fwdBlockDouble(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi, Super
 
     SuperVector<S> mask = blockDoubleMask(mask1_lo, mask1_hi, mask2_lo, mask2_hi, chars);
 
-    return firstMatch<S>(buf, mask);
+    return first_zero_match_inverted<S>(buf, mask);
 }
 
 template <uint16_t S>

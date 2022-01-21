@@ -63,7 +63,7 @@ target_link_libraries(unit-hyperscan hs expressionutil)
 endif()
 
 
-if (NOT (RELEASE_BUILD OR FAT_RUNTIME))
+if (NOT FAT_RUNTIME )
 set(unit_internal_SOURCES
     ${gtest_SOURCES}
     internal/bitfield.cpp
@@ -72,8 +72,6 @@ set(unit_internal_SOURCES
     internal/compare.cpp
     internal/database.cpp
     internal/depth.cpp
-    internal/fdr.cpp
-    internal/fdr_flood.cpp
     internal/fdr_loadval.cpp
     internal/flat_set.cpp
     internal/flat_map.cpp
@@ -81,7 +79,6 @@ set(unit_internal_SOURCES
     internal/graph_undirected.cpp
     internal/insertion_ordered.cpp
     internal/lbr.cpp
-    internal/limex_nfa.cpp
     internal/multi_bit.cpp
     internal/multi_bit_compress.cpp
     internal/nfagraph_common.h
@@ -121,13 +118,22 @@ if (BUILD_AVX2)
 set(unit_internal_SOURCES
     ${unit_internal_SOURCES}
     internal/masked_move.cpp
-   )
+    )
 endif(BUILD_AVX2)
+
+if (NOT RELEASE_BUILD)
+set(unit_internal_SOURCES
+    ${unit_internal_SOURCES}    
+    internal/fdr.cpp
+    internal/fdr_flood.cpp
+    internal/limex_nfa.cpp
+   )	
+endif(NOT RELEASE_BUILD)
 
 add_executable(unit-internal ${unit_internal_SOURCES})
 set_target_properties(unit-internal PROPERTIES COMPILE_FLAGS "${HS_CXX_FLAGS}")
 target_link_libraries(unit-internal hs corpusomatic)
-endif(NOT (RELEASE_BUILD OR FAT_RUNTIME))
+endif(NOT FAT_RUNTIME)
 
 if (BUILD_CHIMERA)
     # enable Chimera unit tests
@@ -178,9 +184,10 @@ else()
     else ()
     add_custom_target(
         unit
+        COMMAND bin/unit-internal
         COMMAND bin/unit-hyperscan
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        DEPENDS unit-hyperscan
+        DEPENDS unit-internal unit-hyperscan
     )
     endif()
 endif()

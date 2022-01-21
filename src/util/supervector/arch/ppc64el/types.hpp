@@ -27,34 +27,18 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MATCH_HPP
-#define MATCH_HPP
+typedef __vector unsigned long long int  uint64x2_t;
+typedef __vector   signed long long int   int64x2_t;
+typedef __vector unsigned int            uint32x4_t;
+typedef __vector   signed int             int32x4_t;
+typedef __vector unsigned short int      uint16x8_t;
+typedef __vector   signed short int       int16x8_t;
+typedef __vector unsigned char           uint8x16_t;
+typedef __vector  signed char             int8x16_t;
 
-#include "ue2common.h"
-#include "util/arch.h"
-#include "util/bitutils.h"
-#include "util/unaligned.h"
+typedef unsigned long long int ulong64_t;
+typedef   signed long long int  long64_t;
 
-#include "util/supervector/supervector.hpp"
-
-template <u16 S>
-const u8 *first_non_zero_match(const u8 *buf, SuperVector<S> v, u16 const len = S);
-
-template <u16 S>
-const u8 *last_non_zero_match(const u8 *buf, SuperVector<S> v, u16 const len = S);
-
-template <u16 S>
-const u8 *first_zero_match_inverted(const u8 *buf, SuperVector<S> v, u16 const len = S);
-
-template <u16 S>
-const u8 *last_zero_match_inverted(const u8 *buf, SuperVector<S> v, u16 len = S);
-
-#if defined(ARCH_IA32) || defined(ARCH_X86_64)
-#include "util/arch/x86/match.hpp"
-#elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
-#include "util/arch/arm/match.hpp"
-#elif defined(ARCH_PPC64EL)
-#include "util/arch/ppc64el/match.hpp"
+#if !defined(m128) && defined(HAVE_VSX)
+typedef __vector int m128;
 #endif
-
-#endif // MATCH_HPP

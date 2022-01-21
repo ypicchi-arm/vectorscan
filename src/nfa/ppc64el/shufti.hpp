@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2015-2017, Intel Corporation
  * Copyright (c) 2020-2021, VectorCamp PC
+ * Copyright (c) 2021, Arm Limited
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,6 +30,7 @@
 
 /** \file
  * \brief Shufti: character class acceleration.
+ *
  */
 
 template <uint16_t S>
@@ -37,9 +39,9 @@ const SuperVector<S> blockSingleMask(SuperVector<S> mask_lo, SuperVector<S> mask
     const SuperVector<S> low4bits = SuperVector<S>::dup_u8(0xf);
 
     SuperVector<S> c_lo = chars & low4bits;
-    SuperVector<S> c_hi = chars.template vshr_64_imm<4>() & low4bits;
-    c_lo = mask_lo.pshufb(c_lo);
-    c_hi = mask_hi.pshufb(c_hi);
+    SuperVector<S> c_hi = chars.template vshr_8_imm<4>();
+    c_lo = mask_lo.template pshufb<false>(c_lo);
+    c_hi = mask_hi.template pshufb<false>(c_hi);
 
     return (c_lo & c_hi).eq(SuperVector<S>::Zeroes());
 }
@@ -51,24 +53,24 @@ SuperVector<S> blockDoubleMask(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi,
     const SuperVector<S> low4bits = SuperVector<S>::dup_u8(0xf);
     SuperVector<S> chars_lo = chars & low4bits;
     chars_lo.print8("chars_lo");
-    SuperVector<S> chars_hi = low4bits.opandnot(chars).template vshr_64_imm<4>();
+    SuperVector<S> chars_hi = chars.template vshr_64_imm<4>() & low4bits;
     chars_hi.print8("chars_hi");
-    SuperVector<S> c1_lo = mask1_lo.pshufb(chars_lo);
+    SuperVector<S> c1_lo = mask1_lo.template pshufb<true>(chars_lo);
     c1_lo.print8("c1_lo");
-    SuperVector<S> c1_hi = mask1_hi.pshufb(chars_hi);
+    SuperVector<S> c1_hi = mask1_hi.template pshufb<true>(chars_hi);
     c1_hi.print8("c1_hi");
-    SuperVector<S> c1 = c1_lo | c1_hi;
-    c1.print8("c1");
+    SuperVector<S> t1 = c1_lo | c1_hi;
+    t1.print8("t1");
 
-    SuperVector<S> c2_lo = mask2_lo.pshufb(chars_lo);
+    SuperVector<S> c2_lo = mask2_lo.template pshufb<true>(chars_lo);
     c2_lo.print8("c2_lo");
-    SuperVector<S> c2_hi = mask2_hi.pshufb(chars_hi);
+    SuperVector<S> c2_hi = mask2_hi.template pshufb<true>(chars_hi);
     c2_hi.print8("c2_hi");
-    SuperVector<S> c2 = c2_lo | c2_hi;
-    c2.print8("c2");
-    c2.template vshr_128_imm<1>().print8("c2.vshr_128(1)");
-    SuperVector<S> c = c1 | (c2.template vshr_128_imm<1>());
-    c.print8("c");
+    SuperVector<S> t2 = c2_lo | c2_hi;
+    t2.print8("t2");
+    t2.template vshr_128_imm<1>().print8("t2.vshr_128(1)");
+    SuperVector<S> t = t1 | (t2.template vshr_128_imm<1>());
+    t.print8("t");
 
-    return c.eq(SuperVector<S>::Ones());
+    return t.eq(SuperVector<S>::Ones());
 }

@@ -112,6 +112,7 @@
  *
  */
 
+#include <random>
 #include <algorithm>
 #include <cstring>
 #include <chrono>
@@ -151,6 +152,8 @@ using std::set;
 using std::min;
 using std::max;
 using std::copy;
+using std::random_device;
+using std::mt19937;
 
 enum Criterion {
     CRITERION_THROUGHPUT,
@@ -731,7 +734,9 @@ int main(int argc, char **argv) {
             count++;
             cout << "." << std::flush;
             vector<unsigned> sv(s.begin(), s.end());
-            random_shuffle(sv.begin(), sv.end());
+            random_device rng;
+            mt19937 urng(rng());
+            shuffle(sv.begin(), sv.end(), urng);
             unsigned groups = factor_max + 1;
             for (unsigned current_group = 0; current_group < groups;
                  current_group++) {

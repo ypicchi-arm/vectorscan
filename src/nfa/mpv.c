@@ -36,7 +36,7 @@
 #include "shufti.h"
 #include "truffle.h"
 #include "ue2common.h"
-#include "vermicelli.h"
+#include "vermicelli.hpp"
 #include "vermicelli_run.h"
 #include "util/multibit.h"
 #include "util/partial_store.h"

@@ -29,17 +29,15 @@
 
 template <>
 really_really_inline
-const u8 *first_non_zero_match<16>(const u8 *buf, SuperVector<16> mask, u16 const UNUSED len) {
-    uint32x4_t m = mask.u.u32x4[0];
-    uint64_t vmax = vgetq_lane_u64 (vreinterpretq_u64_u32 (vpmaxq_u32(m, m)), 0);
-    if (vmax != 0) {
-    typename SuperVector<16>::movemask_type z = mask.movemask();
-        DEBUG_PRINTF("z %08x\n", z);
-        DEBUG_PRINTF("buf %p z %08x \n", buf, z);
-        u32 pos = ctz32(z & 0xffff);
+const u8 *first_non_zero_match<16>(const u8 *buf, SuperVector<16> v, u16 const UNUSED len) {
+    SuperVector<16>::movemask_type z = v.movemask();
+    DEBUG_PRINTF("buf %p z %08x \n", buf, z);
+    DEBUG_PRINTF("z %08x\n", z);
+    if (unlikely(z)) {
+        u32 pos = ctz32(z);
+        DEBUG_PRINTF("~z %08x\n", ~z);
         DEBUG_PRINTF("match @ pos %u\n", pos);
         assert(pos < 16);
-        DEBUG_PRINTF("buf + pos %p\n", buf + pos);
         return buf + pos;
     } else {
         return NULL; // no match
@@ -48,14 +46,12 @@ const u8 *first_non_zero_match<16>(const u8 *buf, SuperVector<16> mask, u16 cons
 
 template <>
 really_really_inline
-const u8 *last_non_zero_match<16>(const u8 *buf, SuperVector<16> mask, u16 const UNUSED len) {
-    uint32x4_t m = mask.u.u32x4[0];
-    uint64_t vmax = vgetq_lane_u64 (vreinterpretq_u64_u32 (vpmaxq_u32(m, m)), 0);
-    if (vmax != 0) {
-    typename SuperVector<16>::movemask_type z = mask.movemask();
-        DEBUG_PRINTF("buf %p z %08x \n", buf, z);
-        DEBUG_PRINTF("z %08x\n", z);
-        u32 pos = clz32(z & 0xffff);
+const u8 *last_non_zero_match<16>(const u8 *buf, SuperVector<16> v, u16 const UNUSED len) {
+    SuperVector<16>::movemask_type z = v.movemask();
+    DEBUG_PRINTF("buf %p z %08x \n", buf, z);
+    DEBUG_PRINTF("z %08x\n", z);
+    if (unlikely(z)) {
+        u32 pos = clz32(z);
         DEBUG_PRINTF("match @ pos %u\n", pos);
         assert(pos >= 16 && pos < 32);
         return buf + (31 - pos);
@@ -66,33 +62,31 @@ const u8 *last_non_zero_match<16>(const u8 *buf, SuperVector<16> mask, u16 const
 
 template <>
 really_really_inline
-const u8 *first_zero_match_inverted<16>(const u8 *buf, SuperVector<16> mask, u16 const UNUSED len) {
-    uint32x4_t m = mask.u.u32x4[0];
-    uint64_t vmax = vgetq_lane_u64 (vreinterpretq_u64_u32 (vpmaxq_u32(m, m)), 0);
-    if (vmax != 0) {
-	typename SuperVector<16>::movemask_type z = mask.movemask();
-        DEBUG_PRINTF("z %08x\n", z);
-        DEBUG_PRINTF("buf %p z %08x \n", buf, z);
-        u32 pos = ctz32(z & 0xffff);
+const u8 *first_zero_match_inverted<16>(const u8 *buf, SuperVector<16> v, u16 const UNUSED len) {
+    SuperVector<16>::movemask_type z = v.movemask();
+    DEBUG_PRINTF("buf %p z %08x \n", buf, z);
+    DEBUG_PRINTF("z %08x\n", z);
+    if (unlikely(z != 0xffff)) {
+        u32 pos = ctz32(~z & 0xffff);
+        DEBUG_PRINTF("~z %08x\n", ~z);
         DEBUG_PRINTF("match @ pos %u\n", pos);
         assert(pos < 16);
-        DEBUG_PRINTF("buf + pos %p\n", buf + pos);
         return buf + pos;
     } else {
         return NULL; // no match
     }
 }
 
+
 template <>
 really_really_inline
-const u8 *last_zero_match_inverted<16>(const u8 *buf, SuperVector<16> mask, u16 const UNUSED len) {
-    uint32x4_t m = mask.u.u32x4[0];
-    uint64_t vmax = vgetq_lane_u64 (vreinterpretq_u64_u32 (vpmaxq_u32(m, m)), 0);
-    if (vmax != 0) {
-	typename SuperVector<16>::movemask_type z = mask.movemask();
-        DEBUG_PRINTF("buf %p z %08x \n", buf, z);
-        DEBUG_PRINTF("z %08x\n", z);
-        u32 pos = clz32(z & 0xffff);
+const u8 *last_zero_match_inverted<16>(const u8 *buf, SuperVector<16> v, uint16_t UNUSED len ) {
+    SuperVector<16>::movemask_type z = v.movemask();
+    DEBUG_PRINTF("buf %p z %08x \n", buf, z);
+    DEBUG_PRINTF("z %08x\n", z);
+    if (unlikely(z != 0xffff)) {
+        u32 pos = clz32(~z & 0xffff);
+        DEBUG_PRINTF("~z %08x\n", ~z);
         DEBUG_PRINTF("match @ pos %u\n", pos);
         assert(pos >= 16 && pos < 32);
         return buf + (31 - pos);
@@ -100,4 +94,5 @@ const u8 *last_zero_match_inverted<16>(const u8 *buf, SuperVector<16> mask, u16 
         return NULL; // no match
     }
 }
+
 

@@ -38,6 +38,8 @@
 #include "util/supervector/arch/x86/types.hpp"
 #elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
 #include "util/supervector/arch/arm/types.hpp"
+#elif defined(ARCH_PPC64EL)
+#include "util/supervector/arch/ppc64el/types.hpp"
 #endif
 
 #if defined(HAVE_SIMD_512_BITS)
@@ -162,6 +164,18 @@ public:
     typename BaseVector<16>::type ALIGN_ATTR(BaseVector<16>::size) v128[SIZE / BaseVector<16>::size];
     typename BaseVector<32>::type ALIGN_ATTR(BaseVector<32>::size) v256[SIZE / BaseVector<32>::size];
     typename BaseVector<64>::type ALIGN_ATTR(BaseVector<64>::size) v512[SIZE / BaseVector<64>::size];
+
+#if defined(ARCH_ARM32) || defined(ARCH_AARCH64) || defined(ARCH_PPC64EL)
+    uint64x2_t ALIGN_ATTR(BaseVector<16>::size) u64x2[SIZE / BaseVector<16>::size];
+    int64x2_t  ALIGN_ATTR(BaseVector<16>::size) s64x2[SIZE / BaseVector<16>::size];
+    uint32x4_t ALIGN_ATTR(BaseVector<16>::size) u32x4[SIZE / BaseVector<16>::size];
+    int32x4_t  ALIGN_ATTR(BaseVector<16>::size) s32x4[SIZE / BaseVector<16>::size];
+    uint16x8_t ALIGN_ATTR(BaseVector<16>::size) u16x8[SIZE / BaseVector<16>::size];
+    int16x8_t  ALIGN_ATTR(BaseVector<16>::size) s16x8[SIZE / BaseVector<16>::size];
+    uint8x16_t ALIGN_ATTR(BaseVector<16>::size) u8x16[SIZE / BaseVector<16>::size];
+    int8x16_t  ALIGN_ATTR(BaseVector<16>::size) s8x16[SIZE / BaseVector<16>::size];
+#endif
+
     uint64_t u64[SIZE / sizeof(uint64_t)];
     int64_t  s64[SIZE / sizeof(int64_t)];
     uint32_t u32[SIZE / sizeof(uint32_t)];
@@ -175,12 +189,12 @@ public:
   } u;
 
   constexpr SuperVector() {};
-  constexpr SuperVector(SuperVector const &other)
+  SuperVector(SuperVector const &other)
   :u(other.u) {};
   SuperVector(typename base_type::type const v);
 
   template<typename T>
-  SuperVector(T const other);
+  SuperVector(T other);
 
   SuperVector(SuperVector<SIZE/2> const lo, SuperVector<SIZE/2> const hi);
   SuperVector(previous_type const lo, previous_type const hi);
@@ -353,6 +367,8 @@ struct Unroller<End, End>
 #include "util/supervector/arch/x86/impl.cpp"
 #elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
 #include "util/supervector/arch/arm/impl.cpp"
+#elif defined(ARCH_PPC64EL)
+#include "util/supervector/arch/ppc64el/impl.cpp"
 #endif
 #endif
 
