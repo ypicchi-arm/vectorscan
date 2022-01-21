@@ -1,2 +1,0 @@
-Tests: build-lib
-Depends: build-essential, pkg-config, @
