@@ -1,0 +1,60 @@
+Source: vectorscan
+Priority: optional
+Maintainer: Konstantinos Margaritis <markos@debian.org>
+Build-Depends: cmake (>=2.8.11),
+               debhelper-compat (=12),
+               libboost-dev (>=1.57),
+               libpcap-dev,
+               pkg-config,
+               po-debconf,
+               python3,
+               ragel (>=6.9)
+Standards-Version: 4.5.1
+Section: libs
+Rules-Requires-Root: no
+Homepage: https://vectorcamp.gr/vectorscan
+Vcs-Git: https://salsa.debian.org/debian/hyperscan.git
+Vcs-Browser: https://salsa.debian.org/debian/vectorscan
+
+Package: libvectorscan-dev
+Section: libdevel
+Architecture: any-amd64 arm64 ppc64el
+Replaces: libhyperscan-dev
+Conflicts: libhyperscan-dev
+Provides: libhyperscan-dev
+Depends: libvectorscan5 (= ${binary:Version}), ${misc:Depends}
+Description: Portable fork of Intel's Hyperscan library (development files)
+ Vectorscan is a portable fork of Intel's Hyperscan project. It is a drop-in
+ replacement that promises to be API/ABI compatible with the original project,
+ while allowing it to run on other architectures such as AArch64 and Power9.
+ .
+ This package contains development libraries, header files and documentation for
+ the regular expression matching library libhyperscan. You can either use the
+ supplied shared or static library.
+ .
+ Vectorscan only runs on CPUs with a SIMD unit. On x86 CPUs, the minimum
+ requirement is SSE4.2, AArch64 ISA already implies Advanced SIMD/NEON and
+ ppc64le (Power8/Power9) already implies VSX enabled by default.
+
+Package: libvectorscan5
+Architecture: any-amd64 arm64 ppc64el
+Depends: ${misc:Depends}, ${shlibs:Depends}, sse4.2-support [any-amd64]
+Pre-Depends: debconf
+Replaces: libhyperscan5
+Conflicts: libhyperscan5
+Provides: libhyperscan5
+Description: Portable fork of Intel's Hyperscan library
+ Vectorscan is a portable fork of Intel's Hyperscan project. It is a drop-in
+ replacement that promises to be API/ABI compatible with the original project,
+ while allowing it to run on other architectures such as AArch64 and Power9.
+ .
+ Hyperscan is a high-performance multiple regex matching library.
+ It follows the regular expression syntax of the commonly-used libpcre library,
+ but is a standalone library with its own C API. Hyperscan uses hybrid automata
+ techniques to allow simultaneous matching of large numbers (up to tens of
+ thousands) of regular expressions and for the matching of regular expressions
+ across streams of data. Hyperscan is typically used in a DPI library stack.
+ .
+ Vectorscan only runs on CPUs with a SIMD unit. On x86 CPUs, the minimum
+ requirement is SSE4.2, AArch64 ISA already implies Advanced SIMD/NEON and
+ ppc64le (Power8/Power9) already implies VSX enabled by default.
