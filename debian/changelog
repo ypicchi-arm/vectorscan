@@ -1,5 +1,0 @@
-vectorscan (5.4.6.1) unstable; urgency=medium
-
-  * Initial release. (Closes: #1004079)
-
- -- Konstantinos Margaritis <markos@debian.org>  Wed, 15 Dec 2021 13:20:38 +0200
