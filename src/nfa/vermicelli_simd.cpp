@@ -55,17 +55,17 @@ template <uint16_t S>
 static really_inline
 const u8 *rvermicelliBlockNeg(SuperVector<S> const data, SuperVector<S> const chars, SuperVector<S> const casemask, const u8 *buf, u16 const len);
 
-template <uint16_t S>
+template <uint16_t S, bool check_partial = true>
 static really_inline
 const u8 *vermicelliDoubleBlock(SuperVector<S> const data, SuperVector<S> const chars1, SuperVector<S> const chars2, SuperVector<S> const casemask,
                                 u8 const c1, u8 const c2, u8 const casechar, u8 const *buf, u16 const len);
 
-template <uint16_t S>
+template <uint16_t S, bool check_partial = true>
 static really_inline
 const u8 *rvermicelliDoubleBlock(SuperVector<S> const data, SuperVector<S> const chars1, SuperVector<S> const chars2, SuperVector<S> const casemask,
                                  u8 const c1, u8 const c2, u8 const casechar, u8 const *buf, u16 const len);
 
-template <uint16_t S>
+template <uint16_t S, bool check_partial = true>
 static really_inline
 const u8 *vermicelliDoubleMaskedBlock(SuperVector<S> const data, SuperVector<S> const chars1, SuperVector<S> const chars2,
                                       SuperVector<S> const mask1, SuperVector<S> const mask2,
@@ -120,8 +120,8 @@ static const u8 *vermicelliExecReal(SuperVector<S> const chars, SuperVector<S> c
     // finish off tail
 
     if (d != buf_end) {
-        SuperVector<S> data = SuperVector<S>::loadu_maskz(d, buf_end - d);
-        rv = vermicelliBlock(data, chars, casemask, d, buf_end - d);
+        SuperVector<S> data = SuperVector<S>::loadu(buf_end - S);
+        rv = vermicelliBlock(data, chars, casemask, buf_end - S, buf_end - d);
         DEBUG_PRINTF("rv %p \n", rv);
         if (rv && rv < buf_end) return rv;
     }
@@ -170,8 +170,8 @@ static const u8 *nvermicelliExecReal(SuperVector<S> const chars, SuperVector<S> 
     // finish off tail
 
     if (d != buf_end) {
-        SuperVector<S> data = SuperVector<S>::loadu_maskz(d, buf_end - d);
-        rv = vermicelliBlockNeg(data, chars, casemask, d, buf_end - d);
+        SuperVector<S> data = SuperVector<S>::loadu(buf_end - S);
+        rv = vermicelliBlockNeg(data, chars, casemask, buf_end - S, buf_end - d);
         DEBUG_PRINTF("rv %p \n", rv);
         if (rv && rv < buf_end) return rv;
     }
@@ -316,17 +316,17 @@ static const u8 *vermicelliDoubleExecReal(u8 const c1, u8 const c2, SuperVector<
         if (!ISALIGNED_N(d, S)) {
             u8 const *d1 = ROUNDUP_PTR(d, S);
             SuperVector<S> data = SuperVector<S>::loadu(d);
-            rv = vermicelliDoubleBlock(data, chars1, chars2, casemask, c1, c2, casechar, d, S);
-            if (rv) return rv;
+            rv = vermicelliDoubleBlock(data, chars1, chars2, casemask, c1, c2, casechar, d + S, S);
+            if (rv) return rv - S;
             d = d1;
         }
 
-        while(d + S <= buf_end) {
+        while(d + S < buf_end) {
             __builtin_prefetch(d + 64);
             DEBUG_PRINTF("d %p \n", d);
             SuperVector<S> data = SuperVector<S>::load(d);
-            rv = vermicelliDoubleBlock(data, chars1, chars2, casemask, c1, c2, casechar, d, S);
-            if (rv) return rv;
+            rv = vermicelliDoubleBlock(data, chars1, chars2, casemask, c1, c2, casechar, d + S, S);
+            if (rv) return rv - S;
             d += S;
         }
     }
@@ -335,8 +335,16 @@ static const u8 *vermicelliDoubleExecReal(u8 const c1, u8 const c2, SuperVector<
     // finish off tail
 
     if (d != buf_end) {
-        SuperVector<S> data = SuperVector<S>::loadu_maskz(d, buf_end - d);
-        rv = vermicelliDoubleBlock(data, chars1, chars2, casemask, c1, c2, casechar, d, buf_end - d);
+        SuperVector<S> data = SuperVector<S>::Zeroes();
+        const u8* end_buf;
+        if (buf_end - buf < S) {
+          memcpy(&data.u, buf, buf_end - buf);
+          end_buf = buf;
+        } else {
+          data = SuperVector<S>::loadu(buf_end - S);
+          end_buf = buf_end - S;
+        }
+        rv = vermicelliDoubleBlock<S, false>(data, chars1, chars2, casemask, c1, c2, casechar, end_buf, buf_end - d);
         DEBUG_PRINTF("rv %p \n", rv);
         if (rv && rv < buf_end) return rv;
     }
@@ -403,8 +411,13 @@ const u8 *rvermicelliDoubleExecReal(char c1, char c2, SuperVector<S> const casem
     // finish off head
 
     if (d != buf) {
-        SuperVector<S> data = SuperVector<S>::loadu(buf);
-        rv = rvermicelliDoubleBlock(data, chars1, chars2, casemask, c1, c2, casechar, buf, d - buf);
+        SuperVector<S> data = SuperVector<S>::Zeroes();
+        if (d - buf < S) {
+          memcpy(&data.u, buf, d - buf);
+        } else {
+          data = SuperVector<S>::loadu(buf);
+        }
+        rv = rvermicelliDoubleBlock<S, false>(data, chars1, chars2, casemask, c1, c2, casechar, buf, d - buf);
         DEBUG_PRINTF("rv %p \n", rv);
         if (rv && rv < buf_end) return rv;
     }
@@ -440,17 +453,17 @@ static const u8 *vermicelliDoubleMaskedExecReal(u8 const c1, u8 const c2, u8 con
         if (!ISALIGNED_N(d, S)) {
             u8 const *d1 = ROUNDUP_PTR(d, S);
             SuperVector<S> data = SuperVector<S>::loadu(d);
-            rv = vermicelliDoubleMaskedBlock(data, chars1, chars2, mask1, mask2, c1, c2, m1, m2, d, S);
-            if (rv) return rv;
+            rv = vermicelliDoubleMaskedBlock(data, chars1, chars2, mask1, mask2, c1, c2, m1, m2, d + S, S);
+            if (rv) return rv - S;
             d = d1;
         }
 
-        while(d + S <= buf_end) {
+        while(d + S < buf_end) {
             __builtin_prefetch(d + 64);
             DEBUG_PRINTF("d %p \n", d);
             SuperVector<S> data = SuperVector<S>::load(d);
-            rv = vermicelliDoubleMaskedBlock(data, chars1, chars2, mask1, mask2, c1, c2, m1, m2, d, S);
-            if (rv) return rv;
+            rv = vermicelliDoubleMaskedBlock(data, chars1, chars2, mask1, mask2, c1, c2, m1, m2, d + S, S);
+            if (rv) return rv - S;
             d += S;
         }
     }
@@ -459,8 +472,16 @@ static const u8 *vermicelliDoubleMaskedExecReal(u8 const c1, u8 const c2, u8 con
     // finish off tail
 
     if (d != buf_end) {
-        SuperVector<S> data = SuperVector<S>::loadu_maskz(d, buf_end - d);
-        rv = vermicelliDoubleMaskedBlock(data, chars1, chars2, mask1, mask2, c1, c2, m1, m2, d, buf_end - d);
+        SuperVector<S> data = SuperVector<S>::Zeroes();
+        const u8* end_buf;
+        if (buf_end - buf < S) {
+          memcpy(&data.u, buf, buf_end - buf);
+          end_buf = buf;
+        } else {
+          data = SuperVector<S>::loadu(buf_end - S);
+          end_buf = buf_end - S;
+        }
+        rv = vermicelliDoubleMaskedBlock<S, false>(data, chars1, chars2, mask1, mask2, c1, c2, m1, m2, end_buf, buf_end - d);
         DEBUG_PRINTF("rv %p \n", rv);
         if (rv && rv < buf_end) return rv;
     }
@@ -480,6 +501,20 @@ extern "C" const u8 *vermicelliExec(char c, char nocase, const u8 *buf, const u8
                  nocase ? "nocase " : "", c, (size_t)(buf_end - buf));
     assert(buf < buf_end);
 
+    // Small ranges.
+    if (buf_end - buf < VECTORSIZE) {
+        for (; buf < buf_end; buf++) {
+            char cur = (char)*buf;
+            if (nocase) {
+                cur &= CASE_CLEAR;
+            }
+            if (cur == c) {
+                break;
+            }
+        }
+        return buf;
+    }
+
     const SuperVector<VECTORSIZE> chars = SuperVector<VECTORSIZE>::dup_u8(c);
     const SuperVector<VECTORSIZE> casemask{nocase ? getCaseMask<VECTORSIZE>() : SuperVector<VECTORSIZE>::Ones()};
 
@@ -493,6 +528,20 @@ extern "C" const u8 *nvermicelliExec(char c, char nocase, const u8 *buf, const u
                  nocase ? "nocase " : "", c, (size_t)(buf_end - buf));
     assert(buf < buf_end);
 
+    // Small ranges.
+    if (buf_end - buf < VECTORSIZE) {
+        for (; buf < buf_end; buf++) {
+            char cur = *buf;
+            if (nocase) {
+                cur &= CASE_CLEAR;
+            }
+            if (cur != c) {
+                break;
+            }
+        }
+        return buf;
+    }
+
     const SuperVector<VECTORSIZE> chars = SuperVector<VECTORSIZE>::dup_u8(c);
     const SuperVector<VECTORSIZE> casemask{nocase ? getCaseMask<VECTORSIZE>() : SuperVector<VECTORSIZE>::Ones()};
 
@@ -504,6 +553,20 @@ extern "C" const u8 *rvermicelliExec(char c, char nocase, const u8 *buf, const u
                  nocase ? "nocase " : "", c, (size_t)(buf_end - buf));
     assert(buf < buf_end);
 
+    // Small ranges.
+    if (buf_end - buf < VECTORSIZE) {
+        for (buf_end--; buf_end >= buf; buf_end--) {
+            char cur = (char)*buf_end;
+            if (nocase) {
+                cur &= CASE_CLEAR;
+            }
+            if (cur == c) {
+                break;
+            }
+        }
+        return buf_end;
+    }
+
     const SuperVector<VECTORSIZE> chars = SuperVector<VECTORSIZE>::dup_u8(c);
     const SuperVector<VECTORSIZE> casemask{nocase ? getCaseMask<VECTORSIZE>() : SuperVector<VECTORSIZE>::Ones()};
 
@@ -514,6 +577,20 @@ extern "C" const u8 *rnvermicelliExec(char c, char nocase, const u8 *buf, const 
      DEBUG_PRINTF("rev verm scan %s\\x%02hhx over %zu bytes\n",
                   nocase ? "nocase " : "", c, (size_t)(buf_end - buf));
     assert(buf < buf_end);
+
+    // Small ranges.
+    if (buf_end - buf < VECTORSIZE) {
+        for (buf_end--; buf_end >= buf; buf_end--) {
+            char cur = (char)*buf_end;
+            if (nocase) {
+                cur &= CASE_CLEAR;
+            }
+            if (cur != c) {
+                break;
+            }
+        }
+        return buf_end;
+    }
 
     const SuperVector<VECTORSIZE> chars = SuperVector<VECTORSIZE>::dup_u8(c);
     const SuperVector<VECTORSIZE> casemask{nocase ? getCaseMask<VECTORSIZE>() : SuperVector<VECTORSIZE>::Ones()};

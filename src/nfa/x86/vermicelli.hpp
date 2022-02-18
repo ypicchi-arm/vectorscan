@@ -67,7 +67,7 @@ const u8 *rvermicelliBlockNeg(SuperVector<S> const data, SuperVector<S> const ch
     return last_zero_match_inverted<S>(buf, mask, len);
 }
 
-template <uint16_t S>
+template <uint16_t S, bool check_partial>
 static really_inline
 const u8 *vermicelliDoubleBlock(SuperVector<S> const data, SuperVector<S> const chars1, SuperVector<S> const chars2, SuperVector<S> const casemask,
                                 u8 const c1, u8 const c2, u8 const casechar, u8 const *buf, u16 const len) {
@@ -78,14 +78,16 @@ const u8 *vermicelliDoubleBlock(SuperVector<S> const data, SuperVector<S> const 
     SuperVector<S> mask = mask1 & (mask2 >> 1);
 
     DEBUG_PRINTF("rv[0] = %02hhx, rv[-1] = %02hhx\n", buf[0], buf[-1]);
-    bool partial_match = (((buf[0] & casechar) == c2) && ((buf[-1] & casechar) == c1));
+    bool partial_match = (check_partial && ((buf[0] & casechar) == c2) && ((buf[-1] & casechar) == c1));
     DEBUG_PRINTF("partial = %d\n", partial_match);
-    if (partial_match) return buf - 1;
+    if (partial_match) {
+        mask = mask | ((SuperVector<S>::Ones() >> (S-1)) << (S-1));
+    }
 
     return first_non_zero_match<S>(buf, mask, len);
 }
 
-template <uint16_t S>
+template <uint16_t S, bool check_partial>
 static really_inline
 const u8 *rvermicelliDoubleBlock(SuperVector<S> const data, SuperVector<S> const chars1, SuperVector<S> const chars2, SuperVector<S> const casemask,
                                  u8 const c1, u8 const c2, u8 const casechar, u8 const *buf, u16 const len) {
@@ -96,7 +98,7 @@ const u8 *rvermicelliDoubleBlock(SuperVector<S> const data, SuperVector<S> const
     SuperVector<S> mask = (mask1 << 1)& mask2;
 
     DEBUG_PRINTF("buf[0] = %02hhx, buf[-1] = %02hhx\n", buf[0], buf[-1]);
-    bool partial_match = (((buf[0] & casechar) == c2) && ((buf[-1] & casechar) == c1));
+    bool partial_match = (check_partial && ((buf[0] & casechar) == c2) && ((buf[-1] & casechar) == c1));
     DEBUG_PRINTF("partial = %d\n", partial_match);
     if (partial_match) {
         mask = mask | (SuperVector<S>::Ones() >> (S-1));
@@ -105,7 +107,7 @@ const u8 *rvermicelliDoubleBlock(SuperVector<S> const data, SuperVector<S> const
     return last_non_zero_match<S>(buf, mask, len);
 }
 
-template <uint16_t S>
+template <uint16_t S, bool check_partial>
 static really_inline
 const u8 *vermicelliDoubleMaskedBlock(SuperVector<S> const data, SuperVector<S> const chars1, SuperVector<S> const chars2,
                                       SuperVector<S> const mask1, SuperVector<S> const mask2,
@@ -116,9 +118,11 @@ const u8 *vermicelliDoubleMaskedBlock(SuperVector<S> const data, SuperVector<S> 
     SuperVector<S> mask = v1 & (v2 >> 1);
 
     DEBUG_PRINTF("rv[0] = %02hhx, rv[-1] = %02hhx\n", buf[0], buf[-1]);
-    bool partial_match = (((buf[0] & m1) == c2) && ((buf[-1] & m2) == c1));
+    bool partial_match = (check_partial && ((buf[0] & m2) == c2) && ((buf[-1] & m1) == c1));
     DEBUG_PRINTF("partial = %d\n", partial_match);
-    if (partial_match) return buf - 1;
+    if (partial_match) {
+        mask = mask | ((SuperVector<S>::Ones() >> (S-1)) << (S-1));
+    }
 
     return first_non_zero_match<S>(buf, mask, len);
 }

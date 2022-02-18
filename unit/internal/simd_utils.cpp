@@ -33,6 +33,10 @@
 #include "util/bytecode_ptr.h"
 #include "util/simd_utils.h"
 
+#ifdef setbit
+#undef setbit
+#endif
+
 using namespace std;
 using namespace ue2;
 

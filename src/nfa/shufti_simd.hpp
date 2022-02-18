@@ -128,8 +128,8 @@ const u8 *shuftiExecReal(m128 mask_lo, m128 mask_hi, const u8 *buf, const u8 *bu
     // finish off tail
 
     if (d != buf_end) {
-        SuperVector<S> chars = SuperVector<S>::loadu_maskz(d, buf_end - d);
-        rv = fwdBlock(wide_mask_lo, wide_mask_hi, chars, d);
+        SuperVector<S> chars = SuperVector<S>::loadu(buf_end - S);
+        rv = fwdBlock(wide_mask_lo, wide_mask_hi, chars, buf_end - S);
         DEBUG_PRINTF("rv %p \n", rv);
         if (rv && rv < buf_end) return rv;
     }
@@ -240,22 +240,36 @@ const u8 *shuftiDoubleExecReal(m128 mask1_lo, m128 mask1_hi, m128 mask2_lo, m128
     // finish off tail
 
     if (d != buf_end) {
-        SuperVector<S> chars = SuperVector<S>::loadu(d);
-        rv = fwdBlockDouble(wide_mask1_lo, wide_mask1_hi, wide_mask2_lo, wide_mask2_hi, chars, d);
+        SuperVector<S> chars = SuperVector<S>::Zeroes();
+        const u8 *end_buf;
+        if (buf_end - buf < S) {
+          memcpy(&chars.u, buf, buf_end - buf);
+          end_buf = buf;
+        } else {
+          chars = SuperVector<S>::loadu(buf_end - S);
+          end_buf = buf_end - S;
+        }
+        rv = fwdBlockDouble(wide_mask1_lo, wide_mask1_hi, wide_mask2_lo, wide_mask2_hi, chars, end_buf);
         DEBUG_PRINTF("rv %p \n", rv);
         if (rv && rv < buf_end) return rv;
     }
-    
+
     return buf_end;
 }
 
 const u8 *shuftiExec(m128 mask_lo, m128 mask_hi, const u8 *buf,
                       const u8 *buf_end) {
-    return shuftiExecReal<VECTORSIZE>(mask_lo, mask_hi, buf, buf_end);
+  if (buf_end - buf < VECTORSIZE) {
+    return shuftiFwdSlow((const u8 *)&mask_lo, (const u8 *)&mask_hi, buf, buf_end);
+  }
+  return shuftiExecReal<VECTORSIZE>(mask_lo, mask_hi, buf, buf_end);
 }
 
 const u8 *rshuftiExec(m128 mask_lo, m128 mask_hi, const u8 *buf,
                        const u8 *buf_end) {
+    if (buf_end - buf < VECTORSIZE) {
+      return shuftiRevSlow((const u8 *)&mask_lo, (const u8 *)&mask_hi, buf, buf_end);
+    }
     return rshuftiExecReal<VECTORSIZE>(mask_lo, mask_hi, buf, buf_end);
 }
 

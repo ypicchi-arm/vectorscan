@@ -107,8 +107,16 @@ const u8 *truffleExecReal(m128 &shuf_mask_lo_highclear, m128 shuf_mask_lo_highse
     // finish off tail
 
     if (d != buf_end) {
-        SuperVector<S> chars = SuperVector<S>::loadu_maskz(d, buf_end - d);
-        rv = fwdBlock(wide_shuf_mask_lo_highclear, wide_shuf_mask_lo_highset, chars, d);
+        SuperVector<S> chars = SuperVector<S>::Zeroes();
+        const u8* end_buf;
+        if (buf_end - buf < S) {
+          memcpy(&chars.u, buf, buf_end - buf);
+          end_buf = buf;
+        } else {
+          chars = SuperVector<S>::loadu(buf_end - S);
+          end_buf = buf_end - S;
+        }
+        rv = fwdBlock(wide_shuf_mask_lo_highclear, wide_shuf_mask_lo_highset, chars, end_buf);
         DEBUG_PRINTF("rv %p \n", rv);
         if (rv && rv < buf_end) return rv;
     }
@@ -171,7 +179,12 @@ const u8 *rtruffleExecReal(m128 shuf_mask_lo_highclear, m128 shuf_mask_lo_highse
     // finish off head
 
     if (d != buf) {
-        SuperVector<S> chars = SuperVector<S>::loadu(buf);
+        SuperVector<S> chars = SuperVector<S>::Zeroes();
+        if (buf_end - buf < S) {
+          memcpy(&chars.u, buf, buf_end - buf);
+        } else {
+          chars = SuperVector<S>::loadu(buf);
+        }
         rv = revBlock(wide_shuf_mask_lo_highclear, wide_shuf_mask_lo_highset, chars, buf);
         DEBUG_PRINTF("rv %p \n", rv);
         if (rv && rv < buf_end) return rv;
