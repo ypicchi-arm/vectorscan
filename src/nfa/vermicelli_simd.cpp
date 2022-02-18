@@ -310,7 +310,7 @@ static const u8 *vermicelliDoubleExecReal(u8 const c1, u8 const c2, SuperVector<
     __builtin_prefetch(d + 4*64);
     DEBUG_PRINTF("start %p end %p \n", d, buf_end);
     assert(d < buf_end);
-    if (d + S <= buf_end) {
+    if (d + S < buf_end) {
         // Reach vector aligned boundaries
         DEBUG_PRINTF("until aligned %p \n", ROUNDUP_PTR(d, S));
         if (!ISALIGNED_N(d, S)) {
@@ -336,15 +336,12 @@ static const u8 *vermicelliDoubleExecReal(u8 const c1, u8 const c2, SuperVector<
 
     if (d != buf_end) {
         SuperVector<S> data = SuperVector<S>::Zeroes();
-        const u8* end_buf;
-        if (buf_end - buf < S) {
-          memcpy(&data.u, buf, buf_end - buf);
-          end_buf = buf;
+        if (buf_end - d < S) {
+          memcpy(&data.u, d, buf_end - d);
         } else {
-          data = SuperVector<S>::loadu(buf_end - S);
-          end_buf = buf_end - S;
+          data = SuperVector<S>::loadu(d);
         }
-        rv = vermicelliDoubleBlock<S, false>(data, chars1, chars2, casemask, c1, c2, casechar, end_buf, buf_end - d);
+        rv = vermicelliDoubleBlock<S, false>(data, chars1, chars2, casemask, c1, c2, casechar, d, buf_end - d);
         DEBUG_PRINTF("rv %p \n", rv);
         if (rv && rv < buf_end) return rv;
     }
@@ -383,7 +380,7 @@ const u8 *rvermicelliDoubleExecReal(char c1, char c2, SuperVector<S> const casem
     __builtin_prefetch(d - 4*64);
     DEBUG_PRINTF("start %p end %p \n", buf, d);
     assert(d > buf);
-    if (d - S >= buf) {
+    if (d - S > buf) {
         // Reach vector aligned boundaries
         DEBUG_PRINTF("until aligned %p \n", ROUNDDOWN_PTR(d, S));
         if (!ISALIGNED_N(d, S)) {
@@ -395,7 +392,7 @@ const u8 *rvermicelliDoubleExecReal(char c1, char c2, SuperVector<S> const casem
             d = d1;
         }
 
-        while (d - S >= buf) {
+        while (d - S > buf) {
             DEBUG_PRINTF("aligned %p \n", d);
             // On large packet buffers, this prefetch appears to get us about 2%.
             __builtin_prefetch(d - 64);
@@ -447,7 +444,7 @@ static const u8 *vermicelliDoubleMaskedExecReal(u8 const c1, u8 const c2, u8 con
     __builtin_prefetch(d + 4*64);
     DEBUG_PRINTF("start %p end %p \n", d, buf_end);
     assert(d < buf_end);
-    if (d + S <= buf_end) {
+    if (d + S < buf_end) {
         // Reach vector aligned boundaries
         DEBUG_PRINTF("until aligned %p \n", ROUNDUP_PTR(d, S));
         if (!ISALIGNED_N(d, S)) {
@@ -473,15 +470,12 @@ static const u8 *vermicelliDoubleMaskedExecReal(u8 const c1, u8 const c2, u8 con
 
     if (d != buf_end) {
         SuperVector<S> data = SuperVector<S>::Zeroes();
-        const u8* end_buf;
-        if (buf_end - buf < S) {
-          memcpy(&data.u, buf, buf_end - buf);
-          end_buf = buf;
+        if (buf_end - d < S) {
+          memcpy(&data.u, d, buf_end - d);
         } else {
-          data = SuperVector<S>::loadu(buf_end - S);
-          end_buf = buf_end - S;
+          data = SuperVector<S>::loadu(d);
         }
-        rv = vermicelliDoubleMaskedBlock<S, false>(data, chars1, chars2, mask1, mask2, c1, c2, m1, m2, end_buf, buf_end - d);
+        rv = vermicelliDoubleMaskedBlock<S, false>(data, chars1, chars2, mask1, mask2, c1, c2, m1, m2, d, buf_end - d);
         DEBUG_PRINTF("rv %p \n", rv);
         if (rv && rv < buf_end) return rv;
     }
