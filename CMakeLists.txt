@@ -136,6 +136,32 @@ if (BUILD_AVX512VBMI)
     set(BUILD_AVX512 ON)
 endif ()
 
+option(FAT_RUNTIME "Build a library that supports multiple microarchitectures" ON)
+if (CMAKE_SYSTEM_NAME MATCHES "Linux" AND FAT_RUNTIME MATCHES "ON")
+    # This is a Linux-only feature for now - requires platform support
+    # elsewhere
+    message(STATUS "generator is ${CMAKE_GENERATOR}")
+    if (CMAKE_C_COMPILER_IS_CLANG AND CMAKE_C_COMPILER_VERSION VERSION_LESS "3.9")
+        message (STATUS "Clang v3.9 or higher required for fat runtime, cannot build fat runtime")
+        set (FAT_RUNTIME_REQUISITES FALSE)
+    elseif (NOT (CMAKE_GENERATOR MATCHES "Unix Makefiles" OR
+            (CMAKE_VERSION VERSION_GREATER "3.0" AND CMAKE_GENERATOR MATCHES "Ninja")))
+        message (STATUS "Building the fat runtime requires the Unix Makefiles generator, or Ninja with CMake v3.0 or higher")
+        set (FAT_RUNTIME_REQUISITES FALSE)
+    else()
+        include (${CMAKE_MODULE_PATH}/attrib.cmake)
+        if (NOT HAS_C_ATTR_IFUNC)
+            message(STATUS "Compiler does not support ifunc attribute, cannot build fat runtime")
+            set (FAT_RUNTIME_REQUISITES FALSE)
+        else ()
+            set (FAT_RUNTIME_REQUISITES TRUE)
+        endif()
+    endif()
+    if (NOT FAT_RUNTIME_REQUISITES OR NOT RELEASE_BUILD)
+      set (FAT_RUNTIME OFF)
+    endif()
+endif ()
+
 # TODO: per platform config files?
 
 # remove CMake's idea of optimisation
@@ -360,29 +386,6 @@ if (RELEASE_BUILD)
         set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -fvisibility=hidden")
     endif()
 endif()
-
-if (CMAKE_SYSTEM_NAME MATCHES "Linux")
-    # This is a Linux-only feature for now - requires platform support
-    # elsewhere
-    message(STATUS "generator is ${CMAKE_GENERATOR}")
-    if (CMAKE_C_COMPILER_IS_CLANG AND CMAKE_C_COMPILER_VERSION VERSION_LESS "3.9")
-        message (STATUS "Clang v3.9 or higher required for fat runtime, cannot build fat runtime")
-        set (FAT_RUNTIME_REQUISITES FALSE)
-    elseif (NOT (CMAKE_GENERATOR MATCHES "Unix Makefiles" OR
-            (CMAKE_VERSION VERSION_GREATER "3.0" AND CMAKE_GENERATOR MATCHES "Ninja")))
-        message (STATUS "Building the fat runtime requires the Unix Makefiles generator, or Ninja with CMake v3.0 or higher")
-        set (FAT_RUNTIME_REQUISITES FALSE)
-    else()
-        include (${CMAKE_MODULE_PATH}/attrib.cmake)
-        if (NOT HAS_C_ATTR_IFUNC)
-            message(STATUS "Compiler does not support ifunc attribute, cannot build fat runtime")
-            set (FAT_RUNTIME_REQUISITES FALSE)
-        else ()
-            set (FAT_RUNTIME_REQUISITES TRUE)
-        endif()
-    endif()
-    CMAKE_DEPENDENT_OPTION(FAT_RUNTIME "Build a library that supports multiple microarchitectures" ${RELEASE_BUILD} "FAT_RUNTIME_REQUISITES" OFF)
-endif ()
 
 include (${CMAKE_MODULE_PATH}/arch.cmake)
 
