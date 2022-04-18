@@ -363,7 +363,8 @@ if (RELEASE_BUILD)
     endif()
 endif()
 
-if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+option(FAT_RUNTIME "Build a library that supports multiple microarchitectures" ON)
+if (CMAKE_SYSTEM_NAME MATCHES "Linux" AND FAT_RUNTIME MATCHES "ON")
     # This is a Linux-only feature for now - requires platform support
     # elsewhere
     message(STATUS "generator is ${CMAKE_GENERATOR}")
@@ -383,7 +384,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
             set (FAT_RUNTIME_REQUISITES TRUE)
         endif()
     endif()
-    CMAKE_DEPENDENT_OPTION(FAT_RUNTIME "Build a library that supports multiple microarchitectures" ${RELEASE_BUILD} "FAT_RUNTIME_REQUISITES" OFF)
+    if (NOT FAT_RUNTIME_REQUISITES OR NOT RELEASE_BUILD)
+      set (FAT_RUNTIME OFF)
+    endif()
 endif ()
 
 include (${CMAKE_MODULE_PATH}/arch.cmake)
