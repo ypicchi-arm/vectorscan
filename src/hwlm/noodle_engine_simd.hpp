@@ -58,12 +58,10 @@ hwlm_error_t double_zscan(const struct noodTable *n,const u8 *d, const u8 *buf,
     return HWLM_SUCCESS;
 }
 
-// The short scan routine. It is used both to scan data up to an
-// alignment boundary if needed and to finish off data that the aligned scan
-// function can't handle (due to small/unaligned chunk at end)
+
 template<uint16_t S>
 static really_inline
-hwlm_error_t scanSingleUnaligned(const struct noodTable *n, const u8 *buf,
+hwlm_error_t scanSingleShort(const struct noodTable *n, const u8 *buf,
                                  SuperVector<S> caseMask, SuperVector<S> mask1,
                                  const struct cb_info *cbi, size_t len, size_t start,
                                  size_t end) {
@@ -76,7 +74,36 @@ hwlm_error_t scanSingleUnaligned(const struct noodTable *n, const u8 *buf,
         return HWLM_SUCCESS;
     }
 
+    SuperVector<S> v = SuperVector<S>::Zeroes();
+    memcpy(&v.u, d, l);
+
     typename SuperVector<S>::movemask_type mask = SINGLE_LOAD_MASK(l);
+    v = v & caseMask;
+    typename SuperVector<S>::movemask_type z = mask & mask1.eqmask(v);
+
+    return single_zscan(n, d, buf, z, len, cbi);
+}
+
+// The short scan routine. It is used both to scan data up to an
+// alignment boundary if needed and to finish off data that the aligned scan
+// function can't handle (due to small/unaligned chunk at end)
+template<uint16_t S>
+static really_inline
+hwlm_error_t scanSingleUnaligned(const struct noodTable *n, const u8 *buf,
+                                 SuperVector<S> caseMask, SuperVector<S> mask1,
+                                 const struct cb_info *cbi, size_t len, size_t offset,
+                                     size_t start,
+                                 size_t end) {
+    const u8 *d = buf + offset;
+    DEBUG_PRINTF("start %zu end %zu offset %zu\n", start, end, offset);
+    const size_t l = end - start;
+    DEBUG_PRINTF("l = %ld\n", l);
+    assert(l <= 64);
+    if (!l) {
+        return HWLM_SUCCESS;
+    }
+    size_t buf_off = start - offset;
+    typename SuperVector<S>::movemask_type mask = SINGLE_LOAD_MASK(l) << buf_off;
     SuperVector<S> v = SuperVector<S>::loadu(d) & caseMask;
     typename SuperVector<S>::movemask_type z = mask & mask1.eqmask(v);
 
@@ -85,8 +112,8 @@ hwlm_error_t scanSingleUnaligned(const struct noodTable *n, const u8 *buf,
 
 template<uint16_t S>
 static really_inline
-hwlm_error_t scanDoubleUnaligned(const struct noodTable *n, const u8 *buf,
-                                 SuperVector<S> caseMask, SuperVector<S> mask1, SuperVector<S> mask2, typename SuperVector<S>::movemask_type *lastz1,
+hwlm_error_t scanDoubleShort(const struct noodTable *n, const u8 *buf,
+                                 SuperVector<S> caseMask, SuperVector<S> mask1, SuperVector<S> mask2,
                                  const struct cb_info *cbi, size_t len, size_t start, size_t end) {
     const u8 *d = buf + start;
     DEBUG_PRINTF("start %zu end %zu\n", start, end);
@@ -95,13 +122,36 @@ hwlm_error_t scanDoubleUnaligned(const struct noodTable *n, const u8 *buf,
     if (!l) {
         return HWLM_SUCCESS;
     }
-    SuperVector<S> v = SuperVector<S>::loadu(d) & caseMask;
+    SuperVector<S> v = SuperVector<S>::Zeroes();
+    memcpy(&v.u, d, l);
+    v = v & caseMask;
 
     typename SuperVector<S>::movemask_type mask = DOUBLE_LOAD_MASK(l);
     typename SuperVector<S>::movemask_type z1 = mask1.eqmask(v);
     typename SuperVector<S>::movemask_type z2 = mask2.eqmask(v);
-    typename SuperVector<S>::movemask_type z = mask & (*lastz1 | z1 << 1) & z2;
-    *lastz1 = z1 >> (l -1);
+    typename SuperVector<S>::movemask_type z = mask & (z1 << 1) & z2;
+
+    return double_zscan(n, d, buf, z, len, cbi);
+}
+
+template<uint16_t S>
+static really_inline
+hwlm_error_t scanDoubleUnaligned(const struct noodTable *n, const u8 *buf,
+                                 SuperVector<S> caseMask, SuperVector<S> mask1, SuperVector<S> mask2,
+                                 const struct cb_info *cbi, size_t len, size_t offset, size_t start, size_t end) {
+    const u8 *d = buf + offset;
+    DEBUG_PRINTF("start %zu end %zu offset %zu\n", start, end, offset);
+    const size_t l = end - start;
+    assert(l <= S);
+    if (!l) {
+        return HWLM_SUCCESS;
+    }
+    SuperVector<S> v = SuperVector<S>::loadu(d) & caseMask;
+    size_t buf_off = start - offset;
+    typename SuperVector<S>::movemask_type mask = DOUBLE_LOAD_MASK(l) << buf_off;
+    typename SuperVector<S>::movemask_type z1 = mask1.eqmask(v);
+    typename SuperVector<S>::movemask_type z2 = mask2.eqmask(v);
+    typename SuperVector<S>::movemask_type z = mask & (z1 << 1) & z2;
 
     return double_zscan(n, d, buf, z, len, cbi);
 }
@@ -119,11 +169,14 @@ hwlm_error_t scanSingleMain(const struct noodTable *n, const u8 *buf,
     const u8 *e = buf + end;
     DEBUG_PRINTF("start %p end %p \n", d, e);
     assert(d < e);
+    if (e - d < S) {
+      return scanSingleShort(n, buf, caseMask, mask1, cbi, len, start, end);
+    }
     if (d + S <= e) {
         // peel off first part to cacheline boundary
         const u8 *d1 = ROUNDUP_PTR(d, S);
         DEBUG_PRINTF("until aligned %p \n", d1);
-        if (scanSingleUnaligned(n, buf, caseMask, mask1, cbi, len, start, d1 - buf) == HWLM_TERMINATED) {
+        if (scanSingleUnaligned(n, buf, caseMask, mask1, cbi, len, start, start, d1 - buf) == HWLM_TERMINATED) {
             return HWLM_TERMINATED;
         }
         d = d1;
@@ -147,8 +200,12 @@ hwlm_error_t scanSingleMain(const struct noodTable *n, const u8 *buf,
 
     DEBUG_PRINTF("d %p e %p \n", d, e);
     // finish off tail
+    size_t s2End = ROUNDDOWN_PTR(e, S) - buf;
+    if (s2End == end) {
+      return HWLM_SUCCESS;
+    }
 
-    return scanSingleUnaligned(n, buf, caseMask, mask1, cbi, len, d - buf, end);
+    return scanSingleUnaligned(n, buf, caseMask, mask1, cbi, len, end - S, s2End, len);
 }
 
 template <uint16_t S>
@@ -169,14 +226,17 @@ hwlm_error_t scanDoubleMain(const struct noodTable *n, const u8 *buf,
     const u8 *e = buf + end;
     DEBUG_PRINTF("start %p end %p \n", d, e);
     assert(d < e);
+    if (e - d < S) {
+      return scanDoubleShort(n, buf, caseMask, mask1, mask2, cbi, len, d - buf, end);
+    }
     if (d + S <= e) {
         // peel off first part to cacheline boundary
-        const u8 *d1 = ROUNDUP_PTR(d, S);
+        const u8 *d1 = ROUNDUP_PTR(d, S) + 1;
         DEBUG_PRINTF("until aligned %p \n", d1);
-        if (scanDoubleUnaligned(n, buf, caseMask, mask1, mask2, &lastz1, cbi, len, start, d1 - buf) == HWLM_TERMINATED) {
+        if (scanDoubleUnaligned(n, buf, caseMask, mask1, mask2, cbi, len, start, start, d1 - buf) == HWLM_TERMINATED) {
             return HWLM_TERMINATED;
         }
-        d = d1;
+        d = d1 - 1;
 
         size_t loops = (end - (d - buf)) / S;
         DEBUG_PRINTF("loops %ld \n", loops);
@@ -196,12 +256,16 @@ hwlm_error_t scanDoubleMain(const struct noodTable *n, const u8 *buf,
             hwlm_error_t rv = double_zscan(n, d, buf, z, len, cbi);
             RETURN_IF_TERMINATED(rv);
         }
+        if (loops == 0) {
+          d = d1;
+        }
     }
-
-    DEBUG_PRINTF("d %p e %p \n", d, e);
     // finish off tail
-
-    return scanDoubleUnaligned(n, buf, caseMask, mask1, mask2, &lastz1, cbi, len, d - buf, end);
+    size_t s2End = ROUNDDOWN_PTR(e, S) - buf;
+    if (s2End == end) {
+      return HWLM_SUCCESS;
+    }
+    return scanDoubleUnaligned(n, buf, caseMask, mask1, mask2, cbi, len, end - S, d - buf, end);
 }
 
 // Single-character specialisation, used when keyLen = 1

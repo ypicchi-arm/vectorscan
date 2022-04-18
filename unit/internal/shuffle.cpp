@@ -36,6 +36,9 @@
 #include"util/supervector/supervector.hpp"
 #include "nfa/limex_shuffle.hpp"
 
+#ifdef setbit
+#undef setbit
+#endif
 
 namespace {
 

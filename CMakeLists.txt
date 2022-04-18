@@ -124,6 +124,8 @@ if (RELEASE_BUILD)
     set(HS_OPTIMIZE ON)
 endif()
 
+include (${CMAKE_MODULE_PATH}/sanitize.cmake)
+
 CMAKE_DEPENDENT_OPTION(DUMP_SUPPORT "Dump code support; normally on, except in release builds" ON "NOT RELEASE_BUILD" OFF)
 
 CMAKE_DEPENDENT_OPTION(DISABLE_ASSERTS "Disable assert(); Asserts are enabled in debug builds, disabled in release builds" OFF "NOT RELEASE_BUILD" ON)
