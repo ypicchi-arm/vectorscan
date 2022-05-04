@@ -194,6 +194,166 @@ pipeline {
                         }
                     } 
                 }
+                stage("Release-ASAN/SSE") {
+                    agent { label "x86" }
+                    stages {
+                        stage("Git checkout") {
+                            steps {
+                                checkout([$class: 'GitSCM', branches: [[name: '${sha1}']], extensions: [], userRemoteConfigs: [[refspec: '+refs/pull/${ghprbPullId}/*:refs/remotes/origin/pr/${ghprbPullId}/*', url: 'https://github.com/VectorCamp/vectorscan.git']]])
+                            }
+                        }
+                        stage("Build") {
+                            steps {
+                                cmakeBuild buildDir: 'build-release-asan-SSE', buildType: 'Release', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=no -DBUILD_AVX512=no -DFAT_RUNTIME=no -DSANITIZE=undefined -DSANITIZE=address -DSANITIZE=memory', installation: 'InSearchPath', steps: [[args: '--parallel 4', withCmake: true]]
+                            }
+                        }
+                        stage("Test") {
+                            steps {
+                                sh 'build-release-asan-SSE/bin/unit-hyperscan'
+                            }
+                        }
+                    }
+                }
+                stage("Release-ASAN/AVX2") {
+                    agent { label "x86" }
+                    stages {
+                        stage("Git checkout") {
+                            steps {
+                                checkout([$class: 'GitSCM', branches: [[name: '${sha1}']], extensions: [], userRemoteConfigs: [[refspec: '+refs/pull/${ghprbPullId}/*:refs/remotes/origin/pr/${ghprbPullId}/*', url: 'https://github.com/VectorCamp/vectorscan.git']]])
+                            }
+                        }
+                        stage("Build") {
+                            steps {
+                                cmakeBuild buildDir: 'build-release-asan-AVX2', buildType: 'Release', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=yes -DBUILD_AVX512=no -DFAT_RUNTIME=no -DSANITIZE=undefined -DSANITIZE=address -DSANITIZE=memory', installation: 'InSearchPath', steps: [[args: '--parallel 4', withCmake: true]]
+                            }
+                        }
+                        stage("Test") {
+                            steps {
+                                sh 'build-release-asan-AVX2/bin/unit-hyperscan'
+                            }
+                        }
+                    }
+                }
+                stage("Release-ASAN/AVX512") {
+                    agent { label "x86" }
+                    stages {
+                        stage("Git checkout") {
+                            steps {
+                                checkout([$class: 'GitSCM', branches: [[name: '${sha1}']], extensions: [], userRemoteConfigs: [[refspec: '+refs/pull/${ghprbPullId}/*:refs/remotes/origin/pr/${ghprbPullId}/*', url: 'https://github.com/VectorCamp/vectorscan.git']]])
+                            }
+                        }
+                        stage("Build") {
+                            steps {
+                                cmakeBuild buildDir: 'build-release-asan-AVX512', buildType: 'Release', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=yes -DBUILD_AVX512=yes -DFAT_RUNTIME=no -DSANITIZE=undefined -DSANITIZE=address -DSANITIZE=memory', installation: 'InSearchPath', steps: [[args: '--parallel 4', withCmake: true]]
+                            }
+                        }
+                        stage("Test") {
+                            steps {
+                                sh 'build-release-asan-AVX512/bin/unit-hyperscan'
+                            }
+                        }
+                    }
+                }
+                stage("Release-ASAN/FAT") {
+                    agent { label "x86" }
+                    stages {
+                        stage("Git checkout") {
+                            steps {
+                                checkout([$class: 'GitSCM', branches: [[name: '${sha1}']], extensions: [], userRemoteConfigs: [[refspec: '+refs/pull/${ghprbPullId}/*:refs/remotes/origin/pr/${ghprbPullId}/*', url: 'https://github.com/VectorCamp/vectorscan.git']]])
+                            }
+                        }
+                        stage("Build") {
+                            steps {
+                                cmakeBuild buildDir: 'build-release-asan-fat', buildType: 'Release', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=yes -DBUILD_AVX512=yes -DFAT_RUNTIME=yes -DSANITIZE=undefined -DSANITIZE=address -DSANITIZE=memory', installation: 'InSearchPath', steps: [[args: '--parallel 4', withCmake: true]]
+                            }
+                        }
+                        stage("Test") {
+                            steps {
+                                sh 'build-release-asan-fat/bin/unit-hyperscan'
+                            }
+                        }
+                    }
+                }
+                stage("Debug-ASAN/SSE") {
+                    agent { label "x86" }
+                    stages {
+                        stage("Git checkout") {
+                            steps {
+                                checkout([$class: 'GitSCM', branches: [[name: '${sha1}']], extensions: [], userRemoteConfigs: [[refspec: '+refs/pull/${ghprbPullId}/*:refs/remotes/origin/pr/${ghprbPullId}/*', url: 'https://github.com/VectorCamp/vectorscan.git']]])
+                            }
+                        }
+                        stage("Build") {
+                            steps {
+                                cmakeBuild buildDir: 'build-debug-asan-SSE', buildType: 'Debug', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=no -DBUILD_AVX512=no -DFAT_RUNTIME=no -DSANITIZE=undefined -DSANITIZE=address -DSANITIZE=memory', installation: 'InSearchPath', steps: [[args: '--parallel 4', withCmake: true]]
+                            }
+                        }
+                        stage("Test") {
+                            steps {
+                                sh 'build-debug-asan-SSE/bin/unit-hyperscan'
+                            }
+                        }
+                    }
+                }
+                stage("Debug-ASAN/AVX2") {
+                    agent { label "x86" }
+                    stages {
+                        stage("Git checkout") {
+                            steps {
+                                checkout([$class: 'GitSCM', branches: [[name: '${sha1}']], extensions: [], userRemoteConfigs: [[refspec: '+refs/pull/${ghprbPullId}/*:refs/remotes/origin/pr/${ghprbPullId}/*', url: 'https://github.com/VectorCamp/vectorscan.git']]])
+                            }
+                        }
+                        stage("Build") {
+                            steps {
+                                cmakeBuild buildDir: 'build-debug-asan-AVX2', buildType: 'Debug', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=yes -DBUILD_AVX512=no -DFAT_RUNTIME=no -DSANITIZE=undefined -DSANITIZE=address -DSANITIZE=memory', installation: 'InSearchPath', steps: [[args: '--parallel 4', withCmake: true]]
+                            }
+                        }
+                        stage("Test") {
+                            steps {
+                                sh 'build-debug-asan-AVX2/bin/unit-hyperscan'
+                            }
+                        }
+                    }
+                }
+                stage("Debug-ASAN/AVX512") {
+                    agent { label "x86" }
+                    stages {
+                        stage("Git checkout") {
+                            steps {
+                                checkout([$class: 'GitSCM', branches: [[name: '${sha1}']], extensions: [], userRemoteConfigs: [[refspec: '+refs/pull/${ghprbPullId}/*:refs/remotes/origin/pr/${ghprbPullId}/*', url: 'https://github.com/VectorCamp/vectorscan.git']]])
+                            }
+                        }
+                        stage("Build") {
+                            steps {
+                                cmakeBuild buildDir: 'build-debug-asan-AVX512', buildType: 'Debug', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=yes -DBUILD_AVX512=yes -DFAT_RUNTIME=no -DSANITIZE=undefined -DSANITIZE=address -DSANITIZE=memory', installation: 'InSearchPath', steps: [[args: '--parallel 4', withCmake: true]]
+                            }
+                        }
+                        stage("Test") {
+                            steps {
+                                sh 'build-debug-asan-AVX512/bin/unit-hyperscan'
+                            }
+                        }
+                    }
+                }
+                stage("Debug-ASAN/FAT") {
+                    agent { label "x86" }
+                    stages {
+                        stage("Git checkout") {
+                            steps {
+                                checkout([$class: 'GitSCM', branches: [[name: '${sha1}']], extensions: [], userRemoteConfigs: [[refspec: '+refs/pull/${ghprbPullId}/*:refs/remotes/origin/pr/${ghprbPullId}/*', url: 'https://github.com/VectorCamp/vectorscan.git']]])
+                            }
+                        }
+                        stage("Build") {
+                            steps {
+                                cmakeBuild buildDir: 'build-debug-asan-fat', buildType: 'Debug', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=yes -DBUILD_AVX512=yes -DFAT_RUNTIME=yes -DSANITIZE=undefined -DSANITIZE=address -DSANITIZE=memory', installation: 'InSearchPath', steps: [[args: '--parallel 4', withCmake: true]]
+                            }
+                        }
+                        stage("Test") {
+                            steps {
+                                sh 'build-debug-asan-fat/bin/unit-hyperscan'
+                            }
+                        }
+                    }
+                }
                 stage("Release/ARM") {
                     agent { label "arm" }
                     stages {
@@ -201,7 +361,7 @@ pipeline {
                             steps {
                                 checkout([$class: 'GitSCM', branches: [[name: '${sha1}']], extensions: [], userRemoteConfigs: [[refspec: '+refs/pull/${ghprbPullId}/*:refs/remotes/origin/pr/${ghprbPullId}/*', url: 'https://github.com/VectorCamp/vectorscan.git']]])
                             }
-                        } 
+                        }
                         stage("Build") {
                             steps {
                                 cmakeBuild buildDir: 'build-release-arm', buildType: 'Release', cleanBuild: true, cmakeArgs: '', installation: 'InSearchPath', steps: [[args: '--parallel 4', withCmake: true]]
@@ -217,7 +377,7 @@ pipeline {
                                 sh 'build-release-arm/bin/unit-hyperscan'
                             }
                         }
-                    } 
+                    }
                 }
                 stage("Debug/ARM") {
                     agent { label "arm" }
@@ -226,7 +386,7 @@ pipeline {
                             steps {
                                 checkout([$class: 'GitSCM', branches: [[name: '${sha1}']], extensions: [], userRemoteConfigs: [[refspec: '+refs/pull/${ghprbPullId}/*:refs/remotes/origin/pr/${ghprbPullId}/*', url: 'https://github.com/VectorCamp/vectorscan.git']]])
                             }
-                        } 
+                        }
                         stage("Build") {
                             steps {
                                 cmakeBuild buildDir: 'build-debug-arm', buildType: 'Debug', cleanBuild: true, cmakeArgs: '', installation: 'InSearchPath', steps: [[args: '--parallel 4', withCmake: true]]
@@ -242,7 +402,47 @@ pipeline {
                                 sh 'build-debug-arm/bin/unit-hyperscan'
                             }
                         }
-                    } 
+                    }
+                }
+                stage("Release-ASAN/ARM") {
+                    agent { label "arm" }
+                    stages {
+                        stage("Git checkout") {
+                            steps {
+                                checkout([$class: 'GitSCM', branches: [[name: '${sha1}']], extensions: [], userRemoteConfigs: [[refspec: '+refs/pull/${ghprbPullId}/*:refs/remotes/origin/pr/${ghprbPullId}/*', url: 'https://github.com/VectorCamp/vectorscan.git']]])
+                            }
+                        }
+                        stage("Build") {
+                            steps {
+                                cmakeBuild buildDir: 'build-release-asan-arm', buildType: 'Release', cleanBuild: true, cmakeArgs: '-DSANITIZE=undefined -DSANITIZE=address -DSANITIZE=memory', installation: 'InSearchPath', steps: [[args: '--parallel 4', withCmake: true]]
+                            }
+                        }
+                        stage("Test") {
+                            steps {
+                                sh 'build-release-asan-arm/bin/unit-hyperscan'
+                            }
+                        }
+                    }
+                }
+                stage("Debug-ASAN/ARM") {
+                    agent { label "arm" }
+                    stages {
+                        stage("Git checkout") {
+                            steps {
+                                checkout([$class: 'GitSCM', branches: [[name: '${sha1}']], extensions: [], userRemoteConfigs: [[refspec: '+refs/pull/${ghprbPullId}/*:refs/remotes/origin/pr/${ghprbPullId}/*', url: 'https://github.com/VectorCamp/vectorscan.git']]])
+                            }
+                        }
+                        stage("Build") {
+                            steps {
+                                cmakeBuild buildDir: 'build-debug-asan-arm', buildType: 'Debug', cleanBuild: true, cmakeArgs: '-DSANITIZE=undefined -DSANITIZE=address -DSANITIZE=memory', installation: 'InSearchPath', steps: [[args: '--parallel 4', withCmake: true]]
+                            }
+                        }
+                        stage("Test") {
+                            steps {
+                                sh 'build-debug-asan-arm/bin/unit-hyperscan'
+                            }
+                        }
+                    }
                 }
                 stage("Release/Power") {
                     agent { label "power" }
@@ -251,7 +451,7 @@ pipeline {
                             steps {
                                 checkout([$class: 'GitSCM', branches: [[name: '${sha1}']], extensions: [], userRemoteConfigs: [[refspec: '+refs/pull/${ghprbPullId}/*:refs/remotes/origin/pr/${ghprbPullId}/*', url: 'https://github.com/VectorCamp/vectorscan.git']]])
                             }
-                        } 
+                        }
                         stage("Build") {
                             steps {
                                 cmakeBuild buildDir: 'build-release-power', buildType: 'Release', cleanBuild: true, cmakeArgs: '', installation: 'InSearchPath', steps: [[args: '--parallel 4', withCmake: true]]
@@ -267,7 +467,7 @@ pipeline {
                                 sh 'build-release-power/bin/unit-hyperscan'
                             }
                         }
-                    } 
+                    }
                 }
                 stage("Debug/Power") {
                     agent { label "power" }
@@ -276,7 +476,7 @@ pipeline {
                             steps {
                                 checkout([$class: 'GitSCM', branches: [[name: '${sha1}']], extensions: [], userRemoteConfigs: [[refspec: '+refs/pull/${ghprbPullId}/*:refs/remotes/origin/pr/${ghprbPullId}/*', url: 'https://github.com/VectorCamp/vectorscan.git']]])
                             }
-                        } 
+                        }
                         stage("Build") {
                             steps {
                                 cmakeBuild buildDir: 'build-debug-power', buildType: 'Debug', cleanBuild: true, cmakeArgs: '', installation: 'InSearchPath', steps: [[args: '--parallel 4', withCmake: true]]
@@ -292,7 +492,47 @@ pipeline {
                                 sh 'build-debug-power/bin/unit-hyperscan'
                             }
                         }
-                    } 
+                    }
+                }
+                stage("Release-ASAN/Power") {
+                    agent { label "power" }
+                    stages {
+                        stage("Git checkout") {
+                            steps {
+                                checkout([$class: 'GitSCM', branches: [[name: '${sha1}']], extensions: [], userRemoteConfigs: [[refspec: '+refs/pull/${ghprbPullId}/*:refs/remotes/origin/pr/${ghprbPullId}/*', url: 'https://github.com/VectorCamp/vectorscan.git']]])
+                            }
+                        }
+                        stage("Build") {
+                            steps {
+                                cmakeBuild buildDir: 'build-release-asan-power', buildType: 'Release', cleanBuild: true, cmakeArgs: '-DSANITIZE=undefined -DSANITIZE=address -DSANITIZE=memory', installation: 'InSearchPath', steps: [[args: '--parallel 4', withCmake: true]]
+                            }
+                        }
+                        stage("Test") {
+                            steps {
+                                sh 'build-release-asan-power/bin/unit-hyperscan'
+                            }
+                        }
+                    }
+                }
+                stage("Debug-ASAN/Power") {
+                    agent { label "power" }
+                    stages {
+                        stage("Git checkout") {
+                            steps {
+                                checkout([$class: 'GitSCM', branches: [[name: '${sha1}']], extensions: [], userRemoteConfigs: [[refspec: '+refs/pull/${ghprbPullId}/*:refs/remotes/origin/pr/${ghprbPullId}/*', url: 'https://github.com/VectorCamp/vectorscan.git']]])
+                            }
+                        }
+                        stage("Build") {
+                            steps {
+                                cmakeBuild buildDir: 'build-debug-asan-power', buildType: 'Debug', cleanBuild: true, cmakeArgs: '-DSANITIZE=undefined -DSANITIZE=address -DSANITIZE=memory', installation: 'InSearchPath', steps: [[args: '--parallel 4', withCmake: true]]
+                            }
+                        }
+                        stage("Test") {
+                            steps {
+                                sh 'build-debug-asan-power/bin/unit-hyperscan'
+                            }
+                        }
+                    }
                 }
                 stage("Clang-Release/SSE") {
                     agent { label "x86" }
@@ -519,7 +759,7 @@ pipeline {
                         } 
                         stage("Build") {
                             steps {
-                                cmakeBuild buildDir: 'build-debug-arm', buildType: 'Debug', cleanBuild: true, cmakeArgs: '', installation: 'InSearchPath', steps: [[envVars: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
+                                cmakeBuild buildDir: 'build-clang-debug-arm', buildType: 'Debug', cleanBuild: true, cmakeArgs: '', installation: 'InSearchPath', steps: [[envVars: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
                             }
                         }
                         stage("Unit Test") {
@@ -588,3 +828,4 @@ pipeline {
         }
     }
 }
+
