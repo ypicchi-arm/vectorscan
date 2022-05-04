@@ -519,7 +519,7 @@ pipeline {
                         } 
                         stage("Build") {
                             steps {
-                                cmakeBuild buildDir: 'build-debug-arm', buildType: 'Debug', cleanBuild: true, cmakeArgs: '', installation: 'InSearchPath', steps: [[envVars: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
+                                cmakeBuild buildDir: 'build-clang-debug-arm', buildType: 'Debug', cleanBuild: true, cmakeArgs: '', installation: 'InSearchPath', steps: [[envVars: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
                             }
                         }
                         stage("Unit Test") {
