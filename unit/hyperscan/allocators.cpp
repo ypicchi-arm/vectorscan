@@ -99,7 +99,7 @@ TEST(CustomAllocator, TwoAlignedCompileError) {
     ASSERT_NE(nullptr, compile_err);
     EXPECT_STREQ("Allocator returned misaligned memory.", compile_err->message);
     hs_free_compile_error(compile_err);
-    hs_set_database_allocator(nullptr, nullptr);
+    hs_set_misc_allocator(nullptr, nullptr);
 }
 
 TEST(CustomAllocator, TwoAlignedDatabaseInfo) {

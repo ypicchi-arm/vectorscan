@@ -124,6 +124,8 @@ if (RELEASE_BUILD)
     set(HS_OPTIMIZE ON)
 endif()
 
+include (${CMAKE_MODULE_PATH}/sanitize.cmake)
+
 CMAKE_DEPENDENT_OPTION(DUMP_SUPPORT "Dump code support; normally on, except in release builds" ON "NOT RELEASE_BUILD" OFF)
 
 CMAKE_DEPENDENT_OPTION(DISABLE_ASSERTS "Disable assert(); Asserts are enabled in debug builds, disabled in release builds" OFF "NOT RELEASE_BUILD" ON)
@@ -361,7 +363,8 @@ if (RELEASE_BUILD)
     endif()
 endif()
 
-if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+option(FAT_RUNTIME "Build a library that supports multiple microarchitectures" ON)
+if (CMAKE_SYSTEM_NAME MATCHES "Linux" AND FAT_RUNTIME MATCHES "ON")
     # This is a Linux-only feature for now - requires platform support
     # elsewhere
     message(STATUS "generator is ${CMAKE_GENERATOR}")
@@ -381,7 +384,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
             set (FAT_RUNTIME_REQUISITES TRUE)
         endif()
     endif()
-    CMAKE_DEPENDENT_OPTION(FAT_RUNTIME "Build a library that supports multiple microarchitectures" ${RELEASE_BUILD} "FAT_RUNTIME_REQUISITES" OFF)
+    if (NOT FAT_RUNTIME_REQUISITES OR NOT RELEASE_BUILD)
+      set (FAT_RUNTIME OFF)
+    endif()
 endif ()
 
 include (${CMAKE_MODULE_PATH}/arch.cmake)
