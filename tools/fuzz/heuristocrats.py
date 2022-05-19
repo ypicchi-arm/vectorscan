@@ -9,7 +9,7 @@ import sys
 def chooseLeafWidth(nChildren):
     width = randint(1, 5)
     width = min(width, nChildren-1)
-    s = sample(range(1, nChildren), width)
+    s = sample(list(range(1, nChildren)), width)
     s.sort()
     s = [0] + s + [nChildren]
     v = [ s[i+1] - s[i] for i in range(0, len(s)-1) if s[i+1] != s[i] ]
@@ -73,7 +73,7 @@ def generateCharClass(nChildren, atTop = False):
     else:
         nChars = randint(2,4)
 
-    for i in xrange(nChars):
+    for i in range(nChars):
         s += generateChar(1)
     return "[" + s + "]"
 
@@ -247,13 +247,13 @@ parser.add_option("-H", "--hybrid",
 if len(args) != 0:
     parser.error("incorrect number of arguments")
 
-alphabet = range(ord('a'), ord('a') + options.alphabet)
+alphabet = list(range(ord('a'), ord('a') + options.alphabet))
 if options.nocase:
-    alphabet += range(ord('A'), ord('A') + options.alphabet)
+    alphabet += list(range(ord('A'), ord('A') + options.alphabet))
     
-for i in xrange(0, options.count):
-    print "%08d:/%s/%s%s" % (i, generateRE(randint(1, options.depth), atTop = True), generateRandomOptions(), generateRandomExtParam(options.depth, options.extparam))
+for i in range(0, options.count):
+    print("%08d:/%s/%s%s" % (i, generateRE(randint(1, options.depth), atTop = True), generateRandomOptions(), generateRandomExtParam(options.depth, options.extparam)))
 
 if options.logical:
-    for i in xrange(options.count, options.count + 3000):
-        print "%08d:/%s/C" % (i, generateCombination(randint(1, options.depth), atTop = True))
+    for i in range(options.count, options.count + 3000):
+        print("%08d:/%s/C" % (i, generateCombination(randint(1, options.depth), atTop = True)))

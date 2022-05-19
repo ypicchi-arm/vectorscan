@@ -35,7 +35,7 @@ cur_stream_id = 0
 def usage(exeName) :
     errmsg = "Usage: %s -i <pcap-file> -o <sqlite-file>"
     errmsg = errmsg % exeName
-    print >> sys.stderr, errmsg
+    print(errmsg, file=sys.stderr)
     sys.exit(-1)
 
 class FiveTuple(object):
@@ -208,7 +208,7 @@ def enchunk_pcap(pcapFN, sqliteFN):
     """
 
     if not os.path.exists(pcapFN):
-        print >> sys.stderr, "Input file '%s' does not exist. Exiting." % pcapFN
+        print("Input file '%s' does not exist. Exiting." % pcapFN, file=sys.stderr)
         sys.exit(-1)
 
     builder = CorpusBuilder(sqliteFN)
@@ -225,7 +225,7 @@ def enchunk_pcap(pcapFN, sqliteFN):
 
     while not done:
         try:
-            ts, packet = pcap_ref.next()
+            ts, packet = next(pcap_ref)
         except:
             break
 
@@ -285,10 +285,10 @@ def enchunk_pcap(pcapFN, sqliteFN):
     # Having read the contents of the pcap, we fill the database with any
     # remaining TCP and UDP segments
     #
-    for tcp_stream in tcp_streams.itervalues():
+    for tcp_stream in tcp_streams.values():
         db_add_tcp_stream_segments(builder, tcp_stream)
 
-    for udp_stream in udp_streams.itervalues():
+    for udp_stream in udp_streams.values():
         db_add_udp_stream_segments(builder, udp_stream)
 
     #
@@ -303,7 +303,7 @@ if __name__ == '__main__' :
 
     requiredKeys = [ '-i', '-o']
     for k in requiredKeys :
-        if not args.has_key(k) :
+        if k not in args :
             usage(os.path.basename(sys.argv[0]))
 
     fnArgs = tuple([ args[k] for k in requiredKeys ])
