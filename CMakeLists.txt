@@ -71,13 +71,10 @@ include_directories(SYSTEM include)
 
 include (${CMAKE_MODULE_PATH}/boost.cmake)
 
-# -- make this work? set(python_ADDITIONAL_VERSIONS 2.7 2.6)
-find_package(PythonInterp)
+find_package(Python COMPONENTS Interpreter)
 find_program(RAGEL ragel)
 
-if(PYTHONINTERP_FOUND)
-    set(PYTHON ${PYTHON_EXECUTABLE})
-else()
+if(NOT Python_Interpreter_FOUND)
     message(FATAL_ERROR "No python interpreter found")
 endif()
 

@@ -16,7 +16,7 @@ def addBlocks(builder, block_size, stream_size, text_id, text):
     global stream_id
     global stream_bytes
 
-    print "text", text_id, "len", len(text)
+    print("text", text_id, "len", len(text))
     i = 0
     while i < len(text):
         chunk = text[i:min(len(text), i + block_size)]
@@ -26,11 +26,11 @@ def addBlocks(builder, block_size, stream_size, text_id, text):
         if stream_bytes >= stream_size:
             stream_id += 1
             stream_bytes = 0
-    print "Text", text_id, ": added", i/block_size, "blocks of", block_size, "bytes."
+    print("Text", text_id, ": added", i/block_size, "blocks of", block_size, "bytes.")
 
 def buildCorpus(outFN, block_size, stream_size, text_ids):
     if len(text_ids) == 0:
-        print >>sys.stderr, "Must provide at least one input ID"
+        print("Must provide at least one input ID", file=sys.stderr)
         sys.exit(0)
 
     builder = CorpusBuilder(outFN)
@@ -48,12 +48,12 @@ def buildCorpus(outFN, block_size, stream_size, text_ids):
 
     builder.finish()
 
-    print "Total:", total_bytes, "bytes."
+    print("Total:", total_bytes, "bytes.")
 
 def usage(exeName):
     errmsg = "Usage: %s -o <output file> -b <block size> -s <max stream size> <gutenberg text id>..."
     errmsg = errmsg % exeName
-    print >> sys.stderr, errmsg
+    print(errmsg, file=sys.stderr)
     sys.exit(-1)
 
 if __name__ == '__main__':
@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
     requiredKeys = [ '-o', '-b', '-s' ]
     for k in requiredKeys:
-        if not opts.has_key(k):
+        if k not in opts:
             usage(os.path.basename(sys.argv[0]))
 
     buildCorpus(opts['-o'], int(opts['-b']), int(opts['-s']), args)

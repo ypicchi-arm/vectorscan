@@ -23,17 +23,17 @@ if len(args) != 0:
     parser.error("incorrect number of arguments")
 
 if (options.full):
-    crange = range(0,256)
+    crange = list(range(0,256))
     crange.remove(ord('\n'))
 elif (options.limited):
     crange = [ ord(c) for c in LIMITED_ALPHABET ]
 else:
-    crange = range(32, 127)
+    crange = list(range(32, 127))
 
 srange = [ chr(c) for c in crange ]
 
 i = 0
 for x in product(srange, repeat = options.depth):
     line = str(i) + ":/" + "".join(x) + "/"
-    print line
+    print(line)
     i += 1

@@ -15,13 +15,13 @@ def lineCorpus(inFN, outFN):
     '''
 
     if not os.path.exists(inFN):
-        print >> sys.stderr, "Input file '%s' does not exist. Exiting." % outFN
+        print("Input file '%s' does not exist. Exiting." % outFN, file=sys.stderr)
         sys.exit(-1)
 
     lines = open(inFN).readlines()
 
     if len(lines) == 0:
-        print >> sys.stderr, "Input file contained no lines. Exiting."
+        print("Input file contained no lines. Exiting.", file=sys.stderr)
         sys.exit(0)
 
     builder = CorpusBuilder(outFN)
@@ -37,7 +37,7 @@ def lineCorpus(inFN, outFN):
 def usage(exeName):
     errmsg = "Usage: %s -i <input file> -o <output file>"
     errmsg = errmsg % exeName
-    print >> sys.stderr, errmsg
+    print(errmsg, file=sys.stderr)
     sys.exit(-1)
 
 if __name__ == '__main__':
@@ -46,7 +46,7 @@ if __name__ == '__main__':
 
     requiredKeys = [ '-i', '-o' ]
     for k in requiredKeys:
-        if not args.has_key(k):
+        if k not in args:
             usage(os.path.basename(sys.argv[0]))
 
     fnArgs = tuple([args[k] for k in requiredKeys])
