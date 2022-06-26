@@ -104,8 +104,7 @@ struct BaseVector
   static constexpr bool      is_valid = false;
   static constexpr u16           size = 8;
   using                          type = void;
-  using comparemask_type = void;
-  using cmpmask_type = void;
+  using              comparemask_type = void;
   static constexpr bool  has_previous = false;
   using                 previous_type = void;
   static constexpr u16  previous_size = 4;
@@ -117,7 +116,7 @@ struct BaseVector<128>
   static constexpr bool      is_valid = true;
   static constexpr u16           size = 128;
   using                          type = void;
-  using comparemask_type = u64a;
+  using              comparemask_type = u64a;
   static constexpr bool  has_previous = true;
   using                 previous_type = m512;
   static constexpr u16  previous_size = 64;
@@ -129,7 +128,7 @@ struct BaseVector<64>
   static constexpr bool      is_valid = true;
   static constexpr u16           size = 64;
   using                          type = m512;
-  using comparemask_type = u64a;
+  using              comparemask_type = u64a;
   static constexpr bool  has_previous = true;
   using                 previous_type = m256;
   static constexpr u16  previous_size = 32;
@@ -142,7 +141,7 @@ struct BaseVector<32>
   static constexpr bool      is_valid = true;
   static constexpr u16           size = 32;
   using                          type = m256;
-  using comparemask_type = u64a;
+  using              comparemask_type = u64a;
   static constexpr bool  has_previous = true;
   using                 previous_type = m128;
   static constexpr u16  previous_size = 16;
@@ -155,7 +154,7 @@ struct BaseVector<16>
   static constexpr bool      is_valid = true;
   static constexpr u16           size = 16;
   using                          type = m128;
-  using comparemask_type = u64a;
+  using              comparemask_type = u64a;
   static constexpr bool  has_previous = false;
   using                 previous_type = u64a;
   static constexpr u16  previous_size = 8;
