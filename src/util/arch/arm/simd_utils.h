@@ -380,7 +380,7 @@ static really_inline m128 eq64_m128(m128 a, m128 b) {
 }
 
 static really_inline u32 movemask128(m128 a) {
-    ruint8x16_t input = vreinterpretq_u8_s32(a);
+    uint8x16_t input = vreinterpretq_u8_s32(a);
     uint16x8_t high_bits = vreinterpretq_u16_u8(vshrq_n_u8(input, 7));
     uint32x4_t paired16 =
         vreinterpretq_u32_u16(vsraq_n_u16(high_bits, high_bits, 7));
