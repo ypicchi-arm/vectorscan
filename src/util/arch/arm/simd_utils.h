@@ -86,8 +86,9 @@ static really_inline m128 not128(m128 a) {
 
 /** \brief Return 1 if a and b are different otherwise 0 */
 static really_inline int diff128(m128 a, m128 b) {
-    int res = vaddvq_s8((int8x16_t) vceqq_s32(a, b));
-    return (-16 != res);
+    uint64_t res = vget_lane_u64(
+        (uint64x1_t)vshrn_n_u16((uint16x8_t)vceqq_s32(a, b), 4), 0);
+    return (~0ull != res);
 }
 
 static really_inline int isnonzero128(m128 a) {
