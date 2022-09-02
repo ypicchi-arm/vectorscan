@@ -53,6 +53,15 @@ u32 popcount32(u32 x) {
 }
 
 static really_inline
+u32 popcount32x4(u32 const *x) {
+    u32 sum = popcount32(x[0]);
+    sum += popcount32(x[1]);
+    sum += popcount32(x[2]);
+    sum += popcount32(x[3]);
+    return sum;
+}
+
+static really_inline
 u32 popcount64(u64a x) {
     return __builtin_popcountll(x);
 // #if defined(ARCH_X86_64)
@@ -71,6 +80,15 @@ u32 popcount64(u64a x) {
 //     // Synthesise from two 32-bit cases.
 //     return popcount32(x >> 32) + popcount32(x);
 // #endif
+}
+
+static really_inline
+u32 popcount64x4(u64a const *x) {
+    volatile u32 sum = popcount64(x[0]);
+    sum += popcount64(x[1]);
+    sum += popcount64(x[2]);
+    sum += popcount64(x[3]);
+    return sum;
 }
 
 #endif /* UTIL_POPCOUNT_H_ */
