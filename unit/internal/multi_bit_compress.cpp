@@ -28,6 +28,8 @@
 
 #include "config.h"
 
+#include <memory>
+
 #include "gtest/gtest.h"
 #include "ue2common.h"
 #include "util/compile_error.h"
