@@ -148,27 +148,13 @@ static really_inline m128 eq64_m128(m128 a, m128 b) {
    return (m128) vec_cmpeq((uint64x2_t)a, (uint64x2_t)b);
 }
 
-
 static really_inline u32 movemask128(m128 a) {
-   uint8x16_t s1 = vec_sr((uint8x16_t)a, vec_splat_u8(7));
-   
-   uint16x8_t ss = vec_sr((uint16x8_t)s1, vec_splat_u16(7));
-   uint16x8_t res_and = vec_and((uint16x8_t)s1, vec_splats((uint16_t)0xff));
-   uint16x8_t s2 = vec_or((uint16x8_t)ss, res_and);
-  
-   uint32x4_t ss2 = vec_sr((uint32x4_t)s2, vec_splat_u32(14));
-   uint32x4_t res_and2 = vec_and((uint32x4_t)s2, vec_splats((uint32_t)0xff));
-   uint32x4_t s3 = vec_or((uint32x4_t)ss2, res_and2);
-   
-   uint64x2_t ss3 = vec_sr((uint64x2_t)s3, (uint64x2_t)vec_splats(28));
-   uint64x2_t res_and3 = vec_and((uint64x2_t)s3, vec_splats((ulong64_t)0xff));
-   uint64x2_t s4 = vec_or((uint64x2_t)ss3, res_and3);
-  
-   uint64x2_t ss4 = vec_sld((uint64x2_t)vec_splats(0), s4, 9);
-   uint64x2_t res_and4 = vec_and((uint64x2_t)s4, vec_splats((ulong64_t)0xff));
-   uint64x2_t s5 = vec_or((uint64x2_t)ss4, res_and4);
- 
-   return s5[0];
+   static uint8x16_t perm = { 16, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+   uint8x16_t bitmask = vec_gb((uint8x16_t) a);
+   bitmask = (uint8x16_t) vec_perm(vec_splat_u8(0), bitmask, perm);
+   u32 movemask;
+   vec_ste((uint32x4_t) bitmask, 0, &movemask);
+   return movemask;
 }
 
 static really_inline m128 set1_16x8(u8 c) {
