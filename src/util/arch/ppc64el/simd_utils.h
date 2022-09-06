@@ -285,7 +285,6 @@ m128 loadbytes128(const void *ptr, unsigned int n) {
     return a;
 }
 
-
 #define CASE_ALIGN_VECTORS(a, b, offset)  case offset: return (m128)vec_sld((int8x16_t)(b), (int8x16_t)(a), (16 - offset)); break;
 
 static really_really_inline
@@ -326,21 +325,21 @@ m128 palignr(m128 r, m128 l, int offset) {
 
 static really_really_inline
 m128 rshiftbyte_m128(m128 a, unsigned b) {
-   return rshift_m128(a,b);
+    return palignr_imm(zeroes128(), a, b);
 }
 
 static really_really_inline
 m128 lshiftbyte_m128(m128 a, unsigned b) {
-   return lshift_m128(a,b);
+    return palignr_imm(a, zeroes128(), 16 - b);
 }
 
 static really_inline
 m128 variable_byte_shift_m128(m128 in, s32 amount) {
     assert(amount >= -16 && amount <= 16);
-    if (amount < 0){
-	    return palignr_imm(zeroes128(), in, -amount);
-    } else{
-	    return palignr_imm(in, zeroes128(), 16 - amount);
+    if (amount < 0) {
+        return rshiftbyte_m128(in, -amount);
+    } else {
+        return lshiftbyte_m128(in, amount);
     }
 }
 

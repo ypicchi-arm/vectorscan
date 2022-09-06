@@ -723,9 +723,58 @@ TEST(SimdUtilsTest, set2x128) {
 }
 #endif
 
+#define TEST_LSHIFTBYTE128(v1, buf, l) {                                                 \
+                                           m128 v_shifted = lshiftbyte_m128(v1, l);      \
+                                           storeu128(res, v_shifted);                    \
+                                           int i;                                        \
+                                           for (i=0; i < l; i++) {                       \
+                                               assert(res[i] == 0);                      \
+                                           }                                             \
+                                           for (; i < 16; i++) {                         \
+                                               assert(res[i] == vec[i - l]);             \
+                                           }                                             \
+                                       }
+
+TEST(SimdUtilsTest, lshiftbyte128){
+    u8 vec[16];
+    u8 res[16];
+    for (int i=0; i<16; i++) {
+        vec[i]=i;
+    }
+    m128 v1 = loadu128(vec);
+    for (int j = 0; j<16; j++){
+        TEST_LSHIFTBYTE128(v1, vec, j);
+    }
+}
+
+#define TEST_RSHIFTBYTE128(v1, buf, l) {                                                 \
+                                           m128 v_shifted = rshiftbyte_m128(v1, l);      \
+                                           storeu128(res, v_shifted);                    \
+                                           int i;                                        \
+                                           for (i=15; i >= 16 - l; i--) {                \
+                                               assert(res[i] == 0);                      \
+                                           }                                             \
+                                           for (; i >= 0; i--) {                         \
+                                               assert(res[i] == vec[i + l]);             \
+                                           }                                             \
+                                       }
+
+TEST(SimdUtilsTest, rshiftbyte128){
+    u8 vec[16];
+    u8 res[16];
+    for (int i=0; i<16; i++) {
+        vec[i]=i;
+    }
+    m128 v1 = loadu128(vec);
+    for (int j = 0; j<16; j++){
+        TEST_RSHIFTBYTE128(v1, vec, j);
+    }
+}
+
 TEST(SimdUtilsTest, variableByteShift128) {
     char base[] = "0123456789ABCDEF";
     m128 in = loadu128(base);
+
 
     EXPECT_TRUE(!diff128(rshiftbyte_m128(in, 0),
                          variable_byte_shift_m128(in, 0)));
@@ -773,7 +822,7 @@ TEST(SimdUtilsTest, variableByteShift128) {
     EXPECT_TRUE(!diff128(lshiftbyte_m128(in, 10),
                          variable_byte_shift_m128(in, 10)));
 
-    EXPECT_TRUE(!diff128(zeroes128(), variable_byte_shift_m128(in, 16)));
+    EXPECT_TRUE(!diff128(lshiftbyte_m128(in, 15), variable_byte_shift_m128(in, 15)));
     EXPECT_TRUE(!diff128(zeroes128(), variable_byte_shift_m128(in, -16)));
 }
 
