@@ -54,34 +54,6 @@ typedef __vector  signed char             int8x16_t;
 
 typedef unsigned long long int ulong64_t;
 typedef   signed long long int  long64_t;
-/*
-typedef __vector  uint64_t uint64x2_t;
-typedef __vector   int64_t  int64x2_t;
-typedef __vector  uint32_t uint32x4_t;
-typedef __vector   int32_t  int32x4_t;
-typedef __vector  uint16_t uint16x8_t;
-typedef __vector   int16_t  int16x8_t;
-typedef __vector   uint8_t uint8x16_t;
-typedef __vector    int8_t  int8x16_t;*/
-
-
-#define ZEROES_8 0, 0, 0, 0, 0, 0, 0, 0
-#define ZEROES_31 ZEROES_8, ZEROES_8, ZEROES_8, 0, 0, 0, 0, 0, 0, 0
-#define ZEROES_32 ZEROES_8, ZEROES_8, ZEROES_8, ZEROES_8
-
-/** \brief LUT for the mask1bit functions. */
-ALIGN_CL_DIRECTIVE static const u8 simd_onebit_masks[] = {
-    ZEROES_32, ZEROES_32,
-    ZEROES_31, 0x01, ZEROES_32,
-    ZEROES_31, 0x02, ZEROES_32,
-    ZEROES_31, 0x04, ZEROES_32,
-    ZEROES_31, 0x08, ZEROES_32,
-    ZEROES_31, 0x10, ZEROES_32,
-    ZEROES_31, 0x20, ZEROES_32,
-    ZEROES_31, 0x40, ZEROES_32,
-    ZEROES_31, 0x80, ZEROES_32,
-    ZEROES_32, ZEROES_32,
-};
 
 static really_inline m128 ones128(void) {
     return (m128) vec_splat_u8(-1);
@@ -115,10 +87,6 @@ static really_inline u32 diffrich128(m128 a, m128 b) {
     m128 mask = (m128) vec_cmpeq(a, b); // _mm_cmpeq_epi32 (a, b);
     mask = vec_and(not128(mask), movemask);
     m128 sum = vec_sums(mask, zeroes128()); 
-    //sum = vec_sld(zeroes128(), sum, 4); 
-    //s32 ALIGN_ATTR(16) x;
-    //vec_ste(sum, 0, &x);   
-    //return x;   // it could be ~(movemask_128(mask)) & 0x;
     return sum[3];
 }
 
@@ -131,10 +99,6 @@ static really_inline u32 diffrich64_128(m128 a, m128 b) {
     uint64x2_t mask = (uint64x2_t) vec_cmpeq((uint64x2_t)a, (uint64x2_t)b);
     mask = (uint64x2_t) vec_and((uint64x2_t)not128((m128)mask), movemask);
     m128 sum = vec_sums((m128)mask, zeroes128());
-    //sum = vec_sld(zeroes128(), sum, 4);
-    //s32 ALIGN_ATTR(16) x;
-    //vec_ste(sum, 0, &x);
-    //return x;
     return sum[3];
 }
 
@@ -425,9 +389,11 @@ m128 variable_byte_shift_m128(m128 in, s32 amount) {
 static really_inline
 m128 mask1bit128(unsigned int n) {
     assert(n < sizeof(m128) * 8);
-    u32 mask_idx = ((n % 8) * 64) + 95;
-    mask_idx -= n / 8;
-    return loadu128(&simd_onebit_masks[mask_idx]);
+    static uint64x2_t onebit = { 1, 0 };
+    m128 octets = (m128) vec_splats((uint8_t) ((n / 8) << 3));
+    m128 bits = (m128) vec_splats((uint8_t) ((n % 8)));
+    m128 mask = (m128) vec_slo((uint8x16_t) onebit, (uint8x16_t) octets);
+    return (m128) vec_sll((uint8x16_t) mask, (uint8x16_t) bits);
 }
 
 // switches on bit N in the given vector.
