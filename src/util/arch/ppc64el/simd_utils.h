@@ -313,12 +313,18 @@ m128 palignr_imm(m128 r, m128 l, int offset) {
 
 static really_really_inline
 m128 palignr(m128 r, m128 l, int offset) {
-#if defined(HS_OPTIMIZE)
-    // need a faster way to do this.
-    return palignr_imm(r, l, offset);
-#else
-    return palignr_imm(r, l, offset);
+    if (offset == 0) return l;
+    if (offset == 16) return r;
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (__builtin_constant_p(offset)) {
+        return (m128)vec_sld((int8x16_t)(r), (int8x16_t)(l), 16 - offset);
+    }
 #endif
+    m128 sl = (m128) vec_splats((uint8_t) (offset << 3));
+    m128 sr = (m128) vec_splats((uint8_t) ((16 - offset) << 3));
+    m128 rhs = (m128) vec_slo((uint8x16_t) r, (uint8x16_t) sr);
+    m128 lhs = (m128) vec_sro((uint8x16_t) l, (uint8x16_t) sl);
+    return or128(lhs, rhs);
 }
 
 #undef CASE_ALIGN_VECTORS
