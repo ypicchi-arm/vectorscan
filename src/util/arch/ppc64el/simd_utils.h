@@ -114,46 +114,18 @@ m128 sub_2x64(m128 a, m128 b) {
 
 static really_really_inline
 m128 lshift_m128(m128 a, unsigned b) {
-    switch(b){
-    case 1: return vec_sld(a, zeroes128(), 1); break;	    
-    case 2: return vec_sld(a, zeroes128(), 2); break;	    
-    case 3: return vec_sld(a, zeroes128(), 3); break;	    
-    case 4: return vec_sld(a, zeroes128(), 4); break;	    
-    case 5: return vec_sld(a, zeroes128(), 5); break;	    
-    case 6: return vec_sld(a, zeroes128(), 6); break;	    
-    case 7: return vec_sld(a, zeroes128(), 7); break;	    
-    case 8: return vec_sld(a, zeroes128(), 8); break;	    
-    case 9: return vec_sld(a, zeroes128(), 9); break;	    
-    case 10: return vec_sld(a, zeroes128(), 10); break;	    
-    case 11: return vec_sld(a, zeroes128(), 11); break;	    
-    case 12: return vec_sld(a, zeroes128(), 12); break;	    
-    case 13: return vec_sld(a, zeroes128(), 13); break;	    
-    case 14: return vec_sld(a, zeroes128(), 14); break;	   
-    case 15: return vec_sld(a, zeroes128(), 15); break;
-    }	
-    return a;
+    if (b == 0) return a;
+    m128 sl = (m128) vec_splats((uint8_t) b << 3);
+    m128 result = (m128) vec_slo((uint8x16_t) a, (uint8x16_t) sl);
+    return result;
 }
 
 static really_really_inline
 m128 rshift_m128(m128 a, unsigned b) {
-   switch(b){ 
-    case 1: return vec_sld(zeroes128(), a, 15); break;	    
-    case 2: return vec_sld(zeroes128(), a, 14); break;	    
-    case 3: return vec_sld(zeroes128(), a, 13); break;	    
-    case 4: return vec_sld(zeroes128(), a, 12); break;	    
-    case 5: return vec_sld(zeroes128(), a, 11); break;	    
-    case 6: return vec_sld(zeroes128(), a, 10); break;	    
-    case 7: return vec_sld(zeroes128(), a, 9); break;	    
-    case 8: return vec_sld(zeroes128(), a, 8); break;	    
-    case 9: return vec_sld(zeroes128(), a, 7); break;	    
-    case 10: return vec_sld(zeroes128(), a, 6); break;	    
-    case 11: return vec_sld(zeroes128(), a, 5); break;	    
-    case 12: return vec_sld(zeroes128(), a, 4); break;	    
-    case 13: return vec_sld(zeroes128(), a, 3); break;	    
-    case 14: return vec_sld(zeroes128(), a, 2); break;	    
-    case 15: return vec_sld(zeroes128(), a, 1); break;	    
-   }
-   return a;
+    if (b == 0) return a;
+    m128 sl = (m128) vec_splats((uint8_t) b << 3);
+    m128 result = (m128) vec_sro((uint8x16_t) a, (uint8x16_t) sl);
+    return result;
 }
 
 static really_really_inline
