@@ -523,14 +523,14 @@ really_inline SuperVector<16> SuperVector<16>::Ones_vshl(uint8_t const N)
 template <>
 really_inline SuperVector<16> SuperVector<16>::loadu(void const *ptr)
 {
-    return (m128) vec_xl(0, (const long64_t*)ptr);
+    return { vec_xl(0, (const long64_t*)ptr) };
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::load(void const *ptr)
 {
     assert(ISALIGNED_N(ptr, alignof(SuperVector::size)));
-    return (m128)  vec_xl(0, (const long64_t*)ptr);
+    return { vec_xl(0, (const long64_t*)ptr) };
 }
 
 template <>
@@ -544,27 +544,18 @@ really_inline SuperVector<16> SuperVector<16>::loadu_maskz(void const *ptr, uint
 template<>
 really_inline SuperVector<16> SuperVector<16>::alignr(SuperVector<16> &other, int8_t offset)
 {   
-    
-    switch(offset) {
-    case 0: return other; break;
-    case 1: return {(m128) vec_sld(u.s8x16[0],  other.u.s8x16[0], 15)}; break;
-    case 2: return {(m128) vec_sld(u.s8x16[0],  other.u.s8x16[0], 14)}; break;
-    case 3: return {(m128) vec_sld(u.s8x16[0],  other.u.s8x16[0], 13)}; break;
-    case 4: return {(m128) vec_sld(u.s8x16[0],  other.u.s8x16[0], 12)}; break;
-    case 5: return {(m128) vec_sld(u.s8x16[0],  other.u.s8x16[0], 11)}; break;
-    case 6: return {(m128) vec_sld(u.s8x16[0],  other.u.s8x16[0], 10)}; break;
-    case 7: return {(m128) vec_sld(u.s8x16[0],  other.u.s8x16[0],  9)}; break;
-    case 8: return {(m128) vec_sld(u.s8x16[0],  other.u.s8x16[0],  8)}; break;
-    case 9: return {(m128) vec_sld(u.s8x16[0],  other.u.s8x16[0],  7)}; break;
-    case 10: return {(m128) vec_sld(u.s8x16[0], other.u.s8x16[0], 6)}; break;
-    case 11: return {(m128) vec_sld(u.s8x16[0], other.u.s8x16[0], 5)}; break;
-    case 12: return {(m128) vec_sld(u.s8x16[0], other.u.s8x16[0], 4)}; break;
-    case 13: return {(m128) vec_sld(u.s8x16[0], other.u.s8x16[0], 3)}; break;
-    case 14: return {(m128) vec_sld(u.s8x16[0], other.u.s8x16[0], 2)}; break;
-    case 15: return {(m128) vec_sld(u.s8x16[0], other.u.s8x16[0], 1)}; break;
-    default: break;
+    if (offset == 0) return other;
+    if (offset == 16) return *this;
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (__builtin_constant_p(offset)) {
+        return { vec_sld(u.s8x16[0], other.u.s8x16[0], offset) };
     }
-    return *this;
+#endif
+    uint8x16_t sl = vec_splats((uint8_t) (offset << 3));
+    uint8x16_t sr = vec_splats((uint8_t) ((16 - offset) << 3));
+    uint8x16_t rhs = vec_slo(u.u8x16[0], sr);
+    uint8x16_t lhs = vec_sro(other.u.u8x16[0], sl);
+    return { vec_or(lhs, rhs) };
 }
 
 template<>
