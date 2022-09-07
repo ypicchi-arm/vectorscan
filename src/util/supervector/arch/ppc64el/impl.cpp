@@ -396,50 +396,40 @@ template <>
 really_inline SuperVector<16> SuperVector<16>::vshl_8  (uint8_t const N) const
 {
     if (N == 0) return *this;
-    if (N == 16) return Zeroes();
-    SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128) vec_sl(v->u.s8x16[0], vec_splats((uint8_t)n))}; });
-    return result;
+    uint8x16_t shift_indices = vec_splats((uint8_t) N);
+    return { vec_sl(u.u8x16[0], shift_indices) };
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::vshl_16 (uint8_t const UNUSED N) const
 {
     if (N == 0) return *this;
-    if (N == 16) return Zeroes();
-    SuperVector result; 
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128) vec_sl(v->u.s16x8[0], vec_splats((uint16_t)n))}; });
-    return result;
+    uint16x8_t shift_indices = vec_splats((uint16_t) N);
+    return { vec_sl(u.u16x8[0], shift_indices) };
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::vshl_32 (uint8_t const N) const
 {
     if (N == 0) return *this;
-    if (N == 16) return Zeroes();
-    SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128) vec_sl(v->u.s32x4[0], vec_splats((uint32_t)n))}; });
-    return result;
+    uint32x4_t shift_indices = vec_splats((uint32_t) N);
+    return { vec_sl(u.u32x4[0], shift_indices) };
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::vshl_64 (uint8_t const N) const
 {
     if (N == 0) return *this;
-    if (N == 16) return Zeroes();
-    SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128) vec_sl(v->u.s64x2[0], vec_splats((ulong64_t)n))}; });
-    return result;
+    uint64x2_t shift_indices = vec_splats((ulong64_t) N);
+    return { vec_sl(u.u64x2[0], shift_indices) };
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::vshl_128(uint8_t const N) const
 {
     if (N == 0) return *this;
-    if (N == 16) return Zeroes();
-    SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128) vec_sld(v->u.s8x16[0], (int8x16_t)vec_splat_s8(0), n)}; });
-    return result;
+    SuperVector sl{N << 3};
+    return { vec_slo(u.u8x16[0], sl.u.u8x16[0]) };
 }
 
 template <>
@@ -452,50 +442,40 @@ template <>
 really_inline SuperVector<16> SuperVector<16>::vshr_8  (uint8_t const N) const
 {
     if (N == 0) return *this;
-    if (N == 16) return Zeroes();
-    SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128) vec_sr(v->u.s8x16[0], vec_splats((uint8_t)n))}; });
-    return result;
+    uint8x16_t shift_indices = vec_splats((uint8_t) N);
+    return { vec_sr(u.u8x16[0], shift_indices) };
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::vshr_16 (uint8_t const N) const
 {
     if (N == 0) return *this;
-    if (N == 16) return Zeroes();
-    SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128) vec_sr(v->u.s16x8[0], vec_splats((uint16_t)n))}; });
-    return result;
+    uint16x8_t shift_indices = vec_splats((uint16_t) N);
+    return { vec_sr(u.u16x8[0], shift_indices) };
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::vshr_32 (uint8_t const N) const
 {
     if (N == 0) return *this;
-    if (N == 16) return Zeroes();
-    SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128) vec_sr(v->u.s32x4[0], vec_splats((uint32_t)n))}; });
-    return result;
+    uint32x4_t shift_indices = vec_splats((uint32_t) N);
+    return { vec_sr(u.u32x4[0], shift_indices) };
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::vshr_64 (uint8_t const N) const
 {
     if (N == 0) return *this;
-    if (N == 16) return Zeroes();
-    SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128) vec_sr(v->u.s64x2[0], vec_splats((ulong64_t)n))}; });
-    return result;
+    uint64x2_t shift_indices = vec_splats((ulong64_t) N);
+    return { vec_sr(u.u64x2[0], shift_indices) };
 }
 
 template <>
-really_inline SuperVector<16> SuperVector<16>::vshr_128(uint8_t const UNUSED N) const
+really_inline SuperVector<16> SuperVector<16>::vshr_128(uint8_t const N) const
 {
     if (N == 0) return *this;
-    if (N == 16) return Zeroes();
-    SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128) vec_sld((int8x16_t)vec_splat_u8(0), v->u.s8x16[0], 16 - n)}; });
-    return result;
+    SuperVector sr{N << 3};
+    return { vec_sro(u.u8x16[0], sr.u.u8x16[0]) };
 }
 
 template <>
