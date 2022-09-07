@@ -88,6 +88,7 @@ static inline void print_m128_2x64(const char *label, m128 vec) {
 #define print_m128_2x64(label, vec) ;
 #endif
 
+#if !defined(ARCH_IA32) && !defined(ARCH_X86_64)
 #define ZEROES_8 0, 0, 0, 0, 0, 0, 0, 0
 #define ZEROES_31 ZEROES_8, ZEROES_8, ZEROES_8, 0, 0, 0, 0, 0, 0, 0
 #define ZEROES_32 ZEROES_8, ZEROES_8, ZEROES_8, ZEROES_8
@@ -105,6 +106,7 @@ ALIGN_CL_DIRECTIVE static const u8 simd_onebit_masks[] = {
     ZEROES_31, 0x80, ZEROES_32,
     ZEROES_32, ZEROES_32,
 };
+#endif // !defined(ARCH_IA32) && !defined(ARCH_X86_64)
 
 /****
  **** 256-bit Primitives

@@ -42,6 +42,24 @@
 
 #include <string.h> // for memcpy
 
+#define ZEROES_8 0, 0, 0, 0, 0, 0, 0, 0
+#define ZEROES_31 ZEROES_8, ZEROES_8, ZEROES_8, 0, 0, 0, 0, 0, 0, 0
+#define ZEROES_32 ZEROES_8, ZEROES_8, ZEROES_8, ZEROES_8
+
+/** \brief LUT for the mask1bit functions. */
+ALIGN_CL_DIRECTIVE static const u8 simd_onebit_masks[] = {
+    ZEROES_32, ZEROES_32,
+    ZEROES_31, 0x01, ZEROES_32,
+    ZEROES_31, 0x02, ZEROES_32,
+    ZEROES_31, 0x04, ZEROES_32,
+    ZEROES_31, 0x08, ZEROES_32,
+    ZEROES_31, 0x10, ZEROES_32,
+    ZEROES_31, 0x20, ZEROES_32,
+    ZEROES_31, 0x40, ZEROES_32,
+    ZEROES_31, 0x80, ZEROES_32,
+    ZEROES_32, ZEROES_32,
+};
+
 static really_inline m128 ones128(void) {
 #if defined(__GNUC__) || defined(__INTEL_COMPILER)
     /* gcc gets this right */
@@ -237,14 +255,6 @@ m128 loadbytes128(const void *ptr, unsigned int n) {
     memcpy(&a, ptr, n);
     return a;
 }
-/*
-#ifdef __cplusplus
-extern "C" {
-#endif
-extern const u8 simd_onebit_masks[];
-#ifdef __cplusplus
-}
-#endif*/
 
 static really_inline
 m128 mask1bit128(unsigned int n) {
