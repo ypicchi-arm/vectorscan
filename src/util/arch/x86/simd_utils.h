@@ -196,7 +196,7 @@ m128 rshiftbyte_m128(const m128 a, int count_immed) {
 }
 #undef CASE_RSHIFT_VECTOR
 
-#define CASE_LSHIFT_VECTOR(a, count)  case count: return _mm_srli_si128((m128)(a), (count)); break;
+#define CASE_LSHIFT_VECTOR(a, count)  case count: return _mm_slli_si128((m128)(a), (count)); break;
 
 static really_inline
 m128 lshiftbyte_m128(const m128 a, int count_immed) {
