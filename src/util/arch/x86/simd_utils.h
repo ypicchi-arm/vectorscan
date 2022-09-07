@@ -165,8 +165,67 @@ m128 load_m128_from_u64a(const u64a *p) {
     return _mm_set_epi64x(0LL, *p);
 }
 
-#define rshiftbyte_m128(a, count_immed) _mm_srli_si128(a, count_immed)
-#define lshiftbyte_m128(a, count_immed) _mm_slli_si128(a, count_immed)
+#define CASE_RSHIFT_VECTOR(a, count)  case count: return _mm_srli_si128((m128)(a), (count)); break;
+
+static really_inline
+m128 rshiftbyte_m128(const m128 a, int count_immed) {
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (__builtin_constant_p(count_immed)) {
+        return _mm_srli_si128(a, count_immed);
+    }
+#endif
+    switch (count_immed) {
+    case 0: return a; break;
+    CASE_RSHIFT_VECTOR(a, 1);
+    CASE_RSHIFT_VECTOR(a, 2);
+    CASE_RSHIFT_VECTOR(a, 3);
+    CASE_RSHIFT_VECTOR(a, 4);
+    CASE_RSHIFT_VECTOR(a, 5);
+    CASE_RSHIFT_VECTOR(a, 6);
+    CASE_RSHIFT_VECTOR(a, 7);
+    CASE_RSHIFT_VECTOR(a, 8);
+    CASE_RSHIFT_VECTOR(a, 9);
+    CASE_RSHIFT_VECTOR(a, 10);
+    CASE_RSHIFT_VECTOR(a, 11);
+    CASE_RSHIFT_VECTOR(a, 12);
+    CASE_RSHIFT_VECTOR(a, 13);
+    CASE_RSHIFT_VECTOR(a, 14);
+    CASE_RSHIFT_VECTOR(a, 15);
+    default: return zeroes128(); break;
+    }
+}
+#undef CASE_RSHIFT_VECTOR
+
+#define CASE_LSHIFT_VECTOR(a, count)  case count: return _mm_srli_si128((m128)(a), (count)); break;
+
+static really_inline
+m128 lshiftbyte_m128(const m128 a, int count_immed) {
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (__builtin_constant_p(count_immed)) {
+        return _mm_slli_si128(a, count_immed);
+    }
+#endif
+    switch (count_immed) {
+    case 0: return a; break;
+    CASE_LSHIFT_VECTOR(a, 1);
+    CASE_LSHIFT_VECTOR(a, 2);
+    CASE_LSHIFT_VECTOR(a, 3);
+    CASE_LSHIFT_VECTOR(a, 4);
+    CASE_LSHIFT_VECTOR(a, 5);
+    CASE_LSHIFT_VECTOR(a, 6);
+    CASE_LSHIFT_VECTOR(a, 7);
+    CASE_LSHIFT_VECTOR(a, 8);
+    CASE_LSHIFT_VECTOR(a, 9);
+    CASE_LSHIFT_VECTOR(a, 10);
+    CASE_LSHIFT_VECTOR(a, 11);
+    CASE_LSHIFT_VECTOR(a, 12);
+    CASE_LSHIFT_VECTOR(a, 13);
+    CASE_LSHIFT_VECTOR(a, 14);
+    CASE_LSHIFT_VECTOR(a, 15);
+    default: return zeroes128(); break;
+    }
+}
+#undef CASE_LSHIFT_VECTOR
 
 #if defined(HAVE_SSE41)
 #define extract32from128(a, imm) _mm_extract_epi32(a, imm)
@@ -322,6 +381,7 @@ m128 palignr_sw(m128 r, m128 l, int offset) {
 	    break;
     }
 }
+#undef CASE_ALIGN_VECTORS
 
 static really_really_inline
 m128 palignr(m128 r, m128 l, int offset) {
@@ -332,7 +392,6 @@ m128 palignr(m128 r, m128 l, int offset) {
 #endif
     return palignr_sw(r, l, offset);
 }
-#undef CASE_ALIGN_VECTORS
 
 static really_inline
 m128 variable_byte_shift_m128(m128 in, s32 amount) {
