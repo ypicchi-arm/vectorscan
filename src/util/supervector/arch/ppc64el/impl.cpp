@@ -487,51 +487,25 @@ really_inline SuperVector<16> SuperVector<16>::vshr(uint8_t const N) const
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator>>(uint8_t const N) const
 {
-    switch(N) {
-    case 1: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0),  u.s8x16[0], 15)}; break;
-    case 2: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0),  u.s8x16[0], 14)}; break;
-    case 3: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0),  u.s8x16[0], 13)}; break;
-    case 4: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0),  u.s8x16[0], 12)}; break;
-    case 5: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0),  u.s8x16[0], 11)}; break;
-    case 6: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0),  u.s8x16[0], 10)}; break;
-    case 7: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0),  u.s8x16[0],  9)}; break;
-    case 8: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0),  u.s8x16[0],  8)}; break;
-    case 9: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0),  u.s8x16[0],  7)}; break;
-    case 10: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0), u.s8x16[0], 6)}; break;
-    case 11: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0), u.s8x16[0], 5)}; break;
-    case 12: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0), u.s8x16[0], 4)}; break;
-    case 13: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0), u.s8x16[0], 3)}; break;
-    case 14: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0), u.s8x16[0], 2)}; break;
-    case 15: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0), u.s8x16[0], 1)}; break;
-    case 16: return Zeroes(); break;
-    default: break;
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (N == 0) return *this;
+    if (__builtin_constant_p(N)) {
+        return { vec_sld(vec_splat_s8(0),  u.s8x16[0], 16 - N) };
     }
-    return *this;
+#endif
+    return vshr_128(N);
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator<<(uint8_t const N) const
 {
-    switch(N) {
-    case 1: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 1)}; break;
-    case 2: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 2)}; break;
-    case 3: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 3)}; break;
-    case 4: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 4)}; break;
-    case 5: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 5)}; break;
-    case 6: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 6)}; break;
-    case 7: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 7)}; break;
-    case 8: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 8)}; break;
-    case 9: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 9)}; break;
-    case 10: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 10)}; break;
-    case 11: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 11)}; break;
-    case 12: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 12)}; break;
-    case 13: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 13)}; break;
-    case 14: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 14)}; break;
-    case 15: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 15)}; break;
-    case 16: return Zeroes(); break;
-    default: break;
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (N == 0) return *this;
+    if (__builtin_constant_p(N)) {
+        return { vec_sld(u.s8x16[0], vec_splat_s8(0), N)};
     }
-    return *this;
+#endif
+    return vshl_128(N);
 }
 
 template<>
