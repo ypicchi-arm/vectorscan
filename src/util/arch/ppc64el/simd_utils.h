@@ -54,34 +54,6 @@ typedef __vector  signed char             int8x16_t;
 
 typedef unsigned long long int ulong64_t;
 typedef   signed long long int  long64_t;
-/*
-typedef __vector  uint64_t uint64x2_t;
-typedef __vector   int64_t  int64x2_t;
-typedef __vector  uint32_t uint32x4_t;
-typedef __vector   int32_t  int32x4_t;
-typedef __vector  uint16_t uint16x8_t;
-typedef __vector   int16_t  int16x8_t;
-typedef __vector   uint8_t uint8x16_t;
-typedef __vector    int8_t  int8x16_t;*/
-
-
-#define ZEROES_8 0, 0, 0, 0, 0, 0, 0, 0
-#define ZEROES_31 ZEROES_8, ZEROES_8, ZEROES_8, 0, 0, 0, 0, 0, 0, 0
-#define ZEROES_32 ZEROES_8, ZEROES_8, ZEROES_8, ZEROES_8
-
-/** \brief LUT for the mask1bit functions. */
-ALIGN_CL_DIRECTIVE static const u8 simd_onebit_masks[] = {
-    ZEROES_32, ZEROES_32,
-    ZEROES_31, 0x01, ZEROES_32,
-    ZEROES_31, 0x02, ZEROES_32,
-    ZEROES_31, 0x04, ZEROES_32,
-    ZEROES_31, 0x08, ZEROES_32,
-    ZEROES_31, 0x10, ZEROES_32,
-    ZEROES_31, 0x20, ZEROES_32,
-    ZEROES_31, 0x40, ZEROES_32,
-    ZEROES_31, 0x80, ZEROES_32,
-    ZEROES_32, ZEROES_32,
-};
 
 static really_inline m128 ones128(void) {
     return (m128) vec_splat_u8(-1);
@@ -115,10 +87,6 @@ static really_inline u32 diffrich128(m128 a, m128 b) {
     m128 mask = (m128) vec_cmpeq(a, b); // _mm_cmpeq_epi32 (a, b);
     mask = vec_and(not128(mask), movemask);
     m128 sum = vec_sums(mask, zeroes128()); 
-    //sum = vec_sld(zeroes128(), sum, 4); 
-    //s32 ALIGN_ATTR(16) x;
-    //vec_ste(sum, 0, &x);   
-    //return x;   // it could be ~(movemask_128(mask)) & 0x;
     return sum[3];
 }
 
@@ -131,10 +99,6 @@ static really_inline u32 diffrich64_128(m128 a, m128 b) {
     uint64x2_t mask = (uint64x2_t) vec_cmpeq((uint64x2_t)a, (uint64x2_t)b);
     mask = (uint64x2_t) vec_and((uint64x2_t)not128((m128)mask), movemask);
     m128 sum = vec_sums((m128)mask, zeroes128());
-    //sum = vec_sld(zeroes128(), sum, 4);
-    //s32 ALIGN_ATTR(16) x;
-    //vec_ste(sum, 0, &x);
-    //return x;
     return sum[3];
 }
 
@@ -150,46 +114,18 @@ m128 sub_2x64(m128 a, m128 b) {
 
 static really_really_inline
 m128 lshift_m128(m128 a, unsigned b) {
-    switch(b){
-    case 1: return vec_sld(a, zeroes128(), 1); break;	    
-    case 2: return vec_sld(a, zeroes128(), 2); break;	    
-    case 3: return vec_sld(a, zeroes128(), 3); break;	    
-    case 4: return vec_sld(a, zeroes128(), 4); break;	    
-    case 5: return vec_sld(a, zeroes128(), 5); break;	    
-    case 6: return vec_sld(a, zeroes128(), 6); break;	    
-    case 7: return vec_sld(a, zeroes128(), 7); break;	    
-    case 8: return vec_sld(a, zeroes128(), 8); break;	    
-    case 9: return vec_sld(a, zeroes128(), 9); break;	    
-    case 10: return vec_sld(a, zeroes128(), 10); break;	    
-    case 11: return vec_sld(a, zeroes128(), 11); break;	    
-    case 12: return vec_sld(a, zeroes128(), 12); break;	    
-    case 13: return vec_sld(a, zeroes128(), 13); break;	    
-    case 14: return vec_sld(a, zeroes128(), 14); break;	   
-    case 15: return vec_sld(a, zeroes128(), 15); break;
-    }	
-    return a;
+    if (b == 0) return a;
+    m128 sl = (m128) vec_splats((uint8_t) b << 3);
+    m128 result = (m128) vec_slo((uint8x16_t) a, (uint8x16_t) sl);
+    return result;
 }
 
 static really_really_inline
 m128 rshift_m128(m128 a, unsigned b) {
-   switch(b){ 
-    case 1: return vec_sld(zeroes128(), a, 15); break;	    
-    case 2: return vec_sld(zeroes128(), a, 14); break;	    
-    case 3: return vec_sld(zeroes128(), a, 13); break;	    
-    case 4: return vec_sld(zeroes128(), a, 12); break;	    
-    case 5: return vec_sld(zeroes128(), a, 11); break;	    
-    case 6: return vec_sld(zeroes128(), a, 10); break;	    
-    case 7: return vec_sld(zeroes128(), a, 9); break;	    
-    case 8: return vec_sld(zeroes128(), a, 8); break;	    
-    case 9: return vec_sld(zeroes128(), a, 7); break;	    
-    case 10: return vec_sld(zeroes128(), a, 6); break;	    
-    case 11: return vec_sld(zeroes128(), a, 5); break;	    
-    case 12: return vec_sld(zeroes128(), a, 4); break;	    
-    case 13: return vec_sld(zeroes128(), a, 3); break;	    
-    case 14: return vec_sld(zeroes128(), a, 2); break;	    
-    case 15: return vec_sld(zeroes128(), a, 1); break;	    
-   }
-   return a;
+    if (b == 0) return a;
+    m128 sl = (m128) vec_splats((uint8_t) b << 3);
+    m128 result = (m128) vec_sro((uint8x16_t) a, (uint8x16_t) sl);
+    return result;
 }
 
 static really_really_inline
@@ -212,27 +148,13 @@ static really_inline m128 eq64_m128(m128 a, m128 b) {
    return (m128) vec_cmpeq((uint64x2_t)a, (uint64x2_t)b);
 }
 
-
 static really_inline u32 movemask128(m128 a) {
-   uint8x16_t s1 = vec_sr((uint8x16_t)a, vec_splat_u8(7));
-   
-   uint16x8_t ss = vec_sr((uint16x8_t)s1, vec_splat_u16(7));
-   uint16x8_t res_and = vec_and((uint16x8_t)s1, vec_splats((uint16_t)0xff));
-   uint16x8_t s2 = vec_or((uint16x8_t)ss, res_and);
-  
-   uint32x4_t ss2 = vec_sr((uint32x4_t)s2, vec_splat_u32(14));
-   uint32x4_t res_and2 = vec_and((uint32x4_t)s2, vec_splats((uint32_t)0xff));
-   uint32x4_t s3 = vec_or((uint32x4_t)ss2, res_and2);
-   
-   uint64x2_t ss3 = vec_sr((uint64x2_t)s3, (uint64x2_t)vec_splats(28));
-   uint64x2_t res_and3 = vec_and((uint64x2_t)s3, vec_splats((ulong64_t)0xff));
-   uint64x2_t s4 = vec_or((uint64x2_t)ss3, res_and3);
-  
-   uint64x2_t ss4 = vec_sld((uint64x2_t)vec_splats(0), s4, 9);
-   uint64x2_t res_and4 = vec_and((uint64x2_t)s4, vec_splats((ulong64_t)0xff));
-   uint64x2_t s5 = vec_or((uint64x2_t)ss4, res_and4);
- 
-   return s5[0];
+   static uint8x16_t perm = { 16, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+   uint8x16_t bitmask = vec_gb((uint8x16_t) a);
+   bitmask = (uint8x16_t) vec_perm(vec_splat_u8(0), bitmask, perm);
+   u32 movemask;
+   vec_ste((uint32x4_t) bitmask, 0, &movemask);
+   return movemask;
 }
 
 static really_inline m128 set1_16x8(u8 c) {
@@ -363,7 +285,6 @@ m128 loadbytes128(const void *ptr, unsigned int n) {
     return a;
 }
 
-
 #define CASE_ALIGN_VECTORS(a, b, offset)  case offset: return (m128)vec_sld((int8x16_t)(b), (int8x16_t)(a), (16 - offset)); break;
 
 static really_really_inline
@@ -392,42 +313,50 @@ m128 palignr_imm(m128 r, m128 l, int offset) {
 
 static really_really_inline
 m128 palignr(m128 r, m128 l, int offset) {
-#if defined(HS_OPTIMIZE)
-    // need a faster way to do this.
-    return palignr_imm(r, l, offset);
-#else
-    return palignr_imm(r, l, offset);
+    if (offset == 0) return l;
+    if (offset == 16) return r;
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (__builtin_constant_p(offset)) {
+        return (m128)vec_sld((int8x16_t)(r), (int8x16_t)(l), 16 - offset);
+    }
 #endif
+    m128 sl = (m128) vec_splats((uint8_t) (offset << 3));
+    m128 sr = (m128) vec_splats((uint8_t) ((16 - offset) << 3));
+    m128 rhs = (m128) vec_slo((uint8x16_t) r, (uint8x16_t) sr);
+    m128 lhs = (m128) vec_sro((uint8x16_t) l, (uint8x16_t) sl);
+    return or128(lhs, rhs);
 }
 
 #undef CASE_ALIGN_VECTORS
 
 static really_really_inline
 m128 rshiftbyte_m128(m128 a, unsigned b) {
-   return rshift_m128(a,b);
+    return palignr_imm(zeroes128(), a, b);
 }
 
 static really_really_inline
 m128 lshiftbyte_m128(m128 a, unsigned b) {
-   return lshift_m128(a,b);
+    return palignr_imm(a, zeroes128(), 16 - b);
 }
 
 static really_inline
 m128 variable_byte_shift_m128(m128 in, s32 amount) {
     assert(amount >= -16 && amount <= 16);
-    if (amount < 0){
-	    return palignr_imm(zeroes128(), in, -amount);
-    } else{
-	    return palignr_imm(in, zeroes128(), 16 - amount);
+    if (amount < 0) {
+        return rshiftbyte_m128(in, -amount);
+    } else {
+        return lshiftbyte_m128(in, amount);
     }
 }
 
 static really_inline
 m128 mask1bit128(unsigned int n) {
     assert(n < sizeof(m128) * 8);
-    u32 mask_idx = ((n % 8) * 64) + 95;
-    mask_idx -= n / 8;
-    return loadu128(&simd_onebit_masks[mask_idx]);
+    static uint64x2_t onebit = { 1, 0 };
+    m128 octets = (m128) vec_splats((uint8_t) ((n / 8) << 3));
+    m128 bits = (m128) vec_splats((uint8_t) ((n % 8)));
+    m128 mask = (m128) vec_slo((uint8x16_t) onebit, (uint8x16_t) octets);
+    return (m128) vec_sll((uint8x16_t) mask, (uint8x16_t) bits);
 }
 
 // switches on bit N in the given vector.

@@ -53,24 +53,6 @@
 
 #include <string.h> // for memcpy
 
-#define ZEROES_8 0, 0, 0, 0, 0, 0, 0, 0
-#define ZEROES_31 ZEROES_8, ZEROES_8, ZEROES_8, 0, 0, 0, 0, 0, 0, 0
-#define ZEROES_32 ZEROES_8, ZEROES_8, ZEROES_8, ZEROES_8
-
-/** \brief LUT for the mask1bit functions. */
-ALIGN_CL_DIRECTIVE static const u8 simd_onebit_masks[] = {
-    ZEROES_32, ZEROES_32,
-    ZEROES_31, 0x01, ZEROES_32,
-    ZEROES_31, 0x02, ZEROES_32,
-    ZEROES_31, 0x04, ZEROES_32,
-    ZEROES_31, 0x08, ZEROES_32,
-    ZEROES_31, 0x10, ZEROES_32,
-    ZEROES_31, 0x20, ZEROES_32,
-    ZEROES_31, 0x40, ZEROES_32,
-    ZEROES_31, 0x80, ZEROES_32,
-    ZEROES_32, ZEROES_32,
-};
-
 static really_inline m128 ones128(void) {
     return (m128) vdupq_n_s8(0xFF);
 }
@@ -595,9 +577,9 @@ m128 variable_byte_shift_m128(m128 in, s32 amount) {
 static really_inline
 m128 mask1bit128(unsigned int n) {
     assert(n < sizeof(m128) * 8);
-    u32 mask_idx = ((n % 8) * 64) + 95;
-    mask_idx -= n / 8;
-    return loadu128(&simd_onebit_masks[mask_idx]);
+    static m128 onebit = { 1, 0 };
+    m128 mask = lshiftbyte_m128( onebit, n / 8 );
+    return lshift64_m128( mask, n % 8 );
 }
 
 // switches on bit N in the given vector.

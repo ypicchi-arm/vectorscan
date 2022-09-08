@@ -177,13 +177,13 @@ public:
 
 #if defined(ARCH_ARM32) || defined(ARCH_AARCH64) || defined(ARCH_PPC64EL)
     uint64x2_t ALIGN_ATTR(BaseVector<16>::size) u64x2[SIZE / BaseVector<16>::size];
-    int64x2_t  ALIGN_ATTR(BaseVector<16>::size) s64x2[SIZE / BaseVector<16>::size];
+    int64x2_t ALIGN_ATTR(BaseVector<16>::size) s64x2[SIZE / BaseVector<16>::size];
     uint32x4_t ALIGN_ATTR(BaseVector<16>::size) u32x4[SIZE / BaseVector<16>::size];
-    int32x4_t  ALIGN_ATTR(BaseVector<16>::size) s32x4[SIZE / BaseVector<16>::size];
+    int32x4_t ALIGN_ATTR(BaseVector<16>::size) s32x4[SIZE / BaseVector<16>::size];
     uint16x8_t ALIGN_ATTR(BaseVector<16>::size) u16x8[SIZE / BaseVector<16>::size];
-    int16x8_t  ALIGN_ATTR(BaseVector<16>::size) s16x8[SIZE / BaseVector<16>::size];
+    int16x8_t ALIGN_ATTR(BaseVector<16>::size) s16x8[SIZE / BaseVector<16>::size];
     uint8x16_t ALIGN_ATTR(BaseVector<16>::size) u8x16[SIZE / BaseVector<16>::size];
-    int8x16_t  ALIGN_ATTR(BaseVector<16>::size) s8x16[SIZE / BaseVector<16>::size];
+    int8x16_t ALIGN_ATTR(BaseVector<16>::size) s8x16[SIZE / BaseVector<16>::size];
 #endif
 
     uint64_t u64[SIZE / sizeof(uint64_t)];
@@ -204,7 +204,7 @@ public:
   SuperVector(typename base_type::type const v);
 
   template<typename T>
-  SuperVector(T other);
+  SuperVector(T const other);
 
   SuperVector(SuperVector<SIZE/2> const lo, SuperVector<SIZE/2> const hi);
   SuperVector(previous_type const lo, previous_type const hi);
