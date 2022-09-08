@@ -47,7 +47,15 @@ namespace ue2 {
 #endif
 
 /* get us a posix_memalign from somewhere */
-#if !defined(HAVE_POSIX_MEMALIGN)
+#if defined(__MINGW32__) || defined(__MINGW64__)
+  #include <stdlib.h>
+  #include <intrin.h>
+  #include <malloc.h>
+  #include <windows.h>
+
+  #define posix_memalign(A, B, C) ((*A = (void *)__mingw_aligned_malloc(C, B)) == nullptr)
+
+#elif !defined(HAVE_POSIX_MEMALIGN)
 # if defined(HAVE_MEMALIGN)
     #define posix_memalign(A, B, C) ((*A = (void *)memalign(B, C)) == nullptr)
 # elif defined(HAVE__ALIGNED_MALLOC)
@@ -77,7 +85,11 @@ void aligned_free_internal(void *ptr) {
         return;
     }
 
+#if defined(__MINGW32__) || defined(__MINGW64__)
+    __mingw_aligned_free(ptr);
+#else
     free(ptr);
+#endif
 }
 
 /** \brief 64-byte aligned, zeroed malloc.
