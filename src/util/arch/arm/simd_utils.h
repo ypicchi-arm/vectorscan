@@ -112,43 +112,8 @@ m128 lshift_m128(m128 a, unsigned b) {
         return (m128) vshlq_n_u32((uint32x4_t)a, b);
     }
 #endif
-#define CASE_LSHIFT_m128(a, offset)  case offset: return (m128)vshlq_n_u32((uint32x4_t)(a), (offset)); break;
-    switch (b) {
-    case 0:  return a; break;
-    CASE_LSHIFT_m128(a,  1);
-    CASE_LSHIFT_m128(a,  2);
-    CASE_LSHIFT_m128(a,  3);
-    CASE_LSHIFT_m128(a,  4);
-    CASE_LSHIFT_m128(a,  5);
-    CASE_LSHIFT_m128(a,  6);
-    CASE_LSHIFT_m128(a,  7);
-    CASE_LSHIFT_m128(a,  8);
-    CASE_LSHIFT_m128(a,  9);
-    CASE_LSHIFT_m128(a, 10);
-    CASE_LSHIFT_m128(a, 11);
-    CASE_LSHIFT_m128(a, 12);
-    CASE_LSHIFT_m128(a, 13);
-    CASE_LSHIFT_m128(a, 14);
-    CASE_LSHIFT_m128(a, 15);
-    CASE_LSHIFT_m128(a, 16);
-    CASE_LSHIFT_m128(a, 17);
-    CASE_LSHIFT_m128(a, 18);
-    CASE_LSHIFT_m128(a, 19);
-    CASE_LSHIFT_m128(a, 20);
-    CASE_LSHIFT_m128(a, 21);
-    CASE_LSHIFT_m128(a, 22);
-    CASE_LSHIFT_m128(a, 23);
-    CASE_LSHIFT_m128(a, 24);
-    CASE_LSHIFT_m128(a, 25);
-    CASE_LSHIFT_m128(a, 26);
-    CASE_LSHIFT_m128(a, 27);
-    CASE_LSHIFT_m128(a, 28);
-    CASE_LSHIFT_m128(a, 29);
-    CASE_LSHIFT_m128(a, 30);
-    CASE_LSHIFT_m128(a, 31);
-    default: return zeroes128(); break;
-    }
-#undef CASE_LSHIFT_m128
+  int32x4_t shift_indices = vdupq_n_s32(b);
+  return (m128) vshlq_s32(a, shift_indices);
 }
 
 static really_really_inline
@@ -158,43 +123,8 @@ m128 rshift_m128(m128 a, unsigned b) {
         return (m128) vshrq_n_u32((uint32x4_t)a, b);
     }
 #endif
-#define CASE_RSHIFT_m128(a, offset)  case offset: return (m128)vshrq_n_u32((uint32x4_t)(a), (offset)); break;
-    switch (b) {
-    case 0:  return a; break;
-    CASE_RSHIFT_m128(a,  1);
-    CASE_RSHIFT_m128(a,  2);
-    CASE_RSHIFT_m128(a,  3);
-    CASE_RSHIFT_m128(a,  4);
-    CASE_RSHIFT_m128(a,  5);
-    CASE_RSHIFT_m128(a,  6);
-    CASE_RSHIFT_m128(a,  7);
-    CASE_RSHIFT_m128(a,  8);
-    CASE_RSHIFT_m128(a,  9);
-    CASE_RSHIFT_m128(a, 10);
-    CASE_RSHIFT_m128(a, 11);
-    CASE_RSHIFT_m128(a, 12);
-    CASE_RSHIFT_m128(a, 13);
-    CASE_RSHIFT_m128(a, 14);
-    CASE_RSHIFT_m128(a, 15);
-    CASE_RSHIFT_m128(a, 16);
-    CASE_RSHIFT_m128(a, 17);
-    CASE_RSHIFT_m128(a, 18);
-    CASE_RSHIFT_m128(a, 19);
-    CASE_RSHIFT_m128(a, 20);
-    CASE_RSHIFT_m128(a, 21);
-    CASE_RSHIFT_m128(a, 22);
-    CASE_RSHIFT_m128(a, 23);
-    CASE_RSHIFT_m128(a, 24);
-    CASE_RSHIFT_m128(a, 25);
-    CASE_RSHIFT_m128(a, 26);
-    CASE_RSHIFT_m128(a, 27);
-    CASE_RSHIFT_m128(a, 28);
-    CASE_RSHIFT_m128(a, 29);
-    CASE_RSHIFT_m128(a, 30);
-    CASE_RSHIFT_m128(a, 31);
-    default: return zeroes128(); break;
-    }
-#undef CASE_RSHIFT_m128
+  int32x4_t shift_indices = vdupq_n_s32(-b);
+  return (m128) vshlq_s32(a, shift_indices);
 }
 
 static really_really_inline
@@ -204,75 +134,8 @@ m128 lshift64_m128(m128 a, unsigned b) {
         return (m128) vshlq_n_u64((uint64x2_t)a, b);
     }
 #endif
-#define CASE_LSHIFT64_m128(a, offset)  case offset: return (m128)vshlq_n_u64((uint64x2_t)(a), (offset)); break;
-    switch (b) {
-    case 0:  return a; break;
-    CASE_LSHIFT64_m128(a,  1);
-    CASE_LSHIFT64_m128(a,  2);
-    CASE_LSHIFT64_m128(a,  3);
-    CASE_LSHIFT64_m128(a,  4);
-    CASE_LSHIFT64_m128(a,  5);
-    CASE_LSHIFT64_m128(a,  6);
-    CASE_LSHIFT64_m128(a,  7);
-    CASE_LSHIFT64_m128(a,  8);
-    CASE_LSHIFT64_m128(a,  9);
-    CASE_LSHIFT64_m128(a, 10);
-    CASE_LSHIFT64_m128(a, 11);
-    CASE_LSHIFT64_m128(a, 12);
-    CASE_LSHIFT64_m128(a, 13);
-    CASE_LSHIFT64_m128(a, 14);
-    CASE_LSHIFT64_m128(a, 15);
-    CASE_LSHIFT64_m128(a, 16);
-    CASE_LSHIFT64_m128(a, 17);
-    CASE_LSHIFT64_m128(a, 18);
-    CASE_LSHIFT64_m128(a, 19);
-    CASE_LSHIFT64_m128(a, 20);
-    CASE_LSHIFT64_m128(a, 21);
-    CASE_LSHIFT64_m128(a, 22);
-    CASE_LSHIFT64_m128(a, 23);
-    CASE_LSHIFT64_m128(a, 24);
-    CASE_LSHIFT64_m128(a, 25);
-    CASE_LSHIFT64_m128(a, 26);
-    CASE_LSHIFT64_m128(a, 27);
-    CASE_LSHIFT64_m128(a, 28);
-    CASE_LSHIFT64_m128(a, 29);
-    CASE_LSHIFT64_m128(a, 30);
-    CASE_LSHIFT64_m128(a, 31);
-    CASE_LSHIFT64_m128(a, 32);
-    CASE_LSHIFT64_m128(a, 33);
-    CASE_LSHIFT64_m128(a, 34);
-    CASE_LSHIFT64_m128(a, 35);
-    CASE_LSHIFT64_m128(a, 36);
-    CASE_LSHIFT64_m128(a, 37);
-    CASE_LSHIFT64_m128(a, 38);
-    CASE_LSHIFT64_m128(a, 39);
-    CASE_LSHIFT64_m128(a, 40);
-    CASE_LSHIFT64_m128(a, 41);
-    CASE_LSHIFT64_m128(a, 42);
-    CASE_LSHIFT64_m128(a, 43);
-    CASE_LSHIFT64_m128(a, 44);
-    CASE_LSHIFT64_m128(a, 45);
-    CASE_LSHIFT64_m128(a, 46);
-    CASE_LSHIFT64_m128(a, 47);
-    CASE_LSHIFT64_m128(a, 48);
-    CASE_LSHIFT64_m128(a, 49);
-    CASE_LSHIFT64_m128(a, 50);
-    CASE_LSHIFT64_m128(a, 51);
-    CASE_LSHIFT64_m128(a, 52);
-    CASE_LSHIFT64_m128(a, 53);
-    CASE_LSHIFT64_m128(a, 54);
-    CASE_LSHIFT64_m128(a, 55);
-    CASE_LSHIFT64_m128(a, 56);
-    CASE_LSHIFT64_m128(a, 57);
-    CASE_LSHIFT64_m128(a, 58);
-    CASE_LSHIFT64_m128(a, 59);
-    CASE_LSHIFT64_m128(a, 60);
-    CASE_LSHIFT64_m128(a, 61);
-    CASE_LSHIFT64_m128(a, 62);
-    CASE_LSHIFT64_m128(a, 63);
-    default: return zeroes128(); break;
-    }
-#undef CASE_LSHIFT64_m128
+  int64x2_t shift_indices = vdupq_n_s64(b);
+  return (m128) vshlq_s64((int64x2_t) a, shift_indices);
 }
 
 static really_really_inline
@@ -282,75 +145,8 @@ m128 rshift64_m128(m128 a, unsigned b) {
         return (m128) vshrq_n_u64((uint64x2_t)a, b);
     }
 #endif
-#define CASE_RSHIFT64_m128(a, offset)  case offset: return (m128)vshrq_n_u64((uint64x2_t)(a), (offset)); break;
-    switch (b) {
-    case 0:  return a; break;
-    CASE_RSHIFT64_m128(a,  1);
-    CASE_RSHIFT64_m128(a,  2);
-    CASE_RSHIFT64_m128(a,  3);
-    CASE_RSHIFT64_m128(a,  4);
-    CASE_RSHIFT64_m128(a,  5);
-    CASE_RSHIFT64_m128(a,  6);
-    CASE_RSHIFT64_m128(a,  7);
-    CASE_RSHIFT64_m128(a,  8);
-    CASE_RSHIFT64_m128(a,  9);
-    CASE_RSHIFT64_m128(a, 10);
-    CASE_RSHIFT64_m128(a, 11);
-    CASE_RSHIFT64_m128(a, 12);
-    CASE_RSHIFT64_m128(a, 13);
-    CASE_RSHIFT64_m128(a, 14);
-    CASE_RSHIFT64_m128(a, 15);
-    CASE_RSHIFT64_m128(a, 16);
-    CASE_RSHIFT64_m128(a, 17);
-    CASE_RSHIFT64_m128(a, 18);
-    CASE_RSHIFT64_m128(a, 19);
-    CASE_RSHIFT64_m128(a, 20);
-    CASE_RSHIFT64_m128(a, 21);
-    CASE_RSHIFT64_m128(a, 22);
-    CASE_RSHIFT64_m128(a, 23);
-    CASE_RSHIFT64_m128(a, 24);
-    CASE_RSHIFT64_m128(a, 25);
-    CASE_RSHIFT64_m128(a, 26);
-    CASE_RSHIFT64_m128(a, 27);
-    CASE_RSHIFT64_m128(a, 28);
-    CASE_RSHIFT64_m128(a, 29);
-    CASE_RSHIFT64_m128(a, 30);
-    CASE_RSHIFT64_m128(a, 31);
-    CASE_RSHIFT64_m128(a, 32);
-    CASE_RSHIFT64_m128(a, 33);
-    CASE_RSHIFT64_m128(a, 34);
-    CASE_RSHIFT64_m128(a, 35);
-    CASE_RSHIFT64_m128(a, 36);
-    CASE_RSHIFT64_m128(a, 37);
-    CASE_RSHIFT64_m128(a, 38);
-    CASE_RSHIFT64_m128(a, 39);
-    CASE_RSHIFT64_m128(a, 40);
-    CASE_RSHIFT64_m128(a, 41);
-    CASE_RSHIFT64_m128(a, 42);
-    CASE_RSHIFT64_m128(a, 43);
-    CASE_RSHIFT64_m128(a, 44);
-    CASE_RSHIFT64_m128(a, 45);
-    CASE_RSHIFT64_m128(a, 46);
-    CASE_RSHIFT64_m128(a, 47);
-    CASE_RSHIFT64_m128(a, 48);
-    CASE_RSHIFT64_m128(a, 49);
-    CASE_RSHIFT64_m128(a, 50);
-    CASE_RSHIFT64_m128(a, 51);
-    CASE_RSHIFT64_m128(a, 52);
-    CASE_RSHIFT64_m128(a, 53);
-    CASE_RSHIFT64_m128(a, 54);
-    CASE_RSHIFT64_m128(a, 55);
-    CASE_RSHIFT64_m128(a, 56);
-    CASE_RSHIFT64_m128(a, 57);
-    CASE_RSHIFT64_m128(a, 58);
-    CASE_RSHIFT64_m128(a, 59);
-    CASE_RSHIFT64_m128(a, 60);
-    CASE_RSHIFT64_m128(a, 61);
-    CASE_RSHIFT64_m128(a, 62);
-    CASE_RSHIFT64_m128(a, 63);
-    default: return zeroes128(); break;
-    }
-#undef CASE_RSHIFT64_m128
+  int64x2_t shift_indices = vdupq_n_s64(-b);
+  return (m128) vshlq_s64((int64x2_t) a, shift_indices);
 }
 
 static really_inline m128 eq128(m128 a, m128 b) {

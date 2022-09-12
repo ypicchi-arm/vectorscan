@@ -374,10 +374,9 @@ template <>
 really_inline SuperVector<16> SuperVector<16>::vshl_8  (uint8_t const N) const
 {
     if (N == 0) return *this;
-    if (N == 16) return Zeroes();
-    SuperVector result;
-    Unroller<1, 8>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {vshlq_n_u8(v->u.u8x16[0], n)}; });
-    return result;
+    if (N == 8) return Zeroes();
+    int8x16_t shift_indices = vdupq_n_s8(N);
+    return { vshlq_s8(u.s8x16[0], shift_indices) };
 }
 
 template <>
@@ -385,9 +384,8 @@ really_inline SuperVector<16> SuperVector<16>::vshl_16 (uint8_t const N) const
 {
     if (N == 0) return *this;
     if (N == 16) return Zeroes();
-    SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {vshlq_n_u16(v->u.u16x8[0], n)}; });
-    return result;
+    int16x8_t shift_indices = vdupq_n_s16(N);
+    return { vshlq_s16(u.s16x8[0], shift_indices) };
 }
 
 template <>
@@ -395,9 +393,8 @@ really_inline SuperVector<16> SuperVector<16>::vshl_32 (uint8_t const N) const
 {
     if (N == 0) return *this;
     if (N == 32) return Zeroes();
-    SuperVector result;
-    Unroller<1, 32>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {vshlq_n_u32(v->u.u32x4[0], n)}; });
-    return result;
+    int32x4_t shift_indices = vdupq_n_s32(N);
+    return { vshlq_s32(u.s32x4[0], shift_indices) };
 }
 
 template <>
@@ -405,9 +402,8 @@ really_inline SuperVector<16> SuperVector<16>::vshl_64 (uint8_t const N) const
 {
     if (N == 0) return *this;
     if (N == 64) return Zeroes();
-    SuperVector result;
-    Unroller<1, 64>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {vshlq_n_u64(v->u.u64x2[0], n)}; });
-    return result;
+    int64x2_t shift_indices = vdupq_n_s64(N);
+    return { vshlq_s64(u.s64x2[0], shift_indices) };
 }
 
 template <>
@@ -415,6 +411,11 @@ really_inline SuperVector<16> SuperVector<16>::vshl_128(uint8_t const N) const
 {
     if (N == 0) return *this;
     if (N == 16) return Zeroes();
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (__builtin_constant_p(N)) {
+        return {vextq_u8(vdupq_n_u8(0), u.u8x16[0], 16 - N)};
+    }
+#endif
     SuperVector result;
     Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {vextq_u8(vdupq_n_u8(0), v->u.u8x16[0], 16 - n)}; });
     return result;
@@ -431,9 +432,8 @@ really_inline SuperVector<16> SuperVector<16>::vshr_8  (uint8_t const N) const
 {
     if (N == 0) return *this;
     if (N == 8) return Zeroes();
-    SuperVector result;
-    Unroller<1, 8>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {vshrq_n_u8(v->u.u8x16[0], n)}; });
-    return result;
+    int8x16_t shift_indices = vdupq_n_s8(-N);
+    return { vshlq_s8(u.s8x16[0], shift_indices) };
 }
 
 template <>
@@ -441,9 +441,8 @@ really_inline SuperVector<16> SuperVector<16>::vshr_16 (uint8_t const N) const
 {
     if (N == 0) return *this;
     if (N == 16) return Zeroes();
-    SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {vshrq_n_u16(v->u.u16x8[0], n)}; });
-    return result;
+    int16x8_t shift_indices = vdupq_n_s16(-N);
+    return { vshlq_s16(u.s16x8[0], shift_indices) };
 }
 
 template <>
@@ -451,9 +450,8 @@ really_inline SuperVector<16> SuperVector<16>::vshr_32 (uint8_t const N) const
 {
     if (N == 0) return *this;
     if (N == 32) return Zeroes();
-    SuperVector result;
-    Unroller<1, 32>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {vshrq_n_u32(v->u.u32x4[0], n)}; });
-    return result;
+    int32x4_t shift_indices = vdupq_n_s32(-N);
+    return { vshlq_s32(u.s32x4[0], shift_indices) };
 }
 
 template <>
@@ -461,9 +459,8 @@ really_inline SuperVector<16> SuperVector<16>::vshr_64 (uint8_t const N) const
 {
     if (N == 0) return *this;
     if (N == 64) return Zeroes();
-    SuperVector result;
-    Unroller<1, 64>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {vshrq_n_u64(v->u.u64x2[0], n)}; });
-    return result;
+    int64x2_t shift_indices = vdupq_n_s64(-N);
+    return { vshlq_s64(u.s64x2[0], shift_indices) };
 }
 
 template <>
@@ -471,6 +468,11 @@ really_inline SuperVector<16> SuperVector<16>::vshr_128(uint8_t const N) const
 {
     if (N == 0) return *this;
     if (N == 16) return Zeroes();
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (__builtin_constant_p(N)) {
+         return {vextq_u8(u.u8x16[0], vdupq_n_u8(0), N)};
+    }
+#endif
     SuperVector result;
     Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {vextq_u8(v->u.u8x16[0], vdupq_n_u8(0), n)}; });
     return result;
@@ -485,22 +487,12 @@ really_inline SuperVector<16> SuperVector<16>::vshr(uint8_t const N) const
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator>>(uint8_t const N) const
 {
-#if defined(HAVE__BUILTIN_CONSTANT_P)
-    if (__builtin_constant_p(N)) {
-         return {vextq_u8(u.u8x16[0], vdupq_n_u8(0), N)};
-    }
-#endif
     return vshr_128(N);
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator<<(uint8_t const N) const
 {
-#if defined(HAVE__BUILTIN_CONSTANT_P)
-    if (__builtin_constant_p(N)) {
-        return {vextq_u8(vdupq_n_u8(0), u.u8x16[0], 16 - N)};
-    }
-#endif
     return vshl_128(N);
 }
 
@@ -534,45 +526,23 @@ template <>
 really_inline SuperVector<16> SuperVector<16>::loadu_maskz(void const *ptr, uint8_t const len)
 {
     SuperVector mask = Ones_vshr(16 -len);
-    //mask.print8("mask");
     SuperVector<16> v = loadu(ptr);
-    //v.print8("v");
     return mask & v;
 }
 
 template<>
 really_inline SuperVector<16> SuperVector<16>::alignr(SuperVector<16> &other, int8_t offset)
 {
+    if (offset == 0) return other;
+    if (offset == 16) return *this;
 #if defined(HAVE__BUILTIN_CONSTANT_P)
     if (__builtin_constant_p(offset)) {
-        if (offset == 16) {
-            return *this;
-        } else {
-            return {vextq_u8(other.u.u8x16[0], u.u8x16[0], offset)};
-        }
+        return {vextq_u8(other.u.u8x16[0], u.u8x16[0], offset)};
     }
 #endif
-    switch(offset) {
-    case 0: return other; break;
-    case 1: return {vextq_u8( other.u.u8x16[0], u.u8x16[0], 1)}; break;
-    case 2: return {vextq_u8( other.u.u8x16[0], u.u8x16[0], 2)}; break;
-    case 3: return {vextq_u8( other.u.u8x16[0], u.u8x16[0], 3)}; break;
-    case 4: return {vextq_u8( other.u.u8x16[0], u.u8x16[0], 4)}; break;
-    case 5: return {vextq_u8( other.u.u8x16[0], u.u8x16[0], 5)}; break;
-    case 6: return {vextq_u8( other.u.u8x16[0], u.u8x16[0], 6)}; break;
-    case 7: return {vextq_u8( other.u.u8x16[0], u.u8x16[0], 7)}; break;
-    case 8: return {vextq_u8( other.u.u8x16[0], u.u8x16[0], 8)}; break;
-    case 9: return {vextq_u8( other.u.u8x16[0], u.u8x16[0], 9)}; break;
-    case 10: return {vextq_u8( other.u.u8x16[0], u.u8x16[0], 10)}; break;
-    case 11: return {vextq_u8( other.u.u8x16[0], u.u8x16[0], 11)}; break;
-    case 12: return {vextq_u8( other.u.u8x16[0], u.u8x16[0], 12)}; break;
-    case 13: return {vextq_u8( other.u.u8x16[0], u.u8x16[0], 13)}; break;
-    case 14: return {vextq_u8( other.u.u8x16[0], u.u8x16[0], 14)}; break;
-    case 15: return {vextq_u8( other.u.u8x16[0], u.u8x16[0], 15)}; break;
-    case 16: return *this; break;
-    default: break;
-    }
-    return *this;
+    SuperVector result;
+    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (offset == n) result = {vextq_u8(other.u.u8x16[0], v->u.u8x16[0], n)}; });
+    return result;
 }
 
 template<>
