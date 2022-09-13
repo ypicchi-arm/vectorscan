@@ -46,19 +46,29 @@
 using Z_TYPE = u64a;
 #define Z_BITS 64
 #define Z_SHIFT 63
+#define Z_POSSHIFT 0
 #define DOUBLE_LOAD_MASK(l)        ((~0ULL) >> (Z_BITS -(l)))
 #define SINGLE_LOAD_MASK(l)        (((1ULL) << (l)) - 1ULL)
 #elif defined(HAVE_SIMD_256_BITS)
 using Z_TYPE = u32;
 #define Z_BITS 32
 #define Z_SHIFT 31
+#define Z_POSSHIFT 0
 #define DOUBLE_LOAD_MASK(l)        (((1ULL) << (l)) - 1ULL)
 #define SINGLE_LOAD_MASK(l)        (((1ULL) << (l)) - 1ULL)
 #elif defined(HAVE_SIMD_128_BITS)
+#if defined(ARCH_ARM32) || defined(ARCH_AARCH64)
+using Z_TYPE = u64a;
+#define Z_BITS 64
+#define Z_POSSHIFT 2
+#define DOUBLE_LOAD_MASK(l) ((~0ULL) >> (Z_BITS - (l)))
+#else
 using Z_TYPE = u32;
 #define Z_BITS 32
+#define Z_POSSHIFT 0
+#define DOUBLE_LOAD_MASK(l) (((1ULL) << (l)) - 1ULL)
+#endif
 #define Z_SHIFT 15
-#define DOUBLE_LOAD_MASK(l)        (((1ULL) << (l)) - 1ULL)
 #define SINGLE_LOAD_MASK(l)        (((1ULL) << (l)) - 1ULL)
 #endif
 
@@ -94,7 +104,7 @@ struct BaseVector
   static constexpr bool      is_valid = false;
   static constexpr u16           size = 8;
   using                          type = void;
-  using                 movemask_type = void;
+  using              comparemask_type = void;
   static constexpr bool  has_previous = false;
   using                 previous_type = void;
   static constexpr u16  previous_size = 4;
@@ -106,7 +116,7 @@ struct BaseVector<128>
   static constexpr bool      is_valid = true;
   static constexpr u16           size = 128;
   using                          type = void;
-  using                 movemask_type = u64a;
+  using              comparemask_type = u64a;
   static constexpr bool  has_previous = true;
   using                 previous_type = m512;
   static constexpr u16  previous_size = 64;
@@ -118,7 +128,7 @@ struct BaseVector<64>
   static constexpr bool      is_valid = true;
   static constexpr u16           size = 64;
   using                          type = m512;
-  using                 movemask_type = u64a;
+  using              comparemask_type = u64a;
   static constexpr bool  has_previous = true;
   using                 previous_type = m256;
   static constexpr u16  previous_size = 32;
@@ -131,7 +141,7 @@ struct BaseVector<32>
   static constexpr bool      is_valid = true;
   static constexpr u16           size = 32;
   using                          type = m256;
-  using                 movemask_type = u32;
+  using              comparemask_type = u64a;
   static constexpr bool  has_previous = true;
   using                 previous_type = m128;
   static constexpr u16  previous_size = 16;
@@ -144,7 +154,7 @@ struct BaseVector<16>
   static constexpr bool      is_valid = true;
   static constexpr u16           size = 16;
   using                          type = m128;
-  using                 movemask_type = u32;
+  using              comparemask_type = u64a;
   static constexpr bool  has_previous = false;
   using                 previous_type = u64a;
   static constexpr u16  previous_size = 8;
@@ -167,13 +177,13 @@ public:
 
 #if defined(ARCH_ARM32) || defined(ARCH_AARCH64) || defined(ARCH_PPC64EL)
     uint64x2_t ALIGN_ATTR(BaseVector<16>::size) u64x2[SIZE / BaseVector<16>::size];
-    int64x2_t  ALIGN_ATTR(BaseVector<16>::size) s64x2[SIZE / BaseVector<16>::size];
+    int64x2_t ALIGN_ATTR(BaseVector<16>::size) s64x2[SIZE / BaseVector<16>::size];
     uint32x4_t ALIGN_ATTR(BaseVector<16>::size) u32x4[SIZE / BaseVector<16>::size];
-    int32x4_t  ALIGN_ATTR(BaseVector<16>::size) s32x4[SIZE / BaseVector<16>::size];
+    int32x4_t ALIGN_ATTR(BaseVector<16>::size) s32x4[SIZE / BaseVector<16>::size];
     uint16x8_t ALIGN_ATTR(BaseVector<16>::size) u16x8[SIZE / BaseVector<16>::size];
-    int16x8_t  ALIGN_ATTR(BaseVector<16>::size) s16x8[SIZE / BaseVector<16>::size];
+    int16x8_t ALIGN_ATTR(BaseVector<16>::size) s16x8[SIZE / BaseVector<16>::size];
     uint8x16_t ALIGN_ATTR(BaseVector<16>::size) u8x16[SIZE / BaseVector<16>::size];
-    int8x16_t  ALIGN_ATTR(BaseVector<16>::size) s8x16[SIZE / BaseVector<16>::size];
+    int8x16_t ALIGN_ATTR(BaseVector<16>::size) s8x16[SIZE / BaseVector<16>::size];
 #endif
 
     uint64_t u64[SIZE / sizeof(uint64_t)];
@@ -194,7 +204,7 @@ public:
   SuperVector(typename base_type::type const v);
 
   template<typename T>
-  SuperVector(T other);
+  SuperVector(T const other);
 
   SuperVector(SuperVector<SIZE/2> const lo, SuperVector<SIZE/2> const hi);
   SuperVector(previous_type const lo, previous_type const hi);
@@ -231,8 +241,17 @@ public:
   SuperVector eq(SuperVector const &b) const;
   SuperVector operator<<(uint8_t const N) const;
   SuperVector operator>>(uint8_t const N) const;
-  typename base_type::movemask_type movemask(void) const;
-  typename base_type::movemask_type eqmask(SuperVector const b) const;
+  // Returns mask_width groups of zeros or ones. To get the mask which can be
+  // iterated, use iteration_mask method, it ensures only one bit is set per
+  // mask_width group.
+  // Precondition: all bytes must be 0 or 0xff.
+  typename base_type::comparemask_type comparemask(void) const;
+  typename base_type::comparemask_type eqmask(SuperVector const b) const;
+  static u32 mask_width();
+  // Returns a mask with at most 1 bit set to 1. It can be used to iterate
+  // over bits through ctz/clz and lowest bit clear.
+  static typename base_type::comparemask_type
+  iteration_mask(typename base_type::comparemask_type mask);
 
   static SuperVector loadu(void const *ptr);
   static SuperVector load(void const *ptr);

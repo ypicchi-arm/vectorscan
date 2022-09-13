@@ -39,13 +39,76 @@
 #include "util/supervector/supervector.hpp"
 #include <iostream>
 
-// 128-bit Powerpc64le implementation
+// 128-bit IBM Power VSX implementation
 
 template<>
 really_inline SuperVector<16>::SuperVector(SuperVector const &other)
 {
     u.v128[0] = other.u.v128[0];
 }
+
+template<>
+template<>
+really_inline SuperVector<16>::SuperVector(char __bool __vector v)
+{
+    u.u8x16[0] = (uint8x16_t) v;
+};
+
+template<>
+template<>
+really_inline SuperVector<16>::SuperVector(int8x16_t const v)
+{
+    u.s8x16[0] = v;
+};
+
+template<>
+template<>
+really_inline SuperVector<16>::SuperVector(uint8x16_t const v)
+{
+    u.u8x16[0] = v;
+};
+
+template<>
+template<>
+really_inline SuperVector<16>::SuperVector(int16x8_t const v)
+{
+    u.s16x8[0] = v;
+};
+
+template<>
+template<>
+really_inline SuperVector<16>::SuperVector(uint16x8_t const v)
+{
+    u.u16x8[0] = v;
+};
+
+template<>
+template<>
+really_inline SuperVector<16>::SuperVector(int32x4_t const v)
+{
+    u.s32x4[0] = v;
+};
+
+template<>
+template<>
+really_inline SuperVector<16>::SuperVector(uint32x4_t const v)
+{
+    u.u32x4[0] = v;
+};
+
+template<>
+template<>
+really_inline SuperVector<16>::SuperVector(int64x2_t const v)
+{
+    u.s64x2[0] = v;
+};
+
+template<>
+template<>
+really_inline SuperVector<16>::SuperVector(uint64x2_t const v)
+{
+    u.u64x2[0] = v;
+};
 
 template<>
 really_inline SuperVector<16>::SuperVector(typename base_type::type const v)
@@ -57,69 +120,69 @@ template<>
 template<>
 really_inline SuperVector<16>::SuperVector(int8_t const other)
 {
-    u.v128[0] = (m128) vec_splats(other);
+    u.s8x16[0] = vec_splats(other);
 }
 
 template<>
 template<>
 really_inline SuperVector<16>::SuperVector(uint8_t const other)
 {
-    u.v128[0] = (m128) vec_splats(static_cast<uint8_t>(other));
+    u.u8x16[0] = vec_splats(static_cast<uint8_t>(other));
 }
 
 template<>
 template<>
 really_inline SuperVector<16>::SuperVector(int16_t const other)
 {
-    u.v128[0] = (m128) vec_splats(other);
+    u.s16x8[0] = vec_splats(other);
 }
 
 template<>
 template<>
 really_inline SuperVector<16>::SuperVector(uint16_t const other)
 {
-    u.v128[0] = (m128) vec_splats(static_cast<uint16_t>(other));
+    u.u16x8[0] = vec_splats(static_cast<uint16_t>(other));
 }
 
 template<>
 template<>
 really_inline SuperVector<16>::SuperVector(int32_t const other)
 {
-    u.v128[0] = (m128) vec_splats(other);
+    u.s32x4[0] = vec_splats(other);
 }
 
 template<>
 template<>
 really_inline SuperVector<16>::SuperVector(uint32_t const other)
 {
-    u.v128[0] = (m128) vec_splats(static_cast<uint32_t>(other));
+    u.u32x4[0] = vec_splats(static_cast<uint32_t>(other));
 }
 
 template<>
 template<>
 really_inline SuperVector<16>::SuperVector(int64_t const other)
 {
-    u.v128[0] = (m128) vec_splats(static_cast<ulong64_t>(other));
+    u.s64x2[0] = (int64x2_t) vec_splats(static_cast<ulong64_t>(other));
 }
 
 template<>
 template<>
 really_inline SuperVector<16>::SuperVector(uint64_t const other)
 {
-    u.v128[0] = (m128) vec_splats(static_cast<ulong64_t>(other));
+    u.u64x2[0] = (uint64x2_t) vec_splats(static_cast<ulong64_t>(other));
 }
 
 // Constants
 template<>
 really_inline SuperVector<16> SuperVector<16>::Ones(void)
 {
-    return  {(m128) vec_splat_s8(-1)};
+    return  { vec_splat_s8(-1)};
 }
 
 template<>
 really_inline SuperVector<16> SuperVector<16>::Zeroes(void)
 {
-    return  {(m128) vec_splat_s8(0)};
+    return  { vec_splat_s8(0) };
 }
 
 // Methods
@@ -133,39 +196,38 @@ really_inline void SuperVector<16>::operator=(SuperVector<16> const &other)
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator&(SuperVector<16> const &b) const
 {
-    return {vec_and(u.v128[0], b.u.v128[0])};
+    return { vec_and(u.v128[0], b.u.v128[0]) };
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator|(SuperVector<16> const &b) const
 {
-    return  {vec_or(u.v128[0], b.u.v128[0])};
+    return  { vec_or(u.v128[0], b.u.v128[0]) };
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator^(SuperVector<16> const &b) const
 {
-    return  {(m128) vec_xor(u.v128[0], b.u.v128[0])};
+    return  { vec_xor(u.v128[0], b.u.v128[0]) };
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator!() const
 {
-    return  {(m128) vec_xor(u.v128[0], u.v128[0])};
+    return  { vec_xor(u.v128[0], u.v128[0]) };
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::opandnot(SuperVector<16> const &b) const
 {
-   m128 not_res = vec_xor(u.v128[0], (m128)vec_splat_s8(-1));
-   return {(m128) vec_and(not_res, (m128)b.u.v128[0]) };
+   int8x16_t not_res = vec_xor(u.s8x16[0], vec_splat_s8(-1));
+   return { vec_and(not_res, b.u.s8x16[0]) };
 }
-
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator==(SuperVector<16> const &b) const
 {
-    return {(m128) vec_cmpeq(u.s8x16[0], b.u.s8x16[0])};
+    return { vec_cmpeq(u.s8x16[0], b.u.s8x16[0])};
 }
 
 template <>
@@ -177,27 +239,26 @@ really_inline SuperVector<16> SuperVector<16>::operator!=(SuperVector<16> const 
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator>(SuperVector<16> const &b) const
 { 
-    return {(m128) vec_cmpgt(u.v128[0], b.u.v128[0])}; 
+    return { vec_cmpgt(u.s8x16[0], b.u.s8x16[0])};
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator>=(SuperVector<16> const &b) const
 {
-    return {(m128) vec_cmpge(u.v128[0], b.u.v128[0])};  
+    return { vec_cmpge(u.s8x16[0], b.u.s8x16[0])};
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator<(SuperVector<16> const &b) const
 {
-    return {(m128) vec_cmpgt(b.u.v128[0], u.v128[0])};  
+    return { vec_cmpgt(b.u.s8x16[0], u.s8x16[0])};
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator<=(SuperVector<16> const &b) const
 {   
-    return {(m128) vec_cmpge(b.u.v128[0], u.v128[0])};   
+    return { vec_cmpge(b.u.s8x16[0], u.s8x16[0])};
 }
-
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::eq(SuperVector<16> const &b) const
@@ -206,69 +267,64 @@ really_inline SuperVector<16> SuperVector<16>::eq(SuperVector<16> const &b) cons
 }
 
 template <>
-really_inline typename SuperVector<16>::movemask_type SuperVector<16>::movemask(void)const
-{ 
-    uint8x16_t s1 = vec_sr((uint8x16_t)u.v128[0], vec_splat_u8(7));
-    
-    uint16x8_t ss = vec_sr((uint16x8_t)s1, vec_splat_u16(7));
-    uint16x8_t res_and = vec_and((uint16x8_t)s1, vec_splats((uint16_t)0xff));
-    uint16x8_t s2 = vec_or((uint16x8_t)ss, res_and);
-    
-    uint32x4_t ss2 = vec_sr((uint32x4_t)s2 , vec_splat_u32(14));
-    uint32x4_t res_and2 = vec_and((uint32x4_t)s2, vec_splats((uint32_t)0xff));
-    uint32x4_t s3 = vec_or((uint32x4_t)ss2, res_and2);
-
-    uint64x2_t ss3 = vec_sr((uint64x2_t)s3, (uint64x2_t)vec_splats(28));
-    uint64x2_t res_and3 = vec_and((uint64x2_t)s3, vec_splats((ulong64_t)0xff));
-    uint64x2_t s4 = vec_or((uint64x2_t)ss3, res_and3);
-
-    uint64x2_t ss4 = vec_sld((uint64x2_t) vec_splats(0), s4, 9);
-    uint64x2_t res_and4 = vec_and((uint64x2_t)s4, vec_splats((ulong64_t)0xff));
-    uint64x2_t s5 = vec_or((uint64x2_t)ss4, res_and4);
-    
-    return s5[0];
+really_inline typename SuperVector<16>::comparemask_type
+SuperVector<16>::comparemask(void) const {
+    uint8x16_t bitmask = vec_gb( u.u8x16[0]);
+    static uint8x16_t perm = { 16, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    bitmask = (uint8x16_t) vec_perm(vec_splat_u8(0), bitmask, perm);
+    u32 movemask;
+    vec_ste((uint32x4_t) bitmask, 0, &movemask);
+    return movemask;
 }
 
 template <>
-really_inline typename SuperVector<16>::movemask_type SuperVector<16>::eqmask(SuperVector<16> const b) const
-{
-    return eq(b).movemask();  
+really_inline typename SuperVector<16>::comparemask_type
+SuperVector<16>::eqmask(SuperVector<16> const b) const {
+    return eq(b).comparemask();
 }
 
+template <> really_inline u32 SuperVector<16>::mask_width() { return 1; }
+
+template <>
+really_inline typename SuperVector<16>::comparemask_type
+SuperVector<16>::iteration_mask(
+    typename SuperVector<16>::comparemask_type mask) {
+    return mask;
+}
 
 template <>
 template<uint8_t N>
 really_inline SuperVector<16> SuperVector<16>::vshl_8_imm() const
 {
-    return { (m128) vec_sl(u.s8x16[0], vec_splats((uint8_t)N)) }; 
+    return { vec_sl(u.s8x16[0], vec_splat_u8(N)) };
 }
 
 template <>
 template<uint8_t N>
 really_inline SuperVector<16> SuperVector<16>::vshl_16_imm() const
 {
-    return { (m128) vec_sl(u.s16x8[0], vec_splats((uint16_t)N)) };
+    return { vec_sl(u.s16x8[0], vec_splat_u16(N)) };
 }
 
 template <>
 template<uint8_t N>
 really_inline SuperVector<16> SuperVector<16>::vshl_32_imm() const
 {
-    return { (m128) vec_sl(u.s32x4[0], vec_splats((uint32_t)N)) };
+    return { vec_sl(u.s32x4[0], vec_splat_u32(N)) };
 }
 
 template <>
 template<uint8_t N>
 really_inline SuperVector<16> SuperVector<16>::vshl_64_imm() const
 {
-    return { (m128) vec_sl(u.s64x2[0], vec_splats((ulong64_t)N)) };
+    return { vec_sl(u.s64x2[0], vec_splats((ulong64_t) N)) };
 }
 
 template <>
 template<uint8_t N>
 really_inline SuperVector<16> SuperVector<16>::vshl_128_imm() const
 {
-    return { (m128) vec_sld(u.s8x16[0], (int8x16_t)vec_splat_s8(0), N)}; 
+    return { vec_sld(u.s8x16[0], vec_splat_s8(0), N)};
 }
 
 template <>
@@ -282,35 +338,35 @@ template <>
 template<uint8_t N>
 really_inline SuperVector<16> SuperVector<16>::vshr_8_imm() const
 {
-    return { (m128) vec_sr(u.s8x16[0], vec_splats((uint8_t)N)) };
+    return { vec_sr(u.s8x16[0], vec_splat_u8(N)) };
 }
 
 template <>
 template<uint8_t N>
 really_inline SuperVector<16> SuperVector<16>::vshr_16_imm() const
 {
-    return { (m128) vec_sr(u.s16x8[0], vec_splats((uint16_t)N)) }; 
+    return { vec_sr(u.s16x8[0], vec_splat_u16(N)) };
 }
 
 template <>
 template<uint8_t N>
 really_inline SuperVector<16> SuperVector<16>::vshr_32_imm() const
 {
-    return { (m128) vec_sr(u.s32x4[0], vec_splats((uint32_t)N)) };
+    return { vec_sr(u.s32x4[0], vec_splat_u32(N)) };
 }
 
 template <>
 template<uint8_t N>
 really_inline SuperVector<16> SuperVector<16>::vshr_64_imm() const
 {		 
-   return { (m128) vec_sr(u.s64x2[0], vec_splats((ulong64_t)N)) }; 
+   return { vec_sr(u.s64x2[0], vec_splats((ulong64_t)N)) };
 }
 
 template <>
 template<uint8_t N>
 really_inline SuperVector<16> SuperVector<16>::vshr_128_imm() const
 {   
-    return { (m128) vec_sld((int8x16_t)vec_splat_s8(0), u.s8x16[0], 16 - N) };	
+    return { vec_sld(vec_splat_s8(0), u.s8x16[0], 16 - N) };
 }
 
 template <>
@@ -340,50 +396,40 @@ template <>
 really_inline SuperVector<16> SuperVector<16>::vshl_8  (uint8_t const N) const
 {
     if (N == 0) return *this;
-    if (N == 16) return Zeroes();
-    SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128) vec_sl(v->u.s8x16[0], vec_splats((uint8_t)n))}; });
-    return result;
+    uint8x16_t shift_indices = vec_splats((uint8_t) N);
+    return { vec_sl(u.u8x16[0], shift_indices) };
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::vshl_16 (uint8_t const UNUSED N) const
 {
     if (N == 0) return *this;
-    if (N == 16) return Zeroes();
-    SuperVector result; 
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128) vec_sl(v->u.s16x8[0], vec_splats((uint16_t)n))}; });
-    return result;
+    uint16x8_t shift_indices = vec_splats((uint16_t) N);
+    return { vec_sl(u.u16x8[0], shift_indices) };
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::vshl_32 (uint8_t const N) const
 {
     if (N == 0) return *this;
-    if (N == 16) return Zeroes();
-    SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128) vec_sl(v->u.s32x4[0], vec_splats((uint32_t)n))}; });
-    return result;
+    uint32x4_t shift_indices = vec_splats((uint32_t) N);
+    return { vec_sl(u.u32x4[0], shift_indices) };
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::vshl_64 (uint8_t const N) const
 {
     if (N == 0) return *this;
-    if (N == 16) return Zeroes();
-    SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128) vec_sl(v->u.s64x2[0], vec_splats((ulong64_t)n))}; });
-    return result;
+    uint64x2_t shift_indices = vec_splats((ulong64_t) N);
+    return { vec_sl(u.u64x2[0], shift_indices) };
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::vshl_128(uint8_t const N) const
 {
     if (N == 0) return *this;
-    if (N == 16) return Zeroes();
-    SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128) vec_sld(v->u.s8x16[0], (int8x16_t)vec_splat_s8(0), n)}; });
-    return result;
+    SuperVector sl{N << 3};
+    return { vec_slo(u.u8x16[0], sl.u.u8x16[0]) };
 }
 
 template <>
@@ -396,50 +442,40 @@ template <>
 really_inline SuperVector<16> SuperVector<16>::vshr_8  (uint8_t const N) const
 {
     if (N == 0) return *this;
-    if (N == 16) return Zeroes();
-    SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128) vec_sr(v->u.s8x16[0], vec_splats((uint8_t)n))}; });
-    return result;
+    uint8x16_t shift_indices = vec_splats((uint8_t) N);
+    return { vec_sr(u.u8x16[0], shift_indices) };
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::vshr_16 (uint8_t const N) const
 {
     if (N == 0) return *this;
-    if (N == 16) return Zeroes();
-    SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128) vec_sr(v->u.s16x8[0], vec_splats((uint16_t)n))}; });
-    return result;
+    uint16x8_t shift_indices = vec_splats((uint16_t) N);
+    return { vec_sr(u.u16x8[0], shift_indices) };
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::vshr_32 (uint8_t const N) const
 {
     if (N == 0) return *this;
-    if (N == 16) return Zeroes();
-    SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128) vec_sr(v->u.s32x4[0], vec_splats((uint32_t)n))}; });
-    return result;
+    uint32x4_t shift_indices = vec_splats((uint32_t) N);
+    return { vec_sr(u.u32x4[0], shift_indices) };
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::vshr_64 (uint8_t const N) const
 {
     if (N == 0) return *this;
-    if (N == 16) return Zeroes();
-    SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128) vec_sr(v->u.s64x2[0], vec_splats((ulong64_t)n))}; });
-    return result;
+    uint64x2_t shift_indices = vec_splats((ulong64_t) N);
+    return { vec_sr(u.u64x2[0], shift_indices) };
 }
 
 template <>
-really_inline SuperVector<16> SuperVector<16>::vshr_128(uint8_t const UNUSED N) const
+really_inline SuperVector<16> SuperVector<16>::vshr_128(uint8_t const N) const
 {
     if (N == 0) return *this;
-    if (N == 16) return Zeroes();
-    SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {(m128) vec_sld((int8x16_t)vec_splat_u8(0), v->u.s8x16[0], 16 - n)}; });
-    return result;
+    SuperVector sr{N << 3};
+    return { vec_sro(u.u8x16[0], sr.u.u8x16[0]) };
 }
 
 template <>
@@ -451,51 +487,25 @@ really_inline SuperVector<16> SuperVector<16>::vshr(uint8_t const N) const
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator>>(uint8_t const N) const
 {
-    switch(N) {
-    case 1: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0),  u.s8x16[0], 15)}; break;
-    case 2: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0),  u.s8x16[0], 14)}; break;
-    case 3: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0),  u.s8x16[0], 13)}; break;
-    case 4: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0),  u.s8x16[0], 12)}; break;
-    case 5: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0),  u.s8x16[0], 11)}; break;
-    case 6: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0),  u.s8x16[0], 10)}; break;
-    case 7: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0),  u.s8x16[0],  9)}; break;
-    case 8: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0),  u.s8x16[0],  8)}; break;
-    case 9: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0),  u.s8x16[0],  7)}; break;
-    case 10: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0), u.s8x16[0], 6)}; break;
-    case 11: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0), u.s8x16[0], 5)}; break;
-    case 12: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0), u.s8x16[0], 4)}; break;
-    case 13: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0), u.s8x16[0], 3)}; break;
-    case 14: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0), u.s8x16[0], 2)}; break;
-    case 15: return {(m128) vec_sld((int8x16_t) vec_splat_s8(0), u.s8x16[0], 1)}; break;
-    case 16: return Zeroes(); break;
-    default: break;
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (N == 0) return *this;
+    if (__builtin_constant_p(N)) {
+        return { vec_sld(vec_splat_s8(0),  u.s8x16[0], 16 - N) };
     }
-    return *this;
+#endif
+    return vshr_128(N);
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::operator<<(uint8_t const N) const
 {
-    switch(N) {
-    case 1: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 1)}; break;
-    case 2: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 2)}; break;
-    case 3: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 3)}; break;
-    case 4: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 4)}; break;
-    case 5: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 5)}; break;
-    case 6: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 6)}; break;
-    case 7: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 7)}; break;
-    case 8: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 8)}; break;
-    case 9: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 9)}; break;
-    case 10: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 10)}; break;
-    case 11: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 11)}; break;
-    case 12: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 12)}; break;
-    case 13: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 13)}; break;
-    case 14: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 14)}; break;
-    case 15: return {(m128) vec_sld(u.s8x16[0], (int8x16_t) vec_splat_s8(0), 15)}; break;
-    case 16: return Zeroes(); break;
-    default: break;
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (N == 0) return *this;
+    if (__builtin_constant_p(N)) {
+        return { vec_sld(u.s8x16[0], vec_splat_s8(0), N)};
     }
-    return *this;
+#endif
+    return vshl_128(N);
 }
 
 template<>
@@ -513,50 +523,39 @@ really_inline SuperVector<16> SuperVector<16>::Ones_vshl(uint8_t const N)
 template <>
 really_inline SuperVector<16> SuperVector<16>::loadu(void const *ptr)
 {
-    return (m128) vec_xl(0, (const long64_t*)ptr);
+    return { vec_xl(0, (const long64_t*)ptr) };
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::load(void const *ptr)
 {
     assert(ISALIGNED_N(ptr, alignof(SuperVector::size)));
-    return (m128)  vec_xl(0, (const long64_t*)ptr);
+    return { vec_xl(0, (const long64_t*)ptr) };
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::loadu_maskz(void const *ptr, uint8_t const len)
 {
     SuperVector<16> mask = Ones_vshr(16 -len);
-    mask.print8("mask");
     SuperVector<16> v = loadu(ptr);
-    v.print8("v");
     return mask & v;
 }
 
 template<>
 really_inline SuperVector<16> SuperVector<16>::alignr(SuperVector<16> &other, int8_t offset)
 {   
-    
-    switch(offset) {
-    case 0: return other; break;
-    case 1: return {(m128) vec_sld(u.s8x16[0],  other.u.s8x16[0], 15)}; break;
-    case 2: return {(m128) vec_sld(u.s8x16[0],  other.u.s8x16[0], 14)}; break;
-    case 3: return {(m128) vec_sld(u.s8x16[0],  other.u.s8x16[0], 13)}; break;
-    case 4: return {(m128) vec_sld(u.s8x16[0],  other.u.s8x16[0], 12)}; break;
-    case 5: return {(m128) vec_sld(u.s8x16[0],  other.u.s8x16[0], 11)}; break;
-    case 6: return {(m128) vec_sld(u.s8x16[0],  other.u.s8x16[0], 10)}; break;
-    case 7: return {(m128) vec_sld(u.s8x16[0],  other.u.s8x16[0],  9)}; break;
-    case 8: return {(m128) vec_sld(u.s8x16[0],  other.u.s8x16[0],  8)}; break;
-    case 9: return {(m128) vec_sld(u.s8x16[0],  other.u.s8x16[0],  7)}; break;
-    case 10: return {(m128) vec_sld(u.s8x16[0], other.u.s8x16[0], 6)}; break;
-    case 11: return {(m128) vec_sld(u.s8x16[0], other.u.s8x16[0], 5)}; break;
-    case 12: return {(m128) vec_sld(u.s8x16[0], other.u.s8x16[0], 4)}; break;
-    case 13: return {(m128) vec_sld(u.s8x16[0], other.u.s8x16[0], 3)}; break;
-    case 14: return {(m128) vec_sld(u.s8x16[0], other.u.s8x16[0], 2)}; break;
-    case 15: return {(m128) vec_sld(u.s8x16[0], other.u.s8x16[0], 1)}; break;
-    default: break;
+    if (offset == 0) return other;
+    if (offset == 16) return *this;
+#if defined(HAVE__BUILTIN_CONSTANT_P)
+    if (__builtin_constant_p(offset)) {
+        return { vec_sld(u.s8x16[0], other.u.s8x16[0], offset) };
     }
-    return *this;
+#endif
+    uint8x16_t sl = vec_splats((uint8_t) (offset << 3));
+    uint8x16_t sr = vec_splats((uint8_t) ((16 - offset) << 3));
+    uint8x16_t rhs = vec_slo(u.u8x16[0], sr);
+    uint8x16_t lhs = vec_sro(other.u.u8x16[0], sl);
+    return { vec_or(lhs, rhs) };
 }
 
 template<>
@@ -566,9 +565,9 @@ really_inline SuperVector<16> SuperVector<16>::pshufb<false>(SuperVector<16> b)
     /* On Intel, if bit 0x80 is set, then result is zero, otherwise which the lane it is &0xf.
        In NEON or PPC, if >=16, then the result is zero, otherwise it is that lane.
        below is the version that is converted from Intel to PPC.  */
-    uint8x16_t mask =(uint8x16_t)vec_cmpge(b.u.u8x16[0], (uint8x16_t)vec_splats((uint8_t)0x80));
+    uint8x16_t mask =(uint8x16_t)vec_cmpge(b.u.u8x16[0], vec_splats((uint8_t)0x80));
     uint8x16_t res = vec_perm (u.u8x16[0], u.u8x16[0], b.u.u8x16[0]);
-    return (m128) vec_sel(res, (uint8x16_t)vec_splat_s8(0), mask);
+    return { vec_sel(res, vec_splat_u8(0), mask) };
 }
 
 template<>

@@ -9,10 +9,10 @@ export CROSS_SYS=<arm-cross-compiler-system-dir>
 # 	wget -O boost_$BOOST_VERSION.tar.gz https://sourceforge.net/projects/boost/files/boost/$BOOST_DOT_VERSION/boost_$BOOST_VERSION.tar.gz/download
 # 	tar xf boost_$BOOST_VERSION.tar.gz
 # fi
-if [ ! -d "pcre-8.41" ];
+if [ ! -d "pcre-8.45" ];
 then
-	wget -O pcre-8.41.tar.bz2 https://ftp.pcre.org/pub/pcre/pcre-8.41.tar.bz2
-	tar xf pcre-8.41.tar.bz2
+	wget -O pcre-8.45.tar.bz2 https://sourceforge.net/projects/pcre/files/pcre/8.45/pcre-8.45.tar.bz2/download
+	tar xf pcre-8.45.tar.bz2
 	export PCRE_SOURCE=1
 fi
 

@@ -189,10 +189,7 @@ public:
         size_t sum = 0;
         size_t i = 0;
         for (; i + 4 <= num_blocks; i += 4) {
-            sum += popcount64(bits[i]);
-            sum += popcount64(bits[i + 1]);
-            sum += popcount64(bits[i + 2]);
-            sum += popcount64(bits[i + 3]);
+            sum += popcount64x4(&bits[i]);
         }
         for (; i < num_blocks; i++) {
             sum += popcount64(bits[i]);
