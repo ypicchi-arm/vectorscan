@@ -156,12 +156,6 @@ else()
     set(ARCH_FLAG march)
 endif()
 
-set(TUNE_FLAG "mtune")
-set(CPU_FLAG "mcpu")
-set(GNUCC_CPU "")
-set(GNUCC_TUNE "")
-message(STATUS "ARCH_FLAG '${ARCH_FLAG}' '${GNUCC_ARCH}', TUNE_FLAG '${TUNE_FLAG}' '${GNUCC_TUNE}' , CPU_FLAG '${CPU_FLAG}' '${GNUCC_CPU}'")
-
 # Detect best GNUCC_ARCH to tune for
 if (CMAKE_COMPILER_IS_GNUCC AND NOT CROSS_COMPILE)
     message(STATUS "gcc version ${CMAKE_C_COMPILER_VERSION}")
@@ -171,24 +165,23 @@ if (CMAKE_COMPILER_IS_GNUCC AND NOT CROSS_COMPILE)
     # cpuid info and then chooses the best microarch it can (and replaces
     # the flag), so use that for tune.
 
+    set(TUNE_FLAG "mtune")
+    set(GNUCC_TUNE "")
+    message(STATUS "ARCH_FLAG '${ARCH_FLAG}' '${GNUCC_ARCH}', TUNE_FLAG '${TUNE_FLAG}' '${GNUCC_TUNE}' ")
+
     # arg1 might exist if using ccache
     string (STRIP "${CMAKE_C_COMPILER_ARG1}" CC_ARG1)
-    set (EXEC_ARGS ${CC_ARG1} -c -Q --help=target -${ARCH_FLAG}=native -mtune=native -mcpu=native)
+    set (EXEC_ARGS ${CC_ARG1} -c -Q --help=target -${ARCH_FLAG}=native -mtune=native)
     execute_process(COMMAND ${CMAKE_C_COMPILER} ${EXEC_ARGS}
         OUTPUT_VARIABLE _GCC_OUTPUT)
     set(_GCC_OUTPUT_TUNE ${_GCC_OUTPUT})
-    set(_GCC_OUTPUT_CPU ${_GCC_OUTPUT})
-    string(FIND "${_GCC_OUTPUT}" "${ARCH_FLAG}" POS)
+    string(FIND "${_GCC_OUTPUT}" "${ARCH_FLAG}=" POS)
     string(SUBSTRING "${_GCC_OUTPUT}" ${POS} -1 _GCC_OUTPUT)
     string(REGEX REPLACE "${ARCH_FLAG}=[ \t]*([^ \n]*)[ \n].*" "\\1" GNUCC_ARCH "${_GCC_OUTPUT}")
 
-    string(FIND "${_GCC_OUTPUT_TUNE}" "${TUNE_FLAG}" POS_TUNE)
+    string(FIND "${_GCC_OUTPUT_TUNE}" "${TUNE_FLAG}=" POS_TUNE)
     string(SUBSTRING "${_GCC_OUTPUT_TUNE}" ${POS_TUNE} -1 _GCC_OUTPUT_TUNE)
     string(REGEX REPLACE "${TUNE_FLAG}=[ \t]*([^ \n]*)[ \n].*" "\\1" GNUCC_TUNE "${_GCC_OUTPUT_TUNE}")
-
-    string(FIND "${_GCC_OUTPUT_CPU}" "${CPU_FLAG}" POS_CPU)
-    string(SUBSTRING "${_GCC_OUTPUT_CPU}" ${POS_CPU} -1 _GCC_OUTPUT_CPU)
-    string(REGEX REPLACE "${CPU_FLAG}=[ \t]*([^ \n]*)[ \n].*" "\\1" GNUCC_CPU "${_GCC_OUTPUT_CPU}")
 
     string(FIND "${GNUCC_ARCH}" "sve" POS_SVE)
     string(FIND "${GNUCC_ARCH}" "sve2" POS_SVE2)
@@ -201,7 +194,7 @@ if (CMAKE_COMPILER_IS_GNUCC AND NOT CROSS_COMPILE)
         set(BUILD_SVE2_BITPERM 1)
     endif()
 
-    message(STATUS "ARCH_FLAG '${ARCH_FLAG}' '${GNUCC_ARCH}', TUNE_FLAG '${TUNE_FLAG}' '${GNUCC_TUNE}' , CPU_FLAG '${CPU_FLAG}' '${GNUCC_CPU}'")
+    message(STATUS "ARCH_FLAG '${ARCH_FLAG}' '${GNUCC_ARCH}', TUNE_FLAG '${TUNE_FLAG}' '${GNUCC_TUNE}' ")
 
     # test the parsed flag
     set (EXEC_ARGS ${CC_ARG1} -E - -${ARCH_FLAG}=${GNUCC_ARCH} -${TUNE_FLAG}=${GNUCC_TUNE} -${CPU_FLAG}=${GNUCC_CPU})
@@ -258,8 +251,8 @@ message(STATUS "ARCH_C_FLAGS   : ${ARCH_C_FLAGS}")
 message(STATUS "ARCH_CXX_FLAGS : ${ARCH_CXX_FLAGS}")
 
 if (NOT FAT_RUNTIME)
-    set(ARCH_C_FLAGS "-${ARCH_FLAG}=${GNUCC_ARCH} -${TUNE_FLAG}=${GNUCC_TUNE} -${CPU_FLAG}=${GNUCC_CPU} ${ARCH_C_FLAGS}")
-    set(ARCH_CXX_FLAGS "-${ARCH_FLAG}=${GNUCC_ARCH} -${TUNE_FLAG}=${GNUCC_TUNE} -${CPU_FLAG}=${GNUCC_CPU} ${ARCH_CXX_FLAGS}")
+    set(ARCH_C_FLAGS "-${ARCH_FLAG}=${GNUCC_ARCH} -${TUNE_FLAG}=${GNUCC_TUNE}")
+    set(ARCH_CXX_FLAGS "-${ARCH_FLAG}=${GNUCC_ARCH} -${TUNE_FLAG}=${GNUCC_TUNE}")
 endif()
 
 #if (ARCH_IA32 OR ARCH_X86_64 OR ARCH_ARM32 OR ARCH_AARCH64)
