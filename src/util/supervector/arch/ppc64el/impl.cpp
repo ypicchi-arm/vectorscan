@@ -49,7 +49,7 @@ really_inline SuperVector<16>::SuperVector(SuperVector const &other)
 
 template<>
 template<>
-really_inline SuperVector<16>::SuperVector(char __bool __vector v)
+really_inline SuperVector<16>::SuperVector(__vector __bool char v)
 {
     u.u8x16[0] = (uint8x16_t) v;
 };
