@@ -304,7 +304,7 @@ pipeline {
                         } 
                         stage("Build") {
                             steps {
-                                cmakeBuild buildDir: 'build-clang-release-SSE', buildType: 'Release', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=no -DBUILD_AVX512=no -DFAT_RUNTIME=no', installation: 'InSearchPath', steps: [[envVars: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
+                                cmakeBuild buildDir: 'build-clang-release-SSE', buildType: 'Release', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=no -DBUILD_AVX512=no -DFAT_RUNTIME=no', installation: 'InSearchPath', steps: [[withEnv: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
                             }
                         }
                         stage("Unit Test") {
@@ -329,7 +329,7 @@ pipeline {
                         } 
                         stage("Build") {
                             steps {
-                                cmakeBuild buildDir: 'build-clang-release-AVX2', buildType: 'Release', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=yes -DBUILD_AVX512=no -DFAT_RUNTIME=no', installation: 'InSearchPath', steps: [[envVars: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
+                                cmakeBuild buildDir: 'build-clang-release-AVX2', buildType: 'Release', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=yes -DBUILD_AVX512=no -DFAT_RUNTIME=no', installation: 'InSearchPath', steps: [[withEnv: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
                             }
                         }
                         stage("Unit Test") {
@@ -354,7 +354,7 @@ pipeline {
                         } 
                         stage("Build") {
                             steps {
-                                cmakeBuild buildDir: 'build-clang-release-AVX512', buildType: 'Release', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=yes -DBUILD_AVX512=yes -DFAT_RUNTIME=no', installation: 'InSearchPath', steps: [[envVars: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
+                                cmakeBuild buildDir: 'build-clang-release-AVX512', buildType: 'Release', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=yes -DBUILD_AVX512=yes -DFAT_RUNTIME=no', installation: 'InSearchPath', steps: [[withEnv: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
                             }
                         }
                         stage("Unit Test") {
@@ -379,7 +379,7 @@ pipeline {
                         } 
                         stage("Build") {
                             steps {
-                                cmakeBuild buildDir: 'build-clang-release-fat', buildType: 'Release', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=yes -DBUILD_AVX512=yes -DFAT_RUNTIME=yes', installation: 'InSearchPath', steps: [[envVars: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
+                                cmakeBuild buildDir: 'build-clang-release-fat', buildType: 'Release', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=yes -DBUILD_AVX512=yes -DFAT_RUNTIME=yes', installation: 'InSearchPath', steps: [[withEnv: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
                             }
                         }
                         stage("Test") {
@@ -399,7 +399,7 @@ pipeline {
                         } 
                         stage("Build") {
                             steps {
-                                cmakeBuild buildDir: 'build-clang-debug-SSE', buildType: 'Debug', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=no -DBUILD_AVX512=no -DFAT_RUNTIME=no', installation: 'InSearchPath', steps: [[envVars: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
+                                cmakeBuild buildDir: 'build-clang-debug-SSE', buildType: 'Debug', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=no -DBUILD_AVX512=no -DFAT_RUNTIME=no', installation: 'InSearchPath', steps: [[withEnv: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
                             }
                         }
                         stage("Unit Test") {
@@ -424,7 +424,7 @@ pipeline {
                         } 
                         stage("Build") {
                             steps {
-                                cmakeBuild buildDir: 'build-clang-debug-AVX2', buildType: 'Debug', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=yes -DBUILD_AVX512=no -DFAT_RUNTIME=no', installation: 'InSearchPath', steps: [[envVars: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
+                                cmakeBuild buildDir: 'build-clang-debug-AVX2', buildType: 'Debug', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=yes -DBUILD_AVX512=no -DFAT_RUNTIME=no', installation: 'InSearchPath', steps: [[withEnv: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
                             }
                         }
                         stage("Unit Test") {
@@ -449,7 +449,7 @@ pipeline {
                         } 
                         stage("Build") {
                             steps {
-                                cmakeBuild buildDir: 'build-clang-debug-AVX512', buildType: 'Debug', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=yes -DBUILD_AVX512=yes -DFAT_RUNTIME=no', installation: 'InSearchPath', steps: [[envVars: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
+                                cmakeBuild buildDir: 'build-clang-debug-AVX512', buildType: 'Debug', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=yes -DBUILD_AVX512=yes -DFAT_RUNTIME=no', installation: 'InSearchPath', steps: [[withEnv: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
                             }
                         }
                         stage("Unit Test") {
@@ -474,7 +474,7 @@ pipeline {
                         } 
                         stage("Build") {
                             steps {
-                                cmakeBuild buildDir: 'build-clang-debug-fat', buildType: 'Debug', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=yes -DBUILD_AVX512=yes -DFAT_RUNTIME=yes', installation: 'InSearchPath', steps: [[envVars: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
+                                cmakeBuild buildDir: 'build-clang-debug-fat', buildType: 'Debug', cleanBuild: true, cmakeArgs: '-DBUILD_AVX2=yes -DBUILD_AVX512=yes -DFAT_RUNTIME=yes', installation: 'InSearchPath', steps: [[withEnv: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
                             }
                         }
                         stage("Test") {
@@ -494,7 +494,7 @@ pipeline {
                         } 
                         stage("Build") {
                             steps {
-                                cmakeBuild buildDir: 'build-clang-release-arm', buildType: 'Release', cleanBuild: true, cmakeArgs: '', installation: 'InSearchPath', steps: [[envVars: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
+                                cmakeBuild buildDir: 'build-clang-release-arm', buildType: 'Release', cleanBuild: true, cmakeArgs: '', installation: 'InSearchPath', steps: [[withEnv: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
                             }
                         }
                         stage("Unit Test") {
@@ -519,7 +519,7 @@ pipeline {
                         } 
                         stage("Build") {
                             steps {
-                                cmakeBuild buildDir: 'build-clang-debug-arm', buildType: 'Debug', cleanBuild: true, cmakeArgs: '', installation: 'InSearchPath', steps: [[envVars: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
+                                cmakeBuild buildDir: 'build-clang-debug-arm', buildType: 'Debug', cleanBuild: true, cmakeArgs: '', installation: 'InSearchPath', steps: [[withEnv: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
                             }
                         }
                         stage("Unit Test") {
@@ -544,7 +544,7 @@ pipeline {
                         } 
                         stage("Build") {
                             steps {
-                                cmakeBuild buildDir: 'build-clang-release-power', buildType: 'Release', cleanBuild: true, cmakeArgs: '', installation: 'InSearchPath', steps: [[envVars: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
+                                cmakeBuild buildDir: 'build-clang-release-power', buildType: 'Release', cleanBuild: true, cmakeArgs: '', installation: 'InSearchPath', steps: [[withEnv: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
                             }
                         }
                         stage("Unit Test") {
@@ -569,7 +569,7 @@ pipeline {
                         } 
                         stage("Build") {
                             steps {
-                                cmakeBuild buildDir: 'build-clang-debug-power', buildType: 'Debug', cleanBuild: true, cmakeArgs: '', installation: 'InSearchPath', steps: [[envVars: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
+                                cmakeBuild buildDir: 'build-clang-debug-power', buildType: 'Debug', cleanBuild: true, cmakeArgs: '', installation: 'InSearchPath', steps: [[withEnv: 'CC=clang CXX=clang++', args: '--parallel 4', withCmake: true]]
                             }
                         }
                         stage("Unit Test") {
