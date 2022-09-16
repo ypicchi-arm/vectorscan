@@ -152,7 +152,7 @@ static really_inline u32 movemask128(m128 a) {
    static uint8x16_t perm = { 16, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
    uint8x16_t bitmask = vec_gb((uint8x16_t) a);
    bitmask = (uint8x16_t) vec_perm(vec_splat_u8(0), bitmask, perm);
-   u32 movemask;
+   u32 ALIGN_ATTR(16) movemask;
    vec_ste((uint32x4_t) bitmask, 0, &movemask);
    return movemask;
 }
@@ -285,27 +285,27 @@ m128 loadbytes128(const void *ptr, unsigned int n) {
     return a;
 }
 
-#define CASE_ALIGN_VECTORS(a, b, offset)  case offset: return (m128)vec_sld((int8x16_t)(b), (int8x16_t)(a), (16 - offset)); break;
+#define CASE_ALIGN_VECTORS(a, b, offset)  case offset: return (m128)vec_sld((int8x16_t)(a), (int8x16_t)(b), (16 - offset)); break;
 
 static really_really_inline
 m128 palignr_imm(m128 r, m128 l, int offset) {
     switch (offset) {
     case 0: return l; break;
-    CASE_ALIGN_VECTORS(l, r, 1);
-    CASE_ALIGN_VECTORS(l, r, 2);
-    CASE_ALIGN_VECTORS(l, r, 3);
-    CASE_ALIGN_VECTORS(l, r, 4);
-    CASE_ALIGN_VECTORS(l, r, 5);
-    CASE_ALIGN_VECTORS(l, r, 6);
-    CASE_ALIGN_VECTORS(l, r, 7);
-    CASE_ALIGN_VECTORS(l, r, 8);
-    CASE_ALIGN_VECTORS(l, r, 9);
-    CASE_ALIGN_VECTORS(l, r, 10);
-    CASE_ALIGN_VECTORS(l, r, 11);
-    CASE_ALIGN_VECTORS(l, r, 12);
-    CASE_ALIGN_VECTORS(l, r, 13);
-    CASE_ALIGN_VECTORS(l, r, 14);
-    CASE_ALIGN_VECTORS(l, r, 15);
+    CASE_ALIGN_VECTORS(r, l, 1);
+    CASE_ALIGN_VECTORS(r, l, 2);
+    CASE_ALIGN_VECTORS(r, l, 3);
+    CASE_ALIGN_VECTORS(r, l, 4);
+    CASE_ALIGN_VECTORS(r, l, 5);
+    CASE_ALIGN_VECTORS(r, l, 6);
+    CASE_ALIGN_VECTORS(r, l, 7);
+    CASE_ALIGN_VECTORS(r, l, 8);
+    CASE_ALIGN_VECTORS(r, l, 9);
+    CASE_ALIGN_VECTORS(r, l, 10);
+    CASE_ALIGN_VECTORS(r, l, 11);
+    CASE_ALIGN_VECTORS(r, l, 12);
+    CASE_ALIGN_VECTORS(r, l, 13);
+    CASE_ALIGN_VECTORS(r, l, 14);
+    CASE_ALIGN_VECTORS(r, l, 15);
     case 16: return r; break;
     default: return zeroes128(); break;
     } 

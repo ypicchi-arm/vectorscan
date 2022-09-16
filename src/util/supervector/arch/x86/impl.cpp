@@ -523,9 +523,7 @@ template <>
 really_inline SuperVector<16> SuperVector<16>::loadu_maskz(void const *ptr, uint8_t const len)
 {
     SuperVector mask = Ones_vshr(16 -len);
-    mask.print8("mask");
     SuperVector v = _mm_loadu_si128((const m128 *)ptr);
-    v.print8("v");
     return mask & v;
 }
 

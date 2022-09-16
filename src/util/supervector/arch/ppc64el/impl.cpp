@@ -49,7 +49,7 @@ really_inline SuperVector<16>::SuperVector(SuperVector const &other)
 
 template<>
 template<>
-really_inline SuperVector<16>::SuperVector(char __bool __vector v)
+really_inline SuperVector<16>::SuperVector(__vector __bool char v)
 {
     u.u8x16[0] = (uint8x16_t) v;
 };
@@ -269,10 +269,10 @@ really_inline SuperVector<16> SuperVector<16>::eq(SuperVector<16> const &b) cons
 template <>
 really_inline typename SuperVector<16>::comparemask_type
 SuperVector<16>::comparemask(void) const {
-    uint8x16_t bitmask = vec_gb( u.u8x16[0]);
     static uint8x16_t perm = { 16, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    uint8x16_t bitmask = vec_gb(u.u8x16[0]);
     bitmask = (uint8x16_t) vec_perm(vec_splat_u8(0), bitmask, perm);
-    u32 movemask;
+    u32 ALIGN_ATTR(16) movemask;
     vec_ste((uint32x4_t) bitmask, 0, &movemask);
     return movemask;
 }

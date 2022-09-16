@@ -1,4 +1,5 @@
-cmake_minimum_required (VERSION 2.8.11)
+cmake_minimum_required (VERSION 2.8.12)
+
 project (vectorscan C CXX)
 
 set (HS_MAJOR_VERSION 5)
@@ -296,6 +297,12 @@ if (NOT RELEASE_BUILD)
     # release builds
     set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Werror")
     set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Werror")
+    if (CMAKE_COMPILER_IS_CLANG)
+	if (CMAKE_C_COMPILER_VERSION VERSION_GREATER "13.0")
+           set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wno-unused-but-set-variable")
+           set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-unused-but-set-variable")
+        endif()
+    endif()
 endif()
 
 if (DISABLE_ASSERTS)
