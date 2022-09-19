@@ -1,4 +1,5 @@
-cmake_minimum_required (VERSION 2.8.11)
+cmake_minimum_required (VERSION 2.8.12)
+
 project (vectorscan C CXX)
 
 set (HS_MAJOR_VERSION 5)
@@ -165,27 +166,49 @@ if (CMAKE_COMPILER_IS_GNUCC AND NOT CROSS_COMPILE)
     # cpuid info and then chooses the best microarch it can (and replaces
     # the flag), so use that for tune.
 
+    set(TUNE_FLAG "mtune")
+    set(GNUCC_TUNE "")
+    message(STATUS "ARCH_FLAG '${ARCH_FLAG}' '${GNUCC_ARCH}', TUNE_FLAG '${TUNE_FLAG}' '${GNUCC_TUNE}' ")
+
     # arg1 might exist if using ccache
     string (STRIP "${CMAKE_C_COMPILER_ARG1}" CC_ARG1)
-    set (EXEC_ARGS ${CC_ARG1} -c -Q --help=target -${ARCH_FLAG}=native -mtune=native)
+    set (EXEC_ARGS ${CC_ARG1} -c -Q --help=target -${ARCH_FLAG}=native -${TUNE_FLAG}=native)
     execute_process(COMMAND ${CMAKE_C_COMPILER} ${EXEC_ARGS}
         OUTPUT_VARIABLE _GCC_OUTPUT)
-    string(FIND "${_GCC_OUTPUT}" "${ARCH_FLAG}" POS)
+    set(_GCC_OUTPUT_TUNE ${_GCC_OUTPUT})
+    string(FIND "${_GCC_OUTPUT}" "${ARCH_FLAG}=" POS)
     string(SUBSTRING "${_GCC_OUTPUT}" ${POS} -1 _GCC_OUTPUT)
     string(REGEX REPLACE "${ARCH_FLAG}=[ \t]*([^ \n]*)[ \n].*" "\\1" GNUCC_ARCH "${_GCC_OUTPUT}")
 
+    string(FIND "${_GCC_OUTPUT_TUNE}" "${TUNE_FLAG}=" POS_TUNE)
+    string(SUBSTRING "${_GCC_OUTPUT_TUNE}" ${POS_TUNE} -1 _GCC_OUTPUT_TUNE)
+    string(REGEX REPLACE "${TUNE_FLAG}=[ \t]*([^ \n]*)[ \n].*" "\\1" GNUCC_TUNE "${_GCC_OUTPUT_TUNE}")
+
+    string(FIND "${GNUCC_ARCH}" "sve" POS_SVE)
+    string(FIND "${GNUCC_ARCH}" "sve2" POS_SVE2)
+    string(FIND "${GNUCC_ARCH}" "sve2-bitperm" POS_SVE2_BITPERM)
+    if (NOT POS_SVE EQUAL 0)
+        set(SVE_FOUND 1)
+    elseif(NOT POS_SVE2 EQUAL 0)
+        set(SVE2_FOUND 1)
+    elseif(NOT POS_SVE2_BITPERM EQUAL 0)
+        set(SVE2_BITPERM_FOUND 1)
+    endif()
+
+    message(STATUS "ARCH_FLAG '${ARCH_FLAG}' '${GNUCC_ARCH}', TUNE_FLAG '${TUNE_FLAG}' '${GNUCC_TUNE}' ")
+
     # test the parsed flag
-    set (EXEC_ARGS ${CC_ARG1} -E - -mtune=${GNUCC_ARCH})
+    set (EXEC_ARGS ${CC_ARG1} -E - -${ARCH_FLAG}=${GNUCC_ARCH} -${TUNE_FLAG}=${GNUCC_TUNE})
     execute_process(COMMAND ${CMAKE_C_COMPILER} ${EXEC_ARGS}
         OUTPUT_QUIET ERROR_QUIET
         INPUT_FILE /dev/null
         RESULT_VARIABLE GNUCC_TUNE_TEST)
     if (NOT GNUCC_TUNE_TEST EQUAL 0)
-        message(WARNING "Something went wrong determining gcc tune: -mtune=${GNUCC_ARCH} not valid, falling back to -mtune=native")
-        set(TUNE_FLAG native)
+        message(WARNING "Something went wrong determining gcc tune: -mtune=${GNUCC_TUNE} not valid, falling back to -mtune=native")
+        set(GNUCC_TUNE native)
     else()
-        set(TUNE_FLAG ${GNUCC_ARCH})
-        message(STATUS "gcc will tune for ${GNUCC_ARCH}, ${TUNE_FLAG}")
+        set(GNUCC_TUNE ${GNUCC_TUNE})
+        message(STATUS "gcc will tune for ${GNUCC_ARCH}, ${GNUCC_TUNE}")
     endif()
 elseif (CMAKE_COMPILER_IS_CLANG AND NOT CROSS_COMPILE)
     if (ARCH_IA32 OR ARCH_X86_64)
@@ -226,22 +249,26 @@ if (ARCH_IA32 OR ARCH_X86_64)
 endif()
 
 if (ARCH_AARCH64)
-    if (BUILD_SVE2_BITPERM)
+    if (BUILD_SVE2_BITPERM AND NOT SVE2_BITPERM_FOUND)
         set(GNUCC_ARCH "${GNUCC_ARCH}+sve2-bitperm")
-    elseif (BUILD_SVE2)
+    elseif (BUILD_SVE2 AND NOT SVE2_FOUND)
         set(GNUCC_ARCH "${GNUCC_ARCH}+sve2")
-    elseif (BUILD_SVE)
+    elseif (BUILD_SVE AND NOT SVE_FOUND)
         set(GNUCC_ARCH "${GNUCC_ARCH}+sve")
     endif ()
 endif(ARCH_AARCH64)
-
 
 message(STATUS "ARCH_C_FLAGS   : ${ARCH_C_FLAGS}")
 message(STATUS "ARCH_CXX_FLAGS : ${ARCH_CXX_FLAGS}")
 
 if (NOT FAT_RUNTIME)
-    set(ARCH_C_FLAGS "-${ARCH_FLAG}=${GNUCC_ARCH} -mtune=${TUNE_FLAG} ${ARCH_C_FLAGS}")
-    set(ARCH_CXX_FLAGS "-${ARCH_FLAG}=${GNUCC_ARCH} -mtune=${TUNE_FLAG} ${ARCH_CXX_FLAGS}")
+    if (GNUCC_TUNE)
+        set(ARCH_C_FLAGS "-${ARCH_FLAG}=${GNUCC_ARCH} -${TUNE_FLAG}=${GNUCC_TUNE}")
+        set(ARCH_CXX_FLAGS "-${ARCH_FLAG}=${GNUCC_ARCH} -${TUNE_FLAG}=${GNUCC_TUNE}")
+    else()
+        set(ARCH_C_FLAGS "-${ARCH_FLAG}=${GNUCC_ARCH} -mtune=${TUNE_FLAG} ${ARCH_C_FLAGS}")
+        set(ARCH_CXX_FLAGS "-${ARCH_FLAG}=${GNUCC_ARCH} -mtune=${TUNE_FLAG} ${ARCH_CXX_FLAGS}")
+    endif()
 endif()
 
 #if (ARCH_IA32 OR ARCH_X86_64 OR ARCH_ARM32 OR ARCH_AARCH64)
@@ -296,6 +323,12 @@ if (NOT RELEASE_BUILD)
     # release builds
     set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Werror")
     set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Werror")
+    if (CMAKE_COMPILER_IS_CLANG)
+	if (CMAKE_C_COMPILER_VERSION VERSION_GREATER "13.0")
+           set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wno-unused-but-set-variable")
+           set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-unused-but-set-variable")
+        endif()
+    endif()
 endif()
 
 if (DISABLE_ASSERTS)
@@ -332,6 +365,7 @@ if (ARCH_IA32 OR ARCH_X86_64)
 elseif (ARCH_ARM32 OR ARCH_AARCH64)
   CHECK_INCLUDE_FILE_CXX(arm_neon.h HAVE_C_ARM_NEON_H)
   if (BUILD_SVE OR BUILD_SVE2 OR BUILD_SVE2_BITPERM)
+    set(CMAKE_REQUIRED_FLAGS ${ARCH_CXX_FLAGS})
     CHECK_INCLUDE_FILE_CXX(arm_sve.h HAVE_C_ARM_SVE_H)
     if (NOT HAVE_C_ARM_SVE_H)
       message(FATAL_ERROR "arm_sve.h is required to build for SVE.")
