@@ -544,7 +544,6 @@ endif()
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ARCH_C_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ARCH_CXX_FLAGS}")
 
-add_subdirectory(util)
 add_subdirectory(doc/dev-reference)
 
 # PCRE check, we have a fixed requirement for PCRE to use Chimera
@@ -603,6 +602,8 @@ set_source_files_properties(
         COMPILE_FLAGS "${RAGEL_C_FLAGS}")
 
 ragelmaker(src/parser/control_verbs.rl)
+
+add_subdirectory(util)
 
 SET(hs_HEADERS
     src/hs.h
