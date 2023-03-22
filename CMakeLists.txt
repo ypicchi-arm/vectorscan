@@ -588,7 +588,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_C_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CXX_FLAGS}")
 endif()
 
-set(RAGEL_C_FLAGS "-Wno-unused")
+set(RAGEL_C_FLAGS "-Wno-unused -funsigned-char")
 
 set_source_files_properties(
     ${CMAKE_BINARY_DIR}/src/parser/Parser.cpp
