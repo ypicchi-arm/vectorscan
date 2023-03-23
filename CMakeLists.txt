@@ -4,7 +4,7 @@ project (vectorscan C CXX)
 
 set (HS_MAJOR_VERSION 5)
 set (HS_MINOR_VERSION 4)
-set (HS_PATCH_VERSION 8)
+set (HS_PATCH_VERSION 9)
 set (HS_VERSION ${HS_MAJOR_VERSION}.${HS_MINOR_VERSION}.${HS_PATCH_VERSION})
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
@@ -544,7 +544,6 @@ endif()
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ARCH_C_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ARCH_CXX_FLAGS}")
 
-add_subdirectory(util)
 add_subdirectory(doc/dev-reference)
 
 # PCRE check, we have a fixed requirement for PCRE to use Chimera
@@ -588,7 +587,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_C_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CXX_FLAGS}")
 endif()
 
-set(RAGEL_C_FLAGS "-Wno-unused")
+set(RAGEL_C_FLAGS "-Wno-unused -funsigned-char")
 
 set_source_files_properties(
     ${CMAKE_BINARY_DIR}/src/parser/Parser.cpp
@@ -603,6 +602,8 @@ set_source_files_properties(
         COMPILE_FLAGS "${RAGEL_C_FLAGS}")
 
 ragelmaker(src/parser/control_verbs.rl)
+
+add_subdirectory(util)
 
 SET(hs_HEADERS
     src/hs.h

@@ -515,7 +515,7 @@ template <>
 really_inline SuperVector<16> SuperVector<16>::load(void const *ptr)
 {
     assert(ISALIGNED_N(ptr, alignof(SuperVector::size)));
-    ptr = assume_aligned(ptr, SuperVector::size);
+    ptr = vectorscan_assume_aligned(ptr, SuperVector::size);
     return _mm_load_si128((const m128 *)ptr);
 }
 
@@ -1119,7 +1119,7 @@ template <>
 really_inline SuperVector<32> SuperVector<32>::load(void const *ptr)
 {
     assert(ISALIGNED_N(ptr, alignof(SuperVector::size)));
-    ptr = assume_aligned(ptr, SuperVector::size);
+    ptr = vectorscan_assume_aligned(ptr, SuperVector::size);
     return {_mm256_load_si256((const m256 *)ptr)};
 }
 
@@ -1769,7 +1769,7 @@ template <>
 really_inline SuperVector<64> SuperVector<64>::load(void const *ptr)
 {
     assert(ISALIGNED_N(ptr, alignof(SuperVector::size)));
-    ptr = assume_aligned(ptr, SuperVector::size);
+    ptr = vectorscan_assume_aligned(ptr, SuperVector::size);
     return {_mm512_load_si512((const m512 *)ptr)};
 }
 
