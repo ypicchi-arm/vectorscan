@@ -6,8 +6,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CXX_FLAGS} ${HS_CXX_FLAGS}")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
     ${PROJECT_SOURCE_DIR})
 
+message("RAGEL_C_FLAGS" ${RAGEL_C_FLAGS})
+
 set_source_files_properties(
-    ${CMAKE_BINARY_DIR}/tools/ExpressionParser.cpp
+    ${CMAKE_BINARY_DIR}/util/ExpressionParser.cpp
     PROPERTIES
     COMPILE_FLAGS "${RAGEL_C_FLAGS}")
 

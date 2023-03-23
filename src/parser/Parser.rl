@@ -272,6 +272,7 @@ unichar readUtf8CodePoint4c(const char *s) {
 
 %%{
     machine regex;
+    alphtype unsigned char;
 
     action throwUnsupportedEscape {
         ostringstream str;
