@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2016-2017, Intel Corporation
+ * Copyright (c) 2017-2020, Intel Corporation
+ * Copyright (c) 2023, VectorCamp PC
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,31 +27,35 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "config.h"
-#include "hs_common.h"
-#include "ue2common.h"
-#if defined(ARCH_IA32) || defined(ARCH_X86_64)
-#include "util/arch/x86/cpuid_inline.h"
-#elif defined(ARCH_AARCH64)
-#include "util/arch/arm/cpuid_inline.h"
-#endif
+#ifndef AARCH64_CPUID_INLINE_H_
+#define AARCH64_CPUID_INLINE_H_
 
-HS_PUBLIC_API
-hs_error_t HS_CDECL hs_valid_platform(void) {
-    /* Hyperscan requires SSSE3, anything else is a bonus */
-#if defined(ARCH_IA32) || defined(ARCH_X86_64)
-    if (check_ssse3()) {
-        return HS_SUCCESS;
-    } else {
-        return HS_ARCH_ERROR;
-    }
-#elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
-   if (check_neon()) {
-        return HS_SUCCESS;
-    } else {
-        return HS_ARCH_ERROR;
-    }
-#elif defined(ARCH_PPC64EL)
-    return HS_SUCCESS;    
-#endif
+#include <sys/auxv.h>
+
+#include "ue2common.h"
+#include "util/arch/common/cpuid_flags.h"
+
+static inline
+int check_neon(void) {
+    return 1;
 }
+
+static inline
+int check_sve(void) {
+    unsigned long hwcap = getauxval(AT_HWCAP);
+    if (hwcap & HWCAP_SVE) {
+        return 1;
+    }
+    return 0;
+}
+
+static inline
+int check_sve2(void) {
+    unsigned long hwcap2 = getauxval(AT_HWCAP2);
+    if (hwcap2 & HWCAP2_SVE2) {
+        return 1;
+    }
+    return 0;
+}
+
+#endif // AARCH64_CPUID_INLINE_H_
