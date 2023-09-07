@@ -3,7 +3,13 @@
 This is a list of notable changes to Vectorscan, in reverse chronological order. For Hyperscan Changelog, check CHANGELOG.md
 
 ## [5.4.10] 2023-09-23
-
+- Fix compilation with libcxx 16 by @rschu1ze in #144
+- Fix use-of-uninitialized-value due to getData128() by @azat in #148
+- Use std::vector instead of boost::container::small_vector under MSan by @azat in #149
+- Feature/enable fat runtime arm by @markos in #165
+- adding ifndef around HS_PUBLIC_API definition so that vectorscan can be statically linked into another shared library without exporting symbols by @jeffplaisance in #164
+- Feature/backport hyperscan 2023 q3 by @markos in #169
+- Prepare for 5.4.10 by @markos in #167
 
 ## [5.4.9] 2023-03-23
 - Major change: Enable SVE & SVE2 builds and make it a supported architecture! (thanks to @abondarev84)
