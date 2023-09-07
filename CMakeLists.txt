@@ -4,7 +4,7 @@ project (vectorscan C CXX)
 
 set (HS_MAJOR_VERSION 5)
 set (HS_MINOR_VERSION 4)
-set (HS_PATCH_VERSION 9)
+set (HS_PATCH_VERSION 10)
 set (HS_VERSION ${HS_MAJOR_VERSION}.${HS_MINOR_VERSION}.${HS_PATCH_VERSION})
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
@@ -187,11 +187,15 @@ if (CMAKE_COMPILER_IS_GNUCC AND NOT CROSS_COMPILE)
     string(FIND "${GNUCC_ARCH}" "sve" POS_SVE)
     string(FIND "${GNUCC_ARCH}" "sve2" POS_SVE2)
     string(FIND "${GNUCC_ARCH}" "sve2-bitperm" POS_SVE2_BITPERM)
-    if (NOT POS_SVE EQUAL 0)
+    if(NOT POS_SVE2_BITPERM EQUAL 0)
+        set(SVE2_BITPERM_FOUND 1)
+        set(SVE2_FOUND 1)
         set(SVE_FOUND 1)
     elseif(NOT POS_SVE2 EQUAL 0)
         set(SVE2_FOUND 1)
-    elseif(NOT POS_SVE2_BITPERM EQUAL 0)
+        set(SVE_FOUND 1)
+    elseif (NOT POS_SVE EQUAL 0)
+        set(SVE_FOUND 1)
         set(SVE2_BITPERM_FOUND 1)
     endif()
 
@@ -249,13 +253,18 @@ if (ARCH_IA32 OR ARCH_X86_64)
 endif()
 
 if (ARCH_AARCH64)
-    if (BUILD_SVE2_BITPERM AND NOT SVE2_BITPERM_FOUND)
-        set(GNUCC_ARCH "${GNUCC_ARCH}+sve2-bitperm")
-    elseif (BUILD_SVE2 AND NOT SVE2_FOUND)
-        set(GNUCC_ARCH "${GNUCC_ARCH}+sve2")
-    elseif (BUILD_SVE AND NOT SVE_FOUND)
-        set(GNUCC_ARCH "${GNUCC_ARCH}+sve")
-    endif ()
+    if (NOT FAT_RUNTIME)
+        if (BUILD_SVE2_BITPERM AND NOT SVE2_BITPERM_FOUND)
+            set(GNUCC_ARCH "${GNUCC_ARCH}+sve2-bitperm")
+        elseif (BUILD_SVE2 AND NOT SVE2_FOUND)
+            set(GNUCC_ARCH "${GNUCC_ARCH}+sve2")
+        elseif (BUILD_SVE AND NOT SVE_FOUND)
+            set(GNUCC_ARCH "${GNUCC_ARCH}+sve")
+        endif ()
+    else()
+        set(ARCH_C_FLAGS "")
+        set(ARCH_CXX_FLAGS "")
+    endif()
 endif(ARCH_AARCH64)
 
 message(STATUS "ARCH_C_FLAGS   : ${ARCH_C_FLAGS}")
@@ -270,24 +279,6 @@ if (NOT FAT_RUNTIME)
         set(ARCH_CXX_FLAGS "-${ARCH_FLAG}=${GNUCC_ARCH} -mtune=${TUNE_FLAG} ${ARCH_CXX_FLAGS}")
     endif()
 endif()
-
-#if (ARCH_IA32 OR ARCH_X86_64 OR ARCH_ARM32 OR ARCH_AARCH64)
-#    if (NOT CMAKE_C_FLAGS MATCHES .*march.* AND NOT CMAKE_C_FLAGS MATCHES .*mtune.*)
-#        set(ARCH_C_FLAGS "-march=${GNUCC_ARCH} -mtune=${TUNE_FLAG}")
-#    endif()
-#    if (NOT CMAKE_CXX_FLAGS MATCHES .*march.* AND NOT CMAKE_CXX_FLAGS MATCHES .*mtune.*)
-#        set(ARCH_CXX_FLAGS "-march=${GNUCC_ARCH} -mtune=${TUNE_FLAG}")
-#    endif()
-#endif()
-    
-#if(ARCH_PPC64EL)
-#    if (NOT CMAKE_C_FLAGS MATCHES .*march.* AND NOT CMAKE_C_FLAGS MATCHES .*mtune.*)
-#        set(ARCH_C_FLAGS "-mtune=${TUNE_FLAG}")
-#    endif()
-#    if (NOT CMAKE_CXX_FLAGS MATCHES .*march.* AND NOT CMAKE_CXX_FLAGS MATCHES .*mtune.*)
-#        set(ARCH_CXX_FLAGS "-mtune=${TUNE_FLAG}")
-#    endif()
-#endif()
 
 # compiler version checks TODO: test more compilers
 if (CMAKE_COMPILER_IS_GNUCXX)
@@ -396,6 +387,7 @@ endif()
 
 option(FAT_RUNTIME "Build a library that supports multiple microarchitectures" ON)
 if (CMAKE_SYSTEM_NAME MATCHES "Linux" AND FAT_RUNTIME MATCHES "ON")
+    message("Fat Runtime for ${GNUCC_ARCH}")
     # This is a Linux-only feature for now - requires platform support
     # elsewhere
     message(STATUS "generator is ${CMAKE_GENERATOR}")
@@ -482,6 +474,18 @@ if (CXX_UNUSED_CONST_VAR)
     set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-unused-const-variable")
 endif()
 
+# clang-14 complains about unused-but-set variable.
+CHECK_CXX_COMPILER_FLAG("-Wunused-but-set-variable" CXX_UNUSED_BUT_SET_VAR)
+if (CXX_UNUSED_BUT_SET_VAR)
+    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-unused-but-set-variable")
+endif()
+
+# clang-14 complains about using bitwise operator instead of logical ones.
+CHECK_CXX_COMPILER_FLAG("-Wbitwise-instead-of-logical" CXX_BITWISE_INSTEAD_OF_LOGICAL)
+if (CXX_BITWISE_INSTEAD_OF_LOGICAL)
+    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-bitwise-instead-of-logical")
+endif()
+
 # gcc 6 complains about type attributes that get ignored, like alignment
 CHECK_CXX_COMPILER_FLAG("-Wignored-attributes" CXX_IGNORED_ATTR)
 if (CXX_IGNORED_ATTR)
@@ -513,8 +517,10 @@ CHECK_CXX_COMPILER_FLAG("-Wunused-variable" CXX_WUNUSED_VARIABLE)
 
 # gcc 10 complains about this
 CHECK_C_COMPILER_FLAG("-Wstringop-overflow" CC_STRINGOP_OVERFLOW)
-if(CC_STRINGOP_OVERFLOW)
+CHECK_CXX_COMPILER_FLAG("-Wstringop-overflow" CXX_STRINGOP_OVERFLOW)
+if(CC_STRINGOP_OVERFLOW OR CXX_STRINGOP_OVERFLOW)
     set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wno-stringop-overflow")
+    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-stringop-overflow")
 endif()
 
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
@@ -529,8 +535,8 @@ endif(CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
 
 
 if (FAT_RUNTIME)
-    if (NOT (ARCH_IA32 OR ARCH_X86_64))
-        message(FATAL_ERROR "Fat runtime is not supported on non-Intel architectures")
+    if (NOT (ARCH_IA32 OR ARCH_X86_64 OR ARCH_AARCH64))
+        message(FATAL_ERROR "Fat runtime is only supported on Intel and Aarch64 architectures")
     else()
         message(STATUS "Building runtime for multiple microarchitectures")
     endif()
@@ -634,7 +640,7 @@ endif ()
 
 set (hs_exec_SRCS
     ${hs_HEADERS}
-    src/hs_version.h
+    src/hs_version.h.in
     src/ue2common.h
     src/allocator.h
     src/crc32.c
@@ -790,7 +796,7 @@ set (hs_exec_SRCS
 endif ()
 endif()
 
-if (NOT BUILD_SVE2)
+if (FAT_RUNTIME OR (NOT FAT_RUNTIME AND NOT BUILD_SVE2))
 set (hs_exec_SRCS
     ${hs_exec_SRCS}
     src/nfa/vermicelli_simd.cpp)
@@ -810,7 +816,7 @@ SET (hs_compile_SRCS
     src/grey.h
     src/hs.cpp
     src/hs_internal.h
-    src/hs_version.h
+    src/hs_version.h.in
     src/scratch.h
     src/state.h
     src/ue2common.h
@@ -1273,137 +1279,222 @@ if (NOT FAT_RUNTIME)
         add_library(hs_compile_shared OBJECT ${hs_compile_SRCS})
         set_target_properties(hs_compile_shared PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
     endif()
+else ()
+    if (ARCH_IA32 OR ARCH_X86_64)
+        set(BUILD_WRAPPER "${PROJECT_SOURCE_DIR}/cmake/build_wrapper.sh")
+        if (NOT BUILD_AVX512)
+            set (DISPATCHER_DEFINE "-DDISABLE_AVX512_DISPATCH")
+        endif (NOT BUILD_AVX512)
+        if (NOT BUILD_AVX512VBMI)
+            set (DISPATCHER_DEFINE "${DISPATCHER_DEFINE} -DDISABLE_AVX512VBMI_DISPATCH")
+        endif (NOT BUILD_AVX512VBMI)
+        set_source_files_properties(src/dispatcher.c PROPERTIES
+            COMPILE_FLAGS "-Wno-unused-parameter -Wno-unused-function ${DISPATCHER_DEFINE}")
 
-else (FAT_RUNTIME)
-
-    set(BUILD_WRAPPER "${PROJECT_SOURCE_DIR}/cmake/build_wrapper.sh")
-    if (NOT BUILD_AVX512)
-        set (DISPATCHER_DEFINE "-DDISABLE_AVX512_DISPATCH")
-    endif (NOT BUILD_AVX512)
-    if (NOT BUILD_AVX512VBMI)
-        set (DISPATCHER_DEFINE "${DISPATCHER_DEFINE} -DDISABLE_AVX512VBMI_DISPATCH")
-    endif (NOT BUILD_AVX512VBMI)
-    set_source_files_properties(src/dispatcher.c PROPERTIES
-        COMPILE_FLAGS "-Wno-unused-parameter -Wno-unused-function ${DISPATCHER_DEFINE}")
-
-    if (BUILD_STATIC_LIBS)
-        add_library(hs_exec_core2 OBJECT ${hs_exec_SRCS})
-        list(APPEND RUNTIME_LIBS $<TARGET_OBJECTS:hs_exec_core2>)
-        set_target_properties(hs_exec_core2 PROPERTIES
-            COMPILE_FLAGS "-march=core2 -msse4.2"
-            RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} core2 ${CMAKE_MODULE_PATH}/keep.syms.in"
-            )
-
-        add_library(hs_exec_corei7 OBJECT ${hs_exec_SRCS})
-        list(APPEND RUNTIME_LIBS $<TARGET_OBJECTS:hs_exec_corei7>)
-        set_target_properties(hs_exec_corei7 PROPERTIES
-            COMPILE_FLAGS "-march=corei7 -msse4.2"
-            RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} corei7 ${CMAKE_MODULE_PATH}/keep.syms.in"
-            )
-
-        if (BUILD_AVX2)
-            add_library(hs_exec_avx2 OBJECT ${hs_exec_SRCS} ${hs_exec_avx2_SRCS})
-            list(APPEND RUNTIME_LIBS $<TARGET_OBJECTS:hs_exec_avx2>)
-            set_target_properties(hs_exec_avx2 PROPERTIES
-                COMPILE_FLAGS "-march=core-avx2 -mavx2"
-                RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} avx2 ${CMAKE_MODULE_PATH}/keep.syms.in"
+        if (BUILD_STATIC_LIBS)
+            add_library(hs_exec_core2 OBJECT ${hs_exec_SRCS})
+            list(APPEND RUNTIME_LIBS $<TARGET_OBJECTS:hs_exec_core2>)
+            set_target_properties(hs_exec_core2 PROPERTIES
+                COMPILE_FLAGS "-march=core2 -msse4.2"
+                RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} core2 ${CMAKE_MODULE_PATH}/keep.syms.in"
                 )
-        endif (BUILD_AVX2)
-        if (BUILD_AVX512)
-            add_library(hs_exec_avx512 OBJECT ${hs_exec_SRCS} ${hs_exec_avx2_SRCS})
-            list(APPEND RUNTIME_LIBS $<TARGET_OBJECTS:hs_exec_avx512>)
-            set_target_properties(hs_exec_avx512 PROPERTIES
-                COMPILE_FLAGS "${SKYLAKE_FLAG}"
-                RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} avx512 ${CMAKE_MODULE_PATH}/keep.syms.in"
-                )
-        endif (BUILD_AVX512)
-        if (BUILD_AVX512VBMI)
-            add_library(hs_exec_avx512vbmi OBJECT ${hs_exec_SRCS} ${hs_exec_avx2_SRCS})
-            list(APPEND RUNTIME_LIBS $<TARGET_OBJECTS:hs_exec_avx512vbmi>)
-            set_target_properties(hs_exec_avx512vbmi PROPERTIES
-                COMPILE_FLAGS "${ICELAKE_FLAG}"
-                RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} avx512vbmi ${CMAKE_MODULE_PATH}/keep.syms.in"
-                )
-        endif (BUILD_AVX512VBMI)
 
-        add_library(hs_exec_common OBJECT
+            add_library(hs_exec_corei7 OBJECT ${hs_exec_SRCS})
+            list(APPEND RUNTIME_LIBS $<TARGET_OBJECTS:hs_exec_corei7>)
+            set_target_properties(hs_exec_corei7 PROPERTIES
+                COMPILE_FLAGS "-march=corei7 -msse4.2"
+                RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} corei7 ${CMAKE_MODULE_PATH}/keep.syms.in"
+                )
+
+            if (BUILD_AVX2)
+                add_library(hs_exec_avx2 OBJECT ${hs_exec_SRCS} ${hs_exec_avx2_SRCS})
+                list(APPEND RUNTIME_LIBS $<TARGET_OBJECTS:hs_exec_avx2>)
+                set_target_properties(hs_exec_avx2 PROPERTIES
+                    COMPILE_FLAGS "-march=core-avx2 -mavx2"
+                    RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} avx2 ${CMAKE_MODULE_PATH}/keep.syms.in"
+                    )
+            endif (BUILD_AVX2)
+            if (BUILD_AVX512)
+                add_library(hs_exec_avx512 OBJECT ${hs_exec_SRCS} ${hs_exec_avx2_SRCS})
+                list(APPEND RUNTIME_LIBS $<TARGET_OBJECTS:hs_exec_avx512>)
+                set_target_properties(hs_exec_avx512 PROPERTIES
+                    COMPILE_FLAGS "${SKYLAKE_FLAG}"
+                    RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} avx512 ${CMAKE_MODULE_PATH}/keep.syms.in"
+                    )
+            endif (BUILD_AVX512)
+            if (BUILD_AVX512VBMI)
+                add_library(hs_exec_avx512vbmi OBJECT ${hs_exec_SRCS} ${hs_exec_avx2_SRCS})
+                list(APPEND RUNTIME_LIBS $<TARGET_OBJECTS:hs_exec_avx512vbmi>)
+                set_target_properties(hs_exec_avx512vbmi PROPERTIES
+                    COMPILE_FLAGS "${ICELAKE_FLAG}"
+                    RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} avx512vbmi ${CMAKE_MODULE_PATH}/keep.syms.in"
+                    )
+            endif (BUILD_AVX512VBMI)
+
+            add_library(hs_exec_common OBJECT
+                ${hs_exec_common_SRCS}
+                src/dispatcher.c
+                )
+
+            # hs_version.c is added explicitly to avoid some build systems that refuse to
+            # create a lib without any src (I'm looking at you Xcode)
+
+            add_library(hs_runtime STATIC src/hs_version.c
+                $<TARGET_OBJECTS:hs_exec_common>
+                ${RUNTIME_LIBS})
+            set_target_properties(hs_runtime PROPERTIES LINKER_LANGUAGE C)
+            add_library(hs_compile OBJECT ${hs_compile_SRCS})
+
+            # we want the static lib for testing
+            add_library(hs STATIC src/hs_version.c src/hs_valid_platform.c
+                $<TARGET_OBJECTS:hs_compile>
+                $<TARGET_OBJECTS:hs_exec_common>
+                ${RUNTIME_LIBS})
+        endif (BUILD_STATIC_LIBS)
+
+        if (BUILD_STATIC_AND_SHARED OR BUILD_SHARED_LIBS)
+            # build shared libs
+            add_library(hs_compile_shared OBJECT ${hs_compile_SRCS})
+            set_target_properties(hs_compile_shared PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+            add_library(hs_exec_shared_core2 OBJECT ${hs_exec_SRCS})
+            list(APPEND RUNTIME_SHLIBS $<TARGET_OBJECTS:hs_exec_shared_core2>)
+            set_target_properties(hs_exec_shared_core2 PROPERTIES
+                COMPILE_FLAGS "-march=core2 -msse4.2"
+                POSITION_INDEPENDENT_CODE TRUE
+                RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} core2 ${CMAKE_MODULE_PATH}/keep.syms.in"
+                )
+            add_library(hs_exec_shared_corei7 OBJECT ${hs_exec_SRCS})
+            list(APPEND RUNTIME_SHLIBS $<TARGET_OBJECTS:hs_exec_shared_corei7>)
+            set_target_properties(hs_exec_shared_corei7 PROPERTIES
+                COMPILE_FLAGS "-march=corei7 -msse4.2"
+                POSITION_INDEPENDENT_CODE TRUE
+                RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} corei7 ${CMAKE_MODULE_PATH}/keep.syms.in"
+                )
+
+            if (BUILD_AVX2)
+                add_library(hs_exec_shared_avx2 OBJECT ${hs_exec_SRCS} ${hs_exec_avx2_SRCS})
+                list(APPEND RUNTIME_SHLIBS $<TARGET_OBJECTS:hs_exec_shared_avx2>)
+                set_target_properties(hs_exec_shared_avx2 PROPERTIES
+                    COMPILE_FLAGS "-march=core-avx2 -mavx2"
+                    POSITION_INDEPENDENT_CODE TRUE
+                    RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} avx2 ${CMAKE_MODULE_PATH}/keep.syms.in"
+                    )
+            endif (BUILD_AVX2)
+            if (BUILD_AVX512)
+                add_library(hs_exec_shared_avx512 OBJECT ${hs_exec_SRCS} ${hs_exec_avx2_SRCS})
+                list(APPEND RUNTIME_SHLIBS $<TARGET_OBJECTS:hs_exec_shared_avx512>)
+                set_target_properties(hs_exec_shared_avx512 PROPERTIES
+                    COMPILE_FLAGS "${SKYLAKE_FLAG}"
+                    POSITION_INDEPENDENT_CODE TRUE
+                    RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} avx512 ${CMAKE_MODULE_PATH}/keep.syms.in"
+                    )
+            endif (BUILD_AVX512)
+            if (BUILD_AVX512VBMI)
+                add_library(hs_exec_shared_avx512vbmi OBJECT ${hs_exec_SRCS} ${hs_exec_avx2_SRCS})
+                list(APPEND RUNTIME_SHLIBS $<TARGET_OBJECTS:hs_exec_shared_avx512vbmi>)
+                set_target_properties(hs_exec_shared_avx512vbmi PROPERTIES
+                    COMPILE_FLAGS "${ICELAKE_FLAG}"
+                    POSITION_INDEPENDENT_CODE TRUE
+                    RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} avx512vbmi ${CMAKE_MODULE_PATH}/keep.syms.in"
+                    )
+            endif (BUILD_AVX512VBMI)
+            add_library(hs_exec_common_shared OBJECT
             ${hs_exec_common_SRCS}
             src/dispatcher.c
             )
+            set_target_properties(hs_exec_common_shared PROPERTIES
+                OUTPUT_NAME hs_exec_common
+                POSITION_INDEPENDENT_CODE TRUE)
 
-        # hs_version.c is added explicitly to avoid some build systems that refuse to
-        # create a lib without any src (I'm looking at you Xcode)
+        endif() # SHARED
+    endif (ARCH_IA32 OR ARCH_X86_64)
+    if (ARCH_AARCH64)
+        set(BUILD_WRAPPER "${PROJECT_SOURCE_DIR}/cmake/build_wrapper.sh")
+        if (BUILD_STATIC_LIBS)
+            add_library(hs_exec_neon OBJECT ${hs_exec_SRCS})
+            list(APPEND RUNTIME_LIBS $<TARGET_OBJECTS:hs_exec_neon>)
+            set_target_properties(hs_exec_neon PROPERTIES
+                COMPILE_FLAGS "-march=armv8-a"
+                RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} neon ${CMAKE_MODULE_PATH}/keep.syms.in"
+                )
 
-        add_library(hs_runtime STATIC src/hs_version.c
-            $<TARGET_OBJECTS:hs_exec_common>
-            ${RUNTIME_LIBS})
-        set_target_properties(hs_runtime PROPERTIES LINKER_LANGUAGE C)
-        add_library(hs_compile OBJECT ${hs_compile_SRCS})
+           if (BUILD_SVE)
+                add_library(hs_exec_sve OBJECT ${hs_exec_SRCS} ${hs_exec_sve_SRCS})
+                list(APPEND RUNTIME_LIBS $<TARGET_OBJECTS:hs_exec_sve>)
+                set_target_properties(hs_exec_sve PROPERTIES
+                    COMPILE_FLAGS "-march=armv8-a+sve"
+                    RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} sve ${CMAKE_MODULE_PATH}/keep.syms.in"
+                    )
+            endif (BUILD_SVE)
+            if (BUILD_SVE2)
+                add_library(hs_exec_sve2 OBJECT ${hs_exec_SRCS} ${hs_exec_sve2_SRCS})
+                list(APPEND RUNTIME_LIBS $<TARGET_OBJECTS:hs_exec_sve2>)
+                set_target_properties(hs_exec_sve2 PROPERTIES
+                    COMPILE_FLAGS "-march=armv8-a+sve2"
+                    RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} sve2 ${CMAKE_MODULE_PATH}/keep.syms.in"
+                    )
+            endif (BUILD_SVE2)
 
-        # we want the static lib for testing
-        add_library(hs STATIC src/hs_version.c src/hs_valid_platform.c
-            $<TARGET_OBJECTS:hs_compile>
-            $<TARGET_OBJECTS:hs_exec_common>
-            ${RUNTIME_LIBS})
+            add_library(hs_exec_common OBJECT
+                ${hs_exec_common_SRCS}
+                src/dispatcher.c
+                )
 
-    endif (BUILD_STATIC_LIBS)
+            # hs_version.c is added explicitly to avoid some build systems that refuse to
+            # create a lib without any src (I'm looking at you Xcode)
 
-    if (BUILD_STATIC_AND_SHARED OR BUILD_SHARED_LIBS)
-        # build shared libs
-        add_library(hs_compile_shared OBJECT ${hs_compile_SRCS})
-        set_target_properties(hs_compile_shared PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-        add_library(hs_exec_shared_core2 OBJECT ${hs_exec_SRCS})
-        list(APPEND RUNTIME_SHLIBS $<TARGET_OBJECTS:hs_exec_shared_core2>)
-        set_target_properties(hs_exec_shared_core2 PROPERTIES
-            COMPILE_FLAGS "-march=core2 -msse4.2"
-            POSITION_INDEPENDENT_CODE TRUE
-            RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} core2 ${CMAKE_MODULE_PATH}/keep.syms.in"
+            add_library(hs_runtime STATIC src/hs_version.c
+                $<TARGET_OBJECTS:hs_exec_common>
+                ${RUNTIME_LIBS})
+            set_target_properties(hs_runtime PROPERTIES LINKER_LANGUAGE C)
+            add_library(hs_compile OBJECT ${hs_compile_SRCS})
+
+            # we want the static lib for testing
+            add_library(hs STATIC src/hs_version.c src/hs_valid_platform.c
+                $<TARGET_OBJECTS:hs_compile>
+                $<TARGET_OBJECTS:hs_exec_common>
+                ${RUNTIME_LIBS})
+        endif (BUILD_STATIC_LIBS)
+
+        if (BUILD_STATIC_AND_SHARED OR BUILD_SHARED_LIBS)
+            # build shared libs
+            add_library(hs_compile_shared OBJECT ${hs_compile_SRCS})
+            set_target_properties(hs_compile_shared PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+            add_library(hs_exec_shared_neon OBJECT ${hs_exec_SRCS})
+            list(APPEND RUNTIME_SHLIBS $<TARGET_OBJECTS:hs_exec_shared_neon>)
+            set_target_properties(hs_exec_shared_neon PROPERTIES
+                COMPILE_FLAGS "-march=armv8-a"
+                POSITION_INDEPENDENT_CODE TRUE
+                RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} neon ${CMAKE_MODULE_PATH}/keep.syms.in"
+                )
+
+            if (BUILD_SVE)
+                add_library(hs_exec_shared_sve OBJECT ${hs_exec_SRCS} ${hs_exec_sve_SRCS})
+                list(APPEND RUNTIME_SHLIBS $<TARGET_OBJECTS:hs_exec_shared_sve>)
+                set_target_properties(hs_exec_shared_sve PROPERTIES
+                    COMPILE_FLAGS "-march=armv8-a+sve"
+                    POSITION_INDEPENDENT_CODE TRUE
+                    RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} sve ${CMAKE_MODULE_PATH}/keep.syms.in"
+                    )
+            endif (BUILD_SVE)
+            if (BUILD_SVE2)
+                add_library(hs_exec_shared_sve2 OBJECT ${hs_exec_SRCS} ${hs_exec_sve2_SRCS})
+                list(APPEND RUNTIME_SHLIBS $<TARGET_OBJECTS:hs_exec_shared_sve2>)
+                set_target_properties(hs_exec_shared_sve2 PROPERTIES
+                    COMPILE_FLAGS "-march=armv8-a+sve2"
+                    POSITION_INDEPENDENT_CODE TRUE
+                    RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} sve2 ${CMAKE_MODULE_PATH}/keep.syms.in"
+                    )
+            endif (BUILD_SVE2)
+            add_library(hs_exec_common_shared OBJECT
+            ${hs_exec_common_SRCS}
+            src/dispatcher.c
             )
-        add_library(hs_exec_shared_corei7 OBJECT ${hs_exec_SRCS})
-        list(APPEND RUNTIME_SHLIBS $<TARGET_OBJECTS:hs_exec_shared_corei7>)
-        set_target_properties(hs_exec_shared_corei7 PROPERTIES
-            COMPILE_FLAGS "-march=corei7 -msse4.2"
-            POSITION_INDEPENDENT_CODE TRUE
-            RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} corei7 ${CMAKE_MODULE_PATH}/keep.syms.in"
-            )
-
-        if (BUILD_AVX2)
-            add_library(hs_exec_shared_avx2 OBJECT ${hs_exec_SRCS} ${hs_exec_avx2_SRCS})
-            list(APPEND RUNTIME_SHLIBS $<TARGET_OBJECTS:hs_exec_shared_avx2>)
-            set_target_properties(hs_exec_shared_avx2 PROPERTIES
-                COMPILE_FLAGS "-march=core-avx2 -mavx2"
-                POSITION_INDEPENDENT_CODE TRUE
-                RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} avx2 ${CMAKE_MODULE_PATH}/keep.syms.in"
-                )
-        endif (BUILD_AVX2)
-        if (BUILD_AVX512)
-            add_library(hs_exec_shared_avx512 OBJECT ${hs_exec_SRCS} ${hs_exec_avx2_SRCS})
-            list(APPEND RUNTIME_SHLIBS $<TARGET_OBJECTS:hs_exec_shared_avx512>)
-            set_target_properties(hs_exec_shared_avx512 PROPERTIES
-                COMPILE_FLAGS "${SKYLAKE_FLAG}"
-                POSITION_INDEPENDENT_CODE TRUE
-                RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} avx512 ${CMAKE_MODULE_PATH}/keep.syms.in"
-                )
-        endif (BUILD_AVX512)
-        if (BUILD_AVX512VBMI)
-            add_library(hs_exec_shared_avx512vbmi OBJECT ${hs_exec_SRCS} ${hs_exec_avx2_SRCS})
-            list(APPEND RUNTIME_SHLIBS $<TARGET_OBJECTS:hs_exec_shared_avx512vbmi>)
-            set_target_properties(hs_exec_shared_avx512vbmi PROPERTIES
-                COMPILE_FLAGS "${ICELAKE_FLAG}"
-                POSITION_INDEPENDENT_CODE TRUE
-                RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} avx512vbmi ${CMAKE_MODULE_PATH}/keep.syms.in"
-                )
-        endif (BUILD_AVX512VBMI)
-        add_library(hs_exec_common_shared OBJECT
-        ${hs_exec_common_SRCS}
-        src/dispatcher.c
-        )
-        set_target_properties(hs_exec_common_shared PROPERTIES
-            OUTPUT_NAME hs_exec_common
-            POSITION_INDEPENDENT_CODE TRUE)
-    endif() # SHARED
-
-
+            set_target_properties(hs_exec_common_shared PROPERTIES
+                OUTPUT_NAME hs_exec_common
+                POSITION_INDEPENDENT_CODE TRUE)
+        endif() # SHARED
+    endif (ARCH_AARCH64)
 endif (NOT FAT_RUNTIME)
 
 if (NOT BUILD_SHARED_LIBS)

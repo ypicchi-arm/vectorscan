@@ -204,6 +204,15 @@ void RoseProgram::add_block(RoseProgram &&block) {
                 make_move_iterator(block.prog.end()));
 }
 
+template<class Iter>
+void RoseProgram::replace(Iter it, std::unique_ptr<RoseInstruction> ri) {
+    assert(!prog.empty());
+
+    const RoseInstruction *old_ptr = it->get();
+    *it = move(ri);
+    update_targets(prog.begin(), prog.end(), old_ptr, it->get());
+}
+
 bytecode_ptr<char> writeProgram(RoseEngineBlob &blob,
                                 const RoseProgram &program) {
     u32 total_len = 0;

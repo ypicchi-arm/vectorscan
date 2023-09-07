@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2015-2021, Intel Corporation
+ * Copyright (c) 2017-2020, Intel Corporation
+ * Copyright (c) 2023, VectorCamp PC
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,51 +27,35 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "config.h"
+#ifndef AARCH64_CPUID_INLINE_H_
+#define AARCH64_CPUID_INLINE_H_
 
-#include "hs.h"
-#include "compiler/compiler.h"
-#include "crc32.h"
-#include "database.h"
+#include <sys/auxv.h>
+
 #include "ue2common.h"
-#include "util/arch.h"
-#include "util/target_info.h"
+#include "util/arch/common/cpuid_flags.h"
 
-#include "gtest/gtest.h"
-
-#include <array>
-
-using namespace ue2;
-
-TEST(DB, flagsToPlatform) {
-    hs_platform_info p;
-    memset(&p, 0, sizeof(p));
-
-    p.cpu_features = 0;
-
-#if defined(HAVE_AVX2)
-    p.cpu_features |= HS_CPU_FEATURES_AVX2;
-#endif
-
-#if defined(HAVE_AVX512)
-    p.cpu_features |= HS_CPU_FEATURES_AVX512;
-#endif
-
-#if defined(HAVE_AVX512VBMI)
-    p.cpu_features |= HS_CPU_FEATURES_AVX512VBMI;
-#endif
-
-    platform_t pp = target_to_platform(target_t(p));
-    ASSERT_EQ(pp, hs_current_platform);
+static inline
+int check_neon(void) {
+    return 1;
 }
 
-TEST(CRC, alignments) {
-    std::array<u8, 4096> a;
-    a.fill('a');
-
-    // test the crc32c function at different alignments
-    for (u8 i = 0; i < 32; i++) {
-        u32 crc = Crc32c_ComputeBuf(0, (u8 *)a.data() + i, 4000);
-        ASSERT_EQ(crc, 0x94f04377U);
+static inline
+int check_sve(void) {
+    unsigned long hwcap = getauxval(AT_HWCAP);
+    if (hwcap & HWCAP_SVE) {
+        return 1;
     }
+    return 0;
 }
+
+static inline
+int check_sve2(void) {
+    unsigned long hwcap2 = getauxval(AT_HWCAP2);
+    if (hwcap2 & HWCAP2_SVE2) {
+        return 1;
+    }
+    return 0;
+}
+
+#endif // AARCH64_CPUID_INLINE_H_
