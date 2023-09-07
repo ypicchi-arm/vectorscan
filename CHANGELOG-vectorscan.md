@@ -1,6 +1,6 @@
-# Hyperscan Change Log
+# Vectorscan Change Log
 
-This is a list of notable changes to Hyperscan, in reverse chronological order.
+This is a list of notable changes to Vectorscan, in reverse chronological order. For Hyperscan Changelog, check CHANGELOG.md
 
 ## [5.4.10] 2023-09-23
 
