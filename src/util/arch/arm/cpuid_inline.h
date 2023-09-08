@@ -30,7 +30,9 @@
 #ifndef AARCH64_CPUID_INLINE_H_
 #define AARCH64_CPUID_INLINE_H_
 
+#if defined(__linux__)
 #include <sys/auxv.h>
+#endif
 
 #include "ue2common.h"
 #include "util/arch/common/cpuid_flags.h"
@@ -40,6 +42,7 @@ int check_neon(void) {
     return 1;
 }
 
+#if defined(__linux__)
 static inline
 int check_sve(void) {
     unsigned long hwcap = getauxval(AT_HWCAP);
@@ -57,5 +60,16 @@ int check_sve2(void) {
     }
     return 0;
 }
+#else
+static inline
+int check_sve(void) {
+    return 0;
+}
+
+static inline
+int check_sve2(void) {
+    return 0;
+}
+#endif
 
 #endif // AARCH64_CPUID_INLINE_H_

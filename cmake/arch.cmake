@@ -24,6 +24,9 @@ int main() {
 endif ()
 
 if (ARCH_AARCH64)
+    if (APPLE)
+       set (FAT_RUNTIME OFF)
+    endif()
     set(PREV_FLAGS "${CMAKE_C_FLAGS}")
     if (BUILD_SVE2_BITPERM)
         set(CMAKE_C_FLAGS "-march=${GNUCC_ARCH} ${CMAKE_C_FLAGS}")
