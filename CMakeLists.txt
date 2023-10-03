@@ -567,6 +567,8 @@ if (CORRECT_PCRE_VERSION AND PCRE_BUILD_SOURCE AND BUILD_STATIC_LIBS)
     set(BUILD_CHIMERA TRUE)
 endif()
 
+set(RAGEL_C_FLAGS "-Wno-unused -funsigned-char")
+
 add_subdirectory(unit)
 if (EXISTS ${CMAKE_SOURCE_DIR}/tools/CMakeLists.txt)
     add_subdirectory(tools)
@@ -592,8 +594,6 @@ else()
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EXTRA_C_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CXX_FLAGS}")
 endif()
-
-set(RAGEL_C_FLAGS "-Wno-unused -funsigned-char")
 
 set_source_files_properties(
     ${CMAKE_BINARY_DIR}/src/parser/Parser.cpp
