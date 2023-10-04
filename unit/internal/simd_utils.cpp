@@ -676,8 +676,10 @@ TEST(SimdUtilsTest, movq) {
 #if defined(__clang__) && (__clang_major__ == 15)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecate-lax-vec-conv-all"
+#endif // defined(__clang__) && (__clang_major__ == 15)
     int64x2_t a = {0x123456789abcdefLL, ~0LL };
     simd = static_cast<m128>(a);
+#if defined(__clang__) && (__clang_major__ == 15)
 #pragma clang diagnostic pop
 #endif // defined(__clang__) && (__clang_major__ == 15)
 #endif

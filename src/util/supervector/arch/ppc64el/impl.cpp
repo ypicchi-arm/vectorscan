@@ -161,12 +161,14 @@ really_inline SuperVector<16>::SuperVector(uint32_t const other)
 #if defined(__clang__) && (__clang_major__ == 15)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecate-lax-vec-conv-all"
+#endif // defined(__clang__) && (__clang_major__ == 15)
 template<>
 template<>
 really_inline SuperVector<16>::SuperVector(int64_t const other)
 {
     u.s64x2[0] = static_cast<int64x2_t>(vec_splats(static_cast<ulong64_t>(other)));
 }
+#if defined(__clang__) && (__clang_major__ == 15)
 #pragma clang diagnostic pop
 #endif // defined(__clang__) && (__clang_major__ == 15)
 
