@@ -43,6 +43,7 @@
 
 #include <string.h> // for memcpy
 
+#if defined(__clang__) && (__clang_major__ == 15)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecate-lax-vec-conv-all"
 
@@ -424,5 +425,6 @@ m128 set2x64(u64a hi, u64a lo) {
 }
 
 #pragma clang diagnostic pop
+#endif // defined(__clang__) && (__clang_major__ == 15)
 
 #endif // ARCH_PPC64EL_SIMD_UTILS_H
