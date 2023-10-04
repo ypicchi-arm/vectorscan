@@ -158,18 +158,21 @@ really_inline SuperVector<16>::SuperVector(uint32_t const other)
     u.u32x4[0] = vec_splats(static_cast<uint32_t>(other));
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecate-lax-vec-conv-all"
 template<>
 template<>
 really_inline SuperVector<16>::SuperVector(int64_t const other)
 {
-    u.s64x2[0] = (int64x2_t) vec_splats(static_cast<ulong64_t>(other));
+    u.s64x2[0] = static_cast<int64x2_t>(vec_splats(static_cast<ulong64_t>(other)));
 }
+#pragma clang diagnostic pop
 
 template<>
 template<>
 really_inline SuperVector<16>::SuperVector(uint64_t const other)
 {
-    u.u64x2[0] = (uint64x2_t) vec_splats(static_cast<ulong64_t>(other));
+    u.u64x2[0] = static_cast<uint64x2_t>(vec_splats(static_cast<ulong64_t>(other)));
 }
 
 // Constants
@@ -266,6 +269,9 @@ really_inline SuperVector<16> SuperVector<16>::eq(SuperVector<16> const &b) cons
     return (*this == b);
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecate-lax-vec-conv-all"
+
 template <>
 really_inline typename SuperVector<16>::comparemask_type
 SuperVector<16>::comparemask(void) const {
@@ -273,9 +279,10 @@ SuperVector<16>::comparemask(void) const {
     uint8x16_t bitmask = vec_gb(u.u8x16[0]);
     bitmask = (uint8x16_t) vec_perm(vec_splat_u8(0), bitmask, perm);
     u32 ALIGN_ATTR(16) movemask;
-    vec_ste((uint32x4_t) bitmask, 0, &movemask);
+    vec_ste(static_cast<uint32x4_t>(bitmask), 0, &movemask);
     return movemask;
 }
+#pragma clang diagnostic pop
 
 template <>
 really_inline typename SuperVector<16>::comparemask_type
