@@ -166,7 +166,7 @@ template<>
 template<>
 really_inline SuperVector<16>::SuperVector(int64_t const other)
 {
-    u.s64x2[0] = static_cast<int64x2_t>(vec_splats(static_cast<ulong64_t>(other)));
+    u.s64x2[0] = reinterpret_cast<int64x2_t>(vec_splats(static_cast<ulong64_t>(other)));
 }
 #if defined(__clang__) && (__clang_major__ >= 15)
 #pragma clang diagnostic pop
@@ -176,7 +176,7 @@ template<>
 template<>
 really_inline SuperVector<16>::SuperVector(uint64_t const other)
 {
-    u.u64x2[0] = static_cast<uint64x2_t>(vec_splats(static_cast<ulong64_t>(other)));
+    u.u64x2[0] = reinterpret_cast<uint64x2_t>(vec_splats(static_cast<ulong64_t>(other)));
 }
 
 // Constants
@@ -284,7 +284,7 @@ SuperVector<16>::comparemask(void) const {
     uint8x16_t bitmask = vec_gb(u.u8x16[0]);
     bitmask = (uint8x16_t) vec_perm(vec_splat_u8(0), bitmask, perm);
     u32 ALIGN_ATTR(16) movemask;
-    vec_ste(static_cast<uint32x4_t>(bitmask), 0, &movemask);
+    vec_ste(reinterpret_cast<uint32x4_t>(bitmask), 0, &movemask);
     return movemask;
 }
 #if defined(__clang__) && (__clang_major__ >= 15)
