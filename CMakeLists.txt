@@ -120,6 +120,7 @@ endif ()
 #for config
 if (RELEASE_BUILD)
     set(HS_OPTIMIZE ON)
+    add_definitions(-DNDEBUG)
 endif()
 
 include (${CMAKE_MODULE_PATH}/sanitize.cmake)

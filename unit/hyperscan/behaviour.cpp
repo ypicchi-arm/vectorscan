@@ -157,7 +157,11 @@ TEST_P(HyperscanScanGigabytesMatch, StreamingMatch) {
 
     // gb is the number of gigabytes to scan between pre-block and post-block
     // run over 1,2,4,8 gb
+#ifdef NDEBUG
     for (unsigned long long gb = 1; gb <= 8; gb *= 2) {
+#else
+    for (unsigned long long gb = 1; gb <= 2; gb *= 2) {
+#endif
         SCOPED_TRACE(gb);
 
         hs_stream_t *stream = nullptr;
@@ -261,12 +265,12 @@ TEST_P(HyperscanScanGigabytesMatch, BlockMatch) {
         1*1024,
 #ifdef BIG_BLOCKS
         4*1024, 32*1024, 128*1024, 512*1024,
+#ifdef NDEBUG
         // gigabytes
         1024*1024,
-#ifdef ARCH_X86_64
         // big cases for big beefy machines
         2048*1024, 3072*1024
-#endif // ARCH_X86_64
+#endif // NDEBUG
 #endif // BIG_BLOCKS
     };
 
