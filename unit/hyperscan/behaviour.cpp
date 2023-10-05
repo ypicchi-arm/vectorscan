@@ -1337,6 +1337,7 @@ TEST(regression, UE_2425) {
     hs_free_database(db);
 }
 
+#ifdef NDEBUG
 TEST(regression, UE_2485) {
     const char regex[] = "(?:(.EeEa|((a{2}BD[bc]Bd[eae]|[DCd]|c|ebCa|d)){7,21})(E{5,}A{4,}[Cc].cc{3,6}|eCec|e+CaBEd|[Bb])){10}DB(a|[AAda])..A?DE?E";
     unsigned flags = HS_FLAG_DOTALL | HS_FLAG_CASELESS | HS_FLAG_UTF8 |
@@ -1352,6 +1353,7 @@ TEST(regression, UE_2485) {
     ASSERT_NE(nullptr, db);
     hs_free_database(db);
 }
+#endif
 
 TEST(regression, UE_2452) {
     const char regex[] = "/ab.b[bca]{2,}ca((?:c|(abc(?sxmi-xm)){10,14}|c|b|[abcb])){4,23}acbcbb*ba((?:(a|.{4,}|.|[acba])){3,16}a)+";

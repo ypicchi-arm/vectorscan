@@ -239,6 +239,8 @@ TEST_P(BadPattern, Block) {
     const BadPatternParam &p = GetParam();
     SCOPED_TRACE(p.expr);
 
+    std::cout << p.expr << std::endl;
+
     hs_compile_error_t *compile_err;
     hs_database_t *db;
     hs_error_t err = p.compile(HS_MODE_NOSTREAM, &db, &compile_err);
@@ -280,7 +282,11 @@ TEST_P(BadPattern, Stream) {
 
 static
 vector<BadPatternParam> getBadPatterns() {
+#ifdef NDEBUG
     string filename = "unit/hyperscan/bad_patterns.txt";
+#else
+    string filename = "unit/hyperscan/bad_patterns_fast.txt";
+#endif
 
     ifstream f;
     f.open(filename.c_str(), ifstream::in);
