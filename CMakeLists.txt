@@ -812,6 +812,7 @@ set (hs_exec_SRCS
 elseif (ARCH_PPC64EL)
 set (hs_exec_SRCS
     ${hs_exec_SRCS}
+    src/nfa/vermicelli_simd.cpp
     src/util/supervector/arch/ppc64el/impl.cpp)
 endif ()
 endif()
