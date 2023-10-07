@@ -651,6 +651,10 @@ set (hs_exec_common_SRCS
     ${hs_exec_common_SRCS}
     src/util/arch/arm/cpuid_flags.c
     )
+elseif (ARCH_PPC64EL)
+set (hs_exec_common_SRCS
+    ${hs_exec_common_SRCS}
+    src/util/arch/ppc64el/cpuid_flags.c)
 endif ()
 
 set (hs_exec_SRCS
