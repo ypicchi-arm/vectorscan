@@ -821,8 +821,6 @@ set (hs_exec_neon_SRCS
     src/nfa/vermicelli_simd.cpp)
 set (hs_exec_sve_SRCS
     src/nfa/vermicelli_simd.cpp)
-set (hs_exec_sve2_SRCS
-    src/nfa/vermicelli_simd.cpp)
 
 set (hs_exec_avx2_SRCS
     src/fdr/teddy_avx2.c
@@ -1465,7 +1463,7 @@ else ()
             add_library(hs_exec_sve2 OBJECT ${hs_exec_SRCS} ${hs_exec_sve2_SRCS})
             list(APPEND RUNTIME_LIBS $<TARGET_OBJECTS:hs_exec_sve2>)
             set_target_properties(hs_exec_sve2 PROPERTIES
-                COMPILE_FLAGS "-march=armv8-a+sve+sve2+sve2-bitperm -DHAVE_SVE -DHAVE_SVE2"
+                COMPILE_FLAGS "-march=armv9-a+sve+sve2+sve2-bitperm -DHAVE_SVE -DHAVE_SVE2"
                 RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} sve2 ${CMAKE_MODULE_PATH}/keep.syms.in"
                 )
 
