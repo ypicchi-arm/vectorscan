@@ -820,6 +820,8 @@ set (hs_exec_neon_SRCS
     src/nfa/vermicelli_simd.cpp)
 set (hs_exec_sve_SRCS
     src/nfa/vermicelli_simd.cpp)
+set (hs_exec_sve2_SRCS
+    src/nfa/vermicelli_simd.cpp)
 
 set (hs_exec_avx2_SRCS
     src/fdr/teddy_avx2.c
@@ -1278,8 +1280,14 @@ if (NOT FAT_RUNTIME)
         set(hs_exec_SRCS ${hs_exec_SRCS} ${hs_exec_avx2_SRCS})
     endif()
 
-    if (NOT BUILD_SVE2)
-        set(hs_exec_SRCS ${hs_exec_SRCS} ${hs_exec_neon_SRCS})
+    if (ARCH_AARCH64)
+        if (BUILD_SVE2)
+            set(hs_exec_SRCS ${hs_exec_SRCS} ${hs_exec_sve2_SRCS})
+        elseif (BUILD_SVE)
+            set(hs_exec_SRCS ${hs_exec_SRCS} ${hs_exec_sve_SRCS})
+        else()
+            set(hs_exec_SRCS ${hs_exec_SRCS} ${hs_exec_neon_SRCS})
+        endif()
     endif()
 
     if (BUILD_STATIC_LIBS)
