@@ -799,6 +799,7 @@ if (NOT RELEASE_BUILD OR FAT_RUNTIME)
 if (ARCH_IA32 OR ARCH_X86_64)
 set (hs_exec_SRCS
     ${hs_exec_SRCS}
+    src/nfa/vermicelli_simd.cpp
     src/util/supervector/arch/x86/impl.cpp)
 elseif (ARCH_ARM32 OR ARCH_AARCH64)
 set (hs_exec_SRCS
