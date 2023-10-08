@@ -66,6 +66,7 @@ int main() {
 }" HAVE_SSE42)
 
 # now look for AVX2
+set(CMAKE_REQUIRED_FLAGS "-mavx2")
 CHECK_C_SOURCE_COMPILES("#include <${INTRIN_INC_H}>
 #if !defined(__AVX2__)
 #error no avx2
@@ -77,6 +78,7 @@ int main(){
 }" HAVE_AVX2)
 
 # and now for AVX512
+set(CMAKE_REQUIRED_FLAGS "${SKYLAKE_FLAG}")
 CHECK_C_SOURCE_COMPILES("#include <${INTRIN_INC_H}>
 #if !defined(__AVX512BW__)
 #error no avx512bw
@@ -88,6 +90,7 @@ int main(){
 }" HAVE_AVX512)
 
 # and now for AVX512VBMI
+set(CMAKE_REQUIRED_FLAGS "${ICELAKE_FLAG}")
 CHECK_C_SOURCE_COMPILES("#include <${INTRIN_INC_H}>
 #if !defined(__AVX512VBMI__)
 #error no avx512vbmi
