@@ -1042,29 +1042,23 @@ else ()
     if (ARCH_AARCH64)
         set(BUILD_WRAPPER "${PROJECT_SOURCE_DIR}/cmake/build_wrapper.sh")
         if (BUILD_STATIC_LIBS)
-	    set (BUILD_SVE OFF)
-	    set (BUILD_SVE2 OFF)
-	    set (BUILD_SVE2_BITPERM OFF)
-	    add_library(hs_exec_neon OBJECT ${hs_exec_SRCS} ${hs_exec_neon_SRCS})
+            add_library(hs_exec_neon OBJECT ${hs_exec_SRCS} ${hs_exec_neon_SRCS})
             list(APPEND RUNTIME_LIBS $<TARGET_OBJECTS:hs_exec_neon>)
             set_target_properties(hs_exec_neon PROPERTIES
-                COMPILE_FLAGS "-march=armv8-a"
+                COMPILE_FLAGS "-march=${ARMV8_ARCH}"
                 RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} neon ${CMAKE_MODULE_PATH}/keep.syms.in"
                 )
 
-            set (BUILD_SVE ON)
             add_library(hs_exec_sve OBJECT ${hs_exec_SRCS} ${hs_exec_sve_SRCS})
             list(APPEND RUNTIME_LIBS $<TARGET_OBJECTS:hs_exec_sve>)
             set_target_properties(hs_exec_sve PROPERTIES
-                COMPILE_FLAGS "-march=armv8-a+sve -DHAVE_SVE"
+                COMPILE_FLAGS "-march=${SVE_ARCH}"
                 RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} sve ${CMAKE_MODULE_PATH}/keep.syms.in"
                 )
-            set (BUILD_SVE2 ON)
-	    set (BUILD_SVE2_BITPERM ON)
             add_library(hs_exec_sve2 OBJECT ${hs_exec_SRCS} ${hs_exec_sve2_SRCS})
             list(APPEND RUNTIME_LIBS $<TARGET_OBJECTS:hs_exec_sve2>)
             set_target_properties(hs_exec_sve2 PROPERTIES
-                COMPILE_FLAGS "-march=armv9-a+sve+sve2+sve2-bitperm -DHAVE_SVE -DHAVE_SVE2"
+                COMPILE_FLAGS "-march=${SVE2_BITPERM_ARCH}"
                 RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} sve2 ${CMAKE_MODULE_PATH}/keep.syms.in"
                 )
 
@@ -1096,28 +1090,25 @@ else ()
             # build shared libs
             add_library(hs_compile_shared OBJECT ${hs_compile_SRCS})
             set_target_properties(hs_compile_shared PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-	    add_library(hs_exec_shared_neon OBJECT ${hs_exec_SRCS} ${hs_exec_neon_SRCS})
+	          add_library(hs_exec_shared_neon OBJECT ${hs_exec_SRCS} ${hs_exec_neon_SRCS})
             list(APPEND RUNTIME_SHLIBS $<TARGET_OBJECTS:hs_exec_shared_neon>)
             set_target_properties(hs_exec_shared_neon PROPERTIES
-                COMPILE_FLAGS "-march=armv8-a"
+                COMPILE_FLAGS "-march=${ARMV8_ARCH}"
                 POSITION_INDEPENDENT_CODE TRUE
                 RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} neon ${CMAKE_MODULE_PATH}/keep.syms.in"
                 )
 
-            set (BUILD_SVE ON)
             add_library(hs_exec_shared_sve OBJECT ${hs_exec_SRCS} ${hs_exec_sve_SRCS})
             list(APPEND RUNTIME_SHLIBS $<TARGET_OBJECTS:hs_exec_shared_sve>)
             set_target_properties(hs_exec_shared_sve PROPERTIES
-		    COMPILE_FLAGS "-march=armv8-a+sve -DHAVE_SVE"
+		            COMPILE_FLAGS "-march=${SVE_ARCH}"
                 POSITION_INDEPENDENT_CODE TRUE
                 RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} sve ${CMAKE_MODULE_PATH}/keep.syms.in"
                 )
-            set (BUILD_SVE2 ON)
-            set (BUILD_SVE2_BITPERM ON)
             add_library(hs_exec_shared_sve2 OBJECT ${hs_exec_SRCS} ${hs_exec_sve2_SRCS})
             list(APPEND RUNTIME_SHLIBS $<TARGET_OBJECTS:hs_exec_shared_sve2>)
             set_target_properties(hs_exec_shared_sve2 PROPERTIES
-                COMPILE_FLAGS "-march=armv8-a+sve+sve2+sve2-bitperm -DHAVE_SVE -DHAVE_SVE2"
+                COMPILE_FLAGS "-march=${SVE2_BITPERM_ARCH}"
                 POSITION_INDEPENDENT_CODE TRUE
                 RULE_LAUNCH_COMPILE "${BUILD_WRAPPER} sve2 ${CMAKE_MODULE_PATH}/keep.syms.in"
                 )
