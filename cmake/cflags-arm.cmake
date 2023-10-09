@@ -9,10 +9,19 @@ if (NOT FAT_RUNTIME)
     endif ()
 endif ()
 
-set(SVE2_BITPERM_ARCH "armv9-a+sve2-bitperm")
-set(SVE2_ARCH "armv9-a")
-set(SVE_ARCH "armv8-a+sve")
+
+if (CMAKE_COMPILER_IS_GNUCXX)
+    set(ARMV9BASE_MINVER "12")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS ARMV9BASE_MINVER)
+        set(SVE2_ARCH "armv8-a+sve2")
+    else()
+        set(SVE2_ARCH "armv9-a")
+    endif()
+endif()
+
 set(ARMV8_ARCH "armv8-a")
+set(SVE_ARCH "${ARMV8_ARCH}+sve")
+set(SVE2_BITPERM_ARCH "${SVE2_ARCH}+sve2-bitperm")
 
 CHECK_INCLUDE_FILE_CXX(arm_neon.h HAVE_C_ARM_NEON_H)
 if (BUILD_SVE OR BUILD_SVE2 OR BUILD_SVE2_BITPERM OR FAT_RUNTIME)
