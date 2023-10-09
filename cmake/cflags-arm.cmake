@@ -17,6 +17,8 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     else()
         set(SVE2_ARCH "armv9-a")
     endif()
+else()
+    set(SVE2_ARCH "armv9-a")
 endif()
 
 set(ARMV8_ARCH "armv8-a")
