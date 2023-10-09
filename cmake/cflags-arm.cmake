@@ -16,7 +16,7 @@ set(ARMV8_ARCH "armv8-a")
 
 CHECK_INCLUDE_FILE_CXX(arm_neon.h HAVE_C_ARM_NEON_H)
 if (BUILD_SVE OR BUILD_SVE2 OR BUILD_SVE2_BITPERM OR FAT_RUNTIME)
-  set(CMAKE_REQUIRED_FLAGS "-${ARCH_FLAG}=${SVE_ARCH}")
+  set(CMAKE_REQUIRED_FLAGS "-march=${SVE_ARCH}")
   CHECK_INCLUDE_FILE_CXX(arm_sve.h HAVE_C_ARM_SVE_H)
   if (NOT HAVE_C_ARM_SVE_H)
     message(FATAL_ERROR "arm_sve.h is required to build for SVE.")
@@ -30,7 +30,7 @@ int main() {
 }" HAVE_NEON)
 
 if (BUILD_SVE2_BITPERM)
-    set(CMAKE_REQUIRED_FLAGS "-${ARCH_FLAG}=${SVE2_BITPERM_ARCH}")
+    set(CMAKE_REQUIRED_FLAGS "-march=${SVE2_BITPERM_ARCH}")
     CHECK_C_SOURCE_COMPILES("#include <arm_sve.h>
     int main() {
         svuint8_t a = svbext(svdup_u8(1), svdup_u8(2));
@@ -38,7 +38,7 @@ if (BUILD_SVE2_BITPERM)
     }" HAVE_SVE2_BITPERM)
 endif()
 if (BUILD_SVE2)
-    set(CMAKE_REQUIRED_FLAGS "-${ARCH_FLAG}=${SVE2_ARCH}")
+    set(CMAKE_REQUIRED_FLAGS "-march=${SVE2_ARCH}")
     CHECK_C_SOURCE_COMPILES("#include <arm_sve.h>
         int main() {
             svuint8_t a = svbsl(svdup_u8(1), svdup_u8(2), svdup_u8(3));
@@ -46,7 +46,7 @@ if (BUILD_SVE2)
     }" HAVE_SVE2)
 endif()
 if (BUILD_SVE)
-    set(CMAKE_REQUIRED_FLAGS "-${ARCH_FLAG}=${SVE_ARCH}")
+    set(CMAKE_REQUIRED_FLAGS "-march=${SVE_ARCH}")
     CHECK_C_SOURCE_COMPILES("#include <arm_sve.h>
         int main() {
             svuint8_t a = svdup_u8(1);
