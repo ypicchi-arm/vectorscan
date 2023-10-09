@@ -425,8 +425,6 @@ if (ARCH_ARM32 OR ARCH_AARCH64)
         src/nfa/vermicelli_simd.cpp)
     set (hs_exec_sve_SRCS
         src/nfa/vermicelli_simd.cpp)
-    set (hs_exec_sve2_SRCS
-        src/nfa/vermicelli_simd.cpp)
 endif()
 
 SET (hs_compile_SRCS
@@ -1083,9 +1081,6 @@ else ()
         endif (BUILD_STATIC_LIBS)
 
         if (BUILD_SHARED_LIBS)
-	    set (BUILD_SVE OFF)
-	    set (BUILD_SVE2 OFF)
-	    set (BUILD_SVE2_BITPERM OFF)
             # build shared libs
             add_library(hs_compile_shared OBJECT ${hs_compile_SRCS})
             set_target_properties(hs_compile_shared PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
