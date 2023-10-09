@@ -871,7 +871,6 @@ endif()
 
 set (LIB_VERSION ${HS_VERSION})
 set (LIB_SOVERSION ${HS_MAJOR_VERSION})
-add_link_options(-Wl,--as-needed)
 
 if (NOT FAT_RUNTIME)
     set(hs_exec_SRCS ${hs_exec_SRCS} ${hs_exec_common_SRCS})
