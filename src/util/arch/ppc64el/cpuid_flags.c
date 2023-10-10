@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2017-2020, Intel Corporation
- * Copyright (c) 2020-2021, VectorCamp PC
+ * Copyright (c) 2015-2017, Intel Corporation
+ * Copyright (c) 2020-2023, VectorCamp PC
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,31 +27,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \file
- * \brief Per-platform architecture definitions
- */
+#include "util/arch/common/cpuid_flags.h"
+#include "ue2common.h"
+#include "hs_compile.h" // for HS_MODE_ flags
+#include "util/arch.h"
 
-#ifndef UTIL_ARCH_ARM_H_
-#define UTIL_ARCH_ARM_H_
+u64a cpuid_flags(void) {
+     return 0;
+}
 
-#if defined(__ARM_NEON) && (defined(ARCH_ARM32) || defined(ARCH_AARCH64))
-#define HAVE_NEON
-#define HAVE_SIMD_128_BITS
-#define CHUNKSIZE 128
-#define VECTORSIZE 16
-#endif
-
-#if defined(__ARM_FEATURE_SVE)
-#define HAVE_SVE
-#endif
-
-#if defined(__ARM_FEATURE_SVE2)
-#define HAVE_SVE2
-#endif
-
-#if defined(__ARM_FEATURE_SVE2_BITPERM)
-#define HAVE_SVE2_BITPERM
-#endif
-
-#endif // UTIL_ARCH_ARM_H_
-
+u32 cpuid_tune(void) {
+    return HS_TUNE_FAMILY_GENERIC;
+}
