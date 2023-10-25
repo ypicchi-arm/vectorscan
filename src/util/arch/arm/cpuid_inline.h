@@ -32,6 +32,11 @@
 
 #if defined(__linux__)
 #include <sys/auxv.h>
+/* This is to help fix https://github.com/envoyproxy/envoy/pull/29881
+ */
+#if !defined(HWCAP2_SVE2)
+#include <asm/hwcap.h>
+#endif
 #endif
 
 #include "ue2common.h"
