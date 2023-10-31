@@ -193,14 +193,14 @@ endif()
 set(RAGEL_C_FLAGS "-Wno-unused -funsigned-char")
 
 set_source_files_properties(
-    ${CMAKE_BINARY_DIR}/src/parser/Parser.cpp
+    src/parser/Parser.cpp
     PROPERTIES
         COMPILE_FLAGS "${RAGEL_C_FLAGS}")
 
 ragelmaker(src/parser/Parser.rl)
 
 set_source_files_properties(
-    ${CMAKE_BINARY_DIR}/src/parser/control_verbs.cpp
+   src/parser/control_verbs.cpp
     PROPERTIES
         COMPILE_FLAGS "${RAGEL_C_FLAGS}")
 
