@@ -363,9 +363,11 @@ static const unsigned validModes[] = {
 // Mode bits for switching off various architecture features
 static const unsigned long long featureMask[] = {
     ~0ULL, /* native */
+#if defined(ARCH_IA32) || defined(ARCH_X86_64)
     ~(HS_CPU_FEATURES_AVX2 | HS_CPU_FEATURES_AVX512 | HS_CPU_FEATURES_AVX512VBMI), /* no avx2 */
     ~(HS_CPU_FEATURES_AVX512 | HS_CPU_FEATURES_AVX512VBMI), /* no avx512 */
     ~HS_CPU_FEATURES_AVX512VBMI, /* no avx512vbmi */
+#endif
 };
 
 INSTANTIATE_TEST_CASE_P(Single,

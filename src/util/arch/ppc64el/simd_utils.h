@@ -43,6 +43,11 @@
 
 #include <string.h> // for memcpy
 
+#if defined(__clang__) && (__clang_major__ == 15)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecate-lax-vec-conv-all"
+#endif // defined(__clang__) && (__clang_major__ == 15)
+
 typedef __vector unsigned long long int  uint64x2_t;
 typedef __vector   signed long long int   int64x2_t;
 typedef __vector unsigned int            uint32x4_t;
@@ -124,8 +129,8 @@ static really_really_inline
 m128 rshift_m128(m128 a, unsigned b) {
     if (b == 0) return a;
     m128 sl = (m128) vec_splats((uint8_t) b << 3);
-    m128 result = (m128) vec_sro((uint8x16_t) a, (uint8x16_t) sl);
-    return result;
+    uint8x16_t result = vec_sro((uint8x16_t) a, (uint8x16_t) sl);
+    return (m128) result;
 }
 
 static really_really_inline
@@ -419,5 +424,9 @@ m128 set2x64(u64a hi, u64a lo) {
     uint64x2_t v = { lo, hi };
     return (m128) v;
 }
+
+#if defined(__clang__) && (__clang_major__ == 15)
+#pragma clang diagnostic pop
+#endif // defined(__clang__) && (__clang_major__ == 15)
 
 #endif // ARCH_PPC64EL_SIMD_UTILS_H

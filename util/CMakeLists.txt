@@ -9,7 +9,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
 message("RAGEL_C_FLAGS" ${RAGEL_C_FLAGS})
 
 set_source_files_properties(
-    ${CMAKE_BINARY_DIR}/util/ExpressionParser.cpp
+    ExpressionParser.cpp
     PROPERTIES
     COMPILE_FLAGS "${RAGEL_C_FLAGS}")
 
