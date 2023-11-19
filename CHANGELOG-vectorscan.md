@@ -2,6 +2,22 @@
 
 This is a list of notable changes to Vectorscan, in reverse chronological order. For Hyperscan Changelog, check CHANGELOG.md
 
+## [5.4.11] 2023-11-19
+
+- Refactor CMake build system to be much more modular.
+- version in hs.h fell out of sync again #175
+- Fix compile failures with recent compilers, namely clang-15 and gcc-13
+- Fix clang 15,16 compilation errors on all platforms, refactor CMake build system #181
+- Fix signed/unsigned char issue on Arm with Ragel generated code.
+- Correct set_source_files_properties usage #189
+- Fix build failure on Ubuntu 20.04
+- Support building on Ubuntu 20.04 #180
+- Require pkg-config during Cmake
+- make pkgconfig a requirement #188
+- Fix segfault on Fat runtimes with SVE2 code
+- Move VERM16 enums to the end of the list #191
+- Update README.md, add CHANGELOG-vectorscan.md and Contributors-vectorscan.md files
+
 ## [5.4.10] 2023-09-23
 - Fix compilation with libcxx 16 by @rschu1ze in #144
 - Fix use-of-uninitialized-value due to getData128() by @azat in #148
