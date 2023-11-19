@@ -1,16 +1,15 @@
-# Vectorscan?
+# About Vectorscan
 
 A fork of Intel's Hyperscan, modified to run on more platforms. Currently ARM NEON/ASIMD
-is 100% functional, and Power VSX are in development. ARM SVE2 will be implemented when
-harwdare becomes accessible to the developers. More platforms will follow in the future,
-on demand/request.
+is 100% functional, and Power VSX are in development. ARM SVE2 support is in ongoing with
+access to hardware now. More platforms will follow in the future.
 
 Vectorscan will follow Intel's API and internal algorithms where possible, but will not
 hesitate to make code changes where it is thought of giving better performance or better
 portability. In addition, the code will be gradually simplified and made more uniform and
 all architecture specific -currently Intel- #ifdefs will be removed and abstracted away.
 
-# Why the fork?
+# Why was there a need for a fork?
 
 Originally, the ARM porting was supposed to be merged into Intel's own Hyperscan, and 2 
 Pull Requests had been made to the project for this reason ([1], [2]). Unfortunately, the
@@ -29,52 +28,73 @@ matching of regular expressions across streams of data.
 
 Vectorscan is typically used in a DPI library stack, just like Hyperscan.
 
-# Compiling for SVE
+# Build Instructions
 
-The following cmake variables can be set in order to target Arm's Scalable
-Vector Extension. They are listed in ascending order of strength, with cmake
-detecting whether the feature is available in the compiler and falling back to
-a weaker version if not. Only one of these variables needs to be set as weaker
-variables will be implied as set.
+## Common Dependencies
 
-- `BUILD_SVE`
-- `BUILD_SVE2`
-- `BUILD_SVE2_BITPERM`
 
-# Documentation
+## Native CPU detection
+
+## Instructions for Intel/AMD CPUs
+
+## Instructions for Arm 64-bit CPUs
+
+## Instructions for Power8/Power9/Power10 CPUs
+
+
+## Fat Runtime (Intel/AMD 64-bit & Arm 64-bit Only)
+
+
+
+# Hyperscan Documentation
 
 Information on building the Hyperscan library and using its API is available in
 the [Developer Reference Guide](http://intel.github.io/hyperscan/dev-reference/).
 
 # License
 
-Vectorscan, like Hyperscan is licensed under the BSD License. See the LICENSE file in the
-project repository.
+## Hyperscan License Change after 5.4
+
+According to 
+[Accelerate Snort Performance with Hyperscan and Intel Xeon Processors on Public Clouds](https://networkbuilders.intel.com/docs/networkbuilders/accelerate-snort-performance-with-hyperscan-and-intel-xeon-processors-on-public-clouds-1680176363.pdf) versions of Hyperscan later than 5.4 are
+going to be closed-source:
+
+> The latest open-source version (BSD-3 license) of Hyperscan on Github is 5.4. Intel conducts continuous internal
+> development and delivers new Hyperscan releases under Intel Proprietary License (IPL) beginning from 5.5 for interested
+> customers. Please contact authors to learn more about getting new Hyperscan releases.
+
+Vectorscan continues to be an open source project and we are committed to keep it that way.
+See the LICENSE file in the project repository.
 
 # Versioning
 
-The `master` branch on Github will always contain the most recent release of
+The `master` branch on Github will always contain the most recent stable release of
 Hyperscan. Each version released to `master` goes through QA and testing before
 it is released; if you're a user, rather than a developer, this is the version
 you should be using.
 
 Further development towards the next release takes place on the `develop`
-branch.
+branch. All PRs are first made against the develop branch and if the pass the [Vectorscan CI](https://buildbot-ci.vectorcamp.gr/#/grid), then they get merged. Similarly with PRs from develop to master.
+
+Vectorscan aims to be ABI and API compatible with the last open source version of Intel Hyperscan 5.4.
+After careful consideration we decided that we will NOT aim to achieving compatibility with later Hyperscan versions 5.5/5.6 that have extended Hyperscan's API.
+If keeping up to date with latest API of Hyperscan, you should talk to Intel and get a license to use that.
+However, we intend to extend Vectorscan's API with user requested changes or API extensions and improvements that we think are best for the project.
 
 # Get Involved
 
 The official homepage for Vectorscan is at [www.github.com/VectorCamp/vectorscan](https://www.github.com/VectorCamp/vectorscan).
 
+# Vectorscan Development
+
+All development of Vectorscan is done in public. 
+
 # Original Hyperscan links
-The official homepage for Hyperscan is at [www.hyperscan.io](https://www.hyperscan.io).
+For reference, the official homepage for Hyperscan is at [www.hyperscan.io](https://www.hyperscan.io).
 
-If you have questions or comments, we encourage you to [join the mailing
-list](https://lists.01.org/mailman/listinfo/hyperscan). Bugs can be filed by
-sending email to the list, or by creating an issue on Github.
+And you can find the source code [on Github](https://github.com/intel/hyperscan).
 
-If you wish to contact the Hyperscan team at Intel directly, without posting
-publicly to the mailing list, send email to
-[hyperscan@intel.com](mailto:hyperscan@intel.com).
+For Intel Hyperscan related issues and questions, please follow the relevant links there.
 
 [1]: https://github.com/intel/hyperscan/pull/272
 [2]: https://github.com/intel/hyperscan/pull/287
