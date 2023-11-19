@@ -88,12 +88,25 @@ For other distributions/OSes please check the [Wiki](https://github.com/VectorCa
 The build system has recently been refactored to be more modular and easier to extend. For that reason,
 some small but necessary changes were made that might break compatibility with how Hyperscan was built.
 
-## Common Dependencies
+## Install Common Dependencies
 
+### Debian/Ubuntu
 In order to build on Debian/Ubuntu make sure you install the following build-dependencies
 
 ```
 $ sudo apt build-essential cmake ragel pkg-config libsqlite3-dev libpcap-dev
+```
+
+### Other distributions
+
+TBD
+
+### MacOS X (M1/M2/M3 CPUs only)
+
+Assuming an existing HomeBrew installation:
+
+```
+% brew install boost cmake gcc libpcap pkg-config ragel sqlite
 ```
 
 ## Configure & build
