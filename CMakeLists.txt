@@ -94,8 +94,9 @@ if (BUILD_STATIC_LIBS)
     message(STATUS "Building static libraries")
 endif()
 
-if (NOT BUILD_SHARED_LIBS)
-    # build static libs
+if (NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
+    # if none are set build static libs
+    message(STATUS "Neither shared nor static libraries were requested, building static libraries")
     set(BUILD_STATIC_LIBS ON)
 endif ()
 
