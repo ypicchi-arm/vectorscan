@@ -11,7 +11,11 @@ message("Checking Fat Runtime Requirements...")
 if (FAT_RUNTIME AND NOT LINUX)
     message(FATAL_ERROR "Fat runtime is only supported on Linux OS")
 endif()
-    
+
+if (USE_CPU_NATIVE AND FAT_RUNTIME)
+    message(FATAL_ERROR "Fat runtime is not compatible with Native CPU detection")
+endif()
+
 if (FAT_RUNTIME AND LINUX)
     if (NOT (ARCH_IA32 OR ARCH_X86_64 OR ARCH_AARCH64))
         message(FATAL_ERROR "Fat runtime is only supported on Intel and Aarch64 architectures")
