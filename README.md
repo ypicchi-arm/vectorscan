@@ -131,6 +131,10 @@ Common options for Cmake are:
 * `-DBUILD_SVE2=[On|Off]` Enable code for SVE2, implies `BUILD_SVE`. Most non-Neon code is written for SVE2
 * `-DBUILD_SVE2_BITPERM=[On|Off]` Enable code for SVE2_BITPERM harwdare feature, implies `BUILD_SVE2`.
 
+## Other options
+
+* `SANITIZE=[address|memory|undefined]` (experimental) Use `libasan` sanitizer to detect possible bugs. For now only `address` is tested. This will eventually be integrated in the CI.
+
 ## Build
 
 If `cmake` has completed successfully you can run `make` in the same directory, if you have a multi-core system with `N` cores, running
