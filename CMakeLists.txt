@@ -1118,7 +1118,7 @@ else ()
     endif (ARCH_AARCH64)
 endif (NOT FAT_RUNTIME)
 
-if (NOT BUILD_SHARED_LIBS)
+if (BUILD_STATIC_LIBS)
     install(TARGETS hs_runtime DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 
@@ -1150,7 +1150,7 @@ if (BUILD_STATIC_LIBS)
     add_dependencies(hs ragel_Parser)
 endif ()
 
-if (NOT BUILD_SHARED_LIBS)
+if (BUILD_STATIC_LIBS)
     install(TARGETS hs DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 
