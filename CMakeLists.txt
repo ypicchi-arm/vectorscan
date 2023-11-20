@@ -4,7 +4,7 @@ project (vectorscan C CXX)
 
 set (HS_MAJOR_VERSION 5)
 set (HS_MINOR_VERSION 4)
-set (HS_PATCH_VERSION 10)
+set (HS_PATCH_VERSION 11)
 set (HS_VERSION ${HS_MAJOR_VERSION}.${HS_MINOR_VERSION}.${HS_PATCH_VERSION})
 
 string (TIMESTAMP BUILD_DATE "%Y-%m-%d")
@@ -94,8 +94,9 @@ if (BUILD_STATIC_LIBS)
     message(STATUS "Building static libraries")
 endif()
 
-if (NOT BUILD_SHARED_LIBS)
-    # build static libs
+if (NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
+    # if none are set build static libs
+    message(STATUS "Neither shared nor static libraries were requested, building static libraries")
     set(BUILD_STATIC_LIBS ON)
 endif ()
 
