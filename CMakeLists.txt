@@ -225,6 +225,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CXX_FLAGS}")
 endif()
 
 SET(hs_HEADERS
+    ${PROJECT_BINARY_DIR}/hs_version.h
     src/hs.h
     src/hs_common.h
     src/hs_compile.h
