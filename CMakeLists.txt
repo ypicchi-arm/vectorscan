@@ -225,6 +225,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CXX_FLAGS}")
 endif()
 
 SET(hs_HEADERS
+    ${PROJECT_BINARY_DIR}/hs_version.h
     src/hs.h
     src/hs_common.h
     src/hs_compile.h
@@ -1118,7 +1119,7 @@ else ()
     endif (ARCH_AARCH64)
 endif (NOT FAT_RUNTIME)
 
-if (NOT BUILD_SHARED_LIBS)
+if (BUILD_STATIC_LIBS)
     install(TARGETS hs_runtime DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 
@@ -1150,7 +1151,7 @@ if (BUILD_STATIC_LIBS)
     add_dependencies(hs ragel_Parser)
 endif ()
 
-if (NOT BUILD_SHARED_LIBS)
+if (BUILD_STATIC_LIBS)
     install(TARGETS hs DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 
