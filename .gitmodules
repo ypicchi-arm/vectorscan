@@ -1,6 +1,3 @@
-[submodule "build-simde/simde"]
-	path = build-simde/simde
-	url = https://github.com/simd-everywhere/simde.git
 [submodule "simde"]
 	path = simde
 	url = https://github.com/simd-everywhere/simde.git
