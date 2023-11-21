@@ -388,6 +388,8 @@ struct Unroller<End, End>
 #include "util/supervector/arch/arm/impl.cpp"
 #elif defined(ARCH_PPC64EL)
 #include "util/supervector/arch/ppc64el/impl.cpp"
+#elif defined(SIMDE_BACKEND)
+#include "util/supervector/arch/simde/impl.cpp"
 #endif
 #endif
 
