@@ -41,7 +41,7 @@
 
 #include <string.h> // for memcpy
 
-#if !defined(HAVE_SIMD_128_BITS)
+#if !defined(HAVE_SIMD_128_BITS) && !defined(SIMDE_BACKEND)
 #error "You need at least a 128-bit capable SIMD engine!"
 #endif // HAVE_SIMD_128_BITS
 
@@ -88,7 +88,7 @@ static inline void print_m128_2x64(const char *label, m128 vec) {
 #define print_m128_2x64(label, vec) ;
 #endif
 
-#if !defined(ARCH_IA32) && !defined(ARCH_X86_64)
+#if !defined(ARCH_IA32) && !defined(ARCH_X86_64) && !defined(SIMDE_BACKEND)
 #define ZEROES_8 0, 0, 0, 0, 0, 0, 0, 0
 #define ZEROES_31 ZEROES_8, ZEROES_8, ZEROES_8, 0, 0, 0, 0, 0, 0, 0
 #define ZEROES_32 ZEROES_8, ZEROES_8, ZEROES_8, ZEROES_8

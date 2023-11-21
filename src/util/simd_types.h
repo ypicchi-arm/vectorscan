@@ -42,8 +42,13 @@
 #include "util/arch/ppc64el/simd_types.h"
 #endif
 
-#if !defined(m128) && !defined(HAVE_SIMD_128_BITS)
-typedef struct ALIGN_DIRECTIVE {u64a hi; u64a lo;} m128;
+#if defined(SIMDE_BACKEND)
+#define VECTORSIZE 16
+#define SIMDE_ENABLE_NATIVE_ALIASES
+#define SIMDE_NO_NATIVE
+#include "simde/simde/x86/sse4.2.h"
+typedef simde__m128i m128;
+#define HAVE_SIMD_128_BITS
 #endif
 
 #if !defined(m256) && !defined(HAVE_SIMD_256_BITS)

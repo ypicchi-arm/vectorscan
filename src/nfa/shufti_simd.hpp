@@ -52,7 +52,7 @@ template <uint16_t S>
 static really_inline
 SuperVector<S> blockDoubleMask(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi, SuperVector<S> mask2_lo, SuperVector<S> mask2_hi, SuperVector<S> chars);
 
-#if defined(ARCH_IA32) || defined(ARCH_X86_64)
+#if defined(ARCH_IA32) || defined(ARCH_X86_64) || defined(SIMDE_BACKEND)
 #include "x86/shufti.hpp"
 #elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
 #include "arm/shufti.hpp"

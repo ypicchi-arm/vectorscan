@@ -49,7 +49,7 @@ const u8 *first_zero_match_inverted(const u8 *buf, SuperVector<S> v, u16 const l
 template <u16 S>
 const u8 *last_zero_match_inverted(const u8 *buf, SuperVector<S> v, u16 len = S);
 
-#if defined(ARCH_IA32) || defined(ARCH_X86_64)
+#if defined(ARCH_IA32) || defined(ARCH_X86_64) || defined(SIMDE_BACKEND)
 #include "util/arch/x86/match.hpp"
 #elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
 #include "util/arch/arm/match.hpp"

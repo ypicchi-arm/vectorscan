@@ -51,6 +51,31 @@
 #include "util/arch/arm/bitutils.h"
 #elif defined(ARCH_PPC64EL)
 #include "util/arch/ppc64el/bitutils.h"
+#else
+#include "util/arch/common/bitutils.h"
+#define clz32_impl clz32_impl_c
+#define clz64_impl clz64_impl_c
+#define ctz32_impl ctz32_impl_c
+#define ctz64_impl ctz64_impl_c
+#define lg2_impl lg2_impl_c
+#define lg2_64_impl lg2_64_impl_c
+#define findAndClearLSB_32_impl findAndClearLSB_32_impl_c
+#define findAndClearLSB_64_impl findAndClearLSB_64_impl_c
+#define findAndClearMSB_32_impl findAndClearMSB_32_impl_c
+#define findAndClearMSB_64_impl findAndClearMSB_64_impl_c
+#define compress32_impl compress32_impl_c
+#define compress64_impl compress64_impl_c
+#define compress128_impl compress128_impl_c
+#define expand32_impl expand32_impl_c
+#define expand64_impl expand64_impl_c
+#define expand128_impl expand128_impl_c
+#define bf64_iterate_impl bf64_iterate_impl_c
+#define bf64_set_impl bf64_set_impl_c
+#define bf64_unset_impl bf64_unset_impl_c
+#define rank_in_mask32_impl rank_in_mask32_impl_c
+#define rank_in_mask64_impl rank_in_mask64_impl_c
+#define pext32_impl pext32_impl_c
+#define pext64_impl pext64_impl_c
 #endif
 
 static really_inline
