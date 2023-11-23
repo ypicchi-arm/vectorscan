@@ -667,7 +667,7 @@ TEST(SimdUtilsTest, movq) {
     ASSERT_EQ(0, memcmp(cmp, &r, sizeof(r)));
 
 #if defined(HAVE_SIMD_128_BITS)
-#if defined(ARCH_IA32) || defined(ARCH_X86_64)
+#if defined(ARCH_IA32) || defined(ARCH_X86_64) || defined(SIMDE_BACKEND)
     simd = _mm_set_epi64x(~0LL, 0x123456789abcdef);
 #elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
     int64x2_t a = { 0x123456789abcdefLL, ~0LL };
