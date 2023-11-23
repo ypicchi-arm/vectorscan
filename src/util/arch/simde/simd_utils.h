@@ -100,13 +100,24 @@ static really_inline u32 diffrich64_128(m128 a, m128 b) {
 }
 
 static really_really_inline
+m128 add_2x64(m128 a, m128 b) {
+    return (m128) _mm_add_epi64(a, b);
+}
+
+static really_really_inline
+m128 sub_2x64(m128 a, m128 b) {
+    return (m128) _mm_sub_epi64(a, b);
+}
+
+static really_really_inline
 m128 lshift64_m128(m128 a, unsigned b) {
     return _mm_slli_epi64(a, b);
 }
 
 #define rshift64_m128(a, b) _mm_srli_epi64((a), (b))
-#define eq128(a, b)      _mm_cmpeq_epi8((a), (b))
-#define movemask128(a)  ((u32)_mm_movemask_epi8((a)))
+#define eq128(a, b)         _mm_cmpeq_epi8((a), (b))
+#define eq64_m128(a, b)     _mm_cmpeq_epi64((a), (b))
+#define movemask128(a)      ((u32)_mm_movemask_epi8((a)))
 
 static really_inline m128 set1_16x8(u8 c) {
     return _mm_set1_epi8(c);
