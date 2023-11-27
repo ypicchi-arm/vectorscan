@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2017, Intel Corporation
+ * Copyright (c) 2020-2023, VectorCamp PC
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -44,13 +45,14 @@
 #define DOUBLE_CASE_CLEAR 0xdfdf
 #define OCTO_CASE_CLEAR   0xdfdfdfdfdfdfdfdfULL
 
-
+#if !defined(VS_SIMDE_BACKEND)
 #if defined(ARCH_IA32) || defined(ARCH_X86_64)
 #include "util/arch/x86/bitutils.h"
 #elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
 #include "util/arch/arm/bitutils.h"
 #elif defined(ARCH_PPC64EL)
 #include "util/arch/ppc64el/bitutils.h"
+#endif
 #else
 #include "util/arch/common/bitutils.h"
 #define clz32_impl clz32_impl_c

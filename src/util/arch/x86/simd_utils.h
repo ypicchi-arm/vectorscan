@@ -113,6 +113,16 @@ static really_inline u32 diffrich64_128(m128 a, m128 b) {
 }
 
 static really_really_inline
+m128 add_2x64(m128 a, m128 b) {
+    return (m128) _mm_add_epi64(a, b);
+}
+
+static really_really_inline
+m128 sub_2x64(m128 a, m128 b) {
+    return (m128) _mm_sub_epi64(a, b);
+}
+
+static really_really_inline
 m128 lshift64_m128(m128 a, unsigned b) {
 #if defined(HAVE__BUILTIN_CONSTANT_P)
     if (__builtin_constant_p(b)) {
@@ -124,8 +134,9 @@ m128 lshift64_m128(m128 a, unsigned b) {
 }
 
 #define rshift64_m128(a, b) _mm_srli_epi64((a), (b))
-#define eq128(a, b)      _mm_cmpeq_epi8((a), (b))
-#define movemask128(a)  ((u32)_mm_movemask_epi8((a)))
+#define eq128(a, b)         _mm_cmpeq_epi8((a), (b))
+#define eq64_m128(a, b)     _mm_cmpeq_epi64((a), (b))
+#define movemask128(a)      ((u32)_mm_movemask_epi8((a)))
 
 #if defined(HAVE_AVX512)
 static really_inline m128 cast512to128(const m512 in) {
@@ -667,24 +678,6 @@ m256 combine2x128(m128 hi, m128 lo) {
 #endif
 }
 #endif //AVX2
-
-#if defined(HAVE_SIMD_128_BITS)
-/**
- * "Rich" version of diff384(). Takes two vectors a and b and returns a 12-bit
- * mask indicating which 32-bit words contain differences.
- */
-
-static really_inline u32 diffrich384(m384 a, m384 b) {
-    m128 z = zeroes128();
-    a.lo = _mm_cmpeq_epi32(a.lo, b.lo);
-    a.mid = _mm_cmpeq_epi32(a.mid, b.mid);
-    a.hi = _mm_cmpeq_epi32(a.hi, b.hi);
-    m128 packed = _mm_packs_epi16(_mm_packs_epi32(a.lo, a.mid),
-                                  _mm_packs_epi32(a.hi, z));
-    return ~(_mm_movemask_epi8(packed)) & 0xfff;
-}
-
-#endif // HAVE_SIMD_128_BITS
 
 /****
  **** 512-bit Primitives

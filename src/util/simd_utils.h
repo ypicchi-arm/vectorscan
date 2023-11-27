@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2020, Intel Corporation
+ * Copyright (c) 2023, VectorCamp PC
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -61,14 +62,16 @@ extern const char vbs_mask_data[];
 }
 #endif
 
+#if defined(VS_SIMDE_BACKEND)
+#include "util/arch/x86/simd_utils.h"
+#else
 #if defined(ARCH_IA32) || defined(ARCH_X86_64)
 #include "util/arch/x86/simd_utils.h"
 #elif defined(ARCH_ARM32) || defined(ARCH_AARCH64)
 #include "util/arch/arm/simd_utils.h"
 #elif defined(ARCH_PPC64EL)
 #include "util/arch/ppc64el/simd_utils.h"
-#elif defined(SIMDE_BACKEND)
-#include "util/arch/simde/simd_utils.h"
+#endif
 #endif
 
 #include "util/arch/common/simd_utils.h"
