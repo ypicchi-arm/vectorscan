@@ -180,7 +180,7 @@ m128 load_m128_from_u64a(const u64a *p) {
 
 static really_inline
 m128 rshiftbyte_m128(const m128 a, int count_immed) {
-#if defined(HAVE__BUILTIN_CONSTANT_P)
+#if defined(HAVE__BUILTIN_CONSTANT_P) && !defined(VS_SIMDE_BACKEND)
     if (__builtin_constant_p(count_immed)) {
         return _mm_srli_si128(a, count_immed);
     }
@@ -211,7 +211,7 @@ m128 rshiftbyte_m128(const m128 a, int count_immed) {
 
 static really_inline
 m128 lshiftbyte_m128(const m128 a, int count_immed) {
-#if defined(HAVE__BUILTIN_CONSTANT_P)
+#if defined(HAVE__BUILTIN_CONSTANT_P) && !defined(VS_SIMDE_BACKEND)
     if (__builtin_constant_p(count_immed)) {
         return _mm_slli_si128(a, count_immed);
     }
