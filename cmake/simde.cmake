@@ -1,8 +1,8 @@
-# include_directories(${PROJECT_SOURCE_DIR}/simde/simde)
+include_directories(${PROJECT_SOURCE_DIR}/simde/simde)
 
-pkg_check_modules(SIMDE simde)
+CHECK_INCLUDE_FILES("simde/x86/sse4.2.h" SIMDE_SSE42_H_FOUND)
 
-if (SIMDE_FOUND)
+if (SIMDE_SSE42_H_FOUND)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DVS_SIMDE_BACKEND")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVS_SIMDE_BACKEND")
 
