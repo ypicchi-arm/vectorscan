@@ -131,6 +131,7 @@ elseif (ARCH_ARM32 OR ARCH_AARCH64)
 elseif (ARCH_PPC64EL)
     include (${CMAKE_MODULE_PATH}/cflags-ppc64le.cmake)
     set(ARCH_FLAG mcpu)
+else()
     message(FATAL_ERROR "Unsupported platform")
 endif ()
 
