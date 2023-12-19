@@ -78,6 +78,7 @@
 #define rank_in_mask64_impl rank_in_mask64_impl_c
 #define pext32_impl pext32_impl_c
 #define pext64_impl pext64_impl_c
+#define pdep64_impl pdep64_impl_c
 #endif
 
 static really_inline
@@ -205,6 +206,11 @@ u32 pext32(u32 x, u32 mask) {
 static really_inline
 u64a pext64(u64a x, u64a mask) {
     return pext64_impl(x, mask);
+}
+
+static really_inline
+u64a pdep64(u64a x, u64a mask) {
+    return pdep64_impl(x, mask);
 }
 
 /* compilers don't reliably synthesize the 32-bit ANDN instruction here,
