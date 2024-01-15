@@ -26,7 +26,7 @@ include (GNUInstallDirs)
 include (${CMAKE_MODULE_PATH}/boost.cmake)
 include (${CMAKE_MODULE_PATH}/ragel.cmake)
 
-find_package(PkgConfig REQUIRED)
+find_package(PkgConfig QUIET)
 
 find_program(RAGEL ragel)
 
