@@ -1,13 +1,13 @@
 # set compiler flags - more are tested and added later
-set(EXTRA_C_FLAGS "${OPT_C_FLAG} -std=c17 -Wall -Wextra ")#-Wshadow -Wcast-qual -fno-strict-aliasing")
-set(EXTRA_CXX_FLAGS "${OPT_CXX_FLAG} -std=c++17 -Wall -Wextra ")# -Wshadow -Wswitch -Wreturn-type -Wcast-qual -Wno-deprecated -Wnon-virtual-dtor -fno-strict-aliasing")
+set(EXTRA_C_FLAGS "${OPT_C_FLAG} -std=c17 -Wall -Wextra ")
+set(EXTRA_CXX_FLAGS "${OPT_CXX_FLAG} -std=c++17 -Wall -Wextra ")
 if (NOT CMAKE_COMPILER_IS_CLANG)
     set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -fno-new-ttp-matching")
 endif()
 
 # Always use -Werror *also during release builds
-set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wall -Werror -fno-inline")
-set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wall -Werror -fno-inline")
+set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wall -Werror")
+set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wall -Werror")
 #if (CMAKE_COMPILER_IS_CLANG)
 #    if (CMAKE_C_COMPILER_VERSION VERSION_GREATER "13.0")
 #        set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wno-unused-but-set-variable")
@@ -25,20 +25,9 @@ if(CMAKE_COMPILER_IS_GNUCC)
     set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wno-array-bounds ") #-Wno-maybe-uninitialized")
 endif()
 
-#if(CMAKE_COMPILER_IS_GNUCXX)
-#    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-maybe-uninitialized")
-#    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
-#        set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -fabi-version=0")
-#    endif ()
-#    # don't complain about abi
-#    set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wno-abi")
-#    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-abi")
-#endif()
-
-#if (NOT(ARCH_IA32 AND RELEASE_BUILD))
-#    set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -fno-omit-frame-pointer")
-#    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -fno-omit-frame-pointer")
-#endif()
+if(CMAKE_COMPILER_IS_GNUCXX)
+    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-maybe-uninitialized -Wno-uninitialized")
+endif()
 
 CHECK_INCLUDE_FILES(unistd.h HAVE_UNISTD_H)
 CHECK_FUNCTION_EXISTS(posix_memalign HAVE_POSIX_MEMALIGN)
@@ -114,48 +103,35 @@ if (CXX_UNUSED_BUT_SET_VAR)
     set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-unused-but-set-variable")
 endif()
 
-# clang-14 complains about using bitwise operator instead of logical ones.
-#CHECK_CXX_COMPILER_FLAG("-Wbitwise-instead-of-logical" CXX_BITWISE_INSTEAD_OF_LOGICAL)
-#if (CXX_BITWISE_INSTEAD_OF_LOGICAL)
-#    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-bitwise-instead-of-logical")
-#endif()
-
-# clang-14 complains about using bitwise operator instead of logical ones.
-#CHECK_CXX_COMPILER_FLAG("-Wbitwise-instead-of-logical" CXX_BITWISE_INSTEAD_OF_LOGICAL)
-#if (CXX_BITWISE_INSTEAD_OF_LOGICAL)
-#    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-bitwise-instead-of-logical")
-#endif()
-
 CHECK_CXX_COMPILER_FLAG("-Wignored-attributes" CXX_IGNORED_ATTR)
-if (CXX_IGNORED_ATTR)
-    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-ignored-attributes")
+if(CMAKE_COMPILER_IS_GNUCC)
+    if (CXX_IGNORED_ATTR)
+        set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-ignored-attributes")
+    endif()
 endif()
 
-# gcc 9 complains about redundant move for returned variable
-#CHECK_CXX_COMPILER_FLAG("-Wredundant-move" CXX_REDUNDANT_MOVE)
-#if (CXX_REDUNDANT_MOVE)
-#    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-redundant-move")
-#endif()
+CHECK_CXX_COMPILER_FLAG("-Wignored-attributes" CXX_NON_NULL)
+if(CMAKE_COMPILER_IS_GNUCC)
+    if (CXX_NON_NULL)
+        set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-nonnull")
+    endif()
+endif()
 
 # note this for later, g++ doesn't have this flag but clang does
-#CHECK_CXX_COMPILER_FLAG("-Wweak-vtables" CXX_WEAK_VTABLES)
-#if (CXX_WEAK_VTABLES)
-#    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wweak-vtables")
-#endif()
+CHECK_CXX_COMPILER_FLAG("-Wweak-vtables" CXX_WEAK_VTABLES)
 
-#CHECK_CXX_COMPILER_FLAG("-Wmissing-declarations" CXX_MISSING_DECLARATIONS)
-#if (CXX_MISSING_DECLARATIONS)
-#    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wmissing-declarations")
-#endif()
+CHECK_CXX_COMPILER_FLAG("-Wmissing-declarations" CXX_MISSING_DECLARATIONS)
 
-#CHECK_CXX_COMPILER_FLAG("-Wunused-local-typedefs" CXX_UNUSED_LOCAL_TYPEDEFS)
+CHECK_CXX_COMPILER_FLAG("-Wunused-local-typedefs" CXX_UNUSED_LOCAL_TYPEDEFS)
 
-#CHECK_CXX_COMPILER_FLAG("-Wunused-variable" CXX_WUNUSED_VARIABLE)
+CHECK_CXX_COMPILER_FLAG("-Wunused-variable" CXX_WUNUSED_VARIABLE)
 
-# gcc 10 complains about this
-CHECK_C_COMPILER_FLAG("-Wstringop-overflow" CC_STRINGOP_OVERFLOW)
-CHECK_CXX_COMPILER_FLAG("-Wstringop-overflow" CXX_STRINGOP_OVERFLOW)
-if(CC_STRINGOP_OVERFLOW OR CXX_STRINGOP_OVERFLOW)
-    set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wno-stringop-overflow")
-    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-stringop-overflow")
+# gcc complains about this
+if(CMAKE_COMPILER_IS_GNUCC)
+    CHECK_C_COMPILER_FLAG("-Wstringop-overflow" CC_STRINGOP_OVERFLOW)
+    CHECK_CXX_COMPILER_FLAG("-Wstringop-overflow" CXX_STRINGOP_OVERFLOW)
+    if(CC_STRINGOP_OVERFLOW OR CXX_STRINGOP_OVERFLOW)
+        set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wno-stringop-overflow -Wno-stringop-overread")
+        set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-stringop-overflow -Wno-stringop-overread")
+    endif()
 endif()
