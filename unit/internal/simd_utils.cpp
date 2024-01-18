@@ -648,9 +648,19 @@ TYPED_TEST(SimdUtilsTest, lshift64) {
 
 TEST(SimdUtilsTest, alignment) {
     ASSERT_EQ(16, alignof(m128));
+#if defined(HAVE_SIMD_256_BITS)
     ASSERT_EQ(32, alignof(m256));
+#else
+    ASSERT_EQ(16, alignof(m256));
+#endif
     ASSERT_EQ(16, alignof(m384));
+#if defined(HAVE_SIMD_512_BITS)
     ASSERT_EQ(64, alignof(m512));
+#elif defined(HAVE_SIMD_256_BITS)
+    ASSERT_EQ(32, alignof(m512));
+#else
+    ASSERT_EQ(16, alignof(m512));
+#endif
 }
 
 TEST(SimdUtilsTest, movq) {
