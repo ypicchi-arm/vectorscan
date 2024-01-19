@@ -68,10 +68,8 @@ TEST(depth, ctor) {
 }
 
 TEST(depth, convert_throw) {
-    u32 v;
-    (void)v;
-    ASSERT_THROW(v = depth::infinity(), DepthOverflowError);
-    ASSERT_THROW(v = depth::unreachable(), DepthOverflowError);
+    ASSERT_THROW(u32 v = depth::infinity(), DepthOverflowError);
+    ASSERT_THROW(u32 v = depth::unreachable(), DepthOverflowError);
 }
 
 TEST(depth, is_finite) {
