@@ -54,13 +54,13 @@ typedef simde__m128i m128;
 
 
 #if !defined(m256) && !defined(HAVE_SIMD_256_BITS)
-typedef struct ALIGN_ATTR(16) {m128 lo; m128 hi;} m256;
+typedef struct ALIGN_AVX_DIRECTIVE {m128 lo; m128 hi;} m256;
 #endif
 
 typedef struct {m128 lo; m128 mid; m128 hi;} m384;
 
 #if !defined(m512) && !defined(HAVE_SIMD_512_BITS)
-typedef struct ALIGN_ATTR(16) {m256 lo; m256 hi;} m512;
+typedef struct ALIGN_ATTR(64) {m256 lo; m256 hi;} m512;
 #endif
 
 #endif /* SIMD_TYPES_H */
