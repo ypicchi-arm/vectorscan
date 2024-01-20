@@ -8,12 +8,6 @@ endif()
 # Always use -Werror *also during release builds
 set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wall -Werror")
 set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wall -Werror")
-#if (CMAKE_COMPILER_IS_CLANG)
-#    if (CMAKE_C_COMPILER_VERSION VERSION_GREATER "13.0")
-#        set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wno-unused-but-set-variable")
-#        set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-unused-but-set-variable")
-#    endif()
-#endif()
 
 if (DISABLE_ASSERTS)
     set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -DNDEBUG")
@@ -56,46 +50,6 @@ CHECK_CXX_SOURCE_COMPILES("void *aa_test(void *x) { return __builtin_assume_alig
 if (NOT CMAKE_COMPILER_IS_CLANG)
    CHECK_C_SOURCE_COMPILES("int main(void) { __builtin_constant_p(0); }" HAVE__BUILTIN_CONSTANT_P)
 endif()
-
-#set(C_FLAGS_TO_CHECK
-# Variable length arrays are way bad, most especially at run time
-#"-Wvla"
-# Pointer arith on void pointers is doing it wrong.
-# "-Wpointer-arith"
-# Build our C code with -Wstrict-prototypes -Wmissing-prototypes
-# "-Wstrict-prototypes"
-# "-Wmissing-prototypes"
-#)
-#foreach (FLAG ${C_FLAGS_TO_CHECK})
-#    # munge the name so it doesn't break things
-#    string(REPLACE "-" "_" FNAME C_FLAG${FLAG})
-#    CHECK_C_COMPILER_FLAG("${FLAG}" ${FNAME})
-#    if (${FNAME})
-#        set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} ${FLAG}")
-#    endif()
-#endforeach()
-
-# self-assign should be thrown away, but clang whinges
-#CHECK_C_COMPILER_FLAG("-Wself-assign" CC_SELF_ASSIGN)
-#if (CC_SELF_ASSIGN)
-#    set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wno-self-assign")
-#endif()
-#CHECK_CXX_COMPILER_FLAG("-Wself-assign" CXX_SELF_ASSIGN)
-#if (CXX_SELF_ASSIGN)
-#    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-self-assign")
-#endif()
-
-# clang gets up in our face for going paren crazy with macros
-#CHECK_C_COMPILER_FLAG("-Wparentheses-equality" CC_PAREN_EQUALITY)
-#if (CC_PAREN_EQUALITY)
-#    set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -Wno-parentheses-equality")
-#endif()
-
-# clang complains about unused const vars in our Ragel-generated code.
-#CHECK_CXX_COMPILER_FLAG("-Wunused-const-variable" CXX_UNUSED_CONST_VAR)
-#if (CXX_UNUSED_CONST_VAR)
-#    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wno-unused-const-variable")
-#endif()
 
 # clang-14 complains about unused-but-set variable.
 CHECK_CXX_COMPILER_FLAG("-Wunused-but-set-variable" CXX_UNUSED_BUT_SET_VAR)
