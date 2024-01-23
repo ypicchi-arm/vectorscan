@@ -266,7 +266,7 @@ void roseFlushLastByteHistory(const struct RoseEngine *t,
 
     DEBUG_PRINTF("flushing\n");
 
-    const struct mmbit_sparse_iter *it =
+    const struct mmbit_sparse_iter *it = (const struct mmbit_sparse_iter *)
         getByOffset(t, t->lastByteHistoryIterOffset);
     assert(ISALIGNED(it));
 
@@ -275,7 +275,7 @@ void roseFlushLastByteHistory(const struct RoseEngine *t,
 
     struct mmbit_sparse_state si_state[MAX_SPARSE_ITER_STATES];
 
-    mmbit_sparse_iter_unset(role_state, numStates, it, si_state);
+    mmbit_sparse_iter_unset((u8*) role_state, numStates, it, si_state);
 }
 
 static rose_inline
@@ -291,7 +291,7 @@ int roseHasInFlightMatches(const struct RoseEngine *t, char *state,
         return 1;
     }
 
-    if (mmbit_any(getRoleState(state), t->rolesWithStateCount)) {
+    if (mmbit_any((const u8*) getRoleState(state), t->rolesWithStateCount)) {
         DEBUG_PRINTF("role state is set\n");
         return 1;
     }
