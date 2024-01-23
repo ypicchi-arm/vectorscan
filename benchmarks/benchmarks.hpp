@@ -38,6 +38,21 @@
 #include "util/bytecode_ptr.h"
 #include "scratch.h"
 
+extern "C" {
+	#include "nfa/nfa_api_queue.h"
+	#include "nfa/nfa_api_util.h"
+	#include "nfa/nfa_rev_api.h"
+	#include "rose/match.h"
+	#include "nfa/sheng.h"
+	#include "database.h"
+	//#include "rose/rose_build_impl.h"
+    #include "nfa/rdfa.h"
+    //#include "util/bytecode_ptr.h"
+}
+#include "util/compile_context.h"
+#include "util/report_manager.h"
+#include "nfa/shengcompile.h"
+
 /*define colour control characters*/
 #define RST  "\x1B[0m"
 #define KRED  "\x1B[31m"
@@ -62,6 +77,9 @@ public:
   // Noodle
   struct hs_scratch scratch;
   ue2::bytecode_ptr<noodTable> nt;
+
+  //Sheng
+  struct mq *q;
 
   MicroBenchmark(char const *label_, size_t size_)
   :label(label_), size(size_), buf(size_) {

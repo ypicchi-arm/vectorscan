@@ -99,6 +99,11 @@ char SHENG_IMPL(u8 *state, NfaCallback cb, void *ctxt, const struct sheng *s,
         const u8 c3 = *b3;
         const u8 c4 = *b4;
 
+        /*
+         * the 4 masks fit tight in a cache line.
+         * If I think of the critical path, the movd are out of it. it's only about the load and the TBL
+         * I need to understand more about the load latency. Can I have them running in parallel?
+         */
         const m128 shuffle_mask1 = masks[c1];
         cur_state = pshufb_m128(shuffle_mask1, cur_state);
         const u8 a1 = movd(cur_state);

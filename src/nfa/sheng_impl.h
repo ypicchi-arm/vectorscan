@@ -59,6 +59,12 @@ char SHENG_IMPL(u8 *state, NfaCallback cb, void *ctxt, const struct sheng *s,
         const u8 c = *cur_buf;
         const m128 shuffle_mask = masks[c];
         cur_state = pshufb_m128(shuffle_mask, cur_state);
+        /*
+         * given cur_stage is all the same value, the next cur_stage will be as well. I fail to see any benefit of using pshuf here instead of a scalar with an index...
+         * except the memory latency... that's the reason sheng exist. we load all the 16 values in shuffle_mask at once, but this way we don't have to make a second load?
+         * But if we were doing masks[c][cur_state], wouldn't that be *(masks+16*c+cur_state) ? that's a multadd, and add and a load
+         * vs load + tbl (2cycles) + reduce (>=5cycles)
+         */
         const u8 tmp = movd(cur_state);
 
         DEBUG_PRINTF("c: %02hhx '%c'\n", c, ourisprint(c) ? c : '?');
