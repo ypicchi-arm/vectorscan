@@ -45,6 +45,9 @@
 #ifdef HAVE_SVE
 static really_inline
 svuint8_t blockSingleMask(svuint8_t shuf_mask_lo_highclear, svuint8_t shuf_mask_lo_highset, svuint8_t chars);
+
+static really_inline
+svuint8_t blockSingleMask32(svuint8_t shuf_mask_32, svuint8_t chars);
 #else
 template <uint16_t S>
 static really_inline
@@ -64,19 +67,33 @@ const SuperVector<S> blockSingleMask(SuperVector<S> shuf_mask_lo_highclear, Supe
 #endif
 
 #ifdef HAVE_SVE
-
-const u8 *truffleExecSVE(m128 shuf_mask_lo_highclear, m128 shuf_mask_lo_highset,
+template <char min_vector_size>
+static really_inline
+const u8 *truffleExecSVE(m256 shuf_mask_32,
                       const u8 *buf, const u8 *buf_end);
 
-const u8 *rtruffleExecSVE(m128 shuf_mask_lo_highclear, m128 shuf_mask_lo_highset,
+
+template <char min_vector_size>
+static really_inline
+const u8 *rtruffleExecSVE(m256 shuf_mask_32,
                        const u8 *buf, const u8 *buf_end);
 
+template <char min_vector_size>
 static really_inline
-const u8 *scanBlock(svuint8_t shuf_mask_lo_highclear, svuint8_t shuf_mask_lo_highset, svuint8_t chars, const u8 *buf, bool forward) {
+const u8 *scanBlock(svuint8_t shuf_mask_lo_highclear, svuint8_t shuf_mask_lo_highset,
+                    svuint8_t chars, const u8 *buf, bool forward)
+{
 
     const size_t vector_size_int_8 = svcntb();
 
-    const svuint8_t result_mask = blockSingleMask(shuf_mask_lo_highclear, shuf_mask_lo_highset, chars);
+    svuint8_t result_mask;
+    if(min_vector_size < 32) {
+        result_mask = blockSingleMask(shuf_mask_lo_highclear, shuf_mask_lo_highset, chars);
+    } else {
+        svuint8_t shuf_mask_wide = shuf_mask_lo_highclear;
+        (void) shuf_mask_lo_highset;
+        result_mask = blockSingleMask32(shuf_mask_wide, chars);
+    }
     uint64_t index;
     if (forward) {
         index = first_non_zero(vector_size_int_8, result_mask);
@@ -84,25 +101,35 @@ const u8 *scanBlock(svuint8_t shuf_mask_lo_highclear, svuint8_t shuf_mask_lo_hig
         index = last_non_zero(vector_size_int_8, result_mask);
     }
 
-    if(index < vector_size_int_8) {
+    if (index < vector_size_int_8) {
         return buf+index;
     } else {
         return NULL;
     }
 }
 
-really_inline
-const u8 *truffleExecSVE(m128 shuf_mask_lo_highclear, m128 shuf_mask_lo_highset, const u8 *buf, const u8 *buf_end) {
+template <char min_vector_size>
+static really_inline
+const u8 *truffleExecSVE(m256 shuf_mask_32, const u8 *buf, const u8 *buf_end) {
     const int vect_size_int8 = svcntb();
-    // Activate only 16 lanes to read the m128 buffers
-    const svbool_t lane_pred_16 = svwhilelt_b8(0, 16);
     assert(buf && buf_end);
     assert(buf < buf_end);
     DEBUG_PRINTF("truffle %p len %zu\n", buf, buf_end - buf);
     DEBUG_PRINTF("b %s\n", buf);
 
-    svuint8_t wide_shuf_mask_lo_highclear = svld1(lane_pred_16, (uint8_t*) &shuf_mask_lo_highclear);
-    svuint8_t wide_shuf_mask_lo_highset = svld1(lane_pred_16, (uint8_t*) &shuf_mask_lo_highset);
+    svuint8_t wide_shuf_mask_32;
+    svuint8_t wide_shuf_mask_lo_highclear ;
+    svuint8_t wide_shuf_mask_lo_highset; 
+    if (min_vector_size < 32) {
+        m128 shuf_mask_lo_highclear = shuf_mask_32.lo;
+        m128 shuf_mask_lo_highset = shuf_mask_32.hi;
+        const svbool_t lane_pred_16 = svwhilelt_b8(0, 16);
+        wide_shuf_mask_lo_highclear = svld1(lane_pred_16, (uint8_t*) &shuf_mask_lo_highclear);
+        wide_shuf_mask_lo_highset = svld1(lane_pred_16, (uint8_t*) &shuf_mask_lo_highset);
+    } else {
+        const svbool_t lane_pred_32 = svwhilelt_b8(0, 32);
+        wide_shuf_mask_32 = svld1(lane_pred_32, (uint8_t*) &shuf_mask_32);
+    }
 
     const u8 *work_buffer = buf;
     const u8 *ret_val;
@@ -118,16 +145,24 @@ const u8 *truffleExecSVE(m128 shuf_mask_lo_highclear, m128 shuf_mask_lo_highset,
         if (!ISALIGNED_N(work_buffer, vect_size_int8)) {
             svuint8_t chars = svld1(svptrue_b8(), work_buffer);
             const u8 *alligned_buffer = ROUNDUP_PTR(work_buffer, vect_size_int8);
-            ret_val = scanBlock(wide_shuf_mask_lo_highclear, wide_shuf_mask_lo_highset, chars, work_buffer, true);
+            if (min_vector_size < 32) {
+                ret_val = scanBlock<min_vector_size>(wide_shuf_mask_lo_highclear, wide_shuf_mask_lo_highset, chars, work_buffer, true);
+            } else {
+                ret_val = scanBlock<min_vector_size>(wide_shuf_mask_32, svundef_u8(), chars, work_buffer, true);
+            }
             if (ret_val && ret_val < alligned_buffer) return ret_val;
             work_buffer = alligned_buffer;
         }
 
-        while(work_buffer + vect_size_int8 <= buf_end) {
+        while (work_buffer + vect_size_int8 <= buf_end) {
             __builtin_prefetch(work_buffer + 16*64);
             DEBUG_PRINTF("work_buffer %p \n", work_buffer);
             svuint8_t chars = svld1(svptrue_b8(), work_buffer);
-            ret_val = scanBlock(wide_shuf_mask_lo_highclear, wide_shuf_mask_lo_highset, chars, work_buffer, true);
+            if (min_vector_size < 32) {
+                ret_val = scanBlock<min_vector_size>(wide_shuf_mask_lo_highclear, wide_shuf_mask_lo_highset, chars, work_buffer, true);
+            } else {
+                ret_val = scanBlock<min_vector_size>(wide_shuf_mask_32, svundef_u8(), chars, work_buffer, true);
+            }
             if (ret_val) return ret_val;
             work_buffer += vect_size_int8;
         }
@@ -147,7 +182,11 @@ const u8 *truffleExecSVE(m128 shuf_mask_lo_highclear, m128 shuf_mask_lo_highset,
             chars = svld1(svptrue_b8(), buf_end - vect_size_int8);
             end_buf = buf_end - vect_size_int8;
         }
-        ret_val = scanBlock(wide_shuf_mask_lo_highclear, wide_shuf_mask_lo_highset, chars, end_buf, true);
+        if (min_vector_size < 32) {
+            ret_val = scanBlock<min_vector_size>(wide_shuf_mask_lo_highclear, wide_shuf_mask_lo_highset, chars, end_buf, true);
+        } else {
+            ret_val = scanBlock<min_vector_size>(wide_shuf_mask_32, svundef_u8(), chars, end_buf, true);
+        }
         DEBUG_PRINTF("ret_val %p \n", ret_val);
         if (ret_val && ret_val < buf_end) return ret_val;
     }
@@ -155,18 +194,28 @@ const u8 *truffleExecSVE(m128 shuf_mask_lo_highclear, m128 shuf_mask_lo_highset,
     return buf_end;
 }
 
-really_inline
-const u8 *rtruffleExecSVE(m128 shuf_mask_lo_highclear, m128 shuf_mask_lo_highset, const u8 *buf, const u8 *buf_end){
+template <char min_vector_size>
+static really_inline
+const u8 *rtruffleExecSVE(m256 shuf_mask_32, const u8 *buf, const u8 *buf_end){
     const int vect_size_int8 = svcntb();
-    // Activate only 16 lanes to read the m128 buffers
-    const svbool_t lane_pred_16 = svwhilelt_b8(0, 16);
     assert(buf && buf_end);
     assert(buf < buf_end);
     DEBUG_PRINTF("truffle %p len %zu\n", buf, buf_end - buf);
     DEBUG_PRINTF("b %s\n", buf);
 
-    svuint8_t wide_shuf_mask_lo_highclear = svld1(lane_pred_16, (uint8_t*) &shuf_mask_lo_highclear);
-    svuint8_t wide_shuf_mask_lo_highset = svld1(lane_pred_16, (uint8_t*) &shuf_mask_lo_highset);
+    svuint8_t wide_shuf_mask_32;
+    svuint8_t wide_shuf_mask_lo_highclear ;
+    svuint8_t wide_shuf_mask_lo_highset; 
+    if (min_vector_size < 32) {
+        m128 shuf_mask_lo_highclear = shuf_mask_32.lo;
+        m128 shuf_mask_lo_highset = shuf_mask_32.hi;
+        const svbool_t lane_pred_16 = svwhilelt_b8(0, 16);
+        wide_shuf_mask_lo_highclear = svld1(lane_pred_16, (uint8_t*) &shuf_mask_lo_highclear);
+        wide_shuf_mask_lo_highset = svld1(lane_pred_16, (uint8_t*) &shuf_mask_lo_highset);
+    } else {
+        const svbool_t lane_pred_32 = svwhilelt_b8(0, 32);
+        wide_shuf_mask_32 = svld1(lane_pred_32, (uint8_t*) &shuf_mask_32);
+    }
 
     const u8 *work_buffer = buf_end;
     const u8 *ret_val;
@@ -182,7 +231,11 @@ const u8 *rtruffleExecSVE(m128 shuf_mask_lo_highclear, m128 shuf_mask_lo_highset
         if (!ISALIGNED_N(work_buffer, vect_size_int8)) {
             svuint8_t chars = svld1(svptrue_b8(), work_buffer - vect_size_int8);
             const u8 *alligned_buffer = ROUNDDOWN_PTR(work_buffer, vect_size_int8);
-            ret_val = scanBlock(wide_shuf_mask_lo_highclear, wide_shuf_mask_lo_highset, chars, work_buffer - vect_size_int8, false);
+            if (min_vector_size < 32) {
+                ret_val = scanBlock<min_vector_size>(wide_shuf_mask_lo_highclear, wide_shuf_mask_lo_highset, chars, work_buffer - vect_size_int8, false);
+            } else {
+                ret_val = scanBlock<min_vector_size>(wide_shuf_mask_32, svundef_u8(),chars, work_buffer - vect_size_int8, false);
+            }
             DEBUG_PRINTF("ret_val %p \n", ret_val);
             if (ret_val >= alligned_buffer) return ret_val;
             work_buffer = alligned_buffer;
@@ -195,7 +248,11 @@ const u8 *rtruffleExecSVE(m128 shuf_mask_lo_highclear, m128 shuf_mask_lo_highset
 
             work_buffer -= vect_size_int8;
             svuint8_t chars = svld1(svptrue_b8(), work_buffer);
-            ret_val = scanBlock(wide_shuf_mask_lo_highclear, wide_shuf_mask_lo_highset, chars, work_buffer, false);
+            if (min_vector_size < 32) {
+                ret_val = scanBlock<min_vector_size>(wide_shuf_mask_lo_highclear, wide_shuf_mask_lo_highset, chars, work_buffer, false);
+            } else {
+                ret_val = scanBlock<min_vector_size>(wide_shuf_mask_32, svundef_u8(), chars, work_buffer, false);
+            }
             if (ret_val) return ret_val;
         }
     }
@@ -211,7 +268,11 @@ const u8 *rtruffleExecSVE(m128 shuf_mask_lo_highclear, m128 shuf_mask_lo_highset
         } else {
             chars = svld1(svptrue_b8(), buf);
         }
-        ret_val = scanBlock(wide_shuf_mask_lo_highclear, wide_shuf_mask_lo_highset, chars, buf, false);
+        if (min_vector_size < 32) {
+            ret_val = scanBlock<min_vector_size>(wide_shuf_mask_lo_highclear, wide_shuf_mask_lo_highset, chars, buf, false);
+        } else {
+            ret_val = scanBlock<min_vector_size>(wide_shuf_mask_32, svundef_u8(), chars, buf, false);
+        }
         DEBUG_PRINTF("ret_val %p \n", ret_val);
         if (ret_val && ret_val < buf_end) return ret_val;
     }
@@ -253,7 +314,7 @@ const u8 *truffleExecReal(const m128 &shuf_mask_lo_highclear, m128 shuf_mask_lo_
             d = dup;
         }
 
-        while(d + S <= buf_end) {
+        while (d + S <= buf_end) {
             __builtin_prefetch(d + 16*64);
             DEBUG_PRINTF("d %p \n", d);
             SuperVector<S> chars = SuperVector<S>::load(d);

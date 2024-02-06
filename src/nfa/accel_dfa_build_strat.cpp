@@ -569,9 +569,20 @@ accel_dfa_build_strat::buildAccel(UNUSED dstate_id_t this_idx,
     }
 
     assert(!info.cr.none());
+#if defined(HAVE_SVE)
+    if(svcntb() >= 32) {
+        accel->accel_type = ACCEL_TRUFFLE_WIDE;
+        truffleBuildMasks32(info.cr, (u8 *)&accel->truffle.mask);
+    } else {
+        accel->accel_type = ACCEL_TRUFFLE;
+        truffleBuildMasks(info.cr, (u8 *)&accel->truffle.mask.lo,
+                        (u8 *)&accel->truffle.mask.hi);
+    }
+#else
     accel->accel_type = ACCEL_TRUFFLE;
-    truffleBuildMasks(info.cr, (u8 *)&accel->truffle.mask1,
-                      (u8 *)&accel->truffle.mask2);
+    truffleBuildMasks(info.cr, (u8 *)&accel->truffle.mask.lo,
+                      (u8 *)&accel->truffle.mask.hi);
+#endif
     DEBUG_PRINTF("state %hu is truffle\n", this_idx);
 }
 

@@ -42,6 +42,14 @@ extern "C"
 {
 #endif
 
+#ifdef HAVE_SVE
+const u8 *truffleExec32(m256 mask, const u8 *buf,
+                      const u8 *buf_end);
+
+const u8 *rtruffleExec32(m256 mask, const u8 *buf,
+                       const u8 *buf_end);
+#endif
+
 const u8 *truffleExec(m128 shuf_mask_lo_highclear, m128 shuf_mask_lo_highset,
                       const u8 *buf, const u8 *buf_end);
 

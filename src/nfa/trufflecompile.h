@@ -37,6 +37,9 @@ namespace ue2 {
 void truffleBuildMasks(const CharReach &cr, u8 *mask1, u8 *mask2);
 CharReach truffle2cr(const u8 *lo_in, const u8 *hi_in);
 
+void truffleBuildMasks32(const CharReach &cr, u8 *mask);
+CharReach truffle2cr32(const u8 *mask);
+
 }
 
 #endif /* TRUFFLECOMPILE_H */

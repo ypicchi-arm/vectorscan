@@ -66,6 +66,7 @@ enum AccelType {
     ACCEL_VERM16,
     ACCEL_DVERM16,
     ACCEL_DVERM16_MASKED,
+    ACCEL_TRUFFLE_WIDE,
 };
 
 /** \brief Structure for accel framework. */
@@ -136,8 +137,7 @@ union AccelAux {
     struct {
         u8 accel_type;
         u8 offset;
-        m128 mask1;
-        m128 mask2;
+        m256 mask;
     } truffle;
 };
 

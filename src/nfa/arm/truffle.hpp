@@ -172,6 +172,44 @@ svuint8_t blockSingleMaskSVE(svuint8_t shuf_mask_lo_highclear, svuint8_t shuf_ma
     return svand_x(svptrue_b8(), svorr_x(svptrue_b8(), byte_select_low, byte_select_high), bit_select);
 }
 
+static really_inline
+svuint8_t blockSingleMask32(svuint8_t shuf_mask_32, svuint8_t chars) {
+
+    const svuint8_t pshub_mask = svdup_u8(0x1f);
+    const svuint8_t unique_bit_per_lane_mask = svreinterpret_u8(svdup_u64(0x8040201008040201));
+
+    /*
+     * svtbl does a table lookup. Each byte in the second argument indexes into the array of bytes
+     * in shuf_mask_32 and saves the result in the corresponding byte of byte_select.
+     * We mask the chars so that we are using the low nibble of char as the index.
+     */
+    svuint8_t byte_select = svtbl(shuf_mask_32, svand_x(svptrue_b8(), chars, pshub_mask));
+
+    /*
+     * We now have selected the byte that contain the bit corresponding to the char. We need to
+     * further filter it, otherwise we'd get a match for any character % 32 to a searched character
+     *
+     * The low nibble was used previously to select the byte out of the mask. The high nibble is
+     * used to select the bit out of the byte. So we shift everything right by 5.
+     *
+     * Using svtbl, we can make an array where each element is a different bit. Using the high
+     * nibble we can get a mask selecting only the bit out of a byte that may have the relevant
+     * charset char.
+     */
+    svuint8_t char_high_nibble = svlsr_x(svptrue_b8(), chars, 5);
+    svuint8_t bit_select = svtbl(unique_bit_per_lane_mask, char_high_nibble);
+    /*
+     * For every lane, only one of the byte selected may have a value, so we can OR them. We
+     * then apply the bit_select mask. What is left is the bit in the charset encoding the
+     * character in char. A non zero value means the char was in the charset
+     *
+     * The _x suffix only works if we process a full char vector. If we were to use a partial
+     * vector, then _z and a mask would be required on this svand only. Otherwise, the disabled
+     * lanes may have arbitrary values
+     */
+    return svand_x(svptrue_b8(), byte_select, bit_select);
+}
+
 #ifdef __ARM_NEON_SVE_BRIDGE
 #include <arm_neon_sve_bridge.h> // Available from Clang 14 and gcc 14
 static really_inline

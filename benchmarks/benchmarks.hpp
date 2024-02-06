@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2020, 2021, VectorCamp PC
+ * Copyright (c) 2024, Arm Limited
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -44,7 +45,7 @@ public:
     size_t size;
 
     // Shufti/Truffle
-    m128 lo, hi;
+    m256 truffle_mask;
     ue2::CharReach chars;
     std::vector<u8> buf;
 

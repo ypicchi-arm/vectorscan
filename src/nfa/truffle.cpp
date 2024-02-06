@@ -39,14 +39,24 @@
 
 #include "truffle_simd.hpp"
 #ifdef HAVE_SVE
+const u8 *truffleExec32(m256 mask, const u8 *buf,
+                      const u8 *buf_end) {
+    return truffleExecSVE<32>(mask, buf, buf_end);
+}
+
+const u8 *rtruffleExec32(m256 mask, const u8 *buf,
+                       const u8 *buf_end) {
+    return rtruffleExecSVE<32>(mask, buf, buf_end);
+}
+
 const u8 *truffleExec(m128 mask_lo, m128 mask_hi, const u8 *buf,
                       const u8 *buf_end) {
-    return truffleExecSVE(mask_lo, mask_hi, buf, buf_end);
+    return truffleExecSVE<16>({mask_lo, mask_hi}, buf, buf_end);
 }
 
 const u8 *rtruffleExec(m128 mask_lo, m128 mask_hi, const u8 *buf,
                        const u8 *buf_end) {
-    return rtruffleExecSVE(mask_lo, mask_hi, buf, buf_end);
+    return rtruffleExecSVE<16>({mask_lo, mask_hi}, buf, buf_end);
 }
 #else
 const u8 *truffleExec(m128 mask_lo, m128 mask_hi, const u8 *buf,

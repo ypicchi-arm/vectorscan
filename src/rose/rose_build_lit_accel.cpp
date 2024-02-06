@@ -462,10 +462,16 @@ void findForwardAccelScheme(const vector<AccelString> &lits,
         return;
     }
 
-    truffleBuildMasks(cr, (u8 *)&aux->truffle.mask1, (u8 *)&aux->truffle.mask2);
+    if(svcntb() >= 32) {
+        aux->truffle.accel_type = ACCEL_TRUFFLE_WIDE;
+        truffleBuildMasks32(cr, (u8 *)&aux->truffle.mask);
+    } else {
+        aux->truffle.accel_type = ACCEL_TRUFFLE;
+        truffleBuildMasks(cr, (u8 *)&aux->truffle.mask.lo,
+                        (u8 *)&aux->truffle.mask.hi);
+    }
     DEBUG_PRINTF("built truffle for %s (%zu chars, offset %u)\n",
                  describeClass(cr).c_str(), cr.count(), min_offset);
-    aux->truffle.accel_type = ACCEL_TRUFFLE;
     aux->truffle.offset = verify_u8(min_offset);
 }
 

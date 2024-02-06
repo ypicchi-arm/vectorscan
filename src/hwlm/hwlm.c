@@ -73,7 +73,12 @@ const u8 *run_hwlm_accel(const union AccelAux *aux, const u8 *ptr,
         return shuftiExec(aux->shufti.lo, aux->shufti.hi, ptr, end);
     case ACCEL_TRUFFLE:
         DEBUG_PRINTF("truffle\n");
-        return truffleExec(aux->truffle.mask1, aux->truffle.mask2, ptr, end);
+        return truffleExec(aux->truffle.mask.lo, aux->truffle.mask.hi, ptr, end);
+#ifdef HAVE_SVE
+    case ACCEL_TRUFFLE_WIDE:
+        DEBUG_PRINTF("truffle wide\n");
+        return truffleExec32(aux->truffle.mask, ptr, end);
+#endif // HAVE_SVE
     default:
         /* no acceleration, fall through and return current ptr */
         DEBUG_PRINTF("no accel; %u\n", (int)aux->accel_type);
