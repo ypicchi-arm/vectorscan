@@ -669,7 +669,7 @@ int main(){
                     }
 
                     if (unlikely((loop_count-1) != expected_matches)) {
-                        printf("Sheng exited early. Found %u/%lu matches\n", loop_count-1, expected_matches);
+                        printf("Sheng exited early. Found %u/%u matches\n", loop_count-1, expected_matches);
                     }
 
 					return b.q->buffer;

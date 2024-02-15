@@ -154,7 +154,7 @@ char fireReports(const struct sheng *sh, NfaCallback cb, void *ctxt,
     return MO_CONTINUE_MATCHING; /* continue execution */
 }
 
-#if defined(HAVE_AVX512VBMI)
+#if defined(HAVE_AVX512VBMI) || defined(HAVE_SVE)
 // Sheng32
 static really_inline
 const struct sheng32 *get_sheng32(const struct NFA *n) {
@@ -351,7 +351,7 @@ char fireReports64(const struct sheng64 *sh, NfaCallback cb, void *ctxt,
     }
     return MO_CONTINUE_MATCHING; /* continue execution */
 }
-#endif // end of HAVE_AVX512VBMI
+#endif // end of HAVE_AVX512VBMI || HAVE_SVE
 
 /* include Sheng function definitions */
 #include "sheng_defs.h"
@@ -871,7 +871,7 @@ char nfaExecSheng_expandState(UNUSED const struct NFA *nfa, void *dest,
     return 0;
 }
 
-#if defined(HAVE_AVX512VBMI)
+#if defined(HAVE_AVX512VBMI) || defined(HAVE_SVE)
 // Sheng32
 static really_inline
 char runSheng32Cb(const struct sheng32 *sh, NfaCallback cb, void *ctxt,
@@ -1874,4 +1874,4 @@ char nfaExecSheng64_expandState(UNUSED const struct NFA *nfa, void *dest,
     *(u8 *)dest = *(const u8 *)src;
     return 0;
 }
-#endif // end of HAVE_AVX512VBMI
+#endif // end of HAVE_AVX512VBMI || HAVE_SVE
