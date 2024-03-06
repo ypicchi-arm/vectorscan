@@ -119,7 +119,8 @@ Using the example of gcc12 from pkgsrc, one will need to set three
 environment variables before starting: 
 export CC="/usr/pkg/gcc12/bin/cc"
 export CXX="/usr/pkg/gcc12/bin/g++"
-export CXXFLAGS="-gdwarf-4"
+export CXXFLAGS="-gdwarf-4 -Wno-redundant-move"
+
 
 In FreeBSD similarly, using gcc12 from pkg
 export CC=/usr/local/bin/gcc
