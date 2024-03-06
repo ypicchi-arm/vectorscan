@@ -1079,7 +1079,7 @@ shared_ptr<BaseDB> UltimateTruth::compile(const set<unsigned> &ids,
         }
     }
 
-    return std::move(db);
+    return db;
 }
 
 bool UltimateTruth::allocScratch(shared_ptr<const BaseDB> db) {

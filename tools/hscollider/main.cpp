@@ -1830,11 +1830,11 @@ unique_ptr<CorporaSource> buildCorpora(const vector<string> &corporaFiles,
                 exit_with_fail();
             }
         }
-        return std::move(c); /* move allows unique_ptr<CorporaSource> conversion */
+        return c;
     } else {
         auto c = std::make_unique<NfaGeneratedCorpora>(
             exprMap, corpus_gen_prop, force_utf8, force_prefilter);
-        return std::move(c);
+        return c;
     }
 }
 
