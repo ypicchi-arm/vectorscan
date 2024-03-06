@@ -126,8 +126,8 @@ export CXXFLAGS="-gdwarf-4 -Wno-redundant-move"
 
 In FreeBSD similarly, using gcc12 from pkg
 ```
-export CC=/usr/local/bin/gcc
-export CXX=/usr/local/bin/g++
+export CC="/usr/local/bin/gcc"
+export CXX="/usr/local/bin/g++"
 export CXXFLAGS="-gdwarf-4"
 ```
 
