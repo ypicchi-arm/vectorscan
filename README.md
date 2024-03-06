@@ -120,7 +120,7 @@ environment variables before starting:
 ```
 export CC="/usr/pkg/gcc12/bin/cc"
 export CXX="/usr/pkg/gcc12/bin/g++"
-export CXXFLAGS="-gdwarf-4 -Wno-redundant-move"
+export CXXFLAGS="-gdwarf-4"
 ```
 
 
