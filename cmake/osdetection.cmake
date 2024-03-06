@@ -6,7 +6,11 @@ if(CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
     set(FREEBSD true)
 endif(CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
 
-if (ARCH_IA32 OR ARCH_X86_64)
+if(CMAKE_SYSTEM_NAME MATCHES "NetBSD")
+    set(NETBSD true)
+endif(CMAKE_SYSTEM_NAME MATCHES "NetBSD")
+
+if (LINUX AND (ARCH_IA32 OR ARCH_X86_64))
   option(FAT_RUNTIME "Build a library that supports multiple microarchitectures" ON)
 else()
   option(FAT_RUNTIME "Build a library that supports multiple microarchitectures" OFF)

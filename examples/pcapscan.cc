@@ -68,7 +68,12 @@
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
 #include <netinet/ip_icmp.h>
+#ifdef __NetBSD__
+#include <net/ethertypes.h>
+#include <net/if_ether.h>
+#else
 #include <net/ethernet.h>
+#endif /* __NetBSD__ */
 #include <arpa/inet.h>
 
 #include <pcap.h>
