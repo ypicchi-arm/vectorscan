@@ -44,7 +44,6 @@
 #endif
 #ifdef __NetBSD__
 #include <strings.h>
-#define HAVE_LOCAL_POPCOUNT
 #endif
 
 #endif // UTIL_ARCH_X86_H_

@@ -115,6 +115,8 @@ Assuming an existing HomeBrew installation:
 
 ### *BSD
 In NetBSD you will almost certainly need to have a newer compiler installed. 
+This will not replace the one in the standard base distribution, and
+cmake will probably find the wrong compiler when it checks automatically.
 Using the example of gcc12 from pkgsrc, one will need to set two
 environment variables before starting: 
 ```
@@ -123,7 +125,11 @@ export CXX="/usr/pkg/gcc12/bin/g++"
 ```
 
 
-In FreeBSD similarly, using gcc12 from pkg
+In FreeBSD similarly, if you install another compiler, cmake might not
+find the right one. Worse is if it finds, say, g++ and configures it for
+C++ but leaves cc for C - FreeBSD's default cc is clang, and the binaries
+generated between g++ and clang will not play nicely together.
+Using the example of gcc12 from pkg:
 ```
 export CC="/usr/local/bin/gcc"
 export CXX="/usr/local/bin/g++"

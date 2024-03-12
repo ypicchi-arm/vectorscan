@@ -31,6 +31,11 @@ if(FREEBSD OR NETBSD)
     set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -gdwarf-4")
 endif()
 
+if(NETBSD)
+    set(EXTRA_C_FLAGS "${EXTRA_CXX_FLAGS} -DHAVE_BUILTIN_POPCOUNT")
+    set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -DHAVE_BUILTIN_POPCOUNT")
+endif()
+
 # these end up in the config file
 CHECK_C_COMPILER_FLAG(-fvisibility=hidden HAS_C_HIDDEN)
 CHECK_CXX_COMPILER_FLAG(-fvisibility=hidden HAS_CXX_HIDDEN)
