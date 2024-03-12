@@ -115,12 +115,11 @@ Assuming an existing HomeBrew installation:
 
 ### *BSD
 In NetBSD you will almost certainly need to have a newer compiler installed. 
-Using the example of gcc12 from pkgsrc, one will need to set three
+Using the example of gcc12 from pkgsrc, one will need to set two
 environment variables before starting: 
 ```
 export CC="/usr/pkg/gcc12/bin/cc"
 export CXX="/usr/pkg/gcc12/bin/g++"
-export CXXFLAGS="-gdwarf-4"
 ```
 
 
@@ -128,7 +127,6 @@ In FreeBSD similarly, using gcc12 from pkg
 ```
 export CC="/usr/local/bin/gcc"
 export CXX="/usr/local/bin/g++"
-export CXXFLAGS="-gdwarf-4"
 ```
 
 
