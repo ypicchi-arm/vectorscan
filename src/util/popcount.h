@@ -36,12 +36,8 @@
 
 #include "ue2common.h"
 #include "util/arch.h"
-#ifdef __NetBSD__
-#include <strings.h>
-#endif
 
-
-#ifndef __NetBSD__
+#ifndef HAVE_LOCAL_POPCOUNT
 static really_inline
 u32 popcount32(u32 x) {
     return __builtin_popcount(x);
@@ -56,7 +52,7 @@ u32 popcount32(u32 x) {
 //     return (((x + (x >> 4)) & 0xf0f0f0f) * 0x1010101) >> 24;
 // #endif
 }
-#endif /* __NetBSD__ */
+#endif /* HAVE_LOCAL_POPCOUNT */
 
 static really_inline
 u32 popcount32x4(u32 const *x) {
@@ -67,7 +63,7 @@ u32 popcount32x4(u32 const *x) {
     return sum;
 }
 
-#ifndef __NetBSD__
+#ifndef HAVE_LOCAL_POPCOUNT
 static really_inline
 u32 popcount64(u64a x) {
     return __builtin_popcountll(x);
@@ -88,7 +84,7 @@ u32 popcount64(u64a x) {
 //     return popcount32(x >> 32) + popcount32(x);
 // #endif
 }
-#endif /* __NetBSD__ */
+#endif /* HAVE_LOCAL_POPCOUNT */
 
 static really_inline
 u32 popcount64x4(u64a const *x) {

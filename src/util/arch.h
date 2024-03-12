@@ -42,6 +42,10 @@
 #elif defined(ARCH_PPC64EL)
 #include "util/arch/ppc64el/ppc64el.h"
 #endif
+#ifdef __NetBSD__
+#include <strings.h>
+#define HAVE_LOCAL_POPCOUNT
+#endif
 
 #endif // UTIL_ARCH_X86_H_
 
