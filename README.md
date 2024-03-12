@@ -125,10 +125,7 @@ export CXX="/usr/pkg/gcc12/bin/g++"
 ```
 
 
-In FreeBSD similarly, if you install another compiler, cmake might not
-find the right one. Worse is if it finds, say, g++ and configures it for
-C++ but leaves cc for C - FreeBSD's default cc is clang, and the binaries
-generated between g++ and clang will not play nicely together.
+In FreeBSD similarly, you might want to install a different compiler.
 Using the example of gcc12 from pkg:
 ```
 export CC="/usr/local/bin/gcc"
