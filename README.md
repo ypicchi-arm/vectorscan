@@ -124,14 +124,12 @@ export CC="/usr/pkg/gcc12/bin/cc"
 export CXX="/usr/pkg/gcc12/bin/g++"
 ```
 
-
 In FreeBSD similarly, you might want to install a different compiler.
 Using the example of gcc12 from pkg:
 ```
 export CC="/usr/local/bin/gcc"
 export CXX="/usr/local/bin/g++"
 ```
-
 
 Then continue with the build as below. 
 
