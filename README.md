@@ -125,7 +125,11 @@ pkg_add ragel-6.10.tgz
 pkg_add cmake-3.28.1.tgz
 ```
 Version numbers etc will of course vary. One would either download the
-binary packages or build them using pkgsrc.
+binary packages or build them using pkgsrc. There exist some NetBSD pkg 
+tools like ```pkgin``` which help download e.g. dependencies as binary packages,
+but overall NetBSD leaves a lot of detail exposed to the user.
+The main package system used in NetBSD is pkgsrc and one will probably
+want to read up more about it than is in the scope of this document.
 See https://www.netbsd.org/docs/software/packages.html for more information.
 
 This will not replace the one in the standard base distribution, and
