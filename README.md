@@ -146,6 +146,15 @@ export CC="/usr/local/bin/gcc"
 export CXX="/usr/local/bin/g++"
 ```
 
+A further note in FreeBSD, on the PowerPC platform, for some reason,
+the gcc12 package installs to a slightly different name, on FreeBSD/ppc, 
+gcc12 will be found using: 
+```
+export CC="/usr/local/bin/gcc12"
+export CXX="/usr/local/bin/g++12"
+```
+
+
 Then continue with the build as below. 
 
 
