@@ -115,13 +115,17 @@ Assuming an existing HomeBrew installation:
 
 ### *BSD
 In NetBSD you will almost certainly need to have a newer compiler installed. 
+Also you will need to install cmake, boost and ragel. 
 When using pkgsrc, you would typically do this using something
 similar to
 ```
 pkg_add gcc12-12.3.0.tgz
+pkg_add boost-headers-1.83.0.tgz  boost-jam-1.83.0.tgz      boost-libs-1.83.0nb1.tgz
+pkg_add ragel-6.10.tgz
+pkg_add cmake-3.28.1.tgz
 ```
 Version numbers etc will of course vary. One would either download the
-binary package or build it using pkgsrc.
+binary packages or build them using pkgsrc.
 See https://www.netbsd.org/docs/software/packages.html for more information.
 
 This will not replace the one in the standard base distribution, and
@@ -134,10 +138,14 @@ export CXX="/usr/pkg/gcc12/bin/g++"
 ```
 
 In FreeBSD similarly, you might want to install a different compiler.
+You will also, as in NetBSD, need to install cmake, boost and ragel packages.
 Using the example of gcc12 from pkg:
 installing the desired compiler: 
 ```
 pkg install gcc12
+pkg install boost-all
+pkg install ragel
+pkg install cmake
 ```
 and then before beginning the cmake and build process, set
 the environment variables to point to this compiler: 
