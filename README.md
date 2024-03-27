@@ -115,6 +115,15 @@ Assuming an existing HomeBrew installation:
 
 ### *BSD
 In NetBSD you will almost certainly need to have a newer compiler installed. 
+When using pkgsrc, you would typically do this using something
+similar to
+```
+pkg_add gcc12-12.3.0.tgz
+```
+Version numbers etc will of course vary. One would either download the
+binary package or build it using pkgsrc.
+See https://www.netbsd.org/docs/software/packages.html for more information.
+
 This will not replace the one in the standard base distribution, and
 cmake will probably find the wrong compiler when it checks automatically.
 Using the example of gcc12 from pkgsrc, one will need to set two
@@ -126,6 +135,12 @@ export CXX="/usr/pkg/gcc12/bin/g++"
 
 In FreeBSD similarly, you might want to install a different compiler.
 Using the example of gcc12 from pkg:
+installing the desired compiler: 
+```
+pkg install gcc12
+```
+and then before beginning the cmake and build process, set
+the environment variables to point to this compiler: 
 ```
 export CC="/usr/local/bin/gcc"
 export CXX="/usr/local/bin/g++"
