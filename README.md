@@ -133,8 +133,8 @@ The main package system used in NetBSD is pkgsrc and one will probably
 want to read up more about it than is in the scope of this document.
 See https://www.netbsd.org/docs/software/packages.html for more information.
 
-This will not replace the one in the standard base distribution, and
-cmake will probably find the wrong compiler when it checks automatically.
+This will not replace the compiler in the standard base distribution, and
+cmake will probably find the base dist's compiler when it checks automatically.
 Using the example of gcc12 from pkgsrc, one will need to set two
 environment variables before starting: 
 ```
