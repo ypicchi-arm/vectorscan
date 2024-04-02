@@ -104,15 +104,6 @@ static void run_benchmarks(int size, int loops, int max_matches,
         avg_bw /= max_matches;
         total_sec /= 1000000.0;
         /*convert average time to us*/
-        /* Keeping the color output
-        printf(KMAG "%s: %u matches, %u * %u iterations," KBLU
-                    " total elapsed time =" RST " %.3f s, " KBLU
-                    "average time per call =" RST " %.3f μs," KBLU
-                    " max bandwidth = " RST " %.3f MB/s," KBLU
-                    " average bandwidth =" RST " %.3f MB/s \n",
-               bench.label, max_matches, size, loops, total_sec, avg_time,
-               max_bw, avg_bw);
-        */
         printf("%s,%u,%u,%u,%.3f,%.3f,%.3f,%.3f\n", bench.label, max_matches,
                size, loops, total_sec, avg_time, max_bw, avg_bw);
     } else {
@@ -134,12 +125,6 @@ static void run_benchmarks(int size, int loops, int max_matches,
         max_bw = total_size / total_sec;
         /*convert to MB/s*/
         max_bw /= 1048576.0;
-        /*Keeping the color output
-        printf(KMAG "%s: no matches, %u * %u iterations," KBLU " total elapsed
-        time =" RST " %.3f s, " KBLU "average time per call =" RST " %.3f μs ,"
-        KBLU " bandwidth = " RST " %.3f MB/s \n", bench.label, size ,loops,
-        total_sec, avg_time, max_bw );
-        */
         printf("%s,0,%u,%u,%.3f,%.3f,%.3f,0\n", bench.label, size, loops,
                total_sec, avg_time, max_bw);
     }
