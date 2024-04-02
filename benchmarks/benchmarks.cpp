@@ -104,8 +104,9 @@ static void run_benchmarks(int size, int loops, int max_matches,
         avg_bw /= max_matches;
         total_sec /= 1000000.0;
         /*convert average time to us*/
-        printf("%s,%u,%u,%u,%.3f,%.3f,%.3f,%.3f\n", bench.label, max_matches,
-               size, loops, total_sec, avg_time, max_bw, avg_bw);
+        printf("%-18s, %-12u, %-10u, %-6u, %-10.3f, %-9.3f, %-8.3f, %-7.3f\n",
+               bench.label, max_matches, size, loops, total_sec, avg_time,
+               max_bw, avg_bw);
     } else {
         auto start = std::chrono::steady_clock::now();
         for (int i = 0; i < loops; i++) {
@@ -125,8 +126,8 @@ static void run_benchmarks(int size, int loops, int max_matches,
         max_bw = total_size / total_sec;
         /*convert to MB/s*/
         max_bw /= 1048576.0;
-        printf("%s,0,%u,%u,%.3f,%.3f,%.3f,0\n", bench.label, size, loops,
-               total_sec, avg_time, max_bw);
+        printf("%-18s, %-12s, %-10u, %-6u, %-10.3f, %-9.3f, %-8.3f, %-7s\n",
+               bench.label, "0", size, loops, total_sec, avg_time, max_bw, "0");
     }
 }
 
@@ -136,8 +137,9 @@ int main() {
     for (size_t i = 0; i < N; i++)
         sizes.push_back(16000 << i * 2);
     const char charset[] = "aAaAaAaAAAaaaaAAAAaaaaAAAAAAaaaAAaaa";
-    printf("Matcher, max_matches, size,loops, total_sec, avg_time, "
-           "max_bw, avg_bw\n");
+    printf("%-18s, %-12s, %-10s, %-6s, %-10s, %-9s, %-8s, %-7s\n", "Matcher",
+           "max_matches", "size", "loops", "total_sec", "avg_time", "max_bw",
+           "avg_bw");
     for (int m = 0; m < 2; m++) {
         for (size_t i = 0; i < std::size(sizes); i++) {
             MicroBenchmark bench("Shufti", sizes[i]);
