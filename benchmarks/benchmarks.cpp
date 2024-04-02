@@ -136,7 +136,7 @@ int main() {
     for (size_t i = 0; i < N; i++)
         sizes.push_back(16000 << i * 2);
     const char charset[] = "aAaAaAaAAAaaaaAAAAaaaaAAAAAAaaaAAaaa";
-    printf("Bench Label, max_matches, size,loops, total_sec, avg_time, "
+    printf("Matcher, max_matches, size,loops, total_sec, avg_time, "
            "max_bw, avg_bw\n");
     for (int m = 0; m < 2; m++) {
         for (size_t i = 0; i < std::size(sizes); i++) {
