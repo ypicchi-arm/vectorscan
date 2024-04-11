@@ -116,6 +116,8 @@ Assuming an existing HomeBrew installation:
 ### *BSD
 In NetBSD you will almost certainly need to have a newer compiler installed. 
 Also you will need to install cmake, sqlite, boost and ragel. 
+Also, libpcap is necessary for some of the benchmarks, so let's install that 
+as well.
 When using pkgsrc, you would typically do this using something
 similar to
 ```
@@ -124,6 +126,7 @@ pkg_add boost-headers-1.83.0.tgz  boost-jam-1.83.0.tgz      boost-libs-1.83.0nb1
 pkg_add ragel-6.10.tgz
 pkg_add cmake-3.28.1.tgz
 pkg_add sqlite3-3.44.2.tgz
+pkg_add libpcap-1.10.4.tgz
 ```
 Version numbers etc will of course vary. One would either download the
 binary packages or build them using pkgsrc. There exist some NetBSD pkg 
@@ -152,6 +155,7 @@ pkg install boost-all
 pkg install ragel
 pkg install cmake
 pkg install sqlite
+pkg install libpcap
 ```
 and then before beginning the cmake and build process, set
 the environment variables to point to this compiler: 
