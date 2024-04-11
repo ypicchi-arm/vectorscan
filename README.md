@@ -156,6 +156,7 @@ pkg install ragel
 pkg install cmake
 pkg install sqlite
 pkg install libpcap
+pkg install ccache
 ```
 and then before beginning the cmake and build process, set
 the environment variables to point to this compiler: 
