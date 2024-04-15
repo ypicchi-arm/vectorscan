@@ -173,9 +173,14 @@ export CC="/usr/local/bin/gcc12"
 export CXX="/usr/local/bin/g++12"
 ```
 
-
 Then continue with the build as below. 
 
+A note about running in FreeBSD: if you built a dynamically linked binary
+with an alternative compiler, the libraries specific to the compiler that
+built the binary will probably not be found and the base distro libraries
+in /lib will be found instead. Adjust LD_LIBRARY_PATH appropriately. For
+example, with gcc12 installed from pkg, one would want to use
+```export LD_LIBRARY_PATH=/usr/local/lib/gcc12/``` 
 
 ## Configure & build
 
