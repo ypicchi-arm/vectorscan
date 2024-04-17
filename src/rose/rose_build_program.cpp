@@ -1161,7 +1161,7 @@ static really_inline
 void nibUpdate(map<u32, u16> &nib, u32 hi_lo) {
     u16 hi = hi_lo >> 16;
     u16 lo = hi_lo & 0xffff;
-    for (const auto pairs : nib) {
+    for (const auto &pairs : nib) {
         u32 old = pairs.first;
         if ((old >> 16) == hi || (old & 0xffff) == lo) {
             if (!nib[old | hi_lo]) {

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2016, Intel Corporation
+ * Copyright (c) 2024, VectorCamp PC
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -68,7 +69,12 @@
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
 #include <netinet/ip_icmp.h>
+#ifdef __NetBSD__
+#include <net/ethertypes.h>
+#include <net/if_ether.h>
+#else
 #include <net/ethernet.h>
+#endif /* __NetBSD__ */
 #include <arpa/inet.h>
 
 #include <pcap.h>
