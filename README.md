@@ -165,7 +165,6 @@ the environment variables to point to this compiler:
 export CC="/usr/local/bin/gcc"
 export CXX="/usr/local/bin/g++"
 ```
-
 A further note in FreeBSD, on the PowerPC and ARM platforms, 
 the gcc12 package installs to a slightly different name, on FreeBSD/ppc, 
 gcc12 will be found using: 
