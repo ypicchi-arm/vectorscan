@@ -811,11 +811,11 @@ depth_done:
                 return true;
             }
         }
-    }
+    // } 
 
     // Second option: a two-byte shufti (i.e. less than eight 2-byte
     // literals)
-    if (depth > 1) {
+    // if (depth > 1) {
         for (unsigned int i = 0; i < (depth - 1); i++) {
             if (depthReach[i].count() * depthReach[i+1].count()
                 <= DOUBLE_SHUFTI_LIMIT) {

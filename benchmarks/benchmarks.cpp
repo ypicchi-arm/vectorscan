@@ -113,7 +113,7 @@ static void run_benchmarks(int size, int loops, int max_matches, bool is_reverse
         auto end = std::chrono::steady_clock::now();
         total_sec += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
         /*calculate transferred size*/
-        total_size = size * loops;
+        total_size = (u64a)size * (u64a)loops;
         /*calculate average time*/
         avg_time = total_sec / loops;
         /*convert microseconds to seconds*/

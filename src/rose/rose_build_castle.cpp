@@ -170,7 +170,7 @@ void renovateCastle(RoseBuildImpl &tbi, CastleProto *castle,
                 return; /* bail - TODO: be less lazy */
             }
 
-            vector<CharReach> rem_local_cr;
+            //vector<CharReach> rem_local_cr;
             u32 ok_count = 0;
             for (auto it = e.s.end() - g[v].left.lag; it != e.s.end(); ++it) {
                 if (!isSubsetOf(*it, cr)) {
