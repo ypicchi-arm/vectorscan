@@ -284,7 +284,7 @@ void ParsedLogical::parseLogicalCombination(unsigned id, const char *logical,
                 if (logical[i] == '(') {
                     paren += 1;
                 } else if (logical[i] == ')') {
-                    if (paren <= 0) {
+                    if (paren == 0) {
                         throw LocatedParseError("Not enough left parentheses");
                     }
                     paren -= 1;
