@@ -1599,8 +1599,8 @@ void dedupeLeftfixesVariableLag(RoseBuildImpl &build) {
                 continue;
             }
         }
-        auto preds_copy = preds;
-        engine_groups[DedupeLeftKey(build, std::move(preds_copy), left)].emplace_back(left);
+        auto preds_copy = std::move(preds);
+        engine_groups[DedupeLeftKey(build, preds_copy , left)].emplace_back(left);
     }
 
     /* We don't bother chunking as we expect deduping to be successful if the
