@@ -172,9 +172,17 @@ svuint8_t blockSingleMaskSVE(svuint8_t shuf_mask_lo_highclear, svuint8_t shuf_ma
     return svand_x(svptrue_b8(), svorr_x(svptrue_b8(), byte_select_low, byte_select_high), bit_select);
 }
 
+#ifdef __ARM_NEON_SVE_BRIDGE
+#include <arm_neon_sve_bridge.h> // Available from Clang 14 and gcc 14
+static really_inline
+svuint8_t blockSingleMask(svuint8_t shuf_mask_lo_highclear, svuint8_t shuf_mask_lo_highset, svuint8_t chars) {
+    return svset_neonq(svundef_u8(), blockSingleMaskNEON(svget_neonq(shuf_mask_lo_highclear), svget_neonq(shuf_mask_lo_highset), svget_neonq(chars)));
+}
+#else
 static really_inline
 svuint8_t blockSingleMask(svuint8_t shuf_mask_lo_highclear, svuint8_t shuf_mask_lo_highset, svuint8_t chars) {
     return blockSingleMaskSVE(shuf_mask_lo_highclear, shuf_mask_lo_highset, chars);
 }
+#endif /* __ARM_NEON_SVE_BRIDGE */
 
 #endif //HAVE_SVE
