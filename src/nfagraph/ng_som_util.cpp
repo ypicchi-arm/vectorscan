@@ -267,19 +267,6 @@ bool somMayGoBackwards(NFAVertex u, const NGHolder &g,
     boost::depth_first_search(c_g, visitor(backEdgeVisitor)
                                    .root_vertex(c_g.start));
 
-    // with be.clear right above does this ever run at all?
-    //for (const auto &e : be) {
-    //    NFAVertex s = source(e, c_g);
-    //    NFAVertex t = target(e, c_g);
-    //    DEBUG_PRINTF("back edge %zu %zu\n", c_g[s].index, c_g[t].index);
-    //    if (s != t) {
-    //        assert(0);
-    //        DEBUG_PRINTF("eek big cycle\n");
-    //        rv = true; /* big cycle -> eek */
-    //        goto exit;
-    //    }
-    //}
-
     DEBUG_PRINTF("checking acyclic+selfloop graph\n");
 
     rv = !firstMatchIsFirst(c_g);
