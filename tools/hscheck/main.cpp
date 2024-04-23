@@ -97,12 +97,12 @@ unsigned int countFailures = 0;
 
 class ParsedExpr {
 public:
-    ParsedExpr(string regex_in, unsigned int flags_in, hs_expr_ext& ext_in)
+    ParsedExpr(string regex_in, unsigned int flags_in, const hs_expr_ext& ext_in)
         : regex(regex_in), flags(flags_in), ext(ext_in) {}
     ~ParsedExpr() {}
     string regex;
     unsigned int flags;
-    hs_expr_ext ext;
+    const hs_expr_ext& ext;
 };
 
 typedef map<unsigned int, ParsedExpr> ExprExtMap;
