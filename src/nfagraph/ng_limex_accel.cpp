@@ -321,7 +321,7 @@ struct DAccelScheme {
             bool cd_a = buildDvermMask(a.double_byte);
             bool cd_b = buildDvermMask(b.double_byte);
             if (cd_a != cd_b) {
-                return cd_a > cd_b;
+                return cd_a;
             }
         }
 
