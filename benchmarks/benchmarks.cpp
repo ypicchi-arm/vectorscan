@@ -102,7 +102,7 @@ static void run_benchmarks(int size, int loops, int max_matches, bool is_reverse
         avg_bw /= max_matches;
 	total_sec /= 1000000.0;
         /*convert average time to us*/
-        printf(KMAG "%s: %u matches, %u * %u iterations," KBLU " total elapsed time =" RST " %.3f s, " 
+        printf(KMAG "%s: %d matches, %d * %d iterations," KBLU " total elapsed time =" RST " %.3f s, " 
                KBLU "average time per call =" RST " %.3f μs," KBLU " max bandwidth = " RST " %.3f MB/s," KBLU " average bandwidth =" RST " %.3f MB/s \n",
                bench.label, max_matches, size ,loops, total_sec, avg_time, max_bw, avg_bw);
     } else {
@@ -122,7 +122,7 @@ static void run_benchmarks(int size, int loops, int max_matches, bool is_reverse
         max_bw = total_size / total_sec;
         /*convert to MB/s*/
         max_bw /= 1048576.0;
-        printf(KMAG "%s: no matches, %u * %u iterations," KBLU " total elapsed time =" RST " %.3f s, " 
+        printf(KMAG "%s: no matches, %d * %d iterations," KBLU " total elapsed time =" RST " %.3f s, " 
                KBLU "average time per call =" RST " %.3f μs ," KBLU " bandwidth = " RST " %.3f MB/s \n",
                bench.label, size ,loops, total_sec, avg_time, max_bw );
     }

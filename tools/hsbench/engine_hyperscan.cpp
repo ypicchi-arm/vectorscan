@@ -456,7 +456,7 @@ buildEngineHyperscan(const ExpressionMap &expressions, ScanMode scan_mode,
 
         if (err == HS_COMPILER_ERROR) {
             if (compile_err->expression >= 0) {
-                printf("Compile error for signature #%u: %s\n",
+                printf("Compile error for signature #%d: %s\n",
                        compile_err->expression, compile_err->message);
             } else {
                 printf("Compile error: %s\n", compile_err->message);
