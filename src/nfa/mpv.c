@@ -512,7 +512,7 @@ size_t find_last_bad(const struct mpv_kilopuff *kp, const u8 *buf,
 
     verm_restart:;
         assert(buf[curr] == kp->u.verm.c);
-        size_t test = curr;
+        size_t test;
         if (curr + min_rep < length) {
             test = curr + min_rep;
         } else {
@@ -534,7 +534,7 @@ size_t find_last_bad(const struct mpv_kilopuff *kp, const u8 *buf,
         m128 hi = kp->u.shuf.mask_hi;
     shuf_restart:
         assert(do_single_shufti(lo, hi, buf[curr]));
-        size_t test = curr;
+        size_t test;
         if (curr + min_rep < length) {
             test = curr + min_rep;
         } else {
@@ -556,7 +556,7 @@ size_t find_last_bad(const struct mpv_kilopuff *kp, const u8 *buf,
         const m128 mask1 = kp->u.truffle.mask1;
         const m128 mask2 = kp->u.truffle.mask2;
     truffle_restart:;
-        size_t test = curr;
+        size_t test;
         if (curr + min_rep < length) {
             test = curr + min_rep;
         } else {
@@ -582,7 +582,7 @@ size_t find_last_bad(const struct mpv_kilopuff *kp, const u8 *buf,
 
     nverm_restart:;
         assert(buf[curr] != kp->u.verm.c);
-        size_t test = curr;
+        size_t test;
         if (curr + min_rep < length) {
             test = curr + min_rep;
         } else {
