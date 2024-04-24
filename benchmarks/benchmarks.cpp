@@ -126,7 +126,7 @@ static void run_benchmarks(int size, int loops, int max_matches,
         /*convert to MB/s*/
         max_bw /= 1048576.0;
         printf("%-18s, %-12s, %-10d, %-6d, %-10.3f, %-9.3f, %-8.3f, %-7s\n",
-               bench.label, size ,loops, total_sec, avg_time, max_bw );
+               bench.label, "0", size, loops, total_sec, avg_time, max_bw, "0");
     }
 }
 
