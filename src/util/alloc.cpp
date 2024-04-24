@@ -68,7 +68,7 @@ namespace ue2 {
 #endif
 
 void *aligned_malloc_internal(size_t size, size_t align) {
-    void *mem;
+    void *mem= nullptr;;
     int rv = posix_memalign(&mem, align, size);
     if (rv != 0) {
         DEBUG_PRINTF("posix_memalign returned %d when asked for %zu bytes\n",

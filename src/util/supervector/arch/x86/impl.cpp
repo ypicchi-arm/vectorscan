@@ -1145,7 +1145,7 @@ really_inline SuperVector<32> SuperVector<32>::loadu_maskz(void const *ptr, uint
 template<>
 really_inline SuperVector<32> SuperVector<32>::alignr(SuperVector<32> &other, int8_t offset)
 {
-#if defined(HAVE__BUILTIN_CONSTANT_P) && !(defined(__GNUC__) && (__GNUC__ == 13))
+#if defined(HAVE__BUILTIN_CONSTANT_P) && !(defined(__GNUC__) && ((__GNUC__ == 13) || (__GNUC__ == 14)))
     if (__builtin_constant_p(offset)) {
         if (offset == 16) {
             return *this;
@@ -1801,7 +1801,7 @@ really_inline SuperVector<64> SuperVector<64>::pshufb_maskz(SuperVector<64> b, u
 template<>
 really_inline SuperVector<64> SuperVector<64>::alignr(SuperVector<64> &l, int8_t offset)
 {
-#if defined(HAVE__BUILTIN_CONSTANT_P)
+#if defined(HAVE__BUILTIN_CONSTANT_P) && !(defined(__GNUC__) && (__GNUC__ == 14))
     if (__builtin_constant_p(offset)) {
         if (offset == 16) {
             return *this;
