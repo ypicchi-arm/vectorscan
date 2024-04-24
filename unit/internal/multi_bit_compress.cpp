@@ -46,7 +46,7 @@ UNUSED
 static
 void mmbit_display(const u8 *bits, u32 total_bits) {
     for (u32 i = 0; i < mmbit_size(total_bits); i += 8) {
-        printf("block %d:", i / 8);
+        printf("block %u:", i / 8);
         for (s32 j = 7; j >= 0; j--) {
             u8 a = (*(bits + i + j));
             printf(" %02x", a);
@@ -72,7 +72,7 @@ UNUSED
 static
 void mmbit_display_comp(const u8 *bits, u32 comp_size) {
     for (u32 i = 0; i < comp_size; i += 8) {
-        printf("block %d:", i / 8);
+        printf("block %u:", i / 8);
         for (s32 j = 7; j >= 0; j--) {
             u8 a = (*(bits + i + j));
             printf(" %02x", a);
