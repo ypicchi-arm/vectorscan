@@ -659,7 +659,7 @@ GoughSSAVar *GoughSSAVarJoin::get_input(const GoughEdge &prev) const {
 }
 
 const flat_set<GoughEdge> &GoughSSAVarJoin::get_edges_for_input(
-                                                 GoughSSAVar *input) const {
+                                                 const GoughSSAVar *input) const {
     return input_map.at(input);
 }
 

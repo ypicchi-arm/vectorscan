@@ -69,8 +69,8 @@ void setSomLoc(struct fatbit *som_set_now, u64a *som_store, u32 som_store_count,
 }
 
 static really_inline
-char ok_and_mark_if_write(u8 *som_store_valid, struct fatbit *som_set_now,
-                          u8 *som_store_writable, u32 som_store_count,
+char ok_and_mark_if_write(u8 *som_store_valid, const struct fatbit *som_set_now,
+                          const u8 *som_store_writable, u32 som_store_count,
                           u32 loc) {
     return !mmbit_set(som_store_valid, som_store_count, loc) /* unwritten */
         || fatbit_isset(som_set_now, som_store_count, loc) /* write here, need
@@ -79,7 +79,7 @@ char ok_and_mark_if_write(u8 *som_store_valid, struct fatbit *som_set_now,
 }
 
 static really_inline
-char ok_and_mark_if_unset(u8 *som_store_valid, struct fatbit *som_set_now,
+char ok_and_mark_if_unset(u8 *som_store_valid, const struct fatbit *som_set_now,
                           u32 som_store_count, u32 loc) {
     return !mmbit_set(som_store_valid, som_store_count, loc) /* unwritten */
         || fatbit_isset(som_set_now, som_store_count, loc); /* write here, need
