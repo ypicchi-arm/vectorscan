@@ -104,9 +104,8 @@ static void run_benchmarks(int size, int loops, int max_matches,
         avg_bw /= max_matches;
         total_sec /= 1000000.0;
         /*convert average time to us*/
-        printf("%-18s, %-12u, %-10u, %-6u, %-10.3f, %-9.3f, %-8.3f, %-7.3f\n",
-               bench.label, max_matches, size, loops, total_sec, avg_time,
-               max_bw, avg_bw);
+        printf("%-18s, %-12d, %-10d, %-6d, %-10.3f, %-9.3f, %-8.3f, %-7.3f\n",
+               bench.label, max_matches, size ,loops, total_sec, avg_time, max_bw, avg_bw);
     } else {
         auto start = std::chrono::steady_clock::now();
         for (int i = 0; i < loops; i++) {
@@ -126,7 +125,7 @@ static void run_benchmarks(int size, int loops, int max_matches,
         max_bw = total_size / total_sec;
         /*convert to MB/s*/
         max_bw /= 1048576.0;
-        printf("%-18s, %-12s, %-10u, %-6u, %-10.3f, %-9.3f, %-8.3f, %-7s\n",
+        printf("%-18s, %-12s, %-10d, %-6d, %-10.3f, %-9.3f, %-8.3f, %-7s\n",
                bench.label, "0", size, loops, total_sec, avg_time, max_bw, "0");
     }
 }
