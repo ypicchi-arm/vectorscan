@@ -607,7 +607,7 @@ size_t find_last_bad(const struct mpv_kilopuff *kp, const u8 *buf,
 }
 
 static really_inline
-void restartKilo(const struct mpv *m, UNUSED u8 *active, u8 *reporters,
+void restartKilo(const struct mpv *m, UNUSED const u8 *active, u8 *reporters,
                  struct mpv_decomp_state *dstate, struct mpv_pq_item *pq,
                  const u8 *buf, u64a prev_limit, size_t buf_length, u32 i) {
     const struct mpv_kilopuff *kp = (const void *)(m + 1);

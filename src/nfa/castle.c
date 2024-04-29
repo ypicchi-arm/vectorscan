@@ -400,7 +400,7 @@ char castleFindMatch(const struct Castle *c, const u64a begin, const u64a end,
 }
 
 static really_inline
-u64a subCastleNextMatch(const struct Castle *c, void *full_state,
+u64a subCastleNextMatch(const struct Castle *c, const void *full_state,
                         void *stream_state, const u64a loc,
                         const u32 subIdx) {
     DEBUG_PRINTF("subcastle %u\n", subIdx);

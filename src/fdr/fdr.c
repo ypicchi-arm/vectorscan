@@ -298,7 +298,7 @@ void get_conf_stride_4(const u8 *itPtr, UNUSED const u8 *start_ptr,
 static really_inline
 void do_confirm_fdr(u64a *conf, u8 offset, hwlmcb_rv_t *control,
                     const u32 *confBase, const struct FDR_Runtime_Args *a,
-                    const u8 *ptr, u32 *last_match_id, struct zone *z) {
+                    const u8 *ptr, u32 *last_match_id, const struct zone *z) {
     const u8 bucket = 8;
 
     if (likely(!*conf)) {

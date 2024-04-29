@@ -104,7 +104,7 @@ void runAnchoredTableStream(const struct RoseEngine *t, const void *atable,
 
 
 static really_inline
-void saveStreamState(const struct NFA *nfa, struct mq *q, s64a loc) {
+void saveStreamState(const struct NFA *nfa, const struct mq *q, s64a loc) {
     DEBUG_PRINTF("offset=%llu, length=%zu, hlength=%zu, loc=%lld\n",
                  q->offset, q->length, q->hlength, loc);
     nfaQueueCompressState(nfa, q, loc);
