@@ -605,8 +605,9 @@ double eval_set(Benchmark &bench, Sigdata &sigs, unsigned int mode,
         scan_time = measure_stream_time(bench, repeatCount);
     }
     size_t bytes = bench.bytes();
-    size_t matches = bench.matches();
+    
     if (diagnose) {
+        size_t matches = bench.matches();
         std::ios::fmtflags f(cout.flags());
         cout << "Scan time " << std::fixed << std::setprecision(3) << scan_time
              << " sec, Scanned " << bytes * repeatCount << " bytes, Throughput "

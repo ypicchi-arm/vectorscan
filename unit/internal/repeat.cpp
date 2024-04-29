@@ -277,10 +277,9 @@ TEST_P(RepeatTest, FillRing) {
     }
 
     // We should be able to see matches for all of these (beyond the last top offset).
-    enum TriggerResult rv;
     for (u64a i = offset + info.repeatMax;
             i <= offset + info.repeatMax + info.repeatMin; i++) {
-        rv = processTugTrigger(&info, ctrl, state, i);
+        enum TriggerResult rv = processTugTrigger(&info, ctrl, state, i);
         if (rv == TRIGGER_SUCCESS_CACHE) {
             rv = TRIGGER_SUCCESS;
         }
@@ -998,16 +997,14 @@ TEST_P(SparseOptimalTest, FillTops) {
     repeatStore(info, ctrl, state, offset, 0);
     ASSERT_EQ(offset, repeatLastTop(info, ctrl, state));
 
-    u64a offset2;
     for (u32 i = min_period; i < patch_count * patch_size; i += min_period) {
-        offset2 = offset + i;
+        u64a offset2 = offset + i;
         repeatStore(info, ctrl, state, offset2, 1);
         ASSERT_EQ(offset2, repeatLastTop(info, ctrl, state));
     }
 
-    u64a exit2;
     for (u32 i = 0; i < patch_count * patch_size; i += min_period) {
-        exit2 = exit + i;
+        u64a exit2 = exit + i;
         for (u32 j = exit2 + info->repeatMin;
              j <= offset + info->repeatMax; j++) {
             ASSERT_EQ(REPEAT_MATCH, repeatHasMatch(info, ctrl, state, j));

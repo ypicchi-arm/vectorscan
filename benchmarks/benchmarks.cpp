@@ -63,12 +63,10 @@ static void run_benchmarks(int size, int loops, int max_matches,
                            InitFunc &&init, BenchFunc &&func) {
     init(bench);
     double total_sec = 0.0;
-    u64a total_size = 0;
-    double bw = 0.0;
-    double avg_bw = 0.0;
     double max_bw = 0.0;
     double avg_time = 0.0;
     if (max_matches) {
+        double avg_bw = 0.0;
         int pos = 0;
         for (int j = 0; j < max_matches - 1; j++) {
             bench.buf[pos] = 'b';
@@ -90,7 +88,7 @@ static void run_benchmarks(int size, int loops, int max_matches,
             total_sec += dt;
             /*convert microseconds to seconds*/
             /*calculate bandwidth*/
-            bw = (actual_size / dt) * 1000000.0 / 1048576.0;
+            double bw = (actual_size / dt) * 1000000.0 / 1048576.0;
             /*std::cout << "act_size = " << act_size << std::endl;
             std::cout << "dt = " << dt << std::endl;
             std::cout << "bw = " << bw << std::endl;*/
@@ -107,6 +105,7 @@ static void run_benchmarks(int size, int loops, int max_matches,
         printf("%-18s, %-12d, %-10d, %-6d, %-10.3f, %-9.3f, %-8.3f, %-7.3f\n",
                bench.label, max_matches, size ,loops, total_sec, avg_time, max_bw, avg_bw);
     } else {
+        u64a total_size = 0;
         auto start = std::chrono::steady_clock::now();
         for (int i = 0; i < loops; i++) {
             const u8 *res = func(bench);

@@ -636,12 +636,12 @@ bool reversePathReachSubset(const NFAEdge &e, const NFAVertex &dom,
 
     NFAVertex start = source(e, g);
     using RevGraph = boost::reverse_graph<NGHolder, const NGHolder &>;
-    map<RevGraph::vertex_descriptor, boost::default_color_type> vertexColor;
 
     // Walk the graph backwards from v, examining each node. We fail (return
     // false) if we encounter a node with reach NOT a subset of domReach, and
     // we stop searching at dom.
     try {
+        map<RevGraph::vertex_descriptor, boost::default_color_type> vertexColor;
         depth_first_visit(RevGraph(g), start,
                           ReachSubsetVisitor(domReach),
                           make_assoc_property_map(vertexColor),
@@ -664,12 +664,12 @@ bool forwardPathReachSubset(const NFAEdge &e, const NFAVertex &dom,
     }
 
     NFAVertex start = target(e, g);
-    map<NFAVertex, boost::default_color_type> vertexColor;
 
     // Walk the graph forward from v, examining each node. We fail (return
     // false) if we encounter a node with reach NOT a subset of domReach, and
     // we stop searching at dom.
     try {
+        map<NFAVertex, boost::default_color_type> vertexColor;
         depth_first_visit(g, start, ReachSubsetVisitor(domReach),
                           make_assoc_property_map(vertexColor),
                           VertexIs<NGHolder, NFAVertex>(dom));
