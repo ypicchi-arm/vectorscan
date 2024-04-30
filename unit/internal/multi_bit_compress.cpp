@@ -401,7 +401,7 @@ TEST_P(MultiBitCompTest, CompCompressDecompressDense) {
 
 TEST(MultiBitComp, CompIntegration1) {
     // 256 + 1 --> smallest 2-level mmbit
-    u32 total_size = mmbit_size(257);
+    //u32 total_size = mmbit_size(257);
     mmbit_holder ba(257);
 
     //-------------------- 1 -----------------------//
@@ -516,7 +516,7 @@ TEST(MultiBitComp, CompIntegration1) {
 
 TEST(MultiBitComp, CompIntegration2) {
     // 64^2 + 1 --> smallest 3-level mmbit
-    u32 total_size = mmbit_size(4097);
+    //u32 total_size = mmbit_size(4097);
     mmbit_holder ba(4097);
 
     //-------------------- 1 -----------------------//
@@ -645,7 +645,7 @@ TEST(MultiBitComp, CompIntegration2) {
 
 TEST(MultiBitComp, CompIntegration3) {
     // 64^3 + 1 --> smallest 4-level mmbit
-    u32 total_size = mmbit_size(262145);
+    //u32 total_size = mmbit_size(262145);
     mmbit_holder ba(262145);
 
     //-------------------- 1 -----------------------//

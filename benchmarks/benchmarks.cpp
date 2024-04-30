@@ -108,7 +108,7 @@ static void run_benchmarks(int size, int loops, int max_matches,
         u64a total_size = 0;
         auto start = std::chrono::steady_clock::now();
         for (int i = 0; i < loops; i++) {
-            const u8 *res = func(bench);
+            func(bench);
         }
         auto end = std::chrono::steady_clock::now();
         total_sec +=
