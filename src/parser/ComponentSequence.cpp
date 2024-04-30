@@ -157,10 +157,10 @@ void ComponentSequence::finalize() {
 }
 
 vector<PositionInfo> ComponentSequence::first() const {
-    vector<PositionInfo> firsts, subfirsts;
+    vector<PositionInfo> firsts;
 
     for (const auto &c : children) {
-        subfirsts = c->first();
+        vector<PositionInfo> subfirsts = c->first();
         replaceEpsilons(firsts, subfirsts);
         if (!c->empty()) {
             break;
@@ -229,12 +229,12 @@ void applyEpsilonVisits(vector<PositionInfo> &lasts,
 }
 
 vector<PositionInfo> ComponentSequence::last() const {
-    vector<PositionInfo> lasts, sublasts;
+    vector<PositionInfo> lasts;
     vector<eps_info> visits(1);
 
     auto i = children.rbegin(), e = children.rend();
     for (; i != e; ++i) {
-        sublasts = (*i)->last();
+        vector<PositionInfo> sublasts = (*i)->last();
         applyEpsilonVisits(sublasts, visits);
         lasts.insert(lasts.end(), sublasts.begin(), sublasts.end());
         if ((*i)->empty()) {

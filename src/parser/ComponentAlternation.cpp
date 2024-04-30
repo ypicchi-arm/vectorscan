@@ -109,20 +109,20 @@ void ComponentAlternation::append(unique_ptr<Component> component) {
 vector<PositionInfo> ComponentAlternation::first() const {
     // firsts come from all our subcomponents in position order. This will
     // maintain left-to-right priority order.
-    vector<PositionInfo> firsts, subfirsts;
+    vector<PositionInfo> firsts;
 
     for (const auto &c : children) {
-        subfirsts = c->first();
+         vector<PositionInfo> subfirsts = c->first();
         firsts.insert(firsts.end(), subfirsts.begin(), subfirsts.end());
     }
     return firsts;
 }
 
 vector<PositionInfo> ComponentAlternation::last() const {
-    vector<PositionInfo> lasts, sublasts;
+    vector<PositionInfo> lasts;
 
     for (const auto &c : children) {
-        sublasts = c->last();
+        vector<PositionInfo> sublasts = c->last();
         lasts.insert(lasts.end(), sublasts.begin(), sublasts.end());
     }
     return lasts;

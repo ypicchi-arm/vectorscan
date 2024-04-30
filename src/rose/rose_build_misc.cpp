@@ -1004,9 +1004,9 @@ bool hasOrphanedTops(const RoseBuildImpl &build) {
 
     for (auto v : vertices_range(g)) {
         if (g[v].left) {
-            set<u32> &tops = leftfixes[g[v].left];
             if (!build.isRootSuccessor(v)) {
                 // Tops for infixes come from the in-edges.
+                set<u32> &tops = leftfixes[g[v].left];
                 for (const auto &e : in_edges_range(v, g)) {
                     tops.insert(g[e].rose_top);
                 }

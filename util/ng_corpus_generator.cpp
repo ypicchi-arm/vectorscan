@@ -223,7 +223,7 @@ public:
                         CorpusProperties &props);
     ~CorpusGeneratorImpl() = default;
 
-    void generateCorpus(vector<string> &data);
+    void generateCorpus(vector<string> &data) override;
 
 private:
     unsigned char getRandomChar();
@@ -419,7 +419,7 @@ public:
                         CorpusProperties &props);
     ~CorpusGeneratorUtf8() = default;
 
-    void generateCorpus(vector<string> &data);
+    void generateCorpus(vector<string> &data) override;
 
 private:
     unichar getRandomChar();

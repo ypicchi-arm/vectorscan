@@ -489,7 +489,6 @@ char castleMatchLoop(const struct Castle *c, const u64a begin, const u64a end,
         // full_state (scratch).
 
         u64a offset = end; // min offset of next match
-        u32 activeIdx = 0;
         mmbit_clear(matching, c->numRepeats);
         if (c->exclusive) {
             u8 *active = (u8 *)stream_state;
@@ -497,7 +496,7 @@ char castleMatchLoop(const struct Castle *c, const u64a begin, const u64a end,
             for (u32 i = mmbit_iterate(groups, c->numGroups, MMB_INVALID);
                  i != MMB_INVALID; i = mmbit_iterate(groups, c->numGroups, i)) {
                 u8 *cur = active + i * c->activeIdxSize;
-                activeIdx = partial_load_u32(cur, c->activeIdxSize);
+                u32 activeIdx = partial_load_u32(cur, c->activeIdxSize);
                 u64a match = subCastleNextMatch(c, full_state, stream_state,
                                                 loc, activeIdx);
                 set_matching(c, match, groups, matching, c->numGroups, i,

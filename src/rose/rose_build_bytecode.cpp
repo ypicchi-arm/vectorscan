@@ -2251,10 +2251,9 @@ vector<u32> buildSuffixEkeyLists(const RoseBuildImpl &build, build_context &bc,
 
     /* for each outfix also build elists */
     for (const auto &outfix : build.outfixes) {
-        u32 qi = outfix.get_queue();
         set<u32> ekeys = reportsToEkeys(all_reports(outfix), build.rm);
-
         if (!ekeys.empty()) {
+            u32 qi = outfix.get_queue();
             qi_to_ekeys[qi] = {ekeys.begin(), ekeys.end()};
         }
     }

@@ -348,10 +348,9 @@ void getSimpleRoseLiterals(const NGHolder &g, bool seeking_anchored,
 
     map<NFAVertex, u64a> scores;
     map<NFAVertex, unique_ptr<VertLitInfo>> lit_info;
-    set<ue2_literal> s;
 
     for (auto v : a_dom) {
-        s = getLiteralSet(g, v, true); /* RHS will take responsibility for any
+        set<ue2_literal> s = getLiteralSet(g, v, true); /* RHS will take responsibility for any
                                           revisits to the target vertex */
 
         if (s.empty()) {
@@ -2868,7 +2867,6 @@ static
 bool splitForImplementability(RoseInGraph &vg, NGHolder &h,
                               const vector<RoseInEdge> &edges,
                               const CompileContext &cc) {
-    vector<pair<ue2_literal, u32>> succ_lits;
     DEBUG_PRINTF("trying to split %s with %zu vertices on %zu edges\n",
                   to_string(h.kind).c_str(), num_vertices(h), edges.size());
 
@@ -2877,6 +2875,7 @@ bool splitForImplementability(RoseInGraph &vg, NGHolder &h,
     }
 
     if (!generates_callbacks(h)) {
+        vector<pair<ue2_literal, u32>> succ_lits;
         for (const auto &e : edges) {
             const auto &lit = vg[target(e, vg)].s;
             u32 delay = vg[e].graph_lag;
@@ -2889,8 +2888,8 @@ bool splitForImplementability(RoseInGraph &vg, NGHolder &h,
     }
 
     unique_ptr<VertLitInfo> split;
-    bool last_chance = true;
     if (h.kind == NFA_PREFIX) {
+        bool last_chance = true;
         auto depths = calcDepths(h);
 
         split = findBestPrefixSplit(h, depths, vg, edges, last_chance, cc);
