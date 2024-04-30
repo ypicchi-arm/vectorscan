@@ -655,7 +655,8 @@ buildCastle(const CastleProto &proto,
     if (!stale_iter.empty()) {
         c->staleIterOffset = verify_u32(ptr - base_ptr);
         copy_bytes(ptr, stale_iter);
-        ptr += byte_length(stale_iter);
+        // Removed unused increment operation
+        // ptr += byte_length(stale_iter);
     }
 
     return nfa;

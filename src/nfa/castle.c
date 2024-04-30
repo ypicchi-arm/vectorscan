@@ -906,7 +906,6 @@ s64a castleLastKillLoc(const struct Castle *c, struct mq *q) {
         if (castleRevScan(c, q->history, sp + hlen, ep + hlen, &loc)) {
             return (s64a)loc - hlen;
         }
-        ep = 0;
     }
 
     return sp - 1; /* the repeats are never killed */
