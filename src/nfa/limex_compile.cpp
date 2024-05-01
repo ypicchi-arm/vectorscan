@@ -1481,6 +1481,7 @@ u32 buildExceptionMap(const build_info &args, ReportListCache &reports_cache,
                     continue;
                 }
                 u32 j = args.state_ids.at(w);
+                // j can be NO_STATE if args.state_ids.at(w) returns NO_STATE
                 if (j == NO_STATE) {
                     continue;
                 }

@@ -1718,9 +1718,8 @@ bool setDistinctTops(NGHolder &h1, const NGHolder &h2,
 bool setDistinctRoseTops(RoseGraph &g, NGHolder &h1, const NGHolder &h2,
                          const deque<RoseVertex> &verts1) {
     map<u32, u32> top_mapping;
-    if (!setDistinctTops(h1, h2, top_mapping)) {
-        return false;
-    }
+
+    setDistinctTops(h1, h2, top_mapping);
 
     if (top_mapping.empty()) {
         return true; // No remapping necessary.
@@ -1748,9 +1747,7 @@ static
 bool setDistinctSuffixTops(RoseGraph &g, NGHolder &h1, const NGHolder &h2,
                            const deque<RoseVertex> &verts1) {
     map<u32, u32> top_mapping;
-    if (!setDistinctTops(h1, h2, top_mapping)) {
-        return false;
-    }
+    setDistinctTops(h1, h2, top_mapping);
 
     if (top_mapping.empty()) {
         return true; // No remapping necessary.
@@ -1837,10 +1834,7 @@ void mergeNfaLeftfixes(RoseBuildImpl &tbi, LeftfixBouquet &roses) {
                 }
             }
 
-            if (!setDistinctRoseTops(g, victim, *r1.graph(), verts2)) {
-                DEBUG_PRINTF("can't set distinct tops\n");
-                continue; // next h2
-            }
+            setDistinctRoseTops(g, victim, *r1.graph(), verts2);
 
             assert(victim.kind == r1.graph()->kind);
             assert(!generates_callbacks(*r1.graph()));
@@ -2120,10 +2114,7 @@ void mergeSuffixes(RoseBuildImpl &tbi, SuffixBouquet &suffixes,
                 old_tops[v] = g[v].suffix.top;
             }
 
-            if (!setDistinctSuffixTops(g, victim, *s1.graph(), verts2)) {
-                DEBUG_PRINTF("can't set distinct tops\n");
-                continue; // next h2
-            }
+            setDistinctSuffixTops(g, victim, *s1.graph(), verts2);
 
             if (!mergeNfaPair(victim, *s1.graph(), &tbi.rm, tbi.cc)) {
                 DEBUG_PRINTF("merge failed\n");
