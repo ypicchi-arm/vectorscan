@@ -430,7 +430,7 @@ NFAVertex findSingleCyclic(const NGHolder &g) {
 }
 
 static
-bool hasOffsetAdjust(const ReportManager &rm, NGHolder &g,
+bool hasOffsetAdjust(const ReportManager &rm, const NGHolder &g,
                      int *adjust) {
     const auto &reports = all_reports(g);
     if (reports.empty()) {

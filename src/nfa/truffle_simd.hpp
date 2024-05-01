@@ -227,7 +227,7 @@ const u8 *fwdBlock(SuperVector<S> shuf_mask_lo_highclear, SuperVector<S> shuf_ma
 }
 
 template <uint16_t S>
-const u8 *truffleExecReal(m128 &shuf_mask_lo_highclear, m128 shuf_mask_lo_highset, const u8 *buf, const u8 *buf_end) {
+const u8 *truffleExecReal(const m128 &shuf_mask_lo_highclear, m128 shuf_mask_lo_highset, const u8 *buf, const u8 *buf_end) {
     assert(buf && buf_end);
     assert(buf < buf_end);
     DEBUG_PRINTF("truffle %p len %zu\n", buf, buf_end - buf);

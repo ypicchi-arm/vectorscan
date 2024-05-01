@@ -112,7 +112,7 @@ bool forkVertex(NFAVertex v, NGHolder &g, vector<DepthMinMax> &depths,
     }
     *numNewVertices += predGroups.size();
 
-    for (auto &group : predGroups) {
+    for (const auto &group : predGroups) {
         const depth &predDepth = group.first;
         const vector<NFAEdge> &preds = group.second;
 

@@ -99,7 +99,7 @@ struct dfa_info {
         return next(idx, TOP);
     }
     dstate &next(dstate_id_t idx, u16 chr) {
-        auto &src = (*this)[idx];
+        const auto &src = (*this)[idx];
         auto next_id = src.next[raw.alpha_remap[chr]];
         return states[next_id];
     }
@@ -109,7 +109,7 @@ struct dfa_info {
         // if DFA can't die, shift all indices left by 1
         return can_die ? idx : idx + 1;
     }
-    bool isDead(dstate &state) {
+    bool isDead(const dstate &state) {
         return raw_id(state.impl_id) == DEAD_STATE;
     }
     bool isDead(dstate_id_t idx) {
@@ -117,7 +117,7 @@ struct dfa_info {
     }
 
 private:
-    static bool dfaCanDie(raw_dfa &rdfa) {
+    static bool dfaCanDie(const raw_dfa &rdfa) {
         for (unsigned chr = 0; chr < 256; chr++) {
             for (dstate_id_t state = 0; state < rdfa.states.size(); state++) {
                 auto succ = rdfa.states[state].next[rdfa.alpha_remap[chr]];
@@ -138,7 +138,7 @@ struct raw_report_list {
     raw_report_list(const flat_set<ReportID> &reports_in,
                     const ReportManager &rm, bool do_remap) {
         if (do_remap) {
-            for (auto &id : reports_in) {
+            for (const auto &id : reports_in) {
                 reports.insert(rm.getProgramOffset(id));
             }
         } else {

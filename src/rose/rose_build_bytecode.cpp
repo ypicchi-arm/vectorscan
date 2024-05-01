@@ -674,7 +674,7 @@ buildSuffix(const ReportManager &rm, const SomSlotManager &ssm,
     }
 
     assert(suff.graph());
-    NGHolder &holder = *suff.graph();
+    const NGHolder &holder = *suff.graph();
     assert(holder.kind == NFA_SUFFIX);
     const bool oneTop = onlyOneTop(holder);
     bool compress_state = cc.streaming;
@@ -1378,7 +1378,7 @@ void updateExclusiveSuffixProperties(const RoseBuildImpl &build,
                                 const vector<ExclusiveInfo> &exclusive_info,
                                 set<u32> *no_retrigger_queues) {
     const RoseGraph &g = build.g;
-    for (auto &info : exclusive_info) {
+    for (const auto &info : exclusive_info) {
         const auto &qi = info.queue;
         const auto &subengines = info.subengines;
         bool no_retrigger = true;
@@ -1627,11 +1627,11 @@ public:
                             build.rm);
     }
 
-    bytecode_ptr<NFA> operator()(unique_ptr<NGHolder> &holder) const {
+    bytecode_ptr<NFA> operator()(const unique_ptr<NGHolder> &holder) const {
         const CompileContext &cc = build.cc;
         const ReportManager &rm = build.rm;
 
-        NGHolder &h = *holder;
+        const NGHolder &h = *holder;
         assert(h.kind == NFA_OUTFIX);
 
         // Build NFA.
@@ -1657,7 +1657,7 @@ public:
         return n;
     }
 
-    bytecode_ptr<NFA> operator()(UNUSED MpvProto &mpv) const {
+    bytecode_ptr<NFA> operator()(UNUSED const MpvProto &mpv) const {
         // MPV construction handled separately.
         assert(mpv.puffettes.empty());
         return nullptr;
@@ -2727,7 +2727,7 @@ void buildLeftInfoTable(const RoseBuildImpl &tbi, build_context &bc,
 }
 
 static
-RoseProgram makeLiteralProgram(const RoseBuildImpl &build, build_context &bc,
+RoseProgram makeLiteralProgram(const RoseBuildImpl &build, const build_context &bc,
                                ProgramBuild &prog_build, u32 lit_id,
                                const vector<vector<RoseEdge>> &lit_edge_map,
                                bool is_anchored_replay_program) {
@@ -2972,7 +2972,7 @@ void buildFragmentPrograms(const RoseBuildImpl &build,
                                             pfrag.lit_ids, lit_edge_map);
         if (pfrag.included_frag_id != INVALID_FRAG_ID &&
             !lit_prog.empty()) {
-            auto &cfrag = fragments[pfrag.included_frag_id];
+            const auto &cfrag = fragments[pfrag.included_frag_id];
             assert(pfrag.s.length() >= cfrag.s.length() &&
                    !pfrag.s.any_nocase() == !cfrag.s.any_nocase());
                    /** !pfrag.s.any_nocase() >= !cfrag.s.any_nocase()); **/
@@ -2992,7 +2992,7 @@ void buildFragmentPrograms(const RoseBuildImpl &build,
                                                     pfrag.lit_ids);
         if (pfrag.included_delay_frag_id != INVALID_FRAG_ID &&
             !rebuild_prog.empty()) {
-            auto &cfrag = fragments[pfrag.included_delay_frag_id];
+            const auto &cfrag = fragments[pfrag.included_frag_id];
             /** assert(pfrag.s.length() >= cfrag.s.length() && **/
             assert(pfrag.s.length() == cfrag.s.length() &&
                    !pfrag.s.any_nocase() >= !cfrag.s.any_nocase());
@@ -3012,7 +3012,7 @@ void updateLitProtoProgramOffset(vector<LitFragment> &fragments,
     auto &proto = *litProto.hwlmProto;
     for (auto &lit : proto.lits) {
         auto fragId = lit.id;
-        auto &frag = fragments[fragId];
+        const auto &frag = fragments[fragId];
         if (delay) {
             DEBUG_PRINTF("delay_program_offset:%u\n",
                          frag.delay_program_offset);

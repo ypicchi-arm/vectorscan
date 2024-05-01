@@ -861,7 +861,7 @@ bool isUtf8CodePoint(const char c) {
 }
 
 static
-bool canReach(const NGHolder &g, const NFAEdge &e, struct fmstate &state) {
+bool canReach(const NGHolder &g, const NFAEdge &e, const struct fmstate &state) {
     auto flags = g[e].assert_flags;
     if (!flags) {
         return true;

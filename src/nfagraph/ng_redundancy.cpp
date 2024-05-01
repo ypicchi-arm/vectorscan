@@ -323,7 +323,7 @@ bool doUselessMergePass(NGHolder &g, som_type som, VertexInfoMap &infoMap,
 
     bool changed = false;
     for (auto v : vertices_range(g)) {
-        VertexInfo &info = infoMap[v];
+        const VertexInfo &info = infoMap[v];
 
         if (info.isRemoved) {
             continue;
@@ -439,7 +439,7 @@ bool doUselessMergePass(NGHolder &g, som_type som, VertexInfoMap &infoMap,
                 continue; // Conservatively skip anything with nonzero tops.
             }
 
-            CharReach &otherReach = g[t].char_reach;
+            const CharReach &otherReach = g[t].char_reach;
             if (currReach.isSubsetOf(otherReach)) {
                 DEBUG_PRINTF("removing redundant vertex %zu (keeping %zu)\n",
                              g[v].index, g[t].index);
@@ -745,7 +745,7 @@ u32 findCyclic(const NGHolder &g, vector<bool> &cyclic) {
 }
 
 static
-void findCyclicDom(NGHolder &g, vector<bool> &cyclic,
+void findCyclicDom(const NGHolder &g, vector<bool> &cyclic,
                    set<NFAEdge> &dead, som_type som) {
     auto dominators = findDominators(g);
 
@@ -789,7 +789,7 @@ void findCyclicDom(NGHolder &g, vector<bool> &cyclic,
 }
 
 static
-void findCyclicPostDom(NGHolder &g, vector<bool> &cyclic,
+void findCyclicPostDom(const NGHolder &g, vector<bool> &cyclic,
                        set<NFAEdge> &dead) {
     auto postdominators = findPostDominators(g);
 

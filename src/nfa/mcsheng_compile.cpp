@@ -955,7 +955,7 @@ bool is_cyclic_near(const raw_dfa &raw, dstate_id_t root) {
 }
 
 static
-void fill_in_sherman(NFA *nfa, dfa_info &info, UNUSED u16 sherman_limit) {
+void fill_in_sherman(NFA *nfa, const dfa_info &info, UNUSED u16 sherman_limit) {
     char *nfa_base = (char *)nfa;
     mcsheng *m = (mcsheng *)getMutableImplNfa(nfa);
     char *sherman_table = nfa_base + m->sherman_offset;
@@ -1109,7 +1109,7 @@ void fill_in_succ_table_8(NFA *nfa, const dfa_info &info,
 }
 
 static
-void fill_in_sherman64(NFA *nfa, dfa_info &info, UNUSED u16 sherman_limit) {
+void fill_in_sherman64(NFA *nfa, const dfa_info &info, UNUSED u16 sherman_limit) {
     char *nfa_base = (char *)nfa;
     mcsheng64 *m = (mcsheng64 *)getMutableImplNfa(nfa);
     char *sherman_table = nfa_base + m->sherman_offset;

@@ -257,7 +257,7 @@ void reformAnchoredRepeatsComponent(NGHolder &g,
 
 static
 void reformUnanchoredRepeatsComponent(NGHolder &g,
-                                      set<NFAVertex> &compAnchoredStarts,
+                                      const set<NFAVertex> &compAnchoredStarts,
                                       set<NFAVertex> &compUnanchoredStarts,
                                       set<NFAVertex> &dead,
                                       depth *startBegin, depth *startEnd) {
@@ -555,7 +555,7 @@ void collapseVariableRepeats(NGHolder &g, depth *startBegin, depth *startEnd) {
 }
 
 static
-void addDotsBetween(NGHolder &g, NFAVertex lhs, vector<NFAVertex> &rhs,
+void addDotsBetween(NGHolder &g, NFAVertex lhs, const vector<NFAVertex> &rhs,
                     depth min_repeat, depth max_repeat) {
     const bool unbounded = max_repeat.is_infinite();
     if (unbounded) {

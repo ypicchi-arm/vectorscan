@@ -622,7 +622,7 @@ bytecode_ptr<FDR> TeddyCompiler::build() {
 static
 bool assignStringsToBuckets(
                 const vector<hwlmLiteral> &lits,
-                TeddyEngineDescription &eng,
+                const TeddyEngineDescription &eng,
                 map<BucketIndex, vector<LiteralIndex>> &bucketToLits) {
     assert(eng.numMasks <= MAX_NUM_MASKS);
     if (lits.size() > eng.getNumBuckets() * TEDDY_BUCKET_LOAD) {

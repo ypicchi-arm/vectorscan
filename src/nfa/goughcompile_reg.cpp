@@ -438,7 +438,7 @@ void create_slot_mapping(const GoughGraph &cfg, UNUSED u32 old_slot_count,
 }
 
 static
-void update_local_slots(GoughGraph &g, set<GoughSSAVar *> &locals,
+void update_local_slots(GoughGraph &g, const set<GoughSSAVar *> &locals,
                         u32 local_base) {
     DEBUG_PRINTF("%zu local variables\n", locals.size());
     /* local variables only occur on edges (joins are never local) */

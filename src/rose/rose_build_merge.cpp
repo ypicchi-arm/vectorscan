@@ -1338,7 +1338,7 @@ void chunk(vector<T> in, vector<vector<T>> *out, size_t chunk_size) {
 }
 
 static
-insertion_ordered_map<left_id, vector<RoseVertex>> get_eng_verts(RoseGraph &g) {
+insertion_ordered_map<left_id, vector<RoseVertex>> get_eng_verts(const RoseGraph &g) {
     insertion_ordered_map<left_id, vector<RoseVertex>> eng_verts;
     for (auto v : vertices_range(g)) {
         const auto &left = g[v].left;
@@ -1925,7 +1925,7 @@ void mergeSmallLeftfixes(RoseBuildImpl &tbi) {
         }
 
         assert(left.graph());
-        NGHolder &h = *left.graph();
+        const NGHolder &h = *left.graph();
 
         /* Ensure that kind on the graph is correct */
         assert(h.kind == (tbi.isRootSuccessor(v) ? NFA_PREFIX : NFA_INFIX));
@@ -2025,7 +2025,7 @@ void mergeCastleLeftfixes(RoseBuildImpl &build) {
         return;
     }
 
-    RoseGraph &g = build.g;
+    const RoseGraph &g = build.g;
 
     insertion_ordered_map<left_id, vector<RoseVertex>> eng_verts;
 
@@ -2307,7 +2307,7 @@ void mergeOutfixInfo(OutfixInfo &winner, const OutfixInfo &victim) {
 }
 
 static
-map<NGHolder *, NGHolder *> chunkedNfaMerge(RoseBuildImpl &build,
+map<NGHolder *, NGHolder *> chunkedNfaMerge(const RoseBuildImpl &build,
                                             const vector<NGHolder *> &nfas) {
     map<NGHolder *, NGHolder *> merged;
 

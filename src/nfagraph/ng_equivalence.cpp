@@ -159,7 +159,7 @@ public:
         return id;
     }
 
-    void append(WorkQueue &other) {
+    void append(const WorkQueue &other) {
         for (const auto &e : other) {
             push(e);
         }
@@ -193,7 +193,7 @@ private:
 }
 
 static
-bool outIsIrreducible(NFAVertex &v, const NGHolder &g) {
+bool outIsIrreducible(const NFAVertex &v, const NGHolder &g) {
     unsigned nonSpecialVertices = 0;
     for (auto w : adjacent_vertices_range(v, g)) {
         if (!is_special(w, g) && w != v) {
@@ -204,7 +204,7 @@ bool outIsIrreducible(NFAVertex &v, const NGHolder &g) {
 }
 
 static
-bool inIsIrreducible(NFAVertex &v, const NGHolder &g) {
+bool inIsIrreducible(const NFAVertex &v, const NGHolder &g) {
     unsigned nonSpecialVertices = 0;
     for (auto u : inv_adjacent_vertices_range(v, g)) {
         if (!is_special(u, g) && u != v) {
