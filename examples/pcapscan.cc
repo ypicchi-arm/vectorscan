@@ -281,7 +281,7 @@ public:
     // Close all open Hyperscan streams (potentially generating any
     // end-anchored matches)
     void closeStreams() {
-        for (auto &stream : streams) {
+        for (const auto &stream : streams) {
             hs_error_t err = hs_close_stream(stream, scratch, onMatch,
                                              &matchCount);
             if (err != HS_SUCCESS) {

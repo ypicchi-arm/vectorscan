@@ -688,7 +688,7 @@ unique_ptr<VertLitInfo> findBestSplit(const NGHolder &g,
     }
 
     if (seeking_transient) {
-        for (auto &a : lits) {
+        for (const auto &a : lits) {
             a->creates_transient
                 = createsTransientLHS(g, a->vv, *depths, cc.grey);
         }
@@ -697,7 +697,7 @@ unique_ptr<VertLitInfo> findBestSplit(const NGHolder &g,
     if (last_chance) {
         const size_t num_verts = num_vertices(g);
         auto color_map = make_small_color_map(g);
-        for (auto &a : lits) {
+        for (const auto &a : lits) {
             size_t num_reachable = count_reachable(g, a->vv, color_map);
             double ratio = (double)num_reachable / (double)num_verts;
             a->split_ratio = ratio > 0.5 ? 1 - ratio : ratio;
@@ -1172,7 +1172,7 @@ bool splitRoseEdge(const NGHolder &base_graph, RoseInGraph &vg,
 #define MAX_LEN_2_LITERALS_PER_CUT 3
 
 static
-bool checkValidNetflowLits(NGHolder &h, const vector<u64a> &scores,
+bool checkValidNetflowLits(const NGHolder &h, const vector<u64a> &scores,
                            const map<NFAEdge, set<ue2_literal>> &cut_lits,
                            u32 min_allowed_length) {
     DEBUG_PRINTF("cut width %zu; min allowed %u\n", cut_lits.size(),
@@ -1209,7 +1209,7 @@ bool checkValidNetflowLits(NGHolder &h, const vector<u64a> &scores,
 }
 
 static
-void splitEdgesByCut(NGHolder &h, RoseInGraph &vg,
+void splitEdgesByCut(const NGHolder &h, RoseInGraph &vg,
                      const vector<RoseInEdge> &to_cut,
                      const vector<NFAEdge> &cut,
                      const map<NFAEdge, set<ue2_literal>> &cut_lits) {
@@ -1805,7 +1805,7 @@ void removeRedundantLiterals(RoseInGraph &g, const CompileContext &cc) {
 }
 
 static
-RoseInVertex getStart(RoseInGraph &vg) {
+RoseInVertex getStart(const RoseInGraph &vg) {
     for (RoseInVertex v : vertices_range(vg)) {
         if (vg[v].type == RIV_START || vg[v].type == RIV_ANCHORED_START) {
             return v;
@@ -1870,7 +1870,7 @@ unique_ptr<NGHolder> make_chain(u32 count) {
 #define SHORT_TRIGGER_LEN 16
 
 static
-bool makeTransientFromLongLiteral(NGHolder &h, RoseInGraph &vg,
+bool makeTransientFromLongLiteral(const NGHolder &h, RoseInGraph &vg,
                                   const vector<RoseInEdge> &ee,
                                   const CompileContext &cc) {
     /* check max width and literal lengths to see if possible */
@@ -2150,7 +2150,7 @@ void findBetterPrefixes(RoseInGraph &vg, const CompileContext &cc) {
 #define MAX_EXTRACT_STRONG_LITERAL_GRAPHS 10
 
 static
-bool extractStrongLiteral(NGHolder &h, RoseInGraph &vg,
+bool extractStrongLiteral(const NGHolder &h, RoseInGraph &vg,
                           const vector<RoseInEdge> &ee,
                           const CompileContext &cc) {
     DEBUG_PRINTF("looking for string literal\n");
@@ -2805,7 +2805,7 @@ bool tryForEarlyDfa(const NGHolder &h, const CompileContext &cc) {
 }
 
 static
-vector<vector<CharReach>> getDfaTriggers(RoseInGraph &vg,
+vector<vector<CharReach>> getDfaTriggers(const RoseInGraph &vg,
                                          const vector<RoseInEdge> &edges,
                                          bool *single_trigger) {
     vector<vector<CharReach>> triggers;
@@ -2927,7 +2927,7 @@ bool ensureImplementable(RoseBuild &rose, RoseInGraph &vg, bool allow_changes,
                               vector<RoseInEdge>> edges_by_graph;
         for (const RoseInEdge &ve : edges_range(vg)) {
             if (vg[ve].graph && !vg[ve].dfa) {
-                auto &h = vg[ve].graph;
+                const auto &h = vg[ve].graph;
                 edges_by_graph[h].emplace_back(ve);
             }
         }

@@ -118,7 +118,7 @@ bool addPrefixLiterals(NGHolder &h, unordered_set<u32> &tailId,
 
     for (auto v : adjacent_vertices_range(start, h)) {
         if (v != h.startDs) {
-            for (auto &t : tails) {
+            for (const auto &t : tails) {
                 add_edge(t, v, h);
             }
         }
@@ -126,7 +126,7 @@ bool addPrefixLiterals(NGHolder &h, unordered_set<u32> &tailId,
 
     clear_out_edges(start, h);
     add_edge(h.start, h.start, h);
-    for (auto &t : heads) {
+    for (const auto &t : heads) {
         add_edge(start, t, h);
     }
 

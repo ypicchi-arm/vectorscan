@@ -159,7 +159,7 @@ bytecode_ptr<FDRConfirm> getFDRConfirm(const vector<hwlmLiteral> &lits,
     map<u32, vector<LiteralIndex> > res2lits;
     hwlm_group_t gm = 0;
     for (LiteralIndex i = 0; i < lits.size(); i++) {
-        LitInfo & li = tmpLitInfo[i];
+        const LitInfo & li = tmpLitInfo[i];
         u32 hash = CONF_HASH_CALL(li.v, andmsk, mult, nBits);
         DEBUG_PRINTF("%016llx --> %u\n", li.v, hash);
         res2lits[hash].emplace_back(i);

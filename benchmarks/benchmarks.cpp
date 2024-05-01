@@ -129,7 +129,7 @@ static void run_benchmarks(int size, int loops, int max_matches, bool is_reverse
 }
 
 int main(){
-    int matches[] = {0, MAX_MATCHES};
+    const int matches[] = {0, MAX_MATCHES};
     std::vector<size_t> sizes;
     for (size_t i = 0; i < N; i++) sizes.push_back(16000 << i*2);
     const char charset[] = "aAaAaAaAAAaaaaAAAAaaaaAAAAAAaaaAAaaa"; 

@@ -389,7 +389,7 @@ public:
     // Close all open Hyperscan streams (potentially generating any
     // end-anchored matches)
     void closeStreams() {
-        for (auto &stream : streams) {
+        for (const auto &stream : streams) {
             hs_error_t err =
                 hs_close_stream(stream, scratch, onMatch, &matchCount);
             if (err != HS_SUCCESS) {
@@ -565,7 +565,7 @@ double measure_block_time(Benchmark &bench, unsigned int repeatCount) {
 }
 
 static
-double eval_set(Benchmark &bench, Sigdata &sigs, unsigned int mode,
+double eval_set(Benchmark &bench, const Sigdata &sigs, unsigned int mode,
                 unsigned repeatCount, Criterion criterion,
                 bool diagnose = true) {
     double compileTime = 0;

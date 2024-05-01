@@ -1177,7 +1177,7 @@ void expandGraph(NGHolder &g, unordered_map<NFAVertex, u32> &regions,
 }
 
 static
-bool doTreePlanningIntl(NGHolder &g,
+bool doTreePlanningIntl(const NGHolder &g,
             const unordered_map<NFAVertex, u32> &regions,
             const map<u32, region_info> &info,
             map<u32, region_info>::const_iterator picked, u32 bad_region,
@@ -1855,7 +1855,7 @@ bool doSomRevNfa(NG &ng, NGHolder &g, const CompileContext &cc) {
 }
 
 static
-u32 doSomRevNfaPrefix(NG &ng, const ExpressionInfo &expr, NGHolder &g,
+u32 doSomRevNfaPrefix(NG &ng, const ExpressionInfo &expr, const NGHolder &g,
                       const CompileContext &cc) {
     depth maxWidth = findMaxWidth(g);
 
@@ -2011,7 +2011,7 @@ void setReportOnHaigPrefix(RoseBuild &rose, NGHolder &h) {
 }
 
 static
-bool tryHaig(RoseBuild &rose, NGHolder &g,
+bool tryHaig(RoseBuild &rose, const NGHolder &g,
              const unordered_map<NFAVertex, u32> &regions,
              som_type som, u32 somPrecision,
              map<u32, region_info>::const_iterator picked,
@@ -2442,7 +2442,7 @@ void makeReportsSomPass(ReportManager &rm, NGHolder &g) {
 }
 
 static
-bool doLitHaigSom(NG &ng, NGHolder &g, som_type som) {
+bool doLitHaigSom(NG &ng, const NGHolder &g, som_type som) {
     ue2_literal lit;
     shared_ptr<NGHolder> rhs = make_shared<NGHolder>();
     if (!rhs) {
@@ -2659,7 +2659,7 @@ bool doHaigLitHaigSom(NG &ng, NGHolder &g,
 }
 
 static
-bool doMultiLitHaigSom(NG &ng, NGHolder &g, som_type som) {
+bool doMultiLitHaigSom(NG &ng, const NGHolder &g, som_type som) {
     set<ue2_literal> lits;
     shared_ptr<NGHolder> rhs = make_shared<NGHolder>();
     if (!ng.cc.grey.allowLitHaig) {

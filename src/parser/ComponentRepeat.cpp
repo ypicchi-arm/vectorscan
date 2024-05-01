@@ -110,7 +110,7 @@ void addBase(Position base, vector<PositionInfo> &firsts,
 }
 
 static
-void checkPositions(vector<PositionInfo> &v, const GlushkovBuildState &bs) {
+void checkPositions(const vector<PositionInfo> &v, const GlushkovBuildState &bs) {
     const NFABuilder& builder = bs.getBuilder();
     for (const auto &e : v) {
         if (builder.isSpecialState(e.pos)) {

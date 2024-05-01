@@ -353,7 +353,7 @@ void createVertices(RoseBuildImpl *tbi,
                          edge_props.minBound, edge_props.maxBound);
         }
 
-        for (auto &m : created) {
+        for (const auto &m : created) {
             tbi->ghost[m.second] = g_v;
         }
     }
@@ -938,7 +938,7 @@ void shift_accepts_to_end(const RoseInGraph &ig,
 }
 
 static
-void populateRoseGraph(RoseBuildImpl *tbi, RoseBuildData &bd) {
+void populateRoseGraph(RoseBuildImpl *tbi, const RoseBuildData &bd) {
     const RoseInGraph &ig = bd.ig;
 
     /* add the pattern in to the main rose graph */

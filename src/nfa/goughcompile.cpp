@@ -1017,7 +1017,7 @@ void update_accel_prog_offset(const gough_build_strat &gbs,
         verts[gbs.gg[v].state_id] = v;
     }
 
-    for (auto &m : gbs.built_accel) {
+    for (const auto &m : gbs.built_accel) {
         gough_accel *ga = m.first;
         assert(!ga->prog_offset);
         GoughVertex v = verts[m.second];

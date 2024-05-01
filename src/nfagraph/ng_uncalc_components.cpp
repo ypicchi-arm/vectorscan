@@ -454,8 +454,8 @@ void buildNfaMergeQueue(const vector<NGHolder *> &cluster,
                 }
             }
 
-            NGHolder &g_i = *(cluster[ci]);
-            NGHolder &g_j = *(cluster[cj]);
+            const NGHolder &g_i = *(cluster[ci]);
+            const NGHolder &g_j = *(cluster[cj]);
 
             if (!compatibleStarts(g_i, g_j)) {
                 continue;
