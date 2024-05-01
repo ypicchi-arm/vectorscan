@@ -46,7 +46,7 @@ UNUSED
 static
 void mmbit_display(const u8 *bits, u32 total_bits) {
     for (u32 i = 0; i < mmbit_size(total_bits); i += 8) {
-        printf("block %d:", i / 8);
+        printf("block %u:", i / 8);
         for (s32 j = 7; j >= 0; j--) {
             u8 a = (*(bits + i + j));
             printf(" %02x", a);
@@ -72,7 +72,7 @@ UNUSED
 static
 void mmbit_display_comp(const u8 *bits, u32 comp_size) {
     for (u32 i = 0; i < comp_size; i += 8) {
-        printf("block %d:", i / 8);
+        printf("block %u:", i / 8);
         for (s32 j = 7; j >= 0; j--) {
             u8 a = (*(bits + i + j));
             printf(" %02x", a);
@@ -401,7 +401,7 @@ TEST_P(MultiBitCompTest, CompCompressDecompressDense) {
 
 TEST(MultiBitComp, CompIntegration1) {
     // 256 + 1 --> smallest 2-level mmbit
-    u32 total_size = mmbit_size(257);
+    //u32 total_size = mmbit_size(257);
     mmbit_holder ba(257);
 
     //-------------------- 1 -----------------------//
@@ -516,7 +516,7 @@ TEST(MultiBitComp, CompIntegration1) {
 
 TEST(MultiBitComp, CompIntegration2) {
     // 64^2 + 1 --> smallest 3-level mmbit
-    u32 total_size = mmbit_size(4097);
+    //u32 total_size = mmbit_size(4097);
     mmbit_holder ba(4097);
 
     //-------------------- 1 -----------------------//
@@ -645,7 +645,7 @@ TEST(MultiBitComp, CompIntegration2) {
 
 TEST(MultiBitComp, CompIntegration3) {
     // 64^3 + 1 --> smallest 4-level mmbit
-    u32 total_size = mmbit_size(262145);
+    //u32 total_size = mmbit_size(262145);
     mmbit_holder ba(262145);
 
     //-------------------- 1 -----------------------//

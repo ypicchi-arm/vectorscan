@@ -165,9 +165,9 @@ void reformAnchoredRepeatsComponent(NGHolder &g,
         return;
     }
 
-    NFAVertex dotV = NGHolder::null_vertex();
+    
     set<NFAVertex> otherV;
-    dotV = findReformable(g, compAnchoredStarts, otherV);
+    NFAVertex dotV = findReformable(g, compAnchoredStarts, otherV);
     if (dotV == NGHolder::null_vertex()) {
         DEBUG_PRINTF("no candidate reformable dot found.\n");
         return;
@@ -268,9 +268,9 @@ void reformUnanchoredRepeatsComponent(NGHolder &g,
     }
 
     while (true) {
-        NFAVertex dotV = NGHolder::null_vertex();
+        
         set<NFAVertex> otherV;
-        dotV = findReformable(g, compUnanchoredStarts, otherV);
+        NFAVertex dotV = findReformable(g, compUnanchoredStarts, otherV);
         if (dotV == NGHolder::null_vertex()) {
             DEBUG_PRINTF("no candidate reformable dot found.\n");
             return;

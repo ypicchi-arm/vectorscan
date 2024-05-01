@@ -193,9 +193,6 @@ void reduceGraph(NGHolder &g, som_type som, bool utf8,
 
     if (!som) {
         mergeCyclicDotStars(g);
-    }
-
-    if (!som) {
         removeSiblingsOfStartDotStar(g);
     }
 }

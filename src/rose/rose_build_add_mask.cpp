@@ -131,7 +131,6 @@ void findMaskLiteral(const vector<CharReach> &mask, bool streaming,
     if (better) {
         best_begin = begin;
         best_end = end;
-        best_len = len;
     }
 
     for (size_t i = best_begin; i < best_end; i++) {
@@ -393,8 +392,9 @@ bool validateTransientMask(const vector<CharReach> &mask, bool anchored,
            none_of(begin(lits), end(lits), mixed_sensitivity));
 
     // Build the HWLM literal mask.
-    vector<u8> msk, cmp;
+    vector<u8> msk;
     if (grey.roseHamsterMasks) {
+        vector<u8> cmp;
         buildLiteralMask(mask, msk, cmp, delay);
     }
 

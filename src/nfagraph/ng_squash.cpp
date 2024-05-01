@@ -589,7 +589,7 @@ void getHighlanderReporters(const NGHolder &g, const NFAVertex accept,
 
         verts.insert(v);
     next_vertex:
-        continue;
+        ;
     }
 }
 

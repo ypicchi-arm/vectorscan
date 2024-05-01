@@ -1292,8 +1292,8 @@ bool doTreePlanningIntl(const NGHolder &g,
         DEBUG_PRINTF("add mapped reporters for region %u\n", it->first);
         addMappedReporterVertices(it->second, g, copy_to_orig,
                                   plan.back().reporters);
-    } while (it->second.optional && it != info.rend() &&
-             (++it)->first > furthest->first);
+    } while (it != info.rend() && it->second.optional && 
+            (++it)->first > furthest->first);
 
     return true;
 }
@@ -1551,7 +1551,7 @@ bool doSomPlanning(NGHolder &g, bool stuck_in,
         DEBUG_PRINTF("region %u contributes reporters to last plan\n",
                      it->first);
         addReporterVertices(it->second, g, plan.back().reporters);
-    } while (it->second.optional && it != info.rend() &&
+    } while (it != info.rend() && it->second.optional &&
              (++it)->first > furthest->first);
 
     DEBUG_PRINTF("done!\n");

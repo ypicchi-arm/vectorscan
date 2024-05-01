@@ -1572,7 +1572,7 @@ u32 findMaxVarShift(const build_info &args, u32 nShifts) {
 static
 int getLimexScore(const build_info &args, u32 nShifts) {
     const NGHolder &h = args.h;
-    u32 maxVarShift = nShifts;
+    u32 maxVarShift;
     int score = 0;
 
     score += SHIFT_COST * nShifts;

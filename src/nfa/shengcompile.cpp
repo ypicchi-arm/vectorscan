@@ -730,10 +730,17 @@ bytecode_ptr<NFA> sheng32Compile(raw_dfa &raw, const CompileContext &cc,
         return nullptr;
     }
 
+#ifdef HAVE_SVE
+    if (svcntb()<32) {
+        DEBUG_PRINTF("Sheng32 failed, SVE width is too small!\n");
+        return nullptr;
+    }
+#else
     if (!cc.target_info.has_avx512vbmi()) {
         DEBUG_PRINTF("Sheng32 failed, no HS_CPU_FEATURES_AVX512VBMI!\n");
         return nullptr;
     }
+#endif
 
     sheng_build_strat strat(raw, rm, only_accel_init);
     dfa_info info(strat);
@@ -762,10 +769,17 @@ bytecode_ptr<NFA> sheng64Compile(raw_dfa &raw, const CompileContext &cc,
         return nullptr;
     }
 
+#ifdef HAVE_SVE
+    if (svcntb()<64) {
+        DEBUG_PRINTF("Sheng64 failed, SVE width is too small!\n");
+        return nullptr;
+    }
+#else
     if (!cc.target_info.has_avx512vbmi()) {
         DEBUG_PRINTF("Sheng64 failed, no HS_CPU_FEATURES_AVX512VBMI!\n");
         return nullptr;
     }
+#endif
 
     sheng_build_strat strat(raw, rm, only_accel_init);
     dfa_info info(strat);

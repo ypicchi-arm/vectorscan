@@ -488,7 +488,6 @@ TEST_P(FDRFloodp, StreamingMask) {
                                         Grey());
         CHECK_WITH_TEDDY_OK_TO_FAIL(fdr, hint);
 
-        hwlm_error_t fdrStatus;
         const u32 cnt4 = dataSize - 4 + 1;
 
         for (u32 streamChunk = 1; streamChunk <= 16; streamChunk *= 2) {
@@ -496,7 +495,7 @@ TEST_P(FDRFloodp, StreamingMask) {
             const u8 *d = data.data();
             // reference past the end of fake history to allow headroom
             const u8 *fhist = fake_history.data() + fake_history_size;
-            fdrStatus = fdrExecStreaming(fdr.get(), fhist, 0, d, streamChunk, 0,
+            hwlm_error_t fdrStatus = fdrExecStreaming(fdr.get(), fhist, 0, d, streamChunk, 0,
                                          countCallback, &scratch,
                                          HWLM_ALL_GROUPS);
             ASSERT_EQ(0, fdrStatus);
