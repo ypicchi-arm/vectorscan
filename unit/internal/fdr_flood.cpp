@@ -154,7 +154,7 @@ TEST_P(FDRFloodp, NoMask) {
 
     struct hs_scratch scratch;
     scratch.fdr_conf = NULL;
-    while (1) {
+    while (c != 255) {
         SCOPED_TRACE((unsigned int)c);
         u8 bit = 1 << (c & 0x7);
         u8 cAlt = c ^ bit;
@@ -233,9 +233,7 @@ TEST_P(FDRFloodp, NoMask) {
         }
         matchesCounts.clear();
 
-        if (++c == 0) {
-            break;
-        }
+        ++c;
     }
 }
 
@@ -248,7 +246,7 @@ TEST_P(FDRFloodp, WithMask) {
 
     struct hs_scratch scratch;
     scratch.fdr_conf = NULL;
-    while (1) {
+    while (c != 255) {
         u8 bit = 1 << (c & 0x7);
         u8 cAlt = c ^ bit;
         SCOPED_TRACE((unsigned int)c);
@@ -396,9 +394,7 @@ TEST_P(FDRFloodp, WithMask) {
         }
         matchesCounts.clear();
 
-        if (++c == '\0') {
-            break;
-        }
+        ++c;
     }
 }
 
@@ -414,7 +410,7 @@ TEST_P(FDRFloodp, StreamingMask) {
 
     struct hs_scratch scratch;
     scratch.fdr_conf = NULL;
-    while (1) {
+    while (c != 255) {
         u8 bit = 1 << (c & 0x7);
         u8 cAlt = c ^ bit;
         SCOPED_TRACE((unsigned int)c);
@@ -548,9 +544,7 @@ TEST_P(FDRFloodp, StreamingMask) {
             }
         }
 
-        if (++c == '\0') {
-            break;
-        }
+        ++c;
     }
     matchesCounts.clear();
 }

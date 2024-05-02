@@ -1495,7 +1495,7 @@ void findExclusiveInfixes(RoseBuildImpl &build, build_context &bc,
 }
 
 static
-bool buildLeftfixes(RoseBuildImpl &tbi, build_context &bc,
+void buildLeftfixes(RoseBuildImpl &tbi, build_context &bc,
                     QueueIndexFactory &qif, set<u32> *no_retrigger_queues,
                     set<u32> *eager_queues, bool do_prefix) {
     RoseGraph &g = tbi.g;
@@ -1581,7 +1581,7 @@ bool buildLeftfixes(RoseBuildImpl &tbi, build_context &bc,
                      leftfix);
     }
 
-    return true;
+    return ;
 }
 
 static
@@ -2059,16 +2059,8 @@ bool buildNfas(RoseBuildImpl &tbi, build_context &bc, QueueIndexFactory &qif,
     suffixTriggers.clear();
 
     *leftfixBeginQueue = qif.allocated_count();
-
-    if (!buildLeftfixes(tbi, bc, qif, no_retrigger_queues, eager_queues,
-                        true)) {
-        return false;
-    }
-
-    if (!buildLeftfixes(tbi, bc, qif, no_retrigger_queues, eager_queues,
-                        false)) {
-        return false;
-    }
+    buildLeftfixes(tbi, bc, qif, no_retrigger_queues, eager_queues,true);
+    buildLeftfixes(tbi, bc, qif, no_retrigger_queues, eager_queues,false);
 
     return true;
 }

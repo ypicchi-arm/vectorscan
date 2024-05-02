@@ -1294,12 +1294,7 @@ bool attemptRoseGraphMerge(RoseBuildImpl &build, bool preds_same, RoseVertex a,
 
     DEBUG_PRINTF("victim %zu states\n", num_vertices(*a_h));
     DEBUG_PRINTF("winner %zu states\n", num_vertices(*b_h));
-
-    if (!setDistinctRoseTops(g, victim, *b_h, deque<RoseVertex>(1, a))) {
-        assert(roseHasTops(build, a));
-        assert(roseHasTops(build, b));
-        return false;
-    }
+    setDistinctRoseTops(g, victim, *b_h, deque<RoseVertex>(1, a));
 
     assert(victim.kind == b_h->kind);
     assert(!generates_callbacks(*b_h));
