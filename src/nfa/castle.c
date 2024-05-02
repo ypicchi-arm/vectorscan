@@ -400,7 +400,7 @@ char castleFindMatch(const struct Castle *c, const u64a begin, const u64a end,
 }
 
 static really_inline
-u64a subCastleNextMatch(const struct Castle *c, void *full_state,
+u64a subCastleNextMatch(const struct Castle *c, const void *full_state,
                         void *stream_state, const u64a loc,
                         const u32 subIdx) {
     DEBUG_PRINTF("subcastle %u\n", subIdx);
@@ -489,7 +489,6 @@ char castleMatchLoop(const struct Castle *c, const u64a begin, const u64a end,
         // full_state (scratch).
 
         u64a offset = end; // min offset of next match
-        u32 activeIdx = 0;
         mmbit_clear(matching, c->numRepeats);
         if (c->exclusive) {
             u8 *active = (u8 *)stream_state;
@@ -497,7 +496,7 @@ char castleMatchLoop(const struct Castle *c, const u64a begin, const u64a end,
             for (u32 i = mmbit_iterate(groups, c->numGroups, MMB_INVALID);
                  i != MMB_INVALID; i = mmbit_iterate(groups, c->numGroups, i)) {
                 u8 *cur = active + i * c->activeIdxSize;
-                activeIdx = partial_load_u32(cur, c->activeIdxSize);
+                u32 activeIdx = partial_load_u32(cur, c->activeIdxSize);
                 u64a match = subCastleNextMatch(c, full_state, stream_state,
                                                 loc, activeIdx);
                 set_matching(c, match, groups, matching, c->numGroups, i,
@@ -907,7 +906,6 @@ s64a castleLastKillLoc(const struct Castle *c, struct mq *q) {
         if (castleRevScan(c, q->history, sp + hlen, ep + hlen, &loc)) {
             return (s64a)loc - hlen;
         }
-        ep = 0;
     }
 
     return sp - 1; /* the repeats are never killed */

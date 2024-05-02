@@ -110,7 +110,7 @@ void addBase(Position base, vector<PositionInfo> &firsts,
 }
 
 static
-void checkPositions(vector<PositionInfo> &v, const GlushkovBuildState &bs) {
+void checkPositions(const vector<PositionInfo> &v, const GlushkovBuildState &bs) {
     const NFABuilder& builder = bs.getBuilder();
     for (const auto &e : v) {
         if (builder.isSpecialState(e.pos)) {
@@ -320,7 +320,7 @@ void ComponentRepeat::wireRepeats(GlushkovBuildState &bs) {
         }
     }
 
-    DEBUG_PRINTF("wiring up %d optional repeats\n", copies - m_min);
+    DEBUG_PRINTF("wiring up %u optional repeats\n", copies - m_min);
     for (u32 rep = MAX(m_min, 1); rep < copies; rep++) {
         vector<PositionInfo> lasts = m_lasts[rep - 1];
         if (rep != m_min) {

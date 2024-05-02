@@ -884,7 +884,7 @@ void buildAccel(const RoseBuildImpl &build,
 }
 
 bytecode_ptr<HWLM>
-buildHWLMMatcher(const RoseBuildImpl &build, LitProto *litProto) {
+buildHWLMMatcher(const RoseBuildImpl &build, const LitProto *litProto) {
     if (!litProto) {
         return nullptr;
     }

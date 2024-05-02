@@ -146,6 +146,7 @@ export CXX="/usr/pkg/gcc12/bin/g++"
 ```
 
 In FreeBSD similarly, you might want to install a different compiler.
+If you want to use gcc, it is recommended to use gcc12.
 You will also, as in NetBSD, need to install cmake, sqlite, boost and ragel packages.
 Using the example of gcc12 from pkg:
 installing the desired compiler: 
@@ -164,7 +165,6 @@ the environment variables to point to this compiler:
 export CC="/usr/local/bin/gcc"
 export CXX="/usr/local/bin/g++"
 ```
-
 A further note in FreeBSD, on the PowerPC and ARM platforms, 
 the gcc12 package installs to a slightly different name, on FreeBSD/ppc, 
 gcc12 will be found using: 
@@ -175,12 +175,6 @@ export CXX="/usr/local/bin/g++12"
 
 Then continue with the build as below. 
 
-A note about running in FreeBSD: if you built a dynamically linked binary
-with an alternative compiler, the libraries specific to the compiler that
-built the binary will probably not be found and the base distro libraries
-in /lib will be found instead. Adjust LD_LIBRARY_PATH appropriately. For
-example, with gcc12 installed from pkg, one would want to use
-```export LD_LIBRARY_PATH=/usr/local/lib/gcc12/``` 
 
 ## Configure & build
 

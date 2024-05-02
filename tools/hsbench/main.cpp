@@ -465,7 +465,7 @@ void processArgs(int argc, char *argv[], vector<BenchmarkSigs> &sigSets,
 
 /** Start the global timer. */
 static
-void startTotalTimer(ThreadContext *ctx) {
+void startTotalTimer(const ThreadContext *ctx) {
     if (ctx->num != 0) {
         return; // only runs in the first thread
     }
@@ -474,7 +474,7 @@ void startTotalTimer(ThreadContext *ctx) {
 
 /** Stop the global timer and calculate totals. */
 static
-void stopTotalTimer(ThreadContext *ctx) {
+void stopTotalTimer(const ThreadContext *ctx) {
     if (ctx->num != 0) {
         return; // only runs in the first thread
     }

@@ -1481,6 +1481,7 @@ u32 buildExceptionMap(const build_info &args, ReportListCache &reports_cache,
                     continue;
                 }
                 u32 j = args.state_ids.at(w);
+                // j can be NO_STATE if args.state_ids.at(w) returns NO_STATE
                 if (j == NO_STATE) {
                     continue;
                 }
@@ -1572,7 +1573,7 @@ u32 findMaxVarShift(const build_info &args, u32 nShifts) {
 static
 int getLimexScore(const build_info &args, u32 nShifts) {
     const NGHolder &h = args.h;
-    u32 maxVarShift = nShifts;
+    u32 maxVarShift;
     int score = 0;
 
     score += SHIFT_COST * nShifts;

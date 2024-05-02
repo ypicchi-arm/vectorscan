@@ -152,7 +152,7 @@ TEST(state_compress, m128_1) {
 TEST(state_compress, m128_2) {
     char buf[sizeof(m128)] = { 0 };
 
-    char val_raw[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
+    const char val_raw[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
                          '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
     m128 val;
     memcpy(&val, val_raw, sizeof(val));
@@ -228,7 +228,7 @@ TEST(state_compress, m256_1) {
 TEST(state_compress, m256_2) {
     char buf[sizeof(m256)] = { 0 };
 
-    char val_raw[32] = { '0', '1', '2', '3', '4', '5', '6', '7',
+    const char val_raw[32] = { '0', '1', '2', '3', '4', '5', '6', '7',
                          '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
                          'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
                          'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P' };
@@ -306,7 +306,7 @@ TEST(state_compress, m384_1) {
 TEST(state_compress, m384_2) {
     char buf[sizeof(m384)] = { 0 };
 
-    char val_raw[48] = { '0', '1', '2', '3', '4', '5', '6', '7',
+    const char val_raw[48] = { '0', '1', '2', '3', '4', '5', '6', '7',
                          '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
                          'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
                          'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
@@ -386,7 +386,7 @@ TEST(state_compress, m512_1) {
 TEST(state_compress, m512_2) {
     char buf[sizeof(m512)] = { 0 };
 
-    char val_raw[64] = { '0', '1', '2', '3', '4', '5', '6', '7',
+    const char val_raw[64] = { '0', '1', '2', '3', '4', '5', '6', '7',
                          '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
                          'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
                          'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',

@@ -1338,7 +1338,7 @@ void chunk(vector<T> in, vector<vector<T>> *out, size_t chunk_size) {
 }
 
 static
-insertion_ordered_map<left_id, vector<RoseVertex>> get_eng_verts(RoseGraph &g) {
+insertion_ordered_map<left_id, vector<RoseVertex>> get_eng_verts(const RoseGraph &g) {
     insertion_ordered_map<left_id, vector<RoseVertex>> eng_verts;
     for (auto v : vertices_range(g)) {
         const auto &left = g[v].left;
@@ -1599,7 +1599,8 @@ void dedupeLeftfixesVariableLag(RoseBuildImpl &build) {
                 continue;
             }
         }
-        engine_groups[DedupeLeftKey(build, std::move(vpreds), left)].emplace_back(left);
+        auto preds_copy = std::move(vpreds);
+        engine_groups[DedupeLeftKey(build, preds_copy , left)].emplace_back(left);
     }
 
     /* We don't bother chunking as we expect deduping to be successful if the
@@ -1686,7 +1687,7 @@ void replaceTops(NGHolder &h, const map<u32, u32> &top_mapping) {
 }
 
 static
-bool setDistinctTops(NGHolder &h1, const NGHolder &h2,
+void setDistinctTops(NGHolder &h1, const NGHolder &h2,
                      map<u32, u32> &top_mapping) {
     flat_set<u32> tops1 = getTops(h1), tops2 = getTops(h2);
 
@@ -1696,7 +1697,7 @@ bool setDistinctTops(NGHolder &h1, const NGHolder &h2,
     // If our tops don't intersect, we're OK to merge with no changes.
     if (!has_intersection(tops1, tops2)) {
         DEBUG_PRINTF("tops don't intersect\n");
-        return true;
+        return ;
     }
 
     // Otherwise, we have to renumber the tops in h1 so that they don't overlap
@@ -1711,18 +1712,17 @@ bool setDistinctTops(NGHolder &h1, const NGHolder &h2,
     }
 
     replaceTops(h1, top_mapping);
-    return true;
+    return ;
 }
 
-bool setDistinctRoseTops(RoseGraph &g, NGHolder &h1, const NGHolder &h2,
+void setDistinctRoseTops(RoseGraph &g, NGHolder &h1, const NGHolder &h2,
                          const deque<RoseVertex> &verts1) {
     map<u32, u32> top_mapping;
-    if (!setDistinctTops(h1, h2, top_mapping)) {
-        return false;
-    }
+
+    setDistinctTops(h1, h2, top_mapping);
 
     if (top_mapping.empty()) {
-        return true; // No remapping necessary.
+        return ; // No remapping necessary.
     }
 
     for (auto v : verts1) {
@@ -1740,19 +1740,17 @@ bool setDistinctRoseTops(RoseGraph &g, NGHolder &h1, const NGHolder &h2,
         }
     }
 
-    return true;
+    return ;
 }
 
 static
-bool setDistinctSuffixTops(RoseGraph &g, NGHolder &h1, const NGHolder &h2,
+void setDistinctSuffixTops(RoseGraph &g, NGHolder &h1, const NGHolder &h2,
                            const deque<RoseVertex> &verts1) {
     map<u32, u32> top_mapping;
-    if (!setDistinctTops(h1, h2, top_mapping)) {
-        return false;
-    }
+    setDistinctTops(h1, h2, top_mapping);
 
     if (top_mapping.empty()) {
-        return true; // No remapping necessary.
+        return ; // No remapping necessary.
     }
 
     for (auto v : verts1) {
@@ -1762,7 +1760,7 @@ bool setDistinctSuffixTops(RoseGraph &g, NGHolder &h1, const NGHolder &h2,
         g[v].suffix.top = top_mapping[t];
     }
 
-    return true;
+    return ;
 }
 
 /** \brief Estimate the number of accel states in the given graph when built as
@@ -1836,10 +1834,7 @@ void mergeNfaLeftfixes(RoseBuildImpl &tbi, LeftfixBouquet &roses) {
                 }
             }
 
-            if (!setDistinctRoseTops(g, victim, *r1.graph(), verts2)) {
-                DEBUG_PRINTF("can't set distinct tops\n");
-                continue; // next h2
-            }
+            setDistinctRoseTops(g, victim, *r1.graph(), verts2);
 
             assert(victim.kind == r1.graph()->kind);
             assert(!generates_callbacks(*r1.graph()));
@@ -1924,7 +1919,7 @@ void mergeSmallLeftfixes(RoseBuildImpl &tbi) {
         }
 
         assert(left.graph());
-        NGHolder &h = *left.graph();
+        const NGHolder &h = *left.graph();
 
         /* Ensure that kind on the graph is correct */
         assert(h.kind == (tbi.isRootSuccessor(v) ? NFA_PREFIX : NFA_INFIX));
@@ -2024,7 +2019,7 @@ void mergeCastleLeftfixes(RoseBuildImpl &build) {
         return;
     }
 
-    RoseGraph &g = build.g;
+    const RoseGraph &g = build.g;
 
     insertion_ordered_map<left_id, vector<RoseVertex>> eng_verts;
 
@@ -2119,10 +2114,7 @@ void mergeSuffixes(RoseBuildImpl &tbi, SuffixBouquet &suffixes,
                 old_tops[v] = g[v].suffix.top;
             }
 
-            if (!setDistinctSuffixTops(g, victim, *s1.graph(), verts2)) {
-                DEBUG_PRINTF("can't set distinct tops\n");
-                continue; // next h2
-            }
+            setDistinctSuffixTops(g, victim, *s1.graph(), verts2);
 
             if (!mergeNfaPair(victim, *s1.graph(), &tbi.rm, tbi.cc)) {
                 DEBUG_PRINTF("merge failed\n");
@@ -2306,7 +2298,7 @@ void mergeOutfixInfo(OutfixInfo &winner, const OutfixInfo &victim) {
 }
 
 static
-map<NGHolder *, NGHolder *> chunkedNfaMerge(RoseBuildImpl &build,
+map<NGHolder *, NGHolder *> chunkedNfaMerge(const RoseBuildImpl &build,
                                             const vector<NGHolder *> &nfas) {
     map<NGHolder *, NGHolder *> merged;
 

@@ -58,7 +58,7 @@ std::ostream &operator<<(std::ostream &o, const pattern &p) {
 }
 
 hs_database_t *buildDB(const vector<pattern> &patterns, unsigned int mode,
-                       hs_platform_info *plat) {
+                       const hs_platform_info *plat) {
     vector<const char *> expressions;
     vector<unsigned int> flags;
     vector<unsigned int> ids;
@@ -92,7 +92,7 @@ hs_database_t *buildDB(const pattern &expr, unsigned int mode) {
 
 hs_database_t *buildDB(const char *expression, unsigned int flags,
                        unsigned int id, unsigned int mode,
-                       hs_platform_info_t *plat) {
+                       const hs_platform_info_t *plat) {
     return buildDB({pattern(expression, flags, id)}, mode, plat);
 }
 

@@ -332,7 +332,7 @@ void EXPIRE_ESTATE_FN(const IMPL_NFA_T *limex, struct CONTEXT_T *ctx,
 // UE-1636) need to guard cyclic tug-accepts as well.
 static really_inline
 char LIMEX_INACCEPT_FN(const IMPL_NFA_T *limex, STATE_T state,
-                       union RepeatControl *repeat_ctrl, char *repeat_state,
+                       const union RepeatControl *repeat_ctrl, const char *repeat_state,
                        u64a offset, ReportID report) {
     assert(limex);
 
@@ -382,7 +382,7 @@ char LIMEX_INACCEPT_FN(const IMPL_NFA_T *limex, STATE_T state,
 
 static really_inline
 char LIMEX_INANYACCEPT_FN(const IMPL_NFA_T *limex, STATE_T state,
-                          union RepeatControl *repeat_ctrl, char *repeat_state,
+                          const union RepeatControl *repeat_ctrl, const char *repeat_state,
                           u64a offset) {
     assert(limex);
 

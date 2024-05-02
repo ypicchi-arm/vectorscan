@@ -1294,12 +1294,7 @@ bool attemptRoseGraphMerge(RoseBuildImpl &build, bool preds_same, RoseVertex a,
 
     DEBUG_PRINTF("victim %zu states\n", num_vertices(*a_h));
     DEBUG_PRINTF("winner %zu states\n", num_vertices(*b_h));
-
-    if (!setDistinctRoseTops(g, victim, *b_h, deque<RoseVertex>(1, a))) {
-        assert(roseHasTops(build, a));
-        assert(roseHasTops(build, b));
-        return false;
-    }
+    setDistinctRoseTops(g, victim, *b_h, deque<RoseVertex>(1, a));
 
     assert(victim.kind == b_h->kind);
     assert(!generates_callbacks(*b_h));
@@ -1352,8 +1347,8 @@ bool attemptRoseMerge(RoseBuildImpl &build, bool preds_same, RoseVertex a,
     assert(a != b);
 
     RoseGraph &g = build.g;
-    LeftEngInfo &a_left = g[a].left;
-    LeftEngInfo &b_left = g[b].left;
+    const LeftEngInfo &a_left = g[a].left;
+    const LeftEngInfo &b_left = g[b].left;
 
     // Trivial case.
     if (a_left == b_left) {
@@ -1601,7 +1596,7 @@ void diamondMergePass(CandidateSet &candidates, RoseBuildImpl &build,
                       vector<RoseVertex> *dead, bool mergeRoses,
                       RoseAliasingInfo &rai) {
     DEBUG_PRINTF("begin\n");
-    RoseGraph &g = build.g;
+    const RoseGraph &g = build.g;
 
     if (candidates.empty()) {
         return;
@@ -1972,7 +1967,7 @@ bool hasNoDiamondSiblings(const RoseGraph &g, RoseVertex v) {
  * merge.
  */
 static
-void filterDiamondCandidates(RoseGraph &g, CandidateSet &candidates) {
+void filterDiamondCandidates(const RoseGraph &g, CandidateSet &candidates) {
     DEBUG_PRINTF("%zu candidates enter\n", candidates.size());
 
     vector<RoseVertex> dead;

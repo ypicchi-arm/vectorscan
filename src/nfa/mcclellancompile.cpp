@@ -361,7 +361,7 @@ struct raw_report_list {
     raw_report_list(const flat_set<ReportID> &reports_in,
                     const ReportManager &rm, bool do_remap) {
         if (do_remap) {
-            for (auto &id : reports_in) {
+            for (const auto &id : reports_in) {
                 reports.insert(rm.getProgramOffset(id));
             }
         } else {
@@ -540,7 +540,7 @@ size_t calcWideRegionSize(const dfa_info &info) {
 static
 void fillInAux(mstate_aux *aux, dstate_id_t i, const dfa_info &info,
                const vector<u32> &reports, const vector<u32> &reports_eod,
-               vector<u32> &reportOffsets) {
+               const vector<u32> &reportOffsets) {
     const dstate &raw_state = info.states[i];
     aux->accept = raw_state.reports.empty() ? 0 : reportOffsets[reports[i]];
     aux->accept_eod = raw_state.reports_eod.empty() ? 0
@@ -794,8 +794,8 @@ bytecode_ptr<NFA> mcclellanCompile16(dfa_info &info, const CompileContext &cc,
         }
 
         for (size_t i : order) {
-            vector<dstate_id_t> &state_chain = info.wide_state_chain[i];
-            vector<symbol_t> &symbol_chain = info.wide_symbol_chain[i];
+            const vector<dstate_id_t> &state_chain = info.wide_state_chain[i];
+            const vector<symbol_t> &symbol_chain = info.wide_symbol_chain[i];
 
             u16 width = verify_u16(symbol_chain.size());
             *(u16 *)(curr_wide_entry + WIDE_WIDTH_OFFSET) = width;
@@ -1367,11 +1367,11 @@ bool store_chain_longest(vector<vector<dstate_id_t>> &candidate_chain,
 /* \brief Generate wide_symbol_chain from wide_state_chain. */
 static
 void generate_symbol_chain(dfa_info &info, vector<symbol_t> &chain_tail) {
-    raw_dfa &rdfa = info.raw;
+    const raw_dfa &rdfa = info.raw;
     assert(chain_tail.size() == info.wide_state_chain.size());
 
     for (size_t i = 0; i < info.wide_state_chain.size(); i++) {
-        vector<dstate_id_t> &state_chain = info.wide_state_chain[i];
+        const vector<dstate_id_t> &state_chain = info.wide_state_chain[i];
         vector<symbol_t> symbol_chain;
 
         info.extra[state_chain[0]].wideHead = true;

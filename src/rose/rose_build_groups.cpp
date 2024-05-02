@@ -275,7 +275,7 @@ void assignGroupsToLiterals(RoseBuildImpl &build) {
     // Second pass: the other literals.
     for (u32 id = 0; id < literals.size(); id++) {
         const rose_literal_id &lit = literals.at(id);
-        rose_literal_info &info = literal_info[id];
+        const rose_literal_info &info = literal_info[id];
 
         if (!requires_group_assignment(lit, info)) {
             continue;

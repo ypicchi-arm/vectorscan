@@ -582,7 +582,7 @@ private:
 
         // set up all reports
         bool clone = false;
-        for (auto &pair : reports_to_vertices) {
+        for (const auto &pair : reports_to_vertices) {
             const auto &reports = pair.first;
             const auto &svertices = pair.second;
 

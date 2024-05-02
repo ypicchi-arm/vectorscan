@@ -241,7 +241,7 @@ u32 allowedSquashDistance(const CharReach &cr, u32 min_width, const NGHolder &g,
 /** Gives a stronger puff trigger when the trigger is connected to a wide
  * cyclic state (aside from sds) */
 static
-void improveHead(NGHolder &g, NFAVertex *a, vector<NFAVertex> *nodes) {
+void improveHead(const NGHolder &g, NFAVertex *a, vector<NFAVertex> *nodes) {
     DEBUG_PRINTF("attempting to improve puff trigger\n");
     assert(!nodes->empty());
     const CharReach &puff_cr = g[nodes->back()].char_reach;
@@ -260,7 +260,7 @@ void improveHead(NGHolder &g, NFAVertex *a, vector<NFAVertex> *nodes) {
 }
 
 static
-void constructPuff(NGHolder &g, const NFAVertex a, const NFAVertex puffv,
+void constructPuff(const NGHolder &g, const NFAVertex a, const NFAVertex puffv,
                    const CharReach &cr, const ReportID report, u32 width,
                    bool fixed_depth, bool unbounded, bool auto_restart,
                    RoseBuild &rose, ReportManager &rm,

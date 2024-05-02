@@ -165,9 +165,9 @@ void reformAnchoredRepeatsComponent(NGHolder &g,
         return;
     }
 
-    NFAVertex dotV = NGHolder::null_vertex();
+    
     set<NFAVertex> otherV;
-    dotV = findReformable(g, compAnchoredStarts, otherV);
+    NFAVertex dotV = findReformable(g, compAnchoredStarts, otherV);
     if (dotV == NGHolder::null_vertex()) {
         DEBUG_PRINTF("no candidate reformable dot found.\n");
         return;
@@ -257,7 +257,7 @@ void reformAnchoredRepeatsComponent(NGHolder &g,
 
 static
 void reformUnanchoredRepeatsComponent(NGHolder &g,
-                                      set<NFAVertex> &compAnchoredStarts,
+                                      const set<NFAVertex> &compAnchoredStarts,
                                       set<NFAVertex> &compUnanchoredStarts,
                                       set<NFAVertex> &dead,
                                       depth *startBegin, depth *startEnd) {
@@ -268,9 +268,9 @@ void reformUnanchoredRepeatsComponent(NGHolder &g,
     }
 
     while (true) {
-        NFAVertex dotV = NGHolder::null_vertex();
+        
         set<NFAVertex> otherV;
-        dotV = findReformable(g, compUnanchoredStarts, otherV);
+        NFAVertex dotV = findReformable(g, compUnanchoredStarts, otherV);
         if (dotV == NGHolder::null_vertex()) {
             DEBUG_PRINTF("no candidate reformable dot found.\n");
             return;
@@ -555,7 +555,7 @@ void collapseVariableRepeats(NGHolder &g, depth *startBegin, depth *startEnd) {
 }
 
 static
-void addDotsBetween(NGHolder &g, NFAVertex lhs, vector<NFAVertex> &rhs,
+void addDotsBetween(NGHolder &g, NFAVertex lhs, const vector<NFAVertex> &rhs,
                     depth min_repeat, depth max_repeat) {
     const bool unbounded = max_repeat.is_infinite();
     if (unbounded) {

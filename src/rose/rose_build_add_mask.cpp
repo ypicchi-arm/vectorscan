@@ -131,7 +131,6 @@ void findMaskLiteral(const vector<CharReach> &mask, bool streaming,
     if (better) {
         best_begin = begin;
         best_end = end;
-        best_len = len;
     }
 
     for (size_t i = best_begin; i < best_end; i++) {

@@ -242,7 +242,7 @@ Position makeNewlineAssertPos(GlushkovBuildState &bs) {
 static
 void generateAccepts(GlushkovBuildStateImpl &bs, const PositionInfo &from,
                      vector<PositionInfo> *tolist) {
-    NFABuilder &builder = bs.getBuilder();
+    const NFABuilder &builder = bs.getBuilder();
     u32 flags = from.flags;
 
     bool require_eod = flags & POS_FLAG_WIRE_EOD;

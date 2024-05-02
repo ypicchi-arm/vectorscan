@@ -1874,7 +1874,7 @@ void buildFeeder(NGHolder &g, const BoundedRepeatData &rd,
  * offset.
  */
 static
-bool improveLeadingRepeat(NGHolder &g, BoundedRepeatData &rd,
+bool improveLeadingRepeat(NGHolder &g, const BoundedRepeatData &rd,
                           unordered_set<NFAVertex> &created,
                           const vector<BoundedRepeatData> &all_repeats) {
     assert(edge(g.startDs, g.startDs, g).second);
@@ -1944,7 +1944,7 @@ bool improveLeadingRepeat(NGHolder &g, BoundedRepeatData &rd,
 }
 
 static
-vector<NFAVertex> makeOwnStraw(NGHolder &g, BoundedRepeatData &rd,
+vector<NFAVertex> makeOwnStraw(NGHolder &g, const BoundedRepeatData &rd,
                                const vector<NFAVertex> &straw) {
     // Straw runs from startDs to our pos trigger.
     assert(!straw.empty());

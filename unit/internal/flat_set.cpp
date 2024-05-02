@@ -48,9 +48,7 @@ std::ostream &operator<<(std::ostream &os, const flat_set<T> &f) {
     os << "{";
     for (auto it = begin(f); it != end(f); ++it) {
         os << *it;
-        if (it != end(f)) {
-            os << ", ";
-        }
+        os << ", ";
     }
     os << "}";
     return os;
