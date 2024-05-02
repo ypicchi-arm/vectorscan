@@ -794,9 +794,9 @@ template<typename VertexCont>
 static never_inline
 bool checkPredDelays(const RoseBuildImpl &build, const VertexCont &v1,
                      const VertexCont &v2) {
-    flat_set<RoseVertex> preds;
+    flat_set<RoseVertex> fpreds;
     for (auto v : v1) {
-        insert(&preds, inv_adjacent_vertices(v, build.g));
+        insert(&fpreds, inv_adjacent_vertices(v, build.g));
     }
 
     flat_set<u32> pred_lits;
@@ -811,7 +811,7 @@ bool checkPredDelays(const RoseBuildImpl &build, const VertexCont &v1,
         insert(&known_good_preds, inv_adjacent_vertices(v, build.g));
     }
 
-    for (auto u : preds) {
+    for (auto u : fpreds) {
         if (!contains(known_good_preds, u)) {
             insert(&pred_lits, build.g[u].literals);
         }
@@ -1536,11 +1536,11 @@ private:
 
 static
 flat_set<pair<size_t, u32>> get_pred_tops(RoseVertex v, const RoseGraph &g) {
-    flat_set<pair<size_t, u32>> preds;
+    flat_set<pair<size_t, u32>> fpreds;
     for (const auto &e : in_edges_range(v, g)) {
-        preds.emplace(g[source(e, g)].index, g[e].rose_top);
+        fpreds.emplace(g[source(e, g)].index, g[e].rose_top);
     }
-    return preds;
+    return fpreds;
 }
 
 /**
@@ -1592,14 +1592,14 @@ void dedupeLeftfixesVariableLag(RoseBuildImpl &build) {
             assert(!is_triggered(*left.graph()) || onlyOneTop(*left.graph()));
         }
 
-        auto preds = get_pred_tops(verts.front(), g);
+        auto vpreds = get_pred_tops(verts.front(), g);
         for (RoseVertex v : verts) {
-            if (preds != get_pred_tops(v, g)) {
+            if (vpreds != get_pred_tops(v, g)) {
                 DEBUG_PRINTF("distinct pred sets\n");
                 continue;
             }
         }
-        engine_groups[DedupeLeftKey(build, std::move(preds), left)].emplace_back(left);
+        engine_groups[DedupeLeftKey(build, std::move(vpreds), left)].emplace_back(left);
     }
 
     /* We don't bother chunking as we expect deduping to be successful if the
@@ -2054,8 +2054,8 @@ void mergeCastleLeftfixes(RoseBuildImpl &build) {
 
     DEBUG_PRINTF("chunked castles into %zu groups\n", chunks.size());
 
-    for (auto &chunk : chunks) {
-        mergeCastleChunk(build, chunk, eng_verts);
+    for (auto &cchunk : chunks) {
+        mergeCastleChunk(build, cchunk, eng_verts);
     }
 }
 
@@ -2449,13 +2449,13 @@ void chunkedDfaMerge(vector<RawDfa *> &dfas,
     DEBUG_PRINTF("begin merge of %zu dfas\n", dfas.size());
 
     vector<RawDfa *> out_dfas;
-    vector<RawDfa *> chunk;
+    vector<RawDfa *> dchunk;
     for (auto it = begin(dfas), ite = end(dfas); it != ite; ++it) {
-        chunk.emplace_back(*it);
-        if (chunk.size() >= DFA_CHUNK_SIZE_MAX || next(it) == ite) {
-            pairwiseDfaMerge(chunk, dfa_mapping, outfixes, merge_func);
-            out_dfas.insert(end(out_dfas), begin(chunk), end(chunk));
-            chunk.clear();
+        dchunk.emplace_back(*it);
+        if (dchunk.size() >= DFA_CHUNK_SIZE_MAX || next(it) == ite) {
+            pairwiseDfaMerge(dchunk, dfa_mapping, outfixes, merge_func);
+            out_dfas.insert(end(out_dfas), begin(dchunk), end(dchunk));
+            dchunk.clear();
         }
     }
 
@@ -2798,8 +2798,8 @@ void mergeCastleSuffixes(RoseBuildImpl &build) {
         eng_verts[c].emplace_back(v);
     }
 
-    for (auto &chunk : by_reach | map_values) {
-        mergeCastleSuffixChunk(g, chunk, eng_verts);
+    for (auto &cchunk : by_reach | map_values) {
+        mergeCastleSuffixChunk(g, cchunk, eng_verts);
     }
 }
 

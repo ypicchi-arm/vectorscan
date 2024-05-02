@@ -876,18 +876,18 @@ bool beginsWithDotStar(const NGHolder &g) {
     // We can ignore the successors of start, as matches that begin there will
     // necessarily have a SOM of 0.
 
-    set<NFAVertex> succ;
-    insert(&succ, adjacent_vertices(g.startDs, g));
-    succ.erase(g.startDs);
+    set<NFAVertex> a_succ;
+    insert(&a_succ, adjacent_vertices(g.startDs, g));
+    a_succ.erase(g.startDs);
 
-    for (auto v : succ) {
+    for (auto v : a_succ) {
         // We want 'dot' states that aren't virtual starts.
         if (g[v].char_reach.all() &&
                 !g[v].assert_flags) {
             hasDot = true;
             set<NFAVertex> dotsucc;
             insert(&dotsucc, adjacent_vertices(v, g));
-            if (dotsucc != succ) {
+            if (dotsucc != a_succ) {
                 DEBUG_PRINTF("failed dot-star succ check\n");
                 return false;
             }

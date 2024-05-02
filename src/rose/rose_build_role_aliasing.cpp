@@ -1719,18 +1719,18 @@ void getLeftMergeSiblings(const RoseBuildImpl &build, RoseVertex a,
     assert(!g[a].literals.empty());
     u32 lit_id = *g[a].literals.begin();
     const auto &verts = build.literal_info.at(lit_id).vertices;
-    RoseVertex pred = pickPred(a, g, build);
+    RoseVertex ppred = pickPred(a, g, build);
 
     siblings.clear();
 
-    if (pred == RoseGraph::null_vertex() || build.isAnyStart(pred) ||
-        out_degree(pred, g) > verts.size()) {
+    if (ppred == RoseGraph::null_vertex() || build.isAnyStart(ppred) ||
+        out_degree(ppred, g) > verts.size()) {
         // Select sibling from amongst the vertices that share a literal.
         insert(&siblings, siblings.end(), verts);
     } else {
         // Select sibling from amongst the vertices that share a
         // predecessor.
-        insert(&siblings, siblings.end(), adjacent_vertices(pred, g));
+        insert(&siblings, siblings.end(), adjacent_vertices(ppred, g));
     }
 }
 
@@ -1853,14 +1853,14 @@ void splitByRightProps(const RoseGraph &g,
                       vector<vector<RoseVertex>> &buckets) {
     // Successor vector used in make_split_key. We declare it here so we can
     // reuse storage.
-    vector<RoseVertex> succ;
+    vector<RoseVertex> vsucc;
 
     // Split by {successors, literals, reports}.
     auto make_split_key = [&](RoseVertex v) {
-        succ.clear();
-        insert(&succ, succ.end(), adjacent_vertices(v, g));
-        sort(succ.begin(), succ.end());
-        return hash_all(g[v].literals, g[v].reports, succ);
+        vsucc.clear();
+        insert(&vsucc, vsucc.end(), adjacent_vertices(v, g));
+        sort(vsucc.begin(), vsucc.end());
+        return hash_all(g[v].literals, g[v].reports, vsucc);
     };
     splitAndFilterBuckets(buckets, make_split_key);
 }
