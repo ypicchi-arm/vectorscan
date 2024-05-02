@@ -194,7 +194,7 @@ void handle_pending_vars(GoughSSAVar *def, const GoughGraph &g,
         if (contains(aux.containing_v, var)) {
             /* def is used by join vertex, value only needs to be live on some
              * incoming edges */
-            GoughSSAVarJoin *vj = (GoughSSAVarJoin *)var;
+            const GoughSSAVarJoin *vj = (GoughSSAVarJoin *)var;
             const flat_set<GoughEdge> &live_edges
                 = vj->get_edges_for_input(def);
             for (const auto &e : live_edges) {

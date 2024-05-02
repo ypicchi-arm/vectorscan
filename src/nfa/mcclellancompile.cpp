@@ -176,7 +176,7 @@ static
 mstate_aux *getAux(NFA *n, dstate_id_t i) {
     assert(isMcClellanType(n->type));
 
-    mcclellan *m = (mcclellan *)getMutableImplNfa(n);
+    const mcclellan *m = (mcclellan *)getMutableImplNfa(n);
     mstate_aux *aux_base = (mstate_aux *)((char *)n + m->aux_offset);
 
     mstate_aux *aux = aux_base + i;
@@ -202,7 +202,7 @@ void markEdges(NFA *n, u16 *succ_table, const dfa_info &info) {
                 continue;
             }
 
-            mstate_aux *aux = getAux(n, succ_table[c_prime]);
+            const mstate_aux *aux = getAux(n, succ_table[c_prime]);
 
             if (aux->accept) {
                 succ_table[c_prime] |= ACCEPT_FLAG;
@@ -231,7 +231,7 @@ void markEdges(NFA *n, u16 *succ_table, const dfa_info &info) {
                 continue;
             }
 
-            mstate_aux *aux = getAux(n, succ_i);
+            const mstate_aux *aux = getAux(n, succ_i);
 
             if (aux->accept) {
                 succ_i |= ACCEPT_FLAG;
@@ -261,7 +261,7 @@ void markEdges(NFA *n, u16 *succ_table, const dfa_info &info) {
             // check successful transition
             u16 next = unaligned_load_u16((u8 *)trans);
             if (next < wide_limit) {
-                mstate_aux *aux = getAux(n, next);
+                const mstate_aux *aux = getAux(n, next);
                 if (aux->accept) {
                     next |= ACCEPT_FLAG;
                 }
@@ -278,7 +278,7 @@ void markEdges(NFA *n, u16 *succ_table, const dfa_info &info) {
                 if (next_k >= wide_limit) {
                     continue;
                 }
-                mstate_aux *aux_k = getAux(n, next_k);
+                const mstate_aux *aux_k = getAux(n, next_k);
                 if (aux_k->accept) {
                     next_k |= ACCEPT_FLAG;
                 }

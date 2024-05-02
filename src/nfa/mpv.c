@@ -1074,7 +1074,7 @@ s64a nfaExecMpv_QueueExecRaw(const struct NFA *nfa, struct mq *q, s64a end) {
         return 0;
     } else {
         const struct mpv *m = getImplNfa(nfa);
-        u8 *reporters = (u8 *)q->state + m->reporter_offset;
+        const u8 *reporters = (u8 *)q->state + m->reporter_offset;
 
         if (mmbit_any_precise(reporters, m->kilo_count)) {
             DEBUG_PRINTF("next byte\n");
@@ -1087,7 +1087,7 @@ s64a nfaExecMpv_QueueExecRaw(const struct NFA *nfa, struct mq *q, s64a end) {
                 next_event = q->items[q->cur].location;
             }
 
-            struct mpv_decomp_state *s = (struct mpv_decomp_state *)q->state;
+            const struct mpv_decomp_state *s = (struct mpv_decomp_state *)q->state;
             struct mpv_pq_item *pq
                 = (struct mpv_pq_item *)(q->state + m->pq_offset);
             if (s->pq_size) {
