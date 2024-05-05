@@ -32,7 +32,6 @@
  */
 #include "rose_build_merge.h"
 
-/* just a comment to trigger builds/tests */
 #include "grey.h"
 #include "rose_build.h"
 #include "rose_build_impl.h"

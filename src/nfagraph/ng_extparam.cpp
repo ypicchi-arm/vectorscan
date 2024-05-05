@@ -603,7 +603,7 @@ bool transformMinLengthToRepeat(NGHolder &g, ReportManager &rm) {
         predcs.clear();
         predcs.emplace_back(v);
     }
-    assert(!preds.empty());
+    assert(!predcs.empty());
     for (auto u : predcs) {
         add_edge(u, cyclic, g);
     }
