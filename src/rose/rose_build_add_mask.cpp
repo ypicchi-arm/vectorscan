@@ -302,6 +302,7 @@ unique_ptr<NGHolder> buildMaskLhs(bool anchored, u32 prefix_len,
 
     assert(prefix_len);
     assert(mask.size() >= prefix_len);
+    /* just a comment to test something in the build */
     NFAVertex lpreds = anchored ? lhs->start : lhs->startDs;
 
     u32 m_idx = 0;
