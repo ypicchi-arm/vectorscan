@@ -1791,7 +1791,7 @@ void removeRedundantLiteralsFromInfixes(RoseInGraph &g,
     }
 
     for (const auto &m : infixes) {
-        NGHolder *h = m.first;
+        const NGHolder *h = m.first;
         const auto &edges = m.second;
         removeRedundantLiteralsFromInfix(*h, g, edges, cc);
     }

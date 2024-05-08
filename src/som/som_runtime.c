@@ -512,7 +512,7 @@ int flushStoredSomMatches_i(struct hs_scratch *scratch, u64a offset) {
     /* fire any reports from the logs and clear them */
     if (offset == scratch->deduper.current_report_offset + 1) {
         struct fatbit *done_log = scratch->deduper.som_log[offset % 2];
-        u64a *done_starts = scratch->deduper.som_start_log[offset % 2];
+        const u64a *done_starts = scratch->deduper.som_start_log[offset % 2];
 
         halt = clearSomLog(scratch, scratch->deduper.current_report_offset - 1,
                            done_log, done_starts);
@@ -522,9 +522,9 @@ int flushStoredSomMatches_i(struct hs_scratch *scratch, u64a offset) {
         u64a f_offset = scratch->deduper.current_report_offset - 1;
         u64a s_offset = scratch->deduper.current_report_offset;
         struct fatbit *first_log = scratch->deduper.som_log[f_offset % 2];
-        u64a *first_starts = scratch->deduper.som_start_log[f_offset % 2];
+        const u64a *first_starts = scratch->deduper.som_start_log[f_offset % 2];
         struct fatbit *second_log = scratch->deduper.som_log[s_offset % 2];
-        u64a *second_starts = scratch->deduper.som_start_log[s_offset % 2];
+        const u64a *second_starts = scratch->deduper.som_start_log[s_offset % 2];
 
         halt = clearSomLog(scratch, f_offset, first_log, first_starts) ||
                clearSomLog(scratch, s_offset, second_log, second_starts);

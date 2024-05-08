@@ -290,7 +290,7 @@ void maskSetBits(Mask &m, const NFAStateSet &bits) {
 
 template<class Mask>
 bool isMaskZero(Mask &m) {
-    u8 *m8 = (u8 *)&m;
+    const u8 *m8 = (u8 *)&m;
     for (u32 i = 0; i < sizeof(m); i++) {
         if (m8[i]) {
             return false;
@@ -1701,7 +1701,7 @@ struct Factory {
     static
     void allocState(NFA *nfa, u32 repeatscratchStateSize,
                     u32 repeatStreamState) {
-        implNFA_t *limex = (implNFA_t *)getMutableImplNfa(nfa);
+        const implNFA_t *limex = (implNFA_t *)getMutableImplNfa(nfa);
 
         // LimEx NFAs now store the following in state:
         // 1. state bitvector (always present)

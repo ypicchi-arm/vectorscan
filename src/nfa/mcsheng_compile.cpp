@@ -144,7 +144,7 @@ u8 dfa_info::getAlphaShift() const {
 
 static
 mstate_aux *getAux(NFA *n, dstate_id_t i) {
-    mcsheng *m = (mcsheng *)getMutableImplNfa(n);
+    const mcsheng *m = (mcsheng *)getMutableImplNfa(n);
     mstate_aux *aux_base = (mstate_aux *)((char *)n + m->aux_offset);
 
     mstate_aux *aux = aux_base + i;
@@ -244,7 +244,7 @@ void populateBasicInfo(size_t state_size, const dfa_info &info,
 
 static
 mstate_aux *getAux64(NFA *n, dstate_id_t i) {
-    mcsheng64 *m = (mcsheng64 *)getMutableImplNfa(n);
+    const mcsheng64 *m = (mcsheng64 *)getMutableImplNfa(n);
     mstate_aux *aux_base = (mstate_aux *)((char *)n + m->aux_offset);
 
     mstate_aux *aux = aux_base + i;
@@ -674,7 +674,7 @@ void fill_in_aux_info(NFA *nfa, const dfa_info &info,
 
 static
 u16 get_edge_flags(NFA *nfa, dstate_id_t target_impl_id) {
-    mstate_aux *aux = getAux(nfa, target_impl_id);
+    const mstate_aux *aux = getAux(nfa, target_impl_id);
     u16 flags = 0;
 
     if (aux->accept) {
@@ -748,7 +748,7 @@ void fill_in_aux_info64(NFA *nfa, const dfa_info &info,
 
 static
 u16 get_edge_flags64(NFA *nfa, dstate_id_t target_impl_id) {
-    mstate_aux *aux = getAux64(nfa, target_impl_id);
+    const mstate_aux *aux = getAux64(nfa, target_impl_id);
     u16 flags = 0;
 
     if (aux->accept) {
