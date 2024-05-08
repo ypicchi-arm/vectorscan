@@ -302,17 +302,17 @@ unique_ptr<NGHolder> buildMaskLhs(bool anchored, u32 prefix_len,
 
     assert(prefix_len);
     assert(mask.size() >= prefix_len);
-    NFAVertex preds = anchored ? lhs->start : lhs->startDs;
+    NFAVertex lpreds = anchored ? lhs->start : lhs->startDs;
 
     u32 m_idx = 0;
     while (prefix_len--) {
         NFAVertex v = add_vertex(*lhs);
         (*lhs)[v].char_reach = mask[m_idx++];
-        add_edge(preds, v, *lhs);
-        preds = v;
+        add_edge(lpreds, v, *lhs);
+        lpreds = v;
     }
-    add_edge(preds, lhs->accept, *lhs);
-    (*lhs)[preds].reports.insert(0);
+    add_edge(lpreds, lhs->accept, *lhs);
+    (*lhs)[lpreds].reports.insert(0);
 
     return lhs;
 }
