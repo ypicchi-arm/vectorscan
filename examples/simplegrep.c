@@ -150,7 +150,7 @@ int main(int argc, char *argv[]) {
     }
 
     char *pattern = argv[1];
-    char *inputFN = argv[2];
+    const char *inputFN = argv[2];
 
     /* First, we attempt to compile the pattern provided on the command line.
      * We assume 'DOTALL' semantics, meaning that the '.' meta-character will

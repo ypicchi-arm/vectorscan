@@ -896,7 +896,7 @@ buildAnchoredMatcher(RoseBuildImpl &build, const vector<LitFragment> &fragments,
     for (size_t i = 0; i < nfas.size(); i++) {
         const NFA *nfa = nfas[i].get();
         anchored_matcher_info *ami = (anchored_matcher_info *)curr;
-        char *prev_curr = curr;
+        const char *prev_curr = curr;
 
         curr += sizeof(anchored_matcher_info);
 

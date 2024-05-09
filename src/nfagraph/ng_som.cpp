@@ -1408,7 +1408,7 @@ bool doSomPlanning(NGHolder &g, bool stuck_in,
 
     /* Need to verify how far the lock covers */
     u32 bad_region;
-    NGHolder *ap_pref = plan.back().prefix.get();
+    const NGHolder *ap_pref = plan.back().prefix.get();
     NGHolder ap_temp;
     if (hasBigCycles(*ap_pref)) {
         fillRoughMidfix(&ap_temp, g, regions, info, picked);
