@@ -981,7 +981,7 @@ char nfaExecGough8_reportCurrent(const struct NFA *n, struct mq *q) {
     void *ctxt = q->context;
     u8 s = *(u8 *)q->state;
     u64a offset = q_cur_offset(q);
-    struct gough_som_info *som = getSomInfo(q->state);
+    const struct gough_som_info *som = getSomInfo(q->state);
     assert(q_cur_type(q) == MQE_START);
     assert(s);
 
@@ -1004,7 +1004,7 @@ char nfaExecGough16_reportCurrent(const struct NFA *n, struct mq *q) {
     u16 s = *(u16 *)q->state;
     const struct mstate_aux *aux = get_aux(m, s);
     u64a offset = q_cur_offset(q);
-    struct gough_som_info *som = getSomInfo(q->state);
+    const struct gough_som_info *som = getSomInfo(q->state);
     assert(q_cur_type(q) == MQE_START);
     DEBUG_PRINTF("state %hu\n", s);
     assert(s);

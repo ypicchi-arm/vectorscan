@@ -382,7 +382,7 @@ void roseSaveNfaStreamState(const struct RoseEngine *t, char *state,
          qi = mmbit_iterate(aa, aaCount, qi)) {
         DEBUG_PRINTF("saving stream state for qi=%u\n", qi);
 
-        struct mq *q = queues + qi;
+        const struct mq *q = queues + qi;
 
         // If it's active, it should have an active queue (as we should have
         // done some work!)
@@ -517,7 +517,7 @@ void runEagerPrefixesStream(const struct RoseEngine *t,
 static really_inline
 int can_never_match(const struct RoseEngine *t, char *state,
                     struct hs_scratch *scratch, size_t length, u64a offset) {
-    struct RoseContext *tctxt = &scratch->tctxt;
+    const struct RoseContext *tctxt = &scratch->tctxt;
 
     if (tctxt->groups) {
         DEBUG_PRINTF("still has active groups\n");

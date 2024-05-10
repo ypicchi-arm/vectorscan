@@ -444,7 +444,7 @@ static
 void copy_propagate_report_set(vector<pair<ReportID, GoughSSAVar *> > &rep) {
     vector<pair<ReportID, GoughSSAVar *> >::iterator it = rep.begin();
     while (it != rep.end()) {
-        GoughSSAVar *var = it->second;
+        const GoughSSAVar *var = it->second;
         if (!var) {
             ++it;
             continue;
@@ -546,7 +546,7 @@ void remove_dead(GoughGraph &g) {
     }
 
     while (!queue.empty()) {
-        GoughSSAVar *v = queue.back();
+        const GoughSSAVar *v = queue.back();
         queue.pop_back();
         for (GoughSSAVar *var : v->get_inputs()) {
             if (var->seen) {

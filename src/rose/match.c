@@ -68,7 +68,7 @@ void printMatch(const struct core_info *ci, u64a start, u64a end) {
 
 hwlmcb_rv_t roseDelayRebuildCallback(size_t end, u32 id,
                                      struct hs_scratch *scratch) {
-    struct RoseContext *tctx = &scratch->tctxt;
+    const struct RoseContext *tctx = &scratch->tctxt;
     struct core_info *ci = &scratch->core_info;
     const struct RoseEngine *t = ci->rose;
     size_t rb_len = MIN(ci->hlen, t->delayRebuildLength);
@@ -296,7 +296,7 @@ hwlmcb_rv_t flushAnchoredLiteralAtLoc(const struct RoseEngine *t,
                                       struct hs_scratch *scratch,
                                       u32 curr_loc) {
     struct RoseContext *tctxt = &scratch->tctxt;
-    struct fatbit *curr_row = getAnchoredLiteralLog(scratch)[curr_loc - 1];
+    const struct fatbit *curr_row = getAnchoredLiteralLog(scratch)[curr_loc - 1];
     u32 region_width = t->anchored_count;
 
     const u32 *programs = getByOffset(t, t->anchoredProgramOffset);
@@ -334,7 +334,7 @@ hwlmcb_rv_t flushAnchoredLiteralAtLoc(const struct RoseEngine *t,
 
 static really_inline
 u32 anchored_it_begin(struct hs_scratch *scratch) {
-    struct RoseContext *tctxt = &scratch->tctxt;
+    const struct RoseContext *tctxt = &scratch->tctxt;
     if (tctxt->lastEndOffset >= scratch->anchored_literal_region_len) {
         return MMB_INVALID;
     }

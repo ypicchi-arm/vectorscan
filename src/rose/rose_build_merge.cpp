@@ -1186,8 +1186,8 @@ bool mergeLeftVL_tryMergeCandidate(RoseBuildImpl &build, left_id &r1,
 
     assert(!r1.graph() == !r2.graph());
     if (r1.graph()) {
-        NGHolder *h1 = r1.graph();
-        NGHolder *h2 = r2.graph();
+        const NGHolder *h1 = r1.graph();
+        const NGHolder *h2 = r2.graph();
         CharReach stop1 = findStopAlphabet(*h1, SOM_NONE);
         CharReach stop2 = findStopAlphabet(*h2, SOM_NONE);
         CharReach stopboth = stop1 & stop2;
