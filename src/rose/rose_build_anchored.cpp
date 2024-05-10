@@ -348,11 +348,11 @@ public:
             next[s].wdelay = wdelay;
         }
 
-        nfa_state_set succ;
+        nfa_state_set gsucc;
 
         if (wdelay != in.wdelay) {
             DEBUG_PRINTF("enabling start\n");
-            succ.set(vertexToIndex[g.startDs]);
+            gsucc.set(vertexToIndex[g.startDs]);
         }
 
         for (size_t i = in.wrap_state.find_first(); i != nfa_state_set::npos;
@@ -368,12 +368,12 @@ public:
                     continue;
                 }
 
-                succ.set(vertexToIndex[w]);
+                gsucc.set(vertexToIndex[w]);
             }
         }
 
-        for (size_t j = succ.find_first(); j != nfa_state_set::npos;
-             j = succ.find_next(j)) {
+        for (size_t j = gsucc.find_first(); j != nfa_state_set::npos;
+             j = gsucc.find_next(j)) {
             const CharReach &cr = cr_by_index[j];
             for (size_t s = cr.find_first(); s != CharReach::npos;
                  s = cr.find_next(s)) {

@@ -202,10 +202,10 @@ void getForwardReach(const raw_dfa &rdfa, map<s32, CharReach> &look) {
             }
 
             for (unsigned c = 0; c < N_CHARS; c++) {
-                dstate_id_t succ = ds.next[rdfa.alpha_remap[c]];
-                if (succ != DEAD_STATE) {
+                dstate_id_t dnsucc = ds.next[rdfa.alpha_remap[c]];
+                if (dnsucc != DEAD_STATE) {
                     cr.set(c);
-                    next.insert(succ);
+                    next.insert(dnsucc);
                 }
             }
         }

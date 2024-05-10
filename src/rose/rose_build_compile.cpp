@@ -1144,10 +1144,10 @@ void findTopTriggerCancels(RoseBuildImpl &build) {
 
     for (const auto &r : left_succ) {
         const left_id &left = r.first;
-        const vector<RoseVertex> &succs = r.second;
+        const vector<RoseVertex> &rsuccs = r.second;
 
-        assert(!succs.empty());
-        if (build.isRootSuccessor(*succs.begin())) {
+        assert(!rsuccs.empty());
+        if (build.isRootSuccessor(*rsuccs.begin())) {
             /* a prefix is never an infix */
             continue;
         }
@@ -1156,7 +1156,7 @@ void findTopTriggerCancels(RoseBuildImpl &build) {
         set<RoseEdge> rose_edges;
         set<u32> pred_lit_ids;
 
-        for (auto v : succs) {
+        for (auto v : rsuccs) {
             for (const auto &e : in_edges_range(v, build.g)) {
                 RoseVertex u = source(e, build.g);
                 tops_seen.insert(build.g[e].rose_top);
@@ -1212,11 +1212,11 @@ void buildRoseSquashMasks(RoseBuildImpl &tbi) {
      * successor of the nfa and all the literals */
     for (const auto &e : roses) {
         const left_id &left = e.first;
-        const vector<RoseVertex> &succs = e.second;
+        const vector<RoseVertex> &rsuccs = e.second;
 
         set<u32> lit_ids;
         bool anchored_pred = false;
-        for (auto v : succs) {
+        for (auto v : rsuccs) {
             lit_ids.insert(tbi.g[v].literals.begin(), tbi.g[v].literals.end());
             for (auto u : inv_adjacent_vertices_range(v, tbi.g)) {
                 anchored_pred |= tbi.isAnchored(u);
@@ -1230,7 +1230,7 @@ void buildRoseSquashMasks(RoseBuildImpl &tbi) {
         if (anchored_pred) { /* infix with pred in anchored table */
             u32 min_off = ~0U;
             u32 max_off = 0U;
-            for (auto v : succs) {
+            for (auto v : rsuccs) {
                 for (auto u : inv_adjacent_vertices_range(v, tbi.g)) {
                     min_off = min(min_off, tbi.g[u].min_offset);
                     max_off = max(max_off, tbi.g[u].max_offset);

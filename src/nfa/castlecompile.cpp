@@ -294,7 +294,7 @@ vector<vector<u32>> checkExclusion(u32 &streamStateSize,
     size_t lower = 0;
     size_t total = 0;
     while (lower < trigSize) {
-        vector<CliqueVertex> vertices;
+        vector<CliqueVertex> clvertices;
         unique_ptr<CliqueGraph> cg = make_unique<CliqueGraph>();
 
         vector<vector<size_t>> min_reset_dist;
@@ -302,7 +302,7 @@ vector<vector<u32>> checkExclusion(u32 &streamStateSize,
         // get min reset distance for each repeat
         for (size_t i = lower; i < upper; i++) {
             CliqueVertex v = add_vertex(CliqueVertexProps(i), *cg);
-            vertices.emplace_back(v);
+            clvertices.emplace_back(v);
 
             const vector<size_t> &tmp_dist =
                 minResetDistToEnd(triggers[i], cr);
@@ -311,11 +311,11 @@ vector<vector<u32>> checkExclusion(u32 &streamStateSize,
 
         // find exclusive pair for each repeat
         for (size_t i = lower; i < upper; i++) {
-            CliqueVertex s = vertices[i - lower];
+            CliqueVertex s = clvertices[i - lower];
             for (size_t j = i + 1; j < upper; j++) {
                 if (findExclusivePair(i, j, lower, min_reset_dist,
                                       triggers)) {
-                    CliqueVertex d = vertices[j - lower];
+                    CliqueVertex d = clvertices[j - lower];
                     add_edge(s, d, *cg);
                 }
             }
