@@ -1054,7 +1054,7 @@ left_id updateLeftfixWithEager(RoseGraph &g, const eager_info &ei,
         DEBUG_PRINTF("added %u literal chars back, new lag %u\n", lag_adjust,
                      g[v].left.lag);
     }
-    left_id leftfix = g[succs[0]].left;
+    left_id leftfix = left_id(left_id(g[succs[0]].left));
 
     if (leftfix.graph()) {
         assert(leftfix.graph()->kind == NFA_PREFIX
@@ -1593,7 +1593,7 @@ void findSuffixTriggers(const RoseBuildImpl &tbi,
             continue;
         }
         PredTopPair ptp(v, g[v].suffix.top);
-        (*suffixTriggers)[g[v].suffix].insert(ptp);
+        (*suffixTriggers)[suffix_id(g[v].suffix)].insert(ptp);
     }
 }
 
@@ -1613,7 +1613,7 @@ public:
     explicit OutfixBuilder(const RoseBuildImpl &build_in) : build(build_in) {}
 
     bytecode_ptr<NFA> operator()(boost::blank&) const {
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     };
 
     bytecode_ptr<NFA> operator()(unique_ptr<raw_dfa> &rdfa) const {
@@ -1660,7 +1660,7 @@ public:
     bytecode_ptr<NFA> operator()(UNUSED const MpvProto &mpv) const {
         // MPV construction handled separately.
         assert(mpv.puffettes.empty());
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
 private:
@@ -2304,12 +2304,12 @@ bool anyEndfixMpvTriggers(const RoseBuildImpl &build) {
         if (!g[v].suffix) {
             continue;
         }
-        if (contains(done, g[v].suffix)) {
+        if (contains(done, suffix_id(g[v].suffix))) {
             continue; /* already done */
         }
-        done.insert(g[v].suffix);
+        done.insert(suffix_id(g[v].suffix));
 
-        if (hasMpvTrigger(all_reports(g[v].suffix), build.rm)) {
+        if (hasMpvTrigger(all_reports(suffix_id(g[v].suffix)), build.rm)) {
             return true;
         }
     }
@@ -2369,7 +2369,7 @@ void recordResources(RoseResources &resources, const RoseBuildImpl &build,
             resources.has_eod = true;
             break;
         }
-        if (g[v].suffix && has_eod_accepts(g[v].suffix)) {
+        if (g[v].suffix && has_eod_accepts(suffix_id(g[v].suffix))) {
             resources.has_eod = true;
             break;
         }
@@ -2454,7 +2454,7 @@ bool hasEodAnchors(const RoseBuildImpl &build, const build_context &bc,
             DEBUG_PRINTF("literally report eod\n");
             return true;
         }
-        if (g[v].suffix && has_eod_accepts(g[v].suffix)) {
+        if (g[v].suffix && has_eod_accepts(suffix_id(g[v].suffix))) {
             DEBUG_PRINTF("eod suffix\n");
             return true;
         }
@@ -2529,7 +2529,7 @@ void writeNfaInfo(const RoseBuildImpl &build, build_context &bc,
         if (!g[v].suffix) {
             continue;
         }
-        u32 qi = bc.suffixes.at(g[v].suffix);
+        u32 qi = bc.suffixes.at(suffix_id(g[v].suffix));
         assert(qi < infos.size());
         if (build.isInETable(v)) {
             infos.at(qi).eod = 1;
@@ -3185,7 +3185,7 @@ set<ReportID> findEngineReports(const RoseBuildImpl &build) {
     const auto &g = build.g;
     for (auto v : vertices_range(g)) {
         if (g[v].suffix) {
-            insert(&reports, all_reports(g[v].suffix));
+            insert(&reports, all_reports(suffix_id(g[v].suffix)));
         }
     }
 
@@ -3641,7 +3641,7 @@ bytecode_ptr<RoseEngine> RoseBuildImpl::buildFinalEngine(u32 minWidth) {
     prepMpv(*this, bc, &historyRequired, &mpv_as_outfix);
     proto.outfixBeginQueue = qif.allocated_count();
     if (!prepOutfixes(*this, bc, &historyRequired)) {
-        return nullptr;
+        return bytecode_ptr<RoseEngine>(nullptr);
     }
     proto.outfixEndQueue = qif.allocated_count();
     proto.leftfixBeginQueue = proto.outfixEndQueue;
@@ -3652,7 +3652,7 @@ bytecode_ptr<RoseEngine> RoseBuildImpl::buildFinalEngine(u32 minWidth) {
     /* Note: buildNfas may reduce the lag for vertices that have prefixes */
     if (!buildNfas(*this, bc, qif, &no_retrigger_queues, &eager_queues,
                    &proto.leftfixBeginQueue)) {
-        return nullptr;
+        return bytecode_ptr<RoseEngine>(nullptr);
     }
     u32 eodNfaIterOffset = buildEodNfaIterator(bc, proto.leftfixBeginQueue);
     buildCountingMiracles(bc);

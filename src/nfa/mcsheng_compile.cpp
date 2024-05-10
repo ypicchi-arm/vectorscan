@@ -1035,7 +1035,7 @@ bytecode_ptr<NFA> mcshengCompile16(dfa_info &info, dstate_id_t sheng_end,
     if (!allocateImplId16(info, sheng_end, &sherman_limit)) {
         DEBUG_PRINTF("failed to allocate state numbers, %zu states total\n",
                      info.size());
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
     u16 count_real_states = sherman_limit - sheng_end;
 
@@ -1189,7 +1189,7 @@ bytecode_ptr<NFA> mcsheng64Compile16(dfa_info&info, dstate_id_t sheng_end,
     if (!allocateImplId16(info, sheng_end, &sherman_limit)) {
         DEBUG_PRINTF("failed to allocate state numbers, %zu states total\n",
                      info.size());
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
     u16 count_real_states = sherman_limit - sheng_end;
 
@@ -1414,7 +1414,7 @@ bytecode_ptr<NFA> mcsheng64Compile8(dfa_info &info, dstate_id_t sheng_end,
 bytecode_ptr<NFA> mcshengCompile(raw_dfa &raw, const CompileContext &cc,
                                  const ReportManager &rm) {
     if (!cc.grey.allowMcSheng) {
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     mcclellan_build_strat mbs(raw, rm, false);
@@ -1435,7 +1435,7 @@ bytecode_ptr<NFA> mcshengCompile(raw_dfa &raw, const CompileContext &cc,
 
     if (sheng_end <= DEAD_STATE + 1) {
         info.states = old_states;
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     bytecode_ptr<NFA> nfa;
@@ -1462,12 +1462,12 @@ bytecode_ptr<NFA> mcshengCompile(raw_dfa &raw, const CompileContext &cc,
 bytecode_ptr<NFA> mcshengCompile64(raw_dfa &raw, const CompileContext &cc,
                                    const ReportManager &rm) {
     if (!cc.grey.allowMcSheng) {
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     if (!cc.target_info.has_avx512vbmi()) {
         DEBUG_PRINTF("McSheng64 failed, no HS_CPU_FEATURES_AVX512VBMI!\n");
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     mcclellan_build_strat mbs(raw, rm, false);
@@ -1488,7 +1488,7 @@ bytecode_ptr<NFA> mcshengCompile64(raw_dfa &raw, const CompileContext &cc,
     sheng_end64 = find_sheng_states(info, accel_escape_info, MAX_SHENG64_STATES);
 
     if (sheng_end64 <= DEAD_STATE + 1) {
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     } else {
         using64state = true;
     }

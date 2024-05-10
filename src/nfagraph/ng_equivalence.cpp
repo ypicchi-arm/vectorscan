@@ -98,9 +98,9 @@ class ClassInfo {
 public:
     struct ClassDepth {
         ClassDepth() {}
-        ClassDepth(const NFAVertexDepth &d)
+        explicit ClassDepth(const NFAVertexDepth &d)
             : d1(d.fromStart), d2(d.fromStartDotStar) {}
-        ClassDepth(const NFAVertexRevDepth &rd)
+        explicit ClassDepth(const NFAVertexRevDepth &rd)
             : d1(rd.toAccept), d2(rd.toAcceptEod) {}
         DepthMinMax d1;
         DepthMinMax d2;
@@ -337,9 +337,9 @@ vector<VertexInfoSet> partitionGraph(vector<unique_ptr<VertexInfo>> &infos,
         ClassInfo::ClassDepth depth;
 
         if (eq == LEFT_EQUIVALENCE) {
-            depth = depths[vi->vert_index];
+            depth = ClassInfo::ClassDepth(depths[vi->vert_index]);
         } else {
-            depth = rdepths[vi->vert_index];
+            depth = ClassInfo::ClassDepth(rdepths[vi->vert_index]);
         }
         ClassInfo ci(g, *vi, depth, eq);
 
@@ -547,8 +547,8 @@ void mergeClass(vector<unique_ptr<VertexInfo>> &infos, NGHolder &g,
             pred_info->succ.erase(old_vertex_info);
 
             // if edge doesn't exist, create it
-            NFAEdge e = add_edge_if_not_present(pred_info->v, new_v, g);
-
+            NFAEdge e;
+            std::tie(e, std::ignore) = add_edge_if_not_present(pred_info->v, new_v, g);
             // put edge tops, if applicable
             if (!edgetops.empty()) {
                 assert(g[e].tops.empty() || g[e].tops == edgetops);
@@ -558,7 +558,8 @@ void mergeClass(vector<unique_ptr<VertexInfo>> &infos, NGHolder &g,
             pred_info->succ.insert(new_vertex_info);
 
             if (new_v_eod) {
-                NFAEdge ee = add_edge_if_not_present(pred_info->v, new_v_eod,
+                NFAEdge ee;
+                std::tie(ee, std::ignore) = add_edge_if_not_present(pred_info->v, new_v_eod,
                                                      g);
 
                 // put edge tops, if applicable

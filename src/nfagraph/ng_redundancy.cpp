@@ -307,7 +307,9 @@ void markForRemoval(const NFAVertex v, VertexInfoMap &infoMap,
 
 static
 bool hasInEdgeTops(const NGHolder &g, NFAVertex v) {
-    NFAEdge e = edge(g.start, v, g);
+    
+    NFAEdge e;
+    std::tie(e, std::ignore) = edge(g.start, v, g);
     return e && !g[e].tops.empty();
 }
 

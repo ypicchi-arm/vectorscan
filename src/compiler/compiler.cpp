@@ -443,7 +443,7 @@ bytecode_ptr<RoseEngine> generateRoseEngine(NG &ng) {
     if (!rose) {
         DEBUG_PRINTF("error building rose\n");
         assert(0);
-        return nullptr;
+        return bytecode_ptr<RoseEngine>(nullptr);
     }
 
     dumpReportManager(ng.rm, ng.cc.grey);

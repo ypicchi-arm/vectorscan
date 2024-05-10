@@ -1243,7 +1243,8 @@ void splitEdgesByCut(const NGHolder &h, RoseInGraph &vg,
              * makes a more svelte graphy */
             clear_in_edges(temp_map[pivot], *new_lhs);
             NFAEdge pivot_edge = add_edge(temp_map[prev_v], temp_map[pivot],
-                                          *new_lhs);
+                                          *new_lhs).first;
+
             if (is_triggered(h) && prev_v == h.start) {
                 (*new_lhs)[pivot_edge].tops.insert(DEFAULT_TOP);
             }
@@ -1969,7 +1970,7 @@ void restoreTrailingLiteralStates(NGHolder &g, const ue2_literal &lit,
     }
 
     for (auto v : preds) {
-        NFAEdge e = add_edge_if_not_present(v, prev, g);
+        NFAEdge e = add_edge_if_not_present(v, prev, g).first;
         if (v == g.start && is_triggered(g)) {
             g[e].tops.insert(DEFAULT_TOP);
         }
@@ -2305,7 +2306,7 @@ void splitEdgesForSuffix(const NGHolder &base_graph, RoseInGraph &vg,
     add_edge(lhs->accept, lhs->acceptEod, *lhs);
     clearReports(*lhs);
     for (NFAVertex v : splitters) {
-        NFAEdge e = add_edge(v_map[v], lhs->accept, *lhs);
+        NFAEdge e = add_edge(v_map[v], lhs->accept, *lhs).first;
         if (v == base_graph.start) {
             (*lhs)[e].tops.insert(DEFAULT_TOP);
         }

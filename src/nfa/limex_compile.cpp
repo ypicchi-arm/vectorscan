@@ -555,7 +555,8 @@ void filterAccelStates(NGHolder &g, const map<u32, set<NFAVertex>> &tops,
 
     // Similarly, connect (start, startDs) if necessary.
     if (!edge(g.start, g.startDs, g).second) {
-        NFAEdge e = add_edge(g.start, g.startDs, g);
+        NFAEdge e;
+        std::tie(e, std::ignore) = add_edge(g.start, g.startDs, g);
         tempEdges.emplace_back(e); // Remove edge later.
     }
 
@@ -2219,7 +2220,7 @@ struct Factory {
     static
     bytecode_ptr<NFA> generateNfa(const build_info &args) {
         if (args.num_states > NFATraits<dtype>::maxStates) {
-            return nullptr;
+            return bytecode_ptr<NFA>(nullptr);
         }
 
         // Build bounded repeat structures.
@@ -2578,7 +2579,7 @@ bytecode_ptr<NFA> generate(NGHolder &h,
 
     if (!cc.grey.allowLimExNFA) {
         DEBUG_PRINTF("limex not allowed\n");
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     // If you ask for a particular type, it had better be an NFA.
@@ -2613,7 +2614,7 @@ bytecode_ptr<NFA> generate(NGHolder &h,
 
     if (scores.empty()) {
         DEBUG_PRINTF("No NFA returned a valid score for this case.\n");
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     // Sort acceptable models in priority order, lowest score first.
@@ -2632,7 +2633,7 @@ bytecode_ptr<NFA> generate(NGHolder &h,
     }
 
     DEBUG_PRINTF("NFA build failed.\n");
-    return nullptr;
+    return bytecode_ptr<NFA>(nullptr);
 }
 
 u32 countAccelStates(NGHolder &h,

@@ -195,10 +195,10 @@ public:
 
     // Constructors.
 
-    flat_set(const Compare &compare = Compare(),
+    explicit flat_set(const Compare &compare = Compare(),
              const Allocator &alloc = Allocator())
         : base_type(compare, alloc) {}
-
+    
     template <class InputIt>
     flat_set(InputIt first, InputIt last, const Compare &compare = Compare(),
              const Allocator &alloc = Allocator())
@@ -425,7 +425,7 @@ public:
 
     // Constructors.
 
-    flat_map(const Compare &compare = Compare(),
+    explicit flat_map(const Compare &compare = Compare(),
              const Allocator &alloc = Allocator())
         : base_type(compare, alloc) {}
 
@@ -615,7 +615,7 @@ public:
         friend class flat_map;
     protected:
         Compare c;
-        value_compare(Compare c_in) : c(c_in) {}
+        explicit value_compare(Compare c_in) : c(c_in) {}
     public:
         bool operator()(const value_type &lhs, const value_type &rhs) {
             return c(lhs.first, rhs.first);

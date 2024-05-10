@@ -252,11 +252,11 @@ bool unmakeCastles(RoseBuildImpl &tbi) {
     for (auto v : vertices_range(g)) {
         const LeftEngInfo &left = g[v].left;
         if (left.castle && left.castle->repeats.size() > 1) {
-            left_castles[left].emplace_back(v);
+            left_castles[left_id(left)].emplace_back(v);
         }
         const RoseSuffixInfo &suffix = g[v].suffix;
         if (suffix.castle && suffix.castle->repeats.size() > 1) {
-            suffix_castles[suffix].emplace_back(v);
+            suffix_castles[suffix_id(suffix)].emplace_back(v);
         }
     }
 

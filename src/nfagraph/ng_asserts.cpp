@@ -384,7 +384,10 @@ void resolveEdges(ReportManager &rm, NGHolder &g, const ExpressionInfo &expr,
                 /* there may already be a different edge from start to eod if so
                  * we need to make it unconditional and alive
                  */
-                if (NFAEdge start_eod = edge(u, g.acceptEod, g)) {
+                NFAEdge start_eod;
+                bool exists;
+                std::tie(start_eod, exists) = edge(u, g.acceptEod, g);
+                if (exists) {
                     g[start_eod].assert_flags = 0;
                     dead->erase(start_eod);
                 } else {
@@ -437,7 +440,10 @@ void resolveEdges(ReportManager &rm, NGHolder &g, const ExpressionInfo &expr,
                 /* there may already be a different edge from start to eod if so
                  * we need to make it unconditional and alive
                  */
-                if (NFAEdge start_eod = edge(u, g.acceptEod, g)) {
+                NFAEdge start_eod;
+                bool exists;
+                std::tie(start_eod, exists) = edge(u, g.acceptEod, g);
+                if (exists) {
                     g[start_eod].assert_flags = 0;
                     dead->erase(start_eod);
                 } else {
@@ -496,7 +502,8 @@ void ensureCodePointStart(ReportManager &rm, NGHolder &g,
      * boundaries. Assert resolution handles the badness coming from asserts.
      * The only other source of trouble is startDs->accept connections.
      */
-    NFAEdge orig = edge(g.startDs, g.accept, g);
+    NFAEdge orig;
+    std::tie(orig, std::ignore) = edge(g.startDs, g.accept, g);
     if (expr.utf8 && orig) {
         DEBUG_PRINTF("rectifying %u\n", expr.report);
         Report ir = rm.getBasicInternalReport(expr);

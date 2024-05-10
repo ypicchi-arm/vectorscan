@@ -652,7 +652,7 @@ constructNFA(const NGHolder &h_in, const ReportManager *rm,
     u32 numStates = countStates(state_ids);
     if (numStates > NFA_MAX_STATES) {
         DEBUG_PRINTF("Can't build an NFA with %u states\n", numStates);
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     map<NFAVertex, BoundedRepeatSummary> br_cyclic;
@@ -722,14 +722,14 @@ bytecode_ptr<NFA> constructReversedNFA_i(const NGHolder &h_in, u32 hint,
     assert(h.kind == NFA_REV_PREFIX); /* triggered, raises internal callbacks */
 
     // Do state numbering.
-    auto state_ids = numberStates(h, {});
+    auto state_ids = numberStates(h, flat_set<graph_detail::vertex_descriptor<ue2_graph<NGHolder, NFAGraphVertexProps, NFAGraphEdgeProps>>>());
 
     // Quick exit: if we've got an embarrassment of riches, i.e. more states
     // than we can implement in our largest NFA model, bail here.
     u32 numStates = countStates(state_ids);
     if (numStates > NFA_MAX_STATES) {
         DEBUG_PRINTF("Can't build an NFA with %u states\n", numStates);
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     assert(sanityCheckGraph(h, state_ids));

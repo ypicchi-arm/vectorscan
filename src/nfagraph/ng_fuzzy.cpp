@@ -594,7 +594,8 @@ private:
                 // find which accepts source vertex connects to
                 flat_set<NFAVertex> targets;
                 for (const auto &accept : accepts) {
-                    NFAEdge e = edge(src, accept, g);
+                    NFAEdge e;
+                    std::tie(e, std::ignore) = edge(src, accept, g);
                     if (e) {
                         targets.insert(accept);
                     }

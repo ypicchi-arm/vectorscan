@@ -873,7 +873,7 @@ buildAnchoredMatcher(RoseBuildImpl &build, const vector<LitFragment> &fragments,
 
     if (dfas.empty()) {
         DEBUG_PRINTF("empty\n");
-        return nullptr;
+        return bytecode_ptr<anchored_matcher_info>(nullptr);
     }
 
     for (auto &rdfa : dfas) {

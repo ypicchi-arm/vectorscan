@@ -131,7 +131,7 @@ RoseVertex createVertex(RoseBuildImpl *build, const RoseVertex parent,
     /* fill in report information */
     g[v].reports.insert(reports.begin(), reports.end());
 
-    RoseEdge e = add_edge(parent, v, g);
+    RoseEdge e = add_edge(parent, v, g).first;
     DEBUG_PRINTF("adding edge (%u, %u) to parent\n", minBound, maxBound);
 
     g[e].minBound = minBound;
@@ -161,7 +161,7 @@ RoseVertex createAnchoredVertex(RoseBuildImpl *build, u32 literalId,
     DEBUG_PRINTF("created anchored vertex %zu with lit id %u\n", g[v].index,
                  literalId);
 
-    RoseEdge e = add_edge(build->anchored_root, v, g);
+    RoseEdge e = add_edge(build->anchored_root, v, g).first;
     g[e].minBound = min_offset;
     g[e].maxBound = max_offset;
 
@@ -307,7 +307,7 @@ void createVertices(RoseBuildImpl *tbi,
 
         RoseVertex p = pv.first;
 
-        RoseEdge e = add_edge(p, w, g);
+        RoseEdge e = add_edge(p, w, g).first;
         DEBUG_PRINTF("adding edge (%u,%u) to parent\n", edge_props.minBound,
                      edge_props.maxBound);
         g[e].minBound = edge_props.minBound;
@@ -345,7 +345,7 @@ void createVertices(RoseBuildImpl *tbi,
 
         for (const auto &pv : parents) {
             const RoseInEdgeProps &edge_props = bd.ig[pv.second];
-            RoseEdge e = add_edge(pv.first, g_v, tbi->g);
+            RoseEdge e = add_edge(pv.first, g_v, tbi->g).first;
             g[e].minBound = edge_props.minBound;
             g[e].maxBound = edge_props.maxBound;
             g[e].history = selectHistory(*tbi, bd, pv.second, e);
@@ -698,7 +698,7 @@ void makeEodEventLeftfix(RoseBuildImpl &build, RoseVertex u,
         g[v].left.graph = eod_leftfix;
         g[v].left.leftfix_report = report_mapping.second;
         g[v].left.lag = 0;
-        RoseEdge e1 = add_edge(u, v, g);
+        RoseEdge e1 = add_edge(u, v, g).first;
         g[e1].minBound = 0;
         g[e1].maxBound = ROSE_BOUND_INF;
         g[v].min_offset = add_rose_depth(g[u].min_offset,
@@ -718,7 +718,7 @@ void makeEodEventLeftfix(RoseBuildImpl &build, RoseVertex u,
         g[w].reports = report_mapping.first;
         g[w].min_offset = g[v].min_offset;
         g[w].max_offset = g[v].max_offset;
-        RoseEdge e = add_edge(v, w, g);
+        RoseEdge e = add_edge(v, w, g).first;
         g[e].minBound = 0;
         g[e].maxBound = 0;
         /* No need to set history as the event is only delivered at the last
@@ -794,7 +794,7 @@ void doRoseAcceptVertex(RoseBuildImpl *tbi,
                 g[w].reports = ig[iv].reports;
                 g[w].min_offset = g[u].min_offset;
                 g[w].max_offset = g[u].max_offset;
-                RoseEdge e = add_edge(u, w, g);
+                RoseEdge e = add_edge(u, w, g).first;
                 g[e].minBound = 0;
                 g[e].maxBound = 0;
                 g[e].history = ROSE_ROLE_HISTORY_LAST_BYTE;
@@ -1719,7 +1719,7 @@ bool addEodOutfix(RoseBuildImpl &build, const NGHolder &h) {
         g[v].left.graph = eod_leftfix;
         g[v].left.leftfix_report = report_mapping.second;
         g[v].left.lag = 0;
-        RoseEdge e1 = add_edge(build.anchored_root, v, g);
+        RoseEdge e1 = add_edge(build.anchored_root, v, g).first;
         g[e1].minBound = 0;
         g[e1].maxBound = ROSE_BOUND_INF;
         g[v].min_offset = findMinWidth(*eod_leftfix);
@@ -1737,7 +1737,7 @@ bool addEodOutfix(RoseBuildImpl &build, const NGHolder &h) {
         g[w].reports = report_mapping.first;
         g[w].min_offset = g[v].min_offset;
         g[w].max_offset = g[v].max_offset;
-        RoseEdge e = add_edge(v, w, g);
+        RoseEdge e = add_edge(v, w, g).first;
         g[e].minBound = 0;
         g[e].maxBound = 0;
         g[e].history = ROSE_ROLE_HISTORY_NONE;

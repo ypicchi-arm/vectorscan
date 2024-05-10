@@ -540,7 +540,7 @@ void addTransientMask(RoseBuildImpl &build, const vector<CharReach> &mask,
             g[v].left.leftfix_report = mask_report;
         } else {
             // Make sure our edge bounds are correct.
-            RoseEdge e = edge(parent, v, g);
+            RoseEdge e = edge(parent, v, g).first;
             g[e].minBound = 0;
             g[e].maxBound = anchored ? 0 : ROSE_BOUND_INF;
             g[e].history = anchored ? ROSE_ROLE_HISTORY_ANCH
@@ -552,7 +552,7 @@ void addTransientMask(RoseBuildImpl &build, const vector<CharReach> &mask,
         g[v].max_offset = v_max_offset;
 
         if (eod) {
-            RoseEdge e = add_edge(v, eod_v, g);
+            RoseEdge e = add_edge(v, eod_v, g).first;
             g[e].minBound = 0;
             g[e].maxBound = 0;
             g[e].history = ROSE_ROLE_HISTORY_LAST_BYTE;
@@ -582,7 +582,7 @@ unique_ptr<NGHolder> buildMaskRhs(const flat_set<ReportID> &reports,
         succ = u;
     }
 
-    NFAEdge e = add_edge(h.start, succ, h);
+    NFAEdge e = add_edge(h.start, succ, h).first;
     h[e].tops.insert(DEFAULT_TOP);
 
     return rhs;

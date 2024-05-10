@@ -145,7 +145,7 @@ namespace {
 /** Key used to group sets of leftfixes by the dedupeLeftfixes path. */
 struct RoseGroup {
     RoseGroup(const RoseBuildImpl &build, RoseVertex v)
-        : left_hash(hashLeftfix(build.g[v].left)),
+        : left_hash(hashLeftfix(left_id(build.g[v].left))),
           lag(build.g[v].left.lag), eod_table(build.isInETable(v)) {
         const RoseGraph &g = build.g;
         assert(in_degree(v, g) == 1);
@@ -262,8 +262,8 @@ bool dedupeLeftfixes(RoseBuildImpl &tbi) {
             // Scan the rest of the list for dupes.
             for (auto kt = std::next(jt); kt != jte; ++kt) {
                 if (g[v].left == g[*kt].left
-                    || !is_equal(g[v].left, g[v].left.leftfix_report,
-                                 g[*kt].left, g[*kt].left.leftfix_report)) {
+                    || !is_equal(left_id(g[v].left), g[v].left.leftfix_report,
+                                 left_id(g[*kt].left), g[*kt].left.leftfix_report)) {
                     continue;
                 }
 
@@ -547,8 +547,8 @@ bool checkPrefix(const rose_literal_id &ul, const u32 ulag,
 static
 bool hasSameEngineType(const RoseVertexProps &u_prop,
                        const RoseVertexProps &v_prop) {
-    const left_id u_left = u_prop.left;
-    const left_id v_left = v_prop.left;
+    const left_id u_left = left_id(u_prop.left);
+    const left_id v_left = left_id(v_prop.left);
 
     return !u_left.haig() == !v_left.haig()
         && !u_left.dfa() == !v_left.dfa()
@@ -1346,7 +1346,7 @@ insertion_ordered_map<left_id, vector<RoseVertex>> get_eng_verts(const RoseGraph
             continue;
         }
         assert(contains(all_reports(left), left.leftfix_report));
-        eng_verts[left].emplace_back(v);
+        eng_verts[left_id(left)].emplace_back(v);
     }
 
     return eng_verts;
@@ -2033,7 +2033,7 @@ void mergeCastleLeftfixes(RoseBuildImpl &build) {
             continue;
         }
 
-        eng_verts[g[v].left].emplace_back(v);
+        eng_verts[left_id(g[v].left)].emplace_back(v);
     }
 
     map<CharReach, vector<left_id>> by_reach;
@@ -2198,7 +2198,7 @@ void mergeAcyclicSuffixes(RoseBuildImpl &tbi) {
             continue;
         }
 
-        suffixes.insert(g[v].suffix, v);
+        suffixes.insert(suffix_id(g[v].suffix), v);
     }
 
     deque<SuffixBouquet> suff_groups;
@@ -2260,7 +2260,7 @@ void mergeSmallSuffixes(RoseBuildImpl &tbi) {
             continue;
         }
 
-        suffixes.insert(g[v].suffix, v);
+        suffixes.insert(suffix_id(g[v].suffix), v);
     }
 
     deque<SuffixBouquet> suff_groups;

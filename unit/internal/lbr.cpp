@@ -98,7 +98,7 @@ protected:
         ParsedExpression parsed(0, pattern.c_str(), flags, 0);
         auto built_expr = buildGraph(rm, cc, parsed);
         const auto &g = built_expr.g;
-        ASSERT_TRUE(g != nullptr);
+        ASSERT_TRUE(static_cast<bool>(g));
         clearReports(*g);
 
         rm.setProgramOffset(0, MATCH_REPORT);
@@ -106,7 +106,7 @@ protected:
         /* LBR triggered by dot */
         vector<vector<CharReach>> triggers = {{CharReach::dot()}};
         nfa = constructLBR(*g, triggers, cc, rm);
-        ASSERT_TRUE(nfa != nullptr);
+        ASSERT_TRUE(static_cast<bool>(nfa));
 
         full_state = make_bytecode_ptr<char>(nfa->scratchStateSize, 64);
         stream_state = make_bytecode_ptr<char>(nfa->streamStateSize);

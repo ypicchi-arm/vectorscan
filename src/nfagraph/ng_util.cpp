@@ -128,7 +128,7 @@ void clone_out_edges(NGHolder &g, NFAVertex source, NFAVertex dest) {
         if (edge(dest, t, g).second) {
             continue;
         }
-        NFAEdge clone = add_edge(dest, t, g);
+        NFAEdge clone = add_edge(dest, t, g).first;
         u32 idx = g[clone].index;
         g[clone] = g[e];
         g[clone].index = idx;
@@ -139,7 +139,7 @@ void clone_in_edges(NGHolder &g, NFAVertex s, NFAVertex dest) {
     for (const auto &e : in_edges_range(s, g)) {
         NFAVertex ss = source(e, g);
         assert(!edge(ss, dest, g).second);
-        NFAEdge clone = add_edge(ss, dest, g);
+        NFAEdge clone = add_edge(ss, dest, g).first;
         u32 idx = g[clone].index;
         g[clone] = g[e];
         g[clone].index = idx;
@@ -278,9 +278,11 @@ bool can_only_match_at_eod(const NGHolder &g) {
 }
 
 bool matches_everywhere(const NGHolder &h) {
-    NFAEdge e = edge(h.startDs, h.accept, h);
+    bool bool_e;
+    NFAEdge e;
+    std::tie(e, bool_e) = edge(h.startDs, h.accept, h);
 
-    return e && !h[e].assert_flags;
+    return bool_e && !h[e].assert_flags;
 }
 
 bool is_virtual_start(NFAVertex v, const NGHolder &g) {
@@ -568,7 +570,7 @@ void cloneHolder(NGHolder &out, const NGHolder &in) {
 
         NFAVertex s = out_mapping[si];
         NFAVertex t = out_mapping[ti];
-        NFAEdge e2 = add_edge(s, t, out);
+        NFAEdge e2 = add_edge(s, t, out).first;
         out[e2] = in[e];
     }
 
@@ -718,7 +720,7 @@ u32 removeTrailingLiteralStates(NGHolder &g, const ue2_literal &lit,
     clearReports(g);
 
     for (auto v : pred) {
-        NFAEdge e = add_edge(v, g.accept, g);
+        NFAEdge e = add_edge(v, g.accept, g).first;
         g[v].reports.insert(0);
         if (is_triggered(g) && v == g.start) {
             g[e].tops.insert(DEFAULT_TOP);

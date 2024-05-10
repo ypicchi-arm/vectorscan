@@ -202,7 +202,7 @@ struct FiveTuple {
     unsigned int dstPort;
 
     // Construct a FiveTuple from a TCP or UDP packet.
-    FiveTuple(const struct ip *iphdr) {
+    explicit FiveTuple(const struct ip *iphdr) {
         // IP fields
         protocol = iphdr->ip_p;
         srcAddr = iphdr->ip_src.s_addr;
@@ -442,7 +442,7 @@ class Sigdata {
 
 public:
     Sigdata() {}
-    Sigdata(const char *filename) {
+    explicit Sigdata(const char *filename) {
         parseFile(filename, patterns, flags, ids, originals);
 
     }

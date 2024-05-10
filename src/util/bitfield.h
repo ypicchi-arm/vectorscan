@@ -64,7 +64,7 @@ public:
         assert(none());
     }
 
-    bitfield(const boost::dynamic_bitset<> &a) : bits{{0}} {
+    explicit bitfield(const boost::dynamic_bitset<> &a) : bits{{0}} {
         assert(a.size() == requested_size);
         assert(none());
         for (auto i = a.find_first(); i != a.npos; i = a.find_next(i)) {
