@@ -111,21 +111,33 @@ void write_out(scatter_full_plan *plan_out, void *aux_out,
                const scatter_plan_raw &raw, u32 aux_base_offset) {
     memset(plan_out, 0, sizeof(*plan_out));
 
-#define DO_CASE(t)                                                      \
-    if (!raw.p_##t.empty()) {                                           \
-        plan_out->s_##t##_offset = aux_base_offset;                     \
-        plan_out->s_##t##_count = raw.p_##t.size();                     \
-        assert(ISALIGNED_N((char *)aux_out + aux_base_offset,           \
-                           alignof(scatter_unit_##t)));                 \
-        memcpy((char *)aux_out + aux_base_offset, raw.p_##t.data(),     \
-               byte_length(raw.p_##t));                                 \
-        aux_base_offset += byte_length(raw.p_##t);                      \
+    if (!raw.p_u64a.empty()) {
+        plan_out->s_u64a_offset = aux_base_offset;
+        plan_out->s_u64a_count = raw.p_u64a.size();
+        assert(ISALIGNED_N(static_cast<char *>(aux_out) + aux_base_offset, alignof(scatter_unit_u64a)));
+        memcpy(static_cast<char *>(aux_out) + aux_base_offset, raw.p_u64a.data(), byte_length(raw.p_u32));
+        aux_base_offset += byte_length(raw.p_u64a);
     }
-
-    DO_CASE(u64a);
-    DO_CASE(u32);
-    DO_CASE(u16);
-    DO_CASE(u8);
+    if (!raw.p_u32.empty()) {
+        plan_out->s_u32_offset = aux_base_offset;
+        plan_out->s_u32_count = raw.p_u32.size();
+        assert(ISALIGNED_N(static_cast<char *>(aux_out) + aux_base_offset, alignof(scatter_unit_u32)));
+        memcpy(static_cast<char *>(aux_out) + aux_base_offset, raw.p_u32.data(), byte_length(raw.p_u32));
+        aux_base_offset += byte_length(raw.p_u32);
+    }
+    if (!raw.p_u16.empty()) {
+        plan_out->s_u16_offset = aux_base_offset;
+        plan_out->s_u16_count = raw.p_u16.size();
+        assert(ISALIGNED_N(static_cast<char *>(aux_out) + aux_base_offset, alignof(scatter_unit_u16)));
+        memcpy(static_cast<char *>(aux_out) + aux_base_offset, raw.p_u16.data(), byte_length(raw.p_u16));
+        aux_base_offset += byte_length(raw.p_u16);
+    }
+    if (!raw.p_u8.empty()) {
+        plan_out->s_u8_offset = aux_base_offset;
+        plan_out->s_u8_count = raw.p_u8.size();
+        assert(ISALIGNED_N(static_cast<char *>(aux_out) + aux_base_offset, alignof(scatter_unit_u8)));
+        memcpy(static_cast<char *>(aux_out) + aux_base_offset, raw.p_u8.data(), byte_length(raw.p_u8));
+    }
 }
 
 } // namespace ue2
