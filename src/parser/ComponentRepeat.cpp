@@ -132,7 +132,7 @@ void ComponentRepeat::notePositions(GlushkovBuildState &bs) {
     posFirst = bs.getBuilder().numVertices();
     sub_comp->notePositions(bs);
 
-    u32 copies = m_max < NoLimit ? m_max : MAX(m_min, 1);
+    u32 copies = (m_max < NoLimit) ? m_max : std::max(m_min, 1U);
     DEBUG_PRINTF("building %u copies of repeated region\n", copies);
     m_firsts.clear();
     m_lasts.clear();
