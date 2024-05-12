@@ -358,9 +358,7 @@ bool doComponent(RoseBuild &rose, ReportManager &rm, NGHolder &g, NFAVertex a,
         // single report ID on a vertex
         if (is_match_vertex(a, g)) {
             DEBUG_PRINTF("stop puffing due to vertex that leads to accept\n");
-            if (!nodes.empty()) {
-                nodes.pop_back();
-            }
+            nodes.pop_back();
             break;
         }
     }
