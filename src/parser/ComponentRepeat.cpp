@@ -321,7 +321,7 @@ void ComponentRepeat::wireRepeats(GlushkovBuildState &bs) {
     }
 
     DEBUG_PRINTF("wiring up %u optional repeats\n", copies - m_min);
-    for (u32 rep = MAX(m_min, 1); rep < copies; rep++) {
+    for (u32 rep = std::max(m_min, 1U); rep < copies; rep++) {
         vector<PositionInfo> lasts = m_lasts[rep - 1];
         if (rep != m_min) {
             lasts.insert(lasts.end(), optLasts.begin(), optLasts.end());
