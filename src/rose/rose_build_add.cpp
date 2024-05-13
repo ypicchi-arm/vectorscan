@@ -518,9 +518,9 @@ u32 findRoseAnchorFloatingOverlap(const RoseInEdgeProps &ep,
 
 static
 void findRoseLiteralMask(const NGHolder &h, const u32 lag, vector<u8> &msk,
-                         vector<u8> &cmp) {
+                         vector<u8> &lcmp) {
     if (lag >= HWLM_MASKLEN) {
-        msk.clear(); cmp.clear();
+        msk.clear(); lcmp.clear();
         return;
     }
 
@@ -532,7 +532,7 @@ void findRoseLiteralMask(const NGHolder &h, const u32 lag, vector<u8> &msk,
     assert(!curr.empty());
 
     msk.assign(HWLM_MASKLEN, 0);
-    cmp.assign(HWLM_MASKLEN, 0);
+    lcmp.assign(HWLM_MASKLEN, 0);
     size_t i = HWLM_MASKLEN - lag - 1;
     do {
         if (curr.empty() || contains(curr, h.start) ||
@@ -549,9 +549,9 @@ void findRoseLiteralMask(const NGHolder &h, const u32 lag, vector<u8> &msk,
             cr |= h[v].char_reach;
             insert(&next, inv_adjacent_vertices(v, h));
         }
-        make_and_cmp_mask(cr, &msk[i], &cmp[i]);
-        DEBUG_PRINTF("%zu: reach=%s, msk=%u, cmp=%u\n", i,
-                     describeClass(cr).c_str(), msk.at(i), cmp.at(i));
+        make_and_cmp_mask(cr, &msk[i], &lcmp[i]);
+        DEBUG_PRINTF("%zu: reach=%s, msk=%u, lcmp=%u\n", i,
+                     describeClass(cr).c_str(), msk.at(i), lcmp.at(i));
         curr.swap(next);
     } while (i-- > 0);
 }
@@ -617,18 +617,18 @@ void doRoseLiteralVertex(RoseBuildImpl *tbi, bool use_eod_table,
     }
 
 floating:
-    vector<u8> msk, cmp;
+    vector<u8> msk, lcmp;
     if (tbi->cc.grey.roseHamsterMasks && in_degree(iv, ig) == 1) {
         RoseInEdge e = *in_edges(iv, ig).first;
         if (ig[e].graph) {
-            findRoseLiteralMask(*ig[e].graph, ig[e].graph_lag, msk, cmp);
+            findRoseLiteralMask(*ig[e].graph, ig[e].graph_lag, msk, lcmp);
         }
     }
 
     u32 delay = iv_info.delay;
     rose_literal_table table = use_eod_table ? ROSE_EOD_ANCHORED : ROSE_FLOATING;
 
-    u32 literalId = tbi->getLiteralId(iv_info.s, msk, cmp, delay, table);
+    u32 literalId = tbi->getLiteralId(iv_info.s, msk, lcmp, delay, table);
 
     DEBUG_PRINTF("literal=%u (len=%zu, delay=%u, offsets=[%u,%u] '%s')\n",
                  literalId, iv_info.s.length(), delay, iv_info.min_offset,
@@ -1087,20 +1087,20 @@ bool predsAreDelaySensitive(const RoseInGraph &ig, RoseInVertex v) {
 static
 u32 maxAvailableDelay(const ue2_literal &pred_key, const ue2_literal &lit_key) {
     /* overly conservative if only part of the string is nocase */
-    string pred = pred_key.get_string();
+    string predk = pred_key.get_string();
     string lit = lit_key.get_string();
 
     if (pred_key.any_nocase() || lit_key.any_nocase()) {
-        upperString(pred);
+        upperString(predk);
         upperString(lit);
     }
 
-    string::size_type last = pred.rfind(lit);
+    string::size_type last = predk.rfind(lit);
     if (last == string::npos) {
         return MAX_DELAY;
     }
 
-    u32 raw = pred.size() - last - 1;
+    u32 raw = predk.size() - last - 1;
     return MIN(raw, MAX_DELAY);
 }
 

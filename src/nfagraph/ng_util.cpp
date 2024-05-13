@@ -711,15 +711,15 @@ u32 removeTrailingLiteralStates(NGHolder &g, const ue2_literal &lit,
     assert(delay <= lit.length());
     DEBUG_PRINTF("managed delay %u (of max %u)\n", delay, max_delay);
 
-    set<NFAVertex> pred;
+    set<NFAVertex> predv;
     for (auto v : curr) {
-        insert(&pred, inv_adjacent_vertices_range(v, g));
+        insert(&predv, inv_adjacent_vertices_range(v, g));
     }
 
     clear_in_edges(g.accept, g);
     clearReports(g);
 
-    for (auto v : pred) {
+    for (auto v : predv) {
         NFAEdge e = add_edge(v, g.accept, g).first;
         g[v].reports.insert(0);
         if (is_triggered(g) && v == g.start) {

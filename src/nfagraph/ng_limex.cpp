@@ -342,7 +342,7 @@ void attemptToUseAsStart(const NGHolder &g,  NFAVertex u,
                          map<NFAVertex, flat_set<u32>> &unhandled_succ_tops,
                          map<u32, set<NFAVertex>> &tops_out) {
     flat_set<u32> top_inter = unhandled_succ_tops.at(u);
-    flat_set<NFAVertex> succs;
+    flat_set<NFAVertex> f_succs;
     for (NFAVertex v : adjacent_vertices_range(u, g)) {
         if (!contains(unhandled_succ_tops, v)) {
             return;
@@ -360,7 +360,7 @@ void attemptToUseAsStart(const NGHolder &g,  NFAVertex u,
         set_intersection(top_inter.begin(), top_inter.end(),
                          v_tops.begin(), v_tops.end(), ni_inserter);
         top_inter = std::move(new_inter);
-        succs.insert(v);
+        f_succs.insert(v);
     }
 
     if (top_inter.empty()) {
@@ -373,7 +373,7 @@ void attemptToUseAsStart(const NGHolder &g,  NFAVertex u,
     }
 
     DEBUG_PRINTF("reusing %zu is a start vertex\n", g[u].index);
-    markTopSuccAsHandled(u, top_inter, succs, tops_out, unhandled_top_succs,
+    markTopSuccAsHandled(u, top_inter, f_succs, tops_out, unhandled_top_succs,
                          unhandled_succ_tops);
 }
 

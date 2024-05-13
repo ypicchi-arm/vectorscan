@@ -703,13 +703,13 @@ unique_ptr<VertLitInfo> findBestSplit(const NGHolder &g,
         }
     }
 
-    auto cmp = LitComparator(g, seeking_anchored, seeking_transient,
+    auto lcmp = LitComparator(g, seeking_anchored, seeking_transient,
                              last_chance);
 
     unique_ptr<VertLitInfo> best = std::move(lits.back());
     lits.pop_back();
     while (!lits.empty()) {
-        if (cmp(best, lits.back())) {
+        if (lcmp(best, lits.back())) {
             best = std::move(lits.back());
         }
         lits.pop_back();
@@ -811,7 +811,7 @@ flat_set<NFAEdge> poisonEdges(const NGHolder &h,
 
     /* poison edges covered by successor literal */
 
-    set<pair<ue2_literal, bool> > succs;
+    set<pair<ue2_literal, bool> > lsuccs;
     for (const RoseInEdge &ve : ee) {
         if (vg[target(ve, vg)].type != RIV_LITERAL) {
             /* nothing to poison in suffixes/outfixes */
@@ -819,15 +819,15 @@ flat_set<NFAEdge> poisonEdges(const NGHolder &h,
             assert(is_any_accept_type(vg[target(ve, vg)].type));
             continue;
         }
-        succs.insert({vg[target(ve, vg)].s,
+        lsuccs.insert({vg[target(ve, vg)].s,
                     vg[source(ve, vg)].type == RIV_LITERAL});
 
     }
 
-    DEBUG_PRINTF("poisoning edges %zu successor literals\n", succs.size());
+    DEBUG_PRINTF("poisoning edges %zu successor literals\n", lsuccs.size());
 
     flat_set<NFAEdge> bad;
-    for (const auto &p : succs) {
+    for (const auto &p : lsuccs) {
         poisonFromSuccessor(h, p.first, p.second, bad);
     }
 
@@ -1434,11 +1434,11 @@ bool deanchorIfNeeded(NGHolder &g) {
 
         if (succ_v == succ_g) {
             DEBUG_PRINTF("found ^.*\n");
-            for (auto succ : adjacent_vertices_range(g.start, g)) {
-                if (succ == g.startDs) {
+            for (auto asucc : adjacent_vertices_range(g.start, g)) {
+                if (asucc == g.startDs) {
                     continue;
                 }
-                add_edge(g.startDs, succ, g);
+                add_edge(g.startDs, asucc, g);
             }
             clear_vertex(v, g);
             remove_vertex(v, g);
@@ -1685,18 +1685,18 @@ void removeRedundantLiteralsFromInfix(const NGHolder &h, RoseInGraph &ig,
      * successor literal. This would require using distinct report ids and also
      * taking into account overlap of successor literals. */
 
-    set<ue2_literal> preds;
-    set<ue2_literal> succs;
+    set<ue2_literal> lpreds;
+    set<ue2_literal> lsuccs;
     for (const RoseInEdge &e : ee) {
         RoseInVertex u = source(e, ig);
         assert(ig[u].type == RIV_LITERAL);
         assert(!ig[u].delay);
-        preds.insert(ig[u].s);
+        lpreds.insert(ig[u].s);
 
         RoseInVertex v = target(e, ig);
         assert(ig[v].type == RIV_LITERAL);
         assert(!ig[v].delay);
-        succs.insert(ig[v].s);
+        lsuccs.insert(ig[v].s);
 
         if (ig[e].graph_lag) {
             /* already removed redundant parts of literals */
@@ -1708,9 +1708,9 @@ void removeRedundantLiteralsFromInfix(const NGHolder &h, RoseInGraph &ig,
 
     map<ue2_literal, pair<shared_ptr<NGHolder>, u32> > graphs; /* + delay */
 
-    for (const ue2_literal &right : succs) {
+    for (const ue2_literal &right : lsuccs) {
         size_t max_overlap = 0;
-        for (const ue2_literal &left : preds) {
+        for (const ue2_literal &left : lpreds) {
             size_t overlap = maxOverlap(left, right, 0);
             ENSURE_AT_LEAST(&max_overlap, overlap);
         }
@@ -1747,13 +1747,13 @@ void removeRedundantLiteralsFromInfix(const NGHolder &h, RoseInGraph &ig,
 
     for (const RoseInEdge &e : ee) {
         RoseInVertex v = target(e, ig);
-        const ue2_literal &succ = ig[v].s;
-        if (!contains(graphs, succ)) {
+        const ue2_literal &igsucc = ig[v].s;
+        if (!contains(graphs, igsucc)) {
             continue;
         }
 
-        ig[e].graph = graphs[succ].first;
-        ig[e].graph_lag = graphs[succ].second;
+        ig[e].graph = graphs[igsucc].first;
+        ig[e].graph_lag = graphs[igsucc].second;
 
         if (isStarCliche(*ig[e].graph)) {
             DEBUG_PRINTF("is a X star!\n");
@@ -1793,8 +1793,8 @@ void removeRedundantLiteralsFromInfixes(RoseInGraph &g,
 
     for (const auto &m : infixes) {
         const NGHolder *h = m.first;
-        const auto &edges = m.second;
-        removeRedundantLiteralsFromInfix(*h, g, edges, cc);
+        const auto &medges = m.second;
+        removeRedundantLiteralsFromInfix(*h, g, medges, cc);
     }
 }
 
@@ -1953,7 +1953,7 @@ bool makeTransientFromLongLiteral(const NGHolder &h, RoseInGraph &vg,
 
 static
 void restoreTrailingLiteralStates(NGHolder &g, const ue2_literal &lit,
-                                  u32 delay, const vector<NFAVertex> &preds) {
+                                  u32 delay, const vector<NFAVertex> &lpreds) {
     assert(delay <= lit.length());
     assert(isCorrectlyTopped(g));
     DEBUG_PRINTF("adding on '%s' %u\n", dumpString(lit).c_str(), delay);
@@ -1969,7 +1969,7 @@ void restoreTrailingLiteralStates(NGHolder &g, const ue2_literal &lit,
         prev = curr;
     }
 
-    for (auto v : preds) {
+    for (auto v : lpreds) {
         NFAEdge e = add_edge_if_not_present(v, prev, g).first;
         if (v == g.start && is_triggered(g)) {
             g[e].tops.insert(DEFAULT_TOP);
@@ -1988,11 +1988,11 @@ void restoreTrailingLiteralStates(NGHolder &g, const ue2_literal &lit,
 static
 void restoreTrailingLiteralStates(NGHolder &g,
                                   const vector<pair<ue2_literal, u32>> &lits) {
-    vector<NFAVertex> preds;
-    insert(&preds, preds.end(), inv_adjacent_vertices(g.accept, g));
+    vector<NFAVertex> vpreds;
+    insert(&vpreds, vpreds.end(), inv_adjacent_vertices(g.accept, g));
     clear_in_edges(g.accept, g);
 
-    for (auto v : preds) {
+    for (auto v : vpreds) {
         g[v].reports.clear(); /* clear report from old accepts */
     }
 
@@ -2000,7 +2000,7 @@ void restoreTrailingLiteralStates(NGHolder &g,
         const ue2_literal &lit = p.first;
         u32 delay = p.second;
 
-        restoreTrailingLiteralStates(g, lit, delay, preds);
+        restoreTrailingLiteralStates(g, lit, delay, vpreds);
     }
 }
 
@@ -2134,14 +2134,14 @@ void findBetterPrefixes(RoseInGraph &vg, const CompileContext &cc) {
         /* look for bad prefixes and try to split */
         for (const auto &m : prefixes) {
             NGHolder *h = m.first;
-            const auto &edges = m.second;
+            const auto &medges = m.second;
             depth max_width = findMaxWidth(*h);
             if (willBeTransient(max_width, cc)
                 || willBeAnchoredTable(max_width, cc.grey)) {
                 continue;
             }
 
-            changed = improvePrefix(*h, vg, edges, cc);
+            changed = improvePrefix(*h, vg, medges, cc);
         }
     } while (changed && gen++ < MAX_FIND_BETTER_PREFIX_GEN);
 }
@@ -2198,12 +2198,12 @@ void extractStrongLiterals(RoseInGraph &vg, const CompileContext &cc) {
 
         for (const auto &m : edges_by_graph) {
             NGHolder *g = m.first;
-            const auto &edges = m.second;
+            const auto &medges = m.second;
             if (contains(stuck, g)) {
                 DEBUG_PRINTF("already known to be bad\n");
                 continue;
             }
-            bool rv = extractStrongLiteral(*g, vg, edges, cc);
+            bool rv = extractStrongLiteral(*g, vg, medges, cc);
             if (rv) {
                 changed = true;
             } else {
@@ -2281,8 +2281,8 @@ void improveWeakInfixes(RoseInGraph &vg, const CompileContext &cc) {
 
     for (const auto &m : weak_edges) {
         NGHolder *h = m.first;
-        const auto &edges = m.second;
-        improveInfix(*h, vg, edges, cc);
+        const auto &medges = m.second;
+        improveInfix(*h, vg, medges, cc);
     }
 }
 
@@ -2407,14 +2407,14 @@ bool replaceSuffixWithInfix(const NGHolder &h, RoseInGraph &vg,
     assert(!by_reports.empty());
 
     /* TODO: how strong a min len do we want here ? */
-    u32 min_len = cc.grey.minRoseLiteralLength;
-    ENSURE_AT_LEAST(&min_len, MIN_SUFFIX_LEN);
+    u32 rose_min_len = cc.grey.minRoseLiteralLength;
+    ENSURE_AT_LEAST(&rose_min_len, MIN_SUFFIX_LEN);
 
     for (auto &vli : by_reports | map_values) {
         u64a score = sanitizeAndCompressAndScore(vli.lit);
 
         if (vli.lit.empty()
-            || !validateRoseLiteralSetQuality(vli.lit, score, false, min_len,
+            || !validateRoseLiteralSetQuality(vli.lit, score, false, rose_min_len,
                                               false, false)) {
             return false;
         }
@@ -2458,8 +2458,8 @@ void avoidSuffixes(RoseInGraph &vg, const CompileContext &cc) {
     /* look at suffixes and try to split */
     for (const auto &m : suffixes) {
         const NGHolder *h = m.first;
-        const auto &edges = m.second;
-        replaceSuffixWithInfix(*h, vg, edges, cc);
+        const auto &medges = m.second;
+        replaceSuffixWithInfix(*h, vg, medges, cc);
     }
 }
 
@@ -2553,8 +2553,8 @@ void lookForDoubleCut(RoseInGraph &vg, const CompileContext &cc) {
 
     for (const auto &m : right_edges) {
         const NGHolder *h = m.first;
-        const auto &edges = m.second;
-        lookForDoubleCut(*h, edges, vg, cc.grey);
+        const auto &medges = m.second;
+        lookForDoubleCut(*h, medges, vg, cc.grey);
     }
 }
 
@@ -2745,8 +2745,8 @@ void lookForCleanEarlySplits(RoseInGraph &vg, const CompileContext &cc) {
 
         for (const auto &m : rightfixes) {
             const NGHolder *h = m.first;
-            const auto &edges = m.second;
-            lookForCleanSplit(*h, edges, vg, cc);
+            const auto &medges = m.second;
+            lookForCleanSplit(*h, medges, vg, cc);
         }
 
         prev = std::move(curr);
@@ -2942,10 +2942,10 @@ bool ensureImplementable(RoseBuild &rose, RoseInGraph &vg, bool allow_changes,
                 continue;
             }
 
-            const auto &edges = m.second;
+            const auto &medges = m.second;
 
             if (tryForEarlyDfa(*h, cc) &&
-                doEarlyDfa(rose, vg, *h, edges, final_chance, rm, cc)) {
+                doEarlyDfa(rose, vg, *h, medges, final_chance, rm, cc)) {
                 continue;
             }
 
@@ -2954,7 +2954,7 @@ bool ensureImplementable(RoseBuild &rose, RoseInGraph &vg, bool allow_changes,
                 return false;
             }
 
-            if (splitForImplementability(vg, *h, edges, cc)) {
+            if (splitForImplementability(vg, *h, medges, cc)) {
                 added_count++;
                 if (added_count > MAX_IMPLEMENTABLE_SPLITS) {
                     DEBUG_PRINTF("added_count hit limit\n");
