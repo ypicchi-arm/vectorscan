@@ -320,7 +320,7 @@ void mergeNfaComponent(NGHolder &dest, const NGHolder &vic, size_t common_len) {
                 DEBUG_PRINTF("skipping common edge\n");
                 assert(edge(u, v, dest).second);
                 // Should never merge edges with different top values.
-                assert(vic[e].tops == dest[edge(u, v, dest)].tops);
+                assert(vic[e].tops == dest[edge(u, v, dest).first].tops);
                 continue;
             } else {
                 assert(is_any_accept(v, dest));
