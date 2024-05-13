@@ -915,7 +915,7 @@ bool mergeSameCastle(RoseBuildImpl &build, RoseVertex a, RoseVertex b,
         }
     }
 
-    assert(contains(rai.rev_leftfix[b_left], b));
+    assert(contains(rai.rev_leftfix[left_id(b_left)], b));
     rai.rev_leftfix[left_id(b_left)].erase(b);
     rai.rev_leftfix[left_id(a_left)].insert(b);
 

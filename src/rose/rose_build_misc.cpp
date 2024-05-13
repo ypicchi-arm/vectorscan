@@ -505,7 +505,7 @@ bool operator<(const RoseEdgeProps &a, const RoseEdgeProps &b) {
 #ifndef NDEBUG
 bool roseHasTops(const RoseBuildImpl &build, RoseVertex v) {
     const RoseGraph &g = build.g;
-    assert(left_id(g[v].left));
+    assert(g[v].left);
 
     set<u32> graph_tops;
     if (!build.isRootSuccessor(v)) {

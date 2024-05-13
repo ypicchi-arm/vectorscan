@@ -250,7 +250,7 @@ int main(){
                     u32 id = 1000;
                     ue2::hwlmLiteral lit(str, true, id);
                     b.nt = ue2::noodBuildTable(lit);
-                    assert(b.nt != nullptr);
+                    assert(b.nt.get() != nullptr);
                 },
                 [&](MicroBenchmark &b) {
                     noodExec(b.nt.get(), b.buf.data(), b.size, 0,
