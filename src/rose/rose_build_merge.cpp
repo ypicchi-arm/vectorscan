@@ -1345,7 +1345,7 @@ insertion_ordered_map<left_id, vector<RoseVertex>> get_eng_verts(const RoseGraph
         if (!left) {
             continue;
         }
-        assert(contains(all_reports(left), left.leftfix_report));
+        assert(contains(all_reports(left_id(left)), left.leftfix_report));
         eng_verts[left_id(left)].emplace_back(v);
     }
 
