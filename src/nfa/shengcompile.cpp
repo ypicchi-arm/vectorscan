@@ -690,7 +690,7 @@ bytecode_ptr<NFA> shengCompile_int(raw_dfa &raw, const CompileContext &cc,
     }
 
     if (!createShuffleMasks<T>((T *)getMutableImplNfa(nfa.get()), info, accelInfo)) {
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     return nfa;
@@ -701,7 +701,7 @@ bytecode_ptr<NFA> shengCompile(raw_dfa &raw, const CompileContext &cc,
                                set<dstate_id_t> *accel_states) {
     if (!cc.grey.allowSheng) {
         DEBUG_PRINTF("Sheng is not allowed!\n");
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     sheng_build_strat strat(raw, rm, only_accel_init);
@@ -716,7 +716,7 @@ bytecode_ptr<NFA> shengCompile(raw_dfa &raw, const CompileContext &cc,
                  info.can_die ? "can" : "cannot", info.size());
     if (info.size() > 16) {
         DEBUG_PRINTF("Too many states\n");
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     return shengCompile_int<sheng>(raw, cc, accel_states, strat, info);
@@ -727,18 +727,18 @@ bytecode_ptr<NFA> sheng32Compile(raw_dfa &raw, const CompileContext &cc,
                                  set<dstate_id_t> *accel_states) {
     if (!cc.grey.allowSheng) {
         DEBUG_PRINTF("Sheng is not allowed!\n");
-        return nullptr;
+        bytecode_ptr<NFA>(nullptr);
     }
 
 #ifdef HAVE_SVE
     if (svcntb()<32) {
         DEBUG_PRINTF("Sheng32 failed, SVE width is too small!\n");
-        return nullptr;
+        bytecode_ptr<NFA>(nullptr);
     }
 #else
     if (!cc.target_info.has_avx512vbmi()) {
         DEBUG_PRINTF("Sheng32 failed, no HS_CPU_FEATURES_AVX512VBMI!\n");
-        return nullptr;
+        bytecode_ptr<NFA>(nullptr);
     }
 #endif
 
@@ -755,7 +755,7 @@ bytecode_ptr<NFA> sheng32Compile(raw_dfa &raw, const CompileContext &cc,
     assert(info.size() > 16);
     if (info.size() > 32) {
         DEBUG_PRINTF("Too many states\n");
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     return shengCompile_int<sheng32>(raw, cc, accel_states, strat, info);
@@ -766,18 +766,18 @@ bytecode_ptr<NFA> sheng64Compile(raw_dfa &raw, const CompileContext &cc,
                                  set<dstate_id_t> *accel_states) {
     if (!cc.grey.allowSheng) {
         DEBUG_PRINTF("Sheng is not allowed!\n");
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
 #ifdef HAVE_SVE
     if (svcntb()<64) {
         DEBUG_PRINTF("Sheng64 failed, SVE width is too small!\n");
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 #else
     if (!cc.target_info.has_avx512vbmi()) {
         DEBUG_PRINTF("Sheng64 failed, no HS_CPU_FEATURES_AVX512VBMI!\n");
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 #endif
 
@@ -794,7 +794,7 @@ bytecode_ptr<NFA> sheng64Compile(raw_dfa &raw, const CompileContext &cc,
     assert(info.size() > 32);
     if (info.size() > 64) {
         DEBUG_PRINTF("Too many states\n");
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
     vector<dstate> old_states;
     old_states = info.states;

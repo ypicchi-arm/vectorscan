@@ -176,7 +176,8 @@ void replaceAssertVertex(NGHolder &g, NFAVertex t, const ExpressionInfo &expr,
             auto ecit = edge_cache.find(cache_key);
             if (ecit == edge_cache.end()) {
                 DEBUG_PRINTF("adding edge %zu %zu\n", g[u].index, g[v].index);
-                NFAEdge e = add_edge(u, v, g);
+                NFAEdge e;
+                std::tie(e, std::ignore) = add_edge(u, v, g);
                 edge_cache.emplace(cache_key, e);
                 g[e].assert_flags = flags;
                 if (++assert_edge_count > MAX_ASSERT_EDGES) {

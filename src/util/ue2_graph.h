@@ -210,7 +210,7 @@ public:
      * edge() and add_edge(). As we have null_edges and we always allow
      * parallel edges, the bool component of the return from these functions is
      * not required. */
-    edge_descriptor(const std::pair<edge_descriptor, bool> &tup)
+    explicit edge_descriptor(const std::pair<edge_descriptor, bool> &tup)
         : p(tup.first.p), serial(tup.first.serial) {
         assert(tup.second == (bool)tup.first);
     }
@@ -432,7 +432,7 @@ public:
         vertex_descriptor> {
         using super = typename adjacency_iterator::iterator_adaptor_;
     public:
-        adjacency_iterator(out_edge_iterator a) : super(std::move(a)) { }
+        explicit adjacency_iterator(out_edge_iterator a) : super(std::move(a)) { }
         adjacency_iterator() { }
 
         vertex_descriptor dereference() const {
@@ -448,7 +448,7 @@ public:
         vertex_descriptor> {
         using super = typename inv_adjacency_iterator::iterator_adaptor_;
     public:
-        inv_adjacency_iterator(in_edge_iterator a) : super(std::move(a)) { }
+        explicit inv_adjacency_iterator(in_edge_iterator a) : super(std::move(a)) { }
         inv_adjacency_iterator() { }
 
         vertex_descriptor dereference() const {
@@ -791,7 +791,7 @@ public:
 
         typedef typename boost::lvalue_property_map_tag category;
 
-        prop_map(value_type P_of::*m_in) : member(m_in) { }
+        explicit prop_map(value_type P_of::*m_in) : member(m_in) { }
 
         reference operator[](key_type k) const {
             return k.raw()->props.*member;

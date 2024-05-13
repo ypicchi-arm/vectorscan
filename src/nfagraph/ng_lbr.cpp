@@ -154,7 +154,7 @@ bytecode_ptr<NFA> buildLbrDot(const CharReach &cr, const depth &repeatMin,
                               const depth &repeatMax, u32 minPeriod,
                               bool is_reset, ReportID report) {
     if (!cr.all()) {
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     enum RepeatType rtype = chooseRepeatType(repeatMin, repeatMax, minPeriod,
@@ -176,7 +176,7 @@ bytecode_ptr<NFA> buildLbrVerm(const CharReach &cr, const depth &repeatMin,
     const CharReach escapes(~cr);
 
     if (escapes.count() != 1) {
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     enum RepeatType rtype = chooseRepeatType(repeatMin, repeatMax, minPeriod,
@@ -199,7 +199,7 @@ bytecode_ptr<NFA> buildLbrNVerm(const CharReach &cr, const depth &repeatMin,
     const CharReach escapes(cr);
 
     if (escapes.count() != 1) {
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     enum RepeatType rtype = chooseRepeatType(repeatMin, repeatMax, minPeriod,
@@ -228,7 +228,7 @@ bytecode_ptr<NFA> buildLbrShuf(const CharReach &cr, const depth &repeatMin,
                       minPeriod, rtype);
 
     if (shuftiBuildMasks(~cr, (u8 *)&ls->mask_lo, (u8 *)&ls->mask_hi) == -1) {
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     DEBUG_PRINTF("built shuf lbr\n");
@@ -296,7 +296,7 @@ bytecode_ptr<NFA> constructLBR(const CharReach &cr, const depth &repeatMin,
 
     if (!nfa) {
         assert(0);
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     return nfa;
@@ -307,11 +307,11 @@ bytecode_ptr<NFA> constructLBR(const CastleProto &proto,
                                const CompileContext &cc,
                                const ReportManager &rm) {
     if (!cc.grey.allowLbr) {
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     if (proto.repeats.size() != 1) {
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     const PureRepeat &repeat = proto.repeats.begin()->second;
@@ -319,7 +319,7 @@ bytecode_ptr<NFA> constructLBR(const CastleProto &proto,
 
     if (repeat.reports.size() != 1) {
         DEBUG_PRINTF("too many reports\n");
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     bool is_reset;
@@ -346,16 +346,16 @@ bytecode_ptr<NFA> constructLBR(const NGHolder &g,
                                const CompileContext &cc,
                                const ReportManager &rm) {
     if (!cc.grey.allowLbr) {
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     PureRepeat repeat;
     if (!isPureRepeat(g, repeat)) {
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
     if (repeat.reports.size() != 1) {
         DEBUG_PRINTF("too many reports\n");
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     CastleProto proto(g.kind, repeat);

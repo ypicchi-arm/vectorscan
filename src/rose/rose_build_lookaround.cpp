@@ -280,13 +280,13 @@ void findForwardReach(const RoseGraph &g, const RoseVertex v,
             return;
         }
         rose_look.emplace_back(map<s32, CharReach>());
-        getRoseForwardReach(g[t].left, g[e].rose_top, rose_look.back());
+        getRoseForwardReach(left_id(g[t].left), g[e].rose_top, rose_look.back());
     }
 
     if (g[v].suffix) {
         DEBUG_PRINTF("suffix engine\n");
         rose_look.emplace_back(map<s32, CharReach>());
-        getSuffixForwardReach(g[v].suffix, g[v].suffix.top, rose_look.back());
+        getSuffixForwardReach(suffix_id(g[v].suffix), g[v].suffix.top, rose_look.back());
     }
 
     combineForwardMasks(rose_look, look);

@@ -55,10 +55,10 @@ using namespace ue2;
 #define CHECK_WITH_TEDDY_OK_TO_FAIL(fdr, hint)                                 \
     {                                                                          \
         auto descr = getTeddyDescription(hint);                                \
-        if (descr && fdr != nullptr) {                                         \
+        if (descr && fdr.get() != nullptr) {                                         \
             return;                                                            \
         } else {                                                               \
-            ASSERT_TRUE(fdr != nullptr);                                       \
+            ASSERT_TRUE(fdr.get() != nullptr);                                       \
         }                                                                      \
     }
 #endif

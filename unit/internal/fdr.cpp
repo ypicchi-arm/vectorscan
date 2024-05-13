@@ -61,10 +61,10 @@ using namespace ue2;
 #define CHECK_WITH_TEDDY_OK_TO_FAIL(fdr, hint)                                 \
     {                                                                          \
         auto descr = getTeddyDescription(hint);                                \
-        if (descr && fdr == nullptr) {                                         \
+        if (descr && fdr.get() == nullptr) {                                         \
             return; /* cannot build Teddy for this set of literals */          \
         } else {                                                               \
-            ASSERT_TRUE(fdr != nullptr);                                       \
+            ASSERT_TRUE(fdr.get() != nullptr);                                       \
         }                                                                      \
     }
 #endif
@@ -145,7 +145,7 @@ bytecode_ptr<FDR> buildFDREngineHinted(std::vector<hwlmLiteral> &lits,
     auto proto = fdrBuildProtoHinted(HWLM_ENGINE_FDR, lits, make_small, hint,
                                      target, grey);
     if (!proto) {
-        return nullptr;
+        return ue2::bytecode_ptr<FDR>(nullptr);
     }
     return fdrBuildTable(*proto, grey);
 }
@@ -156,7 +156,7 @@ bytecode_ptr<FDR> buildFDREngine(std::vector<hwlmLiteral> &lits,
                                  const Grey &grey) {
     auto proto = fdrBuildProto(HWLM_ENGINE_FDR, lits, make_small, target, grey);
     if (!proto) {
-        return nullptr;
+        return bytecode_ptr<FDR>(nullptr);
     }
     return fdrBuildTable(*proto, grey);
 }
@@ -421,7 +421,7 @@ TEST_P(FDRp, moveByteStream) {
     size_t size = fdrSize(fdrTable0.get());
 
     auto fdrTable = make_bytecode_ptr<FDR>(size, 64);
-    EXPECT_NE(nullptr, fdrTable);
+    EXPECT_NE(nullptr, fdrTable.get());
 
     memcpy(fdrTable.get(), fdrTable0.get(), size);
 
@@ -706,7 +706,7 @@ TEST(FDR, FDRTermS) {
     lits.push_back(hwlmLiteral("ff", 0, 1));
 
     auto fdr = buildFDREngine(lits, false, get_current_target(), Grey());
-    ASSERT_TRUE(fdr != nullptr);
+    ASSERT_TRUE(fdr.get() != nullptr);
 
     // check matches
 
@@ -729,7 +729,7 @@ TEST(FDR, FDRTermB) {
     lits.push_back(hwlmLiteral("ff", 0, 1));
 
     auto fdr = buildFDREngine(lits, false, get_current_target(), Grey());
-    ASSERT_TRUE(fdr != nullptr);
+    ASSERT_TRUE(fdr.get() != nullptr);
 
     // check matches
     struct hs_scratch scratch;

@@ -811,7 +811,7 @@ void RoseBuildImpl::findTransientLeftfixes(void) {
             continue;
         }
 
-        const left_id &left(g[v].left);
+        const left_id &left(left_id(g[v].left));
 
         if (::ue2::isAnchored(left) && !isInETable(v)) {
             /* etable prefixes currently MUST be transient as we do not know
@@ -863,7 +863,7 @@ map<left_id, vector<RoseVertex>> findLeftSucc(const RoseBuildImpl &build) {
     for (auto v : vertices_range(build.g)) {
         if (build.g[v].left) {
             const LeftEngInfo &lei = build.g[v].left;
-            leftfixes[lei].emplace_back(v);
+            leftfixes[left_id(lei)].emplace_back(v);
         }
     }
     return leftfixes;
@@ -1250,7 +1250,7 @@ void buildRoseSquashMasks(RoseBuildImpl &tbi) {
             if (!info.delayed_ids.empty()
                 || !all_of_in(info.vertices,
                               [&](RoseVertex v) {
-                                  return left == tbi.g[v].left; })) {
+                                  return left == left_id(tbi.g[v].left); })) {
                 DEBUG_PRINTF("group %llu is unsquashable\n", info.group_mask);
                 unsquashable |= info.group_mask;
             }
@@ -1393,7 +1393,7 @@ void addSmallBlockLiteral(RoseBuildImpl &tbi, const simple_anchored_info &sai,
             g[v].max_offset = sai.max_bound + sai.literal.length();
             lit_info.vertices.insert(v);
 
-            RoseEdge e = add_edge(anchored_root, v, g);
+            RoseEdge e = add_edge(anchored_root, v, g).first;
             g[e].minBound = sai.min_bound;
             g[e].maxBound = sai.max_bound;
         }
@@ -1417,7 +1417,7 @@ void addSmallBlockLiteral(RoseBuildImpl &tbi, const ue2_literal &lit,
     g[v].literals.insert(lit_id);
     g[v].reports = reports;
 
-    RoseEdge e = add_edge(tbi.root, v, g);
+    RoseEdge e = add_edge(tbi.root, v, g).first;
     g[e].minBound = 0;
     g[e].maxBound = ROSE_BOUND_INF;
     g[v].min_offset = 1;

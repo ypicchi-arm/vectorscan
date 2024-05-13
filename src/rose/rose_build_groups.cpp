@@ -77,7 +77,7 @@ static
 bool eligibleForAlwaysOnGroup(const RoseBuildImpl &build, u32 id) {
     auto eligble = [&](RoseVertex v) {
         return build.isRootSuccessor(v)
-        && (!build.g[v].left || !isAnchored(build.g[v].left));
+        && (!build.g[v].left || !isAnchored(left_id(build.g[v].left)));
     };
 
     if (any_of_in(build.literal_info[id].vertices, eligble)) {
@@ -208,7 +208,7 @@ void allocateGroupForEvent(RoseBuildImpl &build, u32 group_always_on,
 
     bool new_group = !groupCount[group_always_on];
     for (RoseVertex v : info.vertices) {
-        if (build.g[v].left && !isAnchored(build.g[v].left)) {
+        if (build.g[v].left && !isAnchored(left_id(build.g[v].left))) {
             new_group = false;
         }
     }

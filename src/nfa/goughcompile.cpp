@@ -1042,7 +1042,7 @@ bytecode_ptr<NFA> goughCompile(raw_som_dfa &raw, u8 somPrecision,
            || !cc.streaming);
 
     if (!cc.grey.allowGough) {
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     DEBUG_PRINTF("hello world\n");
@@ -1073,7 +1073,7 @@ bytecode_ptr<NFA> goughCompile(raw_som_dfa &raw, u8 somPrecision,
     auto basic_dfa = mcclellanCompile_i(raw, gbs, cc);
     assert(basic_dfa);
     if (!basic_dfa) {
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     u8 alphaShift

@@ -159,13 +159,13 @@ private:
 };
 
 struct RoseAliasingInfo {
-    RoseAliasingInfo(const RoseBuildImpl &build) {
+    explicit RoseAliasingInfo(const RoseBuildImpl &build) {
         const auto &g = build.g;
 
         // Populate reverse leftfix map.
         for (auto v : vertices_range(g)) {
             if (g[v].left) {
-                rev_leftfix[g[v].left].insert(v);
+                rev_leftfix[left_id(g[v].left)].insert(v);
             }
         }
 
@@ -259,8 +259,10 @@ bool samePredecessors(RoseVertex a, RoseVertex b, const RoseGraph &g) {
         }
 
         for (const auto &e_a : in_edges_range(a, g)) {
-            RoseEdge e = edge(source(e_a, g), b, g);
-            if (!e || g[e].rose_top != g[e_a].rose_top) {
+            auto edge_result = edge(source(e_a, g), b, g);
+            RoseEdge e = edge_result.first;
+            
+            if (!edge_result.second || g[e].rose_top != g[e_a].rose_top) {
                 DEBUG_PRINTF("bad tops\n");
                 return false;
             }
@@ -274,7 +276,9 @@ static
 bool hasCommonSuccWithBadBounds(RoseVertex a, RoseVertex b,
                                 const RoseGraph &g) {
     for (const auto &e_a : out_edges_range(a, g)) {
-        if (RoseEdge e = edge(b, target(e_a, g), g)) {
+        auto edge_result = edge(b, target(e_a, g), g);
+        RoseEdge e = edge_result.first;
+        if (edge_result.second) {
             if (g[e_a].maxBound < g[e].minBound
                 || g[e].maxBound < g[e_a].minBound) {
                 return true;
@@ -293,7 +297,9 @@ static
 bool hasCommonPredWithBadBounds(RoseVertex a, RoseVertex b,
                                 const RoseGraph &g) {
     for (const auto &e_a : in_edges_range(a, g)) {
-        if (RoseEdge e = edge(source(e_a, g), b, g)) {
+        auto edge_result = edge(source(e_a, g), b, g);
+        RoseEdge e = edge_result.first;
+        if (edge_result.second) {
             if (g[e_a].maxBound < g[e].minBound
                 || g[e].maxBound < g[e_a].minBound) {
                 return true;
@@ -700,7 +706,9 @@ bool hasCommonPredWithDiffRoses(RoseVertex a, RoseVertex b,
     const bool equal_roses = hasEqualLeftfixes(a, b, g);
 
     for (const auto &e_a : in_edges_range(a, g)) {
-        if (RoseEdge e = edge(source(e_a, g), b, g)) {
+        auto edge_result = edge(source(e_a, g), b, g);
+        RoseEdge e = edge_result.first;
+        if (edge_result.second) {
             DEBUG_PRINTF("common pred, e_r=%d r_t %u,%u\n",
                          (int)equal_roses, g[e].rose_top, g[e_a].rose_top);
             if (!equal_roses) {
@@ -907,9 +915,9 @@ bool mergeSameCastle(RoseBuildImpl &build, RoseVertex a, RoseVertex b,
         }
     }
 
-    assert(contains(rai.rev_leftfix[b_left], b));
-    rai.rev_leftfix[b_left].erase(b);
-    rai.rev_leftfix[a_left].insert(b);
+    assert(contains(rai.rev_leftfix[left_id(b_left)], b));
+    rai.rev_leftfix[left_id(b_left)].erase(b);
+    rai.rev_leftfix[left_id(a_left)].insert(b);
 
     a_left.leftfix_report = new_report;
     b_left.leftfix_report = new_report;
@@ -918,7 +926,7 @@ bool mergeSameCastle(RoseBuildImpl &build, RoseVertex a, RoseVertex b,
     updateEdgeTops(g, a, a_top_map);
     updateEdgeTops(g, b, b_top_map);
 
-    pruneUnusedTops(castle, g, rai.rev_leftfix[a_left]);
+    pruneUnusedTops(castle, g, rai.rev_leftfix[left_id(a_left)]);
     return true;
 }
 
@@ -1026,9 +1034,9 @@ bool attemptRoseCastleMerge(RoseBuildImpl &build, bool preds_same, RoseVertex a,
         b_left.castle = new_castle;
 
         assert(a_left == b_left);
-        rai.rev_leftfix[a_left].insert(a);
-        rai.rev_leftfix[a_left].insert(b);
-        pruneUnusedTops(*new_castle, g, rai.rev_leftfix[a_left]);
+        rai.rev_leftfix[left_id(a_left)].insert(a);
+        rai.rev_leftfix[left_id(a_left)].insert(b);
+        pruneUnusedTops(*new_castle, g, rai.rev_leftfix[left_id(a_left)]);
         return true;
     }
 
@@ -1079,7 +1087,9 @@ bool attemptRoseCastleMerge(RoseBuildImpl &build, bool preds_same, RoseVertex a,
         // We should be protected from merging common preds with tops leading
         // to completely different repeats by earlier checks, but just in
         // case...
-        if (RoseEdge a_edge = edge(source(e, g), a, g)) {
+        auto edge_result = edge(source(e, g), a, g);
+        RoseEdge a_edge = edge_result.first;
+        if (edge_result.second) {
             u32 a_top = g[a_edge].rose_top;
             const PureRepeat &a_pr = m_castle->repeats[a_top]; // new report
             if (pr != a_pr) {
@@ -1112,9 +1122,9 @@ bool attemptRoseCastleMerge(RoseBuildImpl &build, bool preds_same, RoseVertex a,
     b_left.leftfix_report = new_report;
 
     assert(a_left == b_left);
-    rai.rev_leftfix[a_left].insert(a);
-    rai.rev_leftfix[a_left].insert(b);
-    pruneUnusedTops(*m_castle, g, rai.rev_leftfix[a_left]);
+    rai.rev_leftfix[left_id(a_left)].insert(a);
+    rai.rev_leftfix[left_id(a_left)].insert(b);
+    pruneUnusedTops(*m_castle, g, rai.rev_leftfix[left_id(a_left)]);
     return true;
 }
 
@@ -1237,9 +1247,9 @@ bool attemptRoseGraphMerge(RoseBuildImpl &build, bool preds_same, RoseVertex a,
         a_left.graph = new_graph;
         b_left.graph = new_graph;
 
-        rai.rev_leftfix[a_left].insert(a);
-        rai.rev_leftfix[a_left].insert(b);
-        pruneUnusedTops(*new_graph, g, rai.rev_leftfix[a_left]);
+        rai.rev_leftfix[left_id(a_left)].insert(a);
+        rai.rev_leftfix[left_id(a_left)].insert(b);
+        pruneUnusedTops(*new_graph, g, rai.rev_leftfix[left_id(a_left)]);
         return true;
     }
 
@@ -1258,7 +1268,7 @@ bool attemptRoseGraphMerge(RoseBuildImpl &build, bool preds_same, RoseVertex a,
     DEBUG_PRINTF("attempting merge of roses on vertices %zu and %zu\n",
                  g[a].index, g[b].index);
 
-    set<RoseVertex> &b_verts = rai.rev_leftfix[b_left];
+    set<RoseVertex> &b_verts = rai.rev_leftfix[left_id(b_left)];
     set<RoseVertex> aa;
     aa.insert(a);
 
@@ -1280,7 +1290,7 @@ bool attemptRoseGraphMerge(RoseBuildImpl &build, bool preds_same, RoseVertex a,
     ReportID new_report = build.getNewNfaReport();
     duplicateReport(*b_h, b_left.leftfix_report, new_report);
     b_left.leftfix_report = new_report;
-    pruneReportIfUnused(build, b_h, rai.rev_leftfix[b_left_id], b_oldreport);
+    pruneReportIfUnused(build, b_h, rai.rev_leftfix[left_id(b_left_id)], b_oldreport);
 
     NGHolder victim;
     cloneHolder(victim, *a_h);
@@ -1316,16 +1326,16 @@ bool attemptRoseGraphMerge(RoseBuildImpl &build, bool preds_same, RoseVertex a,
     a_left.graph = b_h;
     a_left.leftfix_report = new_report;
 
-    assert(contains(rai.rev_leftfix[a_left_id], a));
-    assert(contains(rai.rev_leftfix[b_left_id], b));
-    rai.rev_leftfix[a_left_id].erase(a);
-    rai.rev_leftfix[b_left_id].insert(a);
+    assert(contains(rai.rev_leftfix[left_id(a_left_id)], a));
+    assert(contains(rai.rev_leftfix[left_id(b_left_id)], b));
+    rai.rev_leftfix[left_id(a_left_id)].erase(a);
+    rai.rev_leftfix[left_id(b_left_id)].insert(a);
 
-    pruneUnusedTops(*a_h, g, rai.rev_leftfix[a_left_id]);
-    pruneUnusedTops(*b_h, g, rai.rev_leftfix[b_left_id]);
+    pruneUnusedTops(*a_h, g, rai.rev_leftfix[left_id(a_left_id)]);
+    pruneUnusedTops(*b_h, g, rai.rev_leftfix[left_id(b_left_id)]);
 
     // Prune A's report from its old prefix if it was only used by A.
-    pruneReportIfUnused(build, a_h, rai.rev_leftfix[a_left_id], a_oldreport);
+    pruneReportIfUnused(build, a_h, rai.rev_leftfix[left_id(a_left_id)], a_oldreport);
 
     reduceImplementableGraph(*b_h, SOM_NONE, nullptr, build.cc);
 
@@ -2136,7 +2146,9 @@ void mergeDupeLeaves(RoseBuildImpl &build) {
         for (const auto &e : in_edges_range(v, g)) {
             RoseVertex u = source(e, g);
             DEBUG_PRINTF("u index=%zu\n", g[u].index);
-            if (RoseEdge et = edge(u, t, g)) {
+            auto edge_result = edge(u, t, g);
+            RoseEdge et = edge_result.first;
+            if (edge_result.second) {
                 if (g[et].minBound <= g[e].minBound
                     && g[et].maxBound >= g[e].maxBound) {
                     DEBUG_PRINTF("remove more constrained edge\n");

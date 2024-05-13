@@ -477,10 +477,10 @@ bool isNoRunsVertex(const RoseBuildImpl &build, RoseVertex u) {
         DEBUG_PRINTF("u=%zu is not a root role\n", g[u].index);
         return false;
     }
+    auto edge_result = edge(build.root, u, g);
+    RoseEdge e = edge_result.first;
 
-    RoseEdge e = edge(build.root, u, g);
-
-    if (!e) {
+    if (!edge_result.second) {
         DEBUG_PRINTF("u=%zu is not a root role\n", g[u].index);
         return false;
     }
@@ -635,7 +635,7 @@ u64a literalMinReportOffset(const RoseBuildImpl &build,
         }
 
         if (g[v].suffix) {
-            depth suffix_width = findMinWidth(g[v].suffix, g[v].suffix.top);
+            depth suffix_width = findMinWidth(suffix_id(g[v].suffix), g[v].suffix.top);
             assert(suffix_width.is_reachable());
             DEBUG_PRINTF("suffix with width %s\n", suffix_width.str().c_str());
             min_offset = min(min_offset, vert_offset + suffix_width);
@@ -886,7 +886,7 @@ void buildAccel(const RoseBuildImpl &build,
 bytecode_ptr<HWLM>
 buildHWLMMatcher(const RoseBuildImpl &build, const LitProto *litProto) {
     if (!litProto) {
-        return nullptr;
+        return bytecode_ptr<HWLM>(nullptr);
     }
     auto hwlm = hwlmBuild(*litProto->hwlmProto, build.cc,
                           build.getInitialGroups());

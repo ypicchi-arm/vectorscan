@@ -1918,8 +1918,8 @@ void makeRoleSuffix(const RoseBuildImpl &build,
     if (!g[v].suffix) {
         return;
     }
-    assert(contains(suffixes, g[v].suffix));
-    u32 queue = suffixes.at(g[v].suffix);
+    assert(contains(suffixes, suffix_id(g[v].suffix)));
+    u32 queue = suffixes.at(suffix_id(g[v].suffix));
     u32 event;
     assert(contains(engine_info_by_queue, queue));
     const auto eng_info = engine_info_by_queue.at(queue);
@@ -1991,7 +1991,7 @@ void makeRoleInfixTriggers(const RoseBuildImpl &build,
                                       make_pair(g[v].index, g[e].rose_top));
             assert(top < MQE_INVALID);
         } else if (!isMultiTopType(eng_info.type)) {
-            assert(num_tops(g[v].left) == 1);
+            assert(num_tops(left_id(g[v].left)) == 1);
             top = MQE_TOP;
         } else {
             top = MQE_TOP_FIRST + g[e].rose_top;
@@ -2178,7 +2178,7 @@ void makeGroupSquashInstruction(const RoseBuildImpl &build, u32 lit_id,
 
 namespace {
 struct ProgKey {
-    ProgKey(const RoseProgram &p) : prog(&p) {}
+    explicit ProgKey(const RoseProgram &p) : prog(&p) {}
 
     bool operator==(const ProgKey &b) const {
         return RoseProgramEquivalence()(*prog, *b.prog);
@@ -2200,7 +2200,7 @@ RoseProgram assembleProgramBlocks(vector<RoseProgram> &&blocks_in) {
 
     ue2_unordered_set<ProgKey> seen;
     for (auto &block : blocks_in) {
-        if (contains(seen, block)) {
+        if (contains(seen, ProgKey(block))) {
             continue;
         }
 
