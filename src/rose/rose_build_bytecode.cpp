@@ -1054,7 +1054,7 @@ left_id updateLeftfixWithEager(RoseGraph &g, const eager_info &ei,
         DEBUG_PRINTF("added %u literal chars back, new lag %u\n", lag_adjust,
                      g[v].left.lag);
     }
-    left_id leftfix = left_id(left_id(g[vsuccs[0]].left));
+    left_id leftfix = left_id(g[vsuccs[0]].left);
 
     if (leftfix.graph()) {
         assert(leftfix.graph()->kind == NFA_PREFIX
