@@ -1918,7 +1918,7 @@ void makeRoleSuffix(const RoseBuildImpl &build,
     if (!g[v].suffix) {
         return;
     }
-    assert(contains(suffixes, g[v].suffix));
+    assert(contains(suffixes, suffix_id(g[v].suffix)));
     u32 queue = suffixes.at(suffix_id(g[v].suffix));
     u32 event;
     assert(contains(engine_info_by_queue, queue));
@@ -1991,7 +1991,7 @@ void makeRoleInfixTriggers(const RoseBuildImpl &build,
                                       make_pair(g[v].index, g[e].rose_top));
             assert(top < MQE_INVALID);
         } else if (!isMultiTopType(eng_info.type)) {
-            assert(num_tops(g[v].left) == 1);
+            assert(num_tops(left_id(g[v].left)) == 1);
             top = MQE_TOP;
         } else {
             top = MQE_TOP_FIRST + g[e].rose_top;

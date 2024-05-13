@@ -1290,7 +1290,7 @@ bool attemptRoseGraphMerge(RoseBuildImpl &build, bool preds_same, RoseVertex a,
     ReportID new_report = build.getNewNfaReport();
     duplicateReport(*b_h, b_left.leftfix_report, new_report);
     b_left.leftfix_report = new_report;
-    pruneReportIfUnused(build, b_h, rai.rev_leftfix[b_left_id], b_oldreport);
+    pruneReportIfUnused(build, b_h, rai.rev_leftfix[left_id(b_left_id)], b_oldreport);
 
     NGHolder victim;
     cloneHolder(victim, *a_h);
@@ -1326,16 +1326,16 @@ bool attemptRoseGraphMerge(RoseBuildImpl &build, bool preds_same, RoseVertex a,
     a_left.graph = b_h;
     a_left.leftfix_report = new_report;
 
-    assert(contains(rai.rev_leftfix[a_left_id], a));
-    assert(contains(rai.rev_leftfix[b_left_id], b));
-    rai.rev_leftfix[a_left_id].erase(a);
-    rai.rev_leftfix[b_left_id].insert(a);
+    assert(contains(rai.rev_leftfix[left_id(a_left_id)], a));
+    assert(contains(rai.rev_leftfix[left_id(b_left_id)], b));
+    rai.rev_leftfix[left_id(a_left_id)].erase(a);
+    rai.rev_leftfix[left_id(b_left_id)].insert(a);
 
-    pruneUnusedTops(*a_h, g, rai.rev_leftfix[a_left_id]);
-    pruneUnusedTops(*b_h, g, rai.rev_leftfix[b_left_id]);
+    pruneUnusedTops(*a_h, g, rai.rev_leftfix[left_id(a_left_id)]);
+    pruneUnusedTops(*b_h, g, rai.rev_leftfix[left_id(b_left_id)]);
 
     // Prune A's report from its old prefix if it was only used by A.
-    pruneReportIfUnused(build, a_h, rai.rev_leftfix[a_left_id], a_oldreport);
+    pruneReportIfUnused(build, a_h, rai.rev_leftfix[left_id(a_left_id)], a_oldreport);
 
     reduceImplementableGraph(*b_h, SOM_NONE, nullptr, build.cc);
 
