@@ -1136,7 +1136,7 @@ really_inline SuperVector<32> SuperVector<32>::loadu_maskz(void const *ptr, uint
     SuperVector<32> mask = Ones_vshr(32 -len);
     mask.print8("mask");
     (Ones() >> (32 - len)).print8("mask");
-    SuperVector<32> v = _mm256_loadu_si256((const m256 *)ptr);
+    SuperVector<32> v = SuperVector<32>(_mm256_loadu_si256((const m256 *)ptr));
     v.print8("v");
     return mask & v;
 #endif
