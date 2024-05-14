@@ -822,12 +822,12 @@ template<uint8_t N>
 really_inline SuperVector<32> SuperVector<32>::vshl_256_imm() const
 {
     if (N == 0) return *this;
-    if (N == 16) return {_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0))};
+    if (N == 16) return {SuperVector<32>(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)))};
     if (N == 32) return Zeroes();
     if (N < 16) {
-        return {_mm256_alignr_epi8(u.v256[0], _mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 16 - N)};
+        return {SuperVector<32>(_mm256_alignr_epi8(u.v256[0], _mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 16 - N))};
     } else {
-        return {_mm256_slli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), N - 16)};
+        return {SuperVector<32>(_mm256_slli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), N - 16))};
     }
 }
 
@@ -1150,7 +1150,7 @@ really_inline SuperVector<32> SuperVector<32>::alignr(SuperVector<32> &other, in
         if (offset == 16) {
             return *this;
         } else {
-            return {_mm256_alignr_epi8(u.v256[0], other.u.v256[0], offset)};
+            return {SuperVector<32>(_mm256_alignr_epi8(u.v256[0], other.u.v256[0], offset))};
         }
     }
 #endif
