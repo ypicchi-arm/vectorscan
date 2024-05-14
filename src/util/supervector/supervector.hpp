@@ -214,7 +214,7 @@ public:
   SuperVector(previous_type const lo, previous_type const hi);
 
   static SuperVector dup_u8 (uint8_t  other) { return {SuperVector(other)}; };
-  static SuperVector dup_s8 (int8_t   other) { return {other}; };
+  static SuperVector dup_s8 (int8_t   other) { return {SuperVector(other)}; };
   static SuperVector dup_u16(uint16_t other) { return {other}; };
   static SuperVector dup_s16(int16_t  other) { return {other}; };
   static SuperVector dup_u32(uint32_t other) { return {other}; };
