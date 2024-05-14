@@ -205,7 +205,7 @@ public:
   constexpr SuperVector() {};
   SuperVector(SuperVector const &other)
   :u(other.u) {};
-  SuperVector(typename base_type::type const v);
+  explicit SuperVector(typename base_type::type const v);
 
   template<typename T>
   explicit SuperVector(T const other);
