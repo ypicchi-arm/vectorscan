@@ -92,11 +92,12 @@ static const CharReach CHARREACH_NONWORD_UCP_PRE(CHARREACH_NONWORD);
 static
 vector<NFAEdge> getAsserts(const NGHolder &g) {
     vector<NFAEdge> out;
-    for (const auto &e : edges_range(g)) {
-        if (g[e].assert_flags) {
-            out.emplace_back(e);
-        }
-    }
+    auto assertflags = [&g=g](const NFAEdge &e) {
+        return (g[e].assert_flags);
+    };
+    const auto &er = edges_range(g);
+    std::copy_if(begin(er), end(er),  std::back_inserter(out), assertflags);
+
     return out;
 }
 

@@ -3308,10 +3308,11 @@ void addEodEventProgram(const RoseBuildImpl &build, build_context &bc,
 
     // Collect all edges leading into EOD event literal vertices.
     vector<RoseEdge> edge_list;
+
+
     for (const auto &v : lit_info.vertices) {
-        for (const auto &e : in_edges_range(v, g)) {
-            edge_list.emplace_back(e);
-        }
+        const auto &er = in_edges_range(v, g);
+        std::copy(begin(er), end(er),  std::back_inserter(edge_list));
     }
 
     // Sort edge list for determinism, prettiness.

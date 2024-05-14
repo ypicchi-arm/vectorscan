@@ -389,11 +389,11 @@ void reusePredsAsStarts(const NGHolder &g, const map<u32, CharReach> &top_reach,
     /* create list of candidates first, to avoid issues of iter invalidation */
     DEBUG_PRINTF("attempting to reuse vertices for top starts\n");
     vector<NFAVertex> cand_starts;
-    for (NFAVertex u : unhandled_succ_tops | map_keys) {
-        if (hasSelfLoop(u, g)) {
-            cand_starts.emplace_back(u);
-        }
-    }
+    auto cands = [&g=g](const NFAVertex &u) {
+        return (hasSelfLoop(u, g));
+    };
+    const auto &u = unhandled_succ_tops | map_keys;
+    std::copy_if(begin(u), end(u),  std::back_inserter(cand_starts), cands);
 
     for (NFAVertex u : cand_starts) {
         if (!contains(unhandled_succ_tops, u)) {

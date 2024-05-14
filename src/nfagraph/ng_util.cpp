@@ -405,9 +405,10 @@ void appendLiteral(NGHolder &h, const ue2_literal &s) {
     DEBUG_PRINTF("adding '%s' to graph\n", dumpString(s).c_str());
     vector<NFAVertex> tail;
     assert(in_degree(h.acceptEod, h) == 1);
-    for (auto v : inv_adjacent_vertices_range(h.accept, h)) {
-        tail.emplace_back(v);
-    }
+
+    const auto &vr = inv_adjacent_vertices_range(h.accept, h);
+    std::copy(begin(vr), end(vr),  std::back_inserter(tail));
+
     assert(!tail.empty());
 
     for (auto v : tail) {

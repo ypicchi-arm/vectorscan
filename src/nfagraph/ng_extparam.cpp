@@ -571,6 +571,9 @@ bool transformMinLengthToRepeat(NGHolder &g, ReportManager &rm) {
 
     vector<NFAVertex> preds;
     vector<NFAEdge> dead;
+    auto deads = [&g=g](const NFAEdge &e) {
+        return (target(e, g) != g.startDs);
+    };
     for (auto u : inv_adjacent_vertices_range(cyclic, g)) {
         DEBUG_PRINTF("pred %zu\n", g[u].index);
         if (u == cyclic) {
@@ -580,11 +583,9 @@ bool transformMinLengthToRepeat(NGHolder &g, ReportManager &rm) {
 
         // We want to delete the out-edges of each predecessor, but need to
         // make sure we don't delete the startDs self loop.
-        for (const auto &e : out_edges_range(u, g)) {
-            if (target(e, g) != g.startDs) {
-                dead.emplace_back(e);
-            }
-        }
+
+        const auto &e = out_edges_range(u, g);
+        std::copy_if(begin(e), end(e),  std::back_inserter(dead), deads);
     }
 
     remove_edges(dead, g);

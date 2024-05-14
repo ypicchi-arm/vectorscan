@@ -227,11 +227,13 @@ vector<u32> removeClique(CliqueGraph &cg) {
     while (!graph_empty(cg)) {
         const vector<u32> &c = cliquesVec.back();
         vector<CliqueVertex> dead;
-        for (const auto &v : vertices_range(cg)) {
-            if (find(c.begin(), c.end(), cg[v].stateId) != c.end()) {
-                dead.emplace_back(v);
-            }
-        }
+
+        auto deads = [&c=c, &cg=cg](const CliqueVertex &v) {
+            return (find(c.begin(), c.end(), cg[v].stateId) != c.end());
+        };
+        const auto &vr = vertices_range(cg);
+        std::copy_if(begin(vr), end(vr),  std::back_inserter(dead), deads);
+
         for (const auto &v : dead) {
             clear_vertex(v, cg);
             remove_vertex(v, cg);

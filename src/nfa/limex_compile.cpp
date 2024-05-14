@@ -329,11 +329,11 @@ void buildReachMapping(const build_info &args, vector<NFAStateSet> &reach,
     // Build a list of vertices with a state index assigned.
     vector<NFAVertex> verts;
     verts.reserve(args.num_states);
-    for (auto v : vertices_range(h)) {
-        if (state_ids.at(v) != NO_STATE) {
-            verts.emplace_back(v);
-        }
-    }
+    auto sidat = [&state_ids=state_ids](const NFAVertex &v) {
+        return (state_ids.at(v) != NO_STATE);
+    };
+    const auto &vr = vertices_range(h);
+    std::copy_if(begin(vr), end(vr),  std::back_inserter(verts), sidat);
 
     // Build a mapping from set-of-states -> reachability.
     map<NFAStateSet, CharReach> mapping;

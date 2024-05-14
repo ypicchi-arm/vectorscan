@@ -2432,9 +2432,8 @@ void addPredBlocksAny(map<u32, RoseProgram> &pred_blocks, u32 num_states,
     RoseProgram sparse_program;
 
     vector<u32> keys;
-    for (const u32 &key : pred_blocks | map_keys) {
-        keys.emplace_back(key);
-    }
+    const auto &k = pred_blocks | map_keys;
+    std::copy(begin(k), end(k),  std::back_inserter(keys));
 
     const RoseInstruction *end_inst = sparse_program.end_instruction();
     auto ri = std::make_unique<RoseInstrSparseIterAny>(num_states, keys, end_inst);
