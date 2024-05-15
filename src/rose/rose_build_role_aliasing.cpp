@@ -1981,11 +1981,10 @@ void filterDiamondCandidates(const RoseGraph &g, CandidateSet &candidates) {
     DEBUG_PRINTF("%zu candidates enter\n", candidates.size());
 
     vector<RoseVertex> dead;
-    for (const auto &v : candidates) {
-        if (hasNoDiamondSiblings(g, v)) {
-            dead.emplace_back(v);
-        }
-    }
+    auto deads = [&g=g](const RoseVertex &v) {
+        return (hasNoDiamondSiblings(g, v));
+    };
+    std::copy_if(begin(candidates), end(candidates), std::back_inserter(dead), deads);
 
     for (const auto &v : dead) {
         candidates.erase(v);

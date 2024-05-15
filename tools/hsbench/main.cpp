@@ -1008,9 +1008,9 @@ int HS_CDECL main(int argc, char *argv[]) {
     if (sigSets.empty()) {
         SignatureSet sigs;
         sigs.reserve(exprMapTemplate.size());
-        for (auto i : exprMapTemplate | map_keys) {
-            sigs.push_back(i);
-        }
+        const auto &i = exprMapTemplate | map_keys;
+        std::copy(begin(i), end(i),  std::back_inserter(sigs));
+
         sigSets.emplace_back(exprPath, std::move(sigs));
     }
 

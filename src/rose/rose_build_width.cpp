@@ -64,12 +64,11 @@ u32 findMinWidth(const RoseBuildImpl &tbi, enum rose_literal_table table) {
     const RoseGraph &g = tbi.g;
 
     vector<RoseVertex> table_verts;
-
-    for (auto v : vertices_range(g)) {
-        if (tbi.hasLiteralInTable(v, table)) {
-            table_verts.emplace_back(v);
-        }
-    }
+    auto tvs = [&tbi=tbi, &table=table](const RoseVertex &v) {
+        return (tbi.hasLiteralInTable(v, table));
+    };
+    const auto &vr = vertices_range(g);
+    std::copy_if(begin(vr), end(vr),  std::back_inserter(table_verts), tvs);
 
     set<RoseVertex> reachable;
     find_reachable(g, table_verts, &reachable);
@@ -189,13 +188,12 @@ u32 findMaxBAWidth(const RoseBuildImpl &tbi, enum rose_literal_table table) {
                   table == ROSE_FLOATING ? "floating" : "anchored");
 
     vector<RoseVertex> table_verts;
-
-    for (auto v : vertices_range(g)) {
-        if ((table == ROSE_FLOATING && tbi.isFloating(v))
-            || (table == ROSE_ANCHORED && tbi.isAnchored(v))) {
-            table_verts.emplace_back(v);
-        }
-    }
+    auto tvs = [&tbi=tbi, &table=table](const RoseVertex &v) {
+        return ((table == ROSE_FLOATING && tbi.isFloating(v))
+               || (table == ROSE_ANCHORED && tbi.isAnchored(v)));
+    };
+    const auto &vr = vertices_range(g);
+    std::copy_if(begin(vr), end(vr),  std::back_inserter(table_verts), tvs);
 
     set<RoseVertex> reachable;
     find_reachable(g, table_verts, &reachable);

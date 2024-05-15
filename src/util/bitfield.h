@@ -89,9 +89,7 @@ public:
 
     /// Set all bits.
     void setall() {
-        for (auto &e : bits) {
-            e = all_ones;
-        }
+        std::fill(bits.begin(), bits.end(), all_ones);
         clear_trailer();
     }
 
@@ -102,9 +100,7 @@ public:
 
     /// Clear all bits.
     void clear() {
-        for (auto &e : bits) {
-            e = 0;
-        }
+        std::fill(bits.begin(), bits.end(), 0);
     }
 
     /// Clear all bits (alias for bitset::clear).

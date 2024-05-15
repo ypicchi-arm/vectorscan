@@ -58,11 +58,12 @@ vector<DepthMinMax> getDistancesFromSOM(const NGHolder &g_orig) {
     cloneHolder(g, g_orig, &vmap);
 
     vector<NFAVertex> vstarts;
-    for (auto v : vertices_range(g)) {
-        if (is_virtual_start(v, g)) {
-            vstarts.emplace_back(v);
-        }
-    }
+    auto vstart = [&g=g](const NFAVertex &v) {
+        return (is_virtual_start(v, g));
+    };
+    const auto &vr = vertices_range(g);
+    std::copy_if(begin(vr), end(vr),  std::back_inserter(vstarts), vstart);
+
     vstarts.emplace_back(g.startDs);
 
     // wire the successors of every virtual start or startDs to g.start.

@@ -230,11 +230,12 @@ void checkForMultilineStart(ReportManager &rm, NGHolder &g,
 
         /* we need to interpose a dummy dot vertex between v and accept if
          * required so that ^ doesn't match trailing \n */
-         for (const auto &e : out_edges_range(v, g)) {
-            if (target(e, g) == g.accept) {
-                dead.emplace_back(e);
-            }
-        }
+        auto deads = [&g=g](const NFAEdge &e) {
+            return (target(e, g) == g.accept);
+        };
+        const auto &er = out_edges_range(v, g);
+        std::copy_if(begin(er), end(er),  std::back_inserter(dead), deads);
+
         /* assert has been resolved; clear flag */
         g[v].assert_flags &= ~POS_FLAG_MULTILINE_START;
     }
