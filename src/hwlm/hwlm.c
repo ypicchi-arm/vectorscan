@@ -170,8 +170,7 @@ void do_accel_streaming(const union AccelAux *aux, const u8 *hbuf, size_t hlen,
         DEBUG_PRINTF("got %zu/%zu in 2nd buffer\n", delta, len);
         *start += delta;
     } else if (hlen) {
-        UNUSED size_t remaining = offset + ptr2 - found;
-        DEBUG_PRINTF("got %zu/%zu remaining in 1st buffer\n", remaining, hlen);
+        DEBUG_PRINTF("got %zu/%zu remaining in 1st buffer\n", offset + ptr2 - found, hlen);
     }
 }
 

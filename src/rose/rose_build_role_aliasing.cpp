@@ -1356,7 +1356,7 @@ bool attemptRoseMerge(RoseBuildImpl &build, bool preds_same, RoseVertex a,
                   build.g[a].index, build.g[b].index);
     assert(a != b);
 
-    RoseGraph &g = build.g;
+    const RoseGraph &g = build.g;
     const LeftEngInfo &a_left = g[a].left;
     const LeftEngInfo &b_left = g[b].left;
 
@@ -1996,7 +1996,7 @@ void filterDiamondCandidates(const RoseGraph &g, CandidateSet &candidates) {
 
 void aliasRoles(RoseBuildImpl &build, bool mergeRoses) {
     const CompileContext &cc = build.cc;
-    RoseGraph &g = build.g;
+    const RoseGraph &g = build.g;
     assert(!hasOrphanedTops(build));
     assert(canImplementGraphs(build));
 

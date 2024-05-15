@@ -227,7 +227,7 @@ struct BenchmarkSigs {
 /** Process command-line arguments. Prints usage and exits on error. */
 static
 void processArgs(int argc, char *argv[], vector<BenchmarkSigs> &sigSets,
-                 UNUSED unique_ptr<Grey> &grey) {
+                 UNUSED const unique_ptr<Grey> &grey) {
     const char options[] = "-b:c:Cd:e:E:G:hHi:n:No:p:PsS:Vw:z:"
 #if defined(HAVE_DECL_PTHREAD_SETAFFINITY_NP)
         "T:" // add the thread flag

@@ -867,7 +867,7 @@ vector<raw_dfa> buildAnchoredDfas(RoseBuildImpl &build,
 }
 
 bytecode_ptr<anchored_matcher_info>
-buildAnchoredMatcher(RoseBuildImpl &build, const vector<LitFragment> &fragments,
+buildAnchoredMatcher(const RoseBuildImpl &build, const vector<LitFragment> &fragments,
                      vector<raw_dfa> &dfas) {
     const CompileContext &cc = build.cc;
 

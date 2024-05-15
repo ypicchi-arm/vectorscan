@@ -1229,7 +1229,7 @@ void updateTops(const RoseGraph &g, const TamaInfo &tamaInfo,
                 const map<pair<const NFA *, u32>, u32> &out_top_remap,
                 const bool is_suffix) {
     u32 i = 0;
-    for (const auto &n : tamaInfo.subengines) {
+    for (const auto *n : tamaInfo.subengines) {
         for (const auto &v : subengines[i].vertices) {
             if (is_suffix) {
                 tamaProto.add(n, g[v].index, g[v].suffix.top, out_top_remap);
@@ -2733,7 +2733,7 @@ RoseProgram makeLiteralProgram(const RoseBuildImpl &build, const build_context &
 }
 
 static
-RoseProgram makeFragmentProgram(const RoseBuildImpl &build, build_context &bc,
+RoseProgram makeFragmentProgram(const RoseBuildImpl &build, const build_context &bc,
                                ProgramBuild &prog_build,
                                const vector<u32> &lit_ids,
                                const vector<vector<RoseEdge>> &lit_edge_map) {

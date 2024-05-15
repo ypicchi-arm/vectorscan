@@ -334,14 +334,14 @@ void fillAccelOut(const map<dstate_id_t, AccelScheme> &accel_escape_info,
 
 template <typename T>
 static
-u8 getShengState(UNUSED dstate &state, UNUSED dfa_info &info,
-                 UNUSED map<dstate_id_t, AccelScheme> &accelInfo) {
+u8 getShengState(UNUSED const dstate &state, UNUSED dfa_info &info,
+                 UNUSED const map<dstate_id_t, AccelScheme> &accelInfo) {
     return 0;
 }
 
 template <>
-u8 getShengState<sheng>(dstate &state, dfa_info &info,
-                        map<dstate_id_t, AccelScheme> &accelInfo) {
+u8 getShengState<sheng>(const dstate &state, dfa_info &info,
+                        const map<dstate_id_t, AccelScheme> &accelInfo) {
     u8 s = state.impl_id;
     if (!state.reports.empty()) {
         s |= SHENG_STATE_ACCEPT;
@@ -356,8 +356,8 @@ u8 getShengState<sheng>(dstate &state, dfa_info &info,
 }
 
 template <>
-u8 getShengState<sheng32>(dstate &state, dfa_info &info,
-                          map<dstate_id_t, AccelScheme> &accelInfo) {
+u8 getShengState<sheng32>(const dstate &state, dfa_info &info,
+                          const map<dstate_id_t, AccelScheme> &accelInfo) {
     u8 s = state.impl_id;
     if (!state.reports.empty()) {
         s |= SHENG32_STATE_ACCEPT;
@@ -372,8 +372,8 @@ u8 getShengState<sheng32>(dstate &state, dfa_info &info,
 }
 
 template <>
-u8 getShengState<sheng64>(dstate &state, dfa_info &info,
-                          UNUSED map<dstate_id_t, AccelScheme> &accelInfo) {
+u8 getShengState<sheng64>(const dstate &state, dfa_info &info,
+                          UNUSED const map<dstate_id_t, AccelScheme> &accelInfo) {
     u8 s = state.impl_id;
     if (!state.reports.empty()) {
         s |= SHENG64_STATE_ACCEPT;
@@ -409,8 +409,8 @@ void fillAccelAux(struct NFA *n, dfa_info &info,
 
 template <typename T>
 static
-void populateBasicInfo(UNUSED struct NFA *n, UNUSED dfa_info &info,
-                       UNUSED map<dstate_id_t, AccelScheme> &accelInfo,
+void populateBasicInfo(UNUSED struct NFA *n, UNUSED dfa_info &info,  // cppcheck-suppress constParameterPointer
+                       UNUSED const map<dstate_id_t, AccelScheme> &accelInfo,
                        UNUSED u32 aux_offset, UNUSED u32 report_offset,
                        UNUSED u32 accel_offset, UNUSED u32 total_size,
                        UNUSED u32 dfa_size) {
@@ -418,7 +418,7 @@ void populateBasicInfo(UNUSED struct NFA *n, UNUSED dfa_info &info,
 
 template <>
 void populateBasicInfo<sheng>(struct NFA *n, dfa_info &info,
-                              map<dstate_id_t, AccelScheme> &accelInfo,
+                              const map<dstate_id_t, AccelScheme> &accelInfo,
                               u32 aux_offset, u32 report_offset,
                               u32 accel_offset, u32 total_size,
                               u32 dfa_size) {
@@ -443,7 +443,7 @@ void populateBasicInfo<sheng>(struct NFA *n, dfa_info &info,
 
 template <>
 void populateBasicInfo<sheng32>(struct NFA *n, dfa_info &info,
-                                map<dstate_id_t, AccelScheme> &accelInfo,
+                                const map<dstate_id_t, AccelScheme> &accelInfo,
                                 u32 aux_offset, u32 report_offset,
                                 u32 accel_offset, u32 total_size,
                                 u32 dfa_size) {
@@ -468,7 +468,7 @@ void populateBasicInfo<sheng32>(struct NFA *n, dfa_info &info,
 
 template <>
 void populateBasicInfo<sheng64>(struct NFA *n, dfa_info &info,
-                                map<dstate_id_t, AccelScheme> &accelInfo,
+                                const map<dstate_id_t, AccelScheme> &accelInfo,
                                 u32 aux_offset, u32 report_offset,
                                 u32 accel_offset, u32 total_size,
                                 u32 dfa_size) {
@@ -551,19 +551,19 @@ void fillSingleReport(NFA *n, ReportID r_id) {
 
 template <typename T>
 static
-bool createShuffleMasks(UNUSED T *s, UNUSED dfa_info &info,
-                        UNUSED map<dstate_id_t, AccelScheme> &accelInfo) {
+bool createShuffleMasks(UNUSED T *s, UNUSED dfa_info &info,  // cppcheck-suppress constParameterPointer
+                        UNUSED const map<dstate_id_t, AccelScheme> &accelInfo) {
     return true;
 }
 
 template <>
 bool createShuffleMasks<sheng>(sheng *s, dfa_info &info,
-                               map<dstate_id_t, AccelScheme> &accelInfo) {
+                               const map<dstate_id_t, AccelScheme> &accelInfo) {
     for (u16 chr = 0; chr < 256; chr++) {
         u8 buf[16] = {0};
 
         for (dstate_id_t idx = 0; idx < info.size(); idx++) {
-            auto &succ_state = info.next(idx, chr);
+            const auto &succ_state = info.next(idx, chr);
 
             buf[idx] = getShengState<sheng>(succ_state, info, accelInfo);
         }
@@ -577,13 +577,13 @@ bool createShuffleMasks<sheng>(sheng *s, dfa_info &info,
 
 template <>
 bool createShuffleMasks<sheng32>(sheng32 *s, dfa_info &info,
-                                 map<dstate_id_t, AccelScheme> &accelInfo) {
+                                 const map<dstate_id_t, AccelScheme> &accelInfo) {
     for (u16 chr = 0; chr < 256; chr++) {
         u8 buf[64] = {0};
 
         assert(info.size() <= 32);
         for (dstate_id_t idx = 0; idx < info.size(); idx++) {
-            auto &succ_state = info.next(idx, chr);
+            const auto &succ_state = info.next(idx, chr);
 
             buf[idx] = getShengState<sheng32>(succ_state, info, accelInfo);
             buf[32 + idx] = buf[idx];
@@ -598,13 +598,13 @@ bool createShuffleMasks<sheng32>(sheng32 *s, dfa_info &info,
 
 template <>
 bool createShuffleMasks<sheng64>(sheng64 *s, dfa_info &info,
-                                 map<dstate_id_t, AccelScheme> &accelInfo) {
+                                 const map<dstate_id_t, AccelScheme> &accelInfo) {
     for (u16 chr = 0; chr < 256; chr++) {
         u8 buf[64] = {0};
 
         assert(info.size() <= 64);
         for (dstate_id_t idx = 0; idx < info.size(); idx++) {
-            auto &succ_state = info.next(idx, chr);
+            const auto &succ_state = info.next(idx, chr);
 
             if (accelInfo.find(info.raw_id(succ_state.impl_id))
                 != accelInfo.end()) {

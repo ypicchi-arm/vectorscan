@@ -401,7 +401,7 @@ char castleFindMatch(const struct Castle *c, const u64a begin, const u64a end,
 
 static really_inline
 u64a subCastleNextMatch(const struct Castle *c, const void *full_state,
-                        void *stream_state, const u64a loc,
+                        const void *stream_state, const u64a loc,
                         const u32 subIdx) {
     DEBUG_PRINTF("subcastle %u\n", subIdx);
     const struct SubCastle *sub = getSubCastle(c, subIdx);
@@ -883,7 +883,7 @@ char nfaExecCastle_Q2(const struct NFA *n, struct mq *q, s64a end) {
 }
 
 static
-s64a castleLastKillLoc(const struct Castle *c, struct mq *q) {
+s64a castleLastKillLoc(const struct Castle *c, const struct mq *q) {
     assert(q_cur_type(q) == MQE_START);
     assert(q_last_type(q) == MQE_END);
     s64a sp = q_cur_loc(q);
