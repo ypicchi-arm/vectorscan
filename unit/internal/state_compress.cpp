@@ -180,7 +180,7 @@ TEST(state_compress, m128_2) {
             loadcompressed128(&val_out, &buf, &mask, 0);
             EXPECT_TRUE(!diff128(and128(val, mask), val_out));
 
-            mask_raw[j] = 0x7f;
+            mask_raw[j] = 0x7f; // cppcheck-suppress unreadVariable
         }
     }
 }
@@ -258,7 +258,7 @@ TEST(state_compress, m256_2) {
             loadcompressed256(&val_out, &buf, &mask, 0);
             EXPECT_TRUE(!diff256(and256(val, mask), val_out));
 
-            mask_raw[j] = 0x7f;
+            mask_raw[j] = 0x7f; // cppcheck-suppress unreadVariable
         }
     }
 }
@@ -338,7 +338,7 @@ TEST(state_compress, m384_2) {
             loadcompressed384(&val_out, &buf, &mask, 0);
             EXPECT_TRUE(!diff384(and384(val, mask), val_out));
 
-            mask_raw[j] = 0x7f;
+            mask_raw[j] = 0x7f; // cppcheck-suppress unreadVariable
         }
     }
 }
@@ -419,7 +419,7 @@ TEST(state_compress, m512_2) {
             loadcompressed512(&val_out, &buf, &mask, 0);
             EXPECT_TRUE(!diff512(and512(val, mask), val_out));
 
-            mask_raw[j] = 0x7f;
+            mask_raw[j] = 0x7f; // cppcheck-suppress unreadVariable
         }
     }
 }

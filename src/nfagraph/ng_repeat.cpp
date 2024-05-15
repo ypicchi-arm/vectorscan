@@ -854,9 +854,7 @@ void replaceSubgraphWithLazySpecial(NGHolder &g, ReachSubgraph &rsi,
     assert(rsi.repeatMax >= rsi.repeatMin);
 
     DEBUG_PRINTF("entry\n");
-
-    const unordered_set<NFAVertex> involved(rsi.vertices.begin(),
-                                            rsi.vertices.end());
+ 
     vector<NFAVertex> g_succs;
     getSuccessors(g, rsi, &g_succs);
 

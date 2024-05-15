@@ -1018,12 +1018,16 @@ bytecode_ptr<NFA> mcshengCompile16(dfa_info &info, dstate_id_t sheng_end,
 
     // Sherman optimization
     if (info.impl_alpha_size > 16) {
+#ifdef DEBUG
         u16 total_daddy = 0;
+#endif // DEBUG
         for (u32 i = 0; i < info.size(); i++) {
             find_better_daddy(info, i,
                               is_cyclic_near(info.raw, info.raw.start_anchored),
                               grey);
+#ifdef DEBUG
             total_daddy += info.extra[i].daddytaken;
+#endif // DEBUG
         }
 
         DEBUG_PRINTF("daddy %hu/%zu states=%zu alpha=%hu\n", total_daddy,
@@ -1172,12 +1176,16 @@ bytecode_ptr<NFA> mcsheng64Compile16(dfa_info&info, dstate_id_t sheng_end,
 
     // Sherman optimization
     if (info.impl_alpha_size > 16) {
+#ifdef DEBUG
         u16 total_daddy = 0;
+#endif // DEBUG
         for (u32 i = 0; i < info.size(); i++) {
             find_better_daddy(info, i,
                               is_cyclic_near(info.raw, info.raw.start_anchored),
                               grey);
+#ifdef DEBUG
             total_daddy += info.extra[i].daddytaken;
+#endif // DEBUG
         }
 
         DEBUG_PRINTF("daddy %hu/%zu states=%zu alpha=%hu\n", total_daddy,
@@ -1430,11 +1438,9 @@ bytecode_ptr<NFA> mcshengCompile(raw_dfa &raw, const CompileContext &cc,
 
     map<dstate_id_t, AccelScheme> accel_escape_info
         = info.strat.getAccelInfo(cc.grey);
-    auto old_states = info.states;
     dstate_id_t sheng_end = find_sheng_states(info, accel_escape_info, MAX_SHENG_STATES);
 
     if (sheng_end <= DEAD_STATE + 1) {
-        info.states = old_states;
         return bytecode_ptr<NFA>(nullptr);
     }
 
@@ -1447,7 +1453,6 @@ bytecode_ptr<NFA> mcshengCompile(raw_dfa &raw, const CompileContext &cc,
     }
 
     if (!nfa) {
-        info.states = old_states;
         return nfa;
     }
 

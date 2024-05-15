@@ -802,7 +802,7 @@ private:
 
 static
 void prep_joins_for_generation(const GoughGraph &g, GoughVertex v,
-                               map<GoughEdge, edge_join_info> *edge_info) {
+                               map<GoughEdge, edge_join_info> &edge_info) {
     DEBUG_PRINTF("writing out joins for %u\n", g[v].state_id);
     for (const auto &var : g[v].vars) {
         u32 dest_slot = var->slot;
@@ -813,7 +813,7 @@ void prep_joins_for_generation(const GoughGraph &g, GoughVertex v,
             }
 
             for (const GoughEdge &incoming_edge : var_edges.second) {
-                (*edge_info)[incoming_edge].insert(input, dest_slot);
+                edge_info[incoming_edge].insert(input, dest_slot);
                 DEBUG_PRINTF("need %u<-%u\n", dest_slot, input);
             }
         }
@@ -911,7 +911,7 @@ void build_blocks(const GoughGraph &g,
         }
 
         map<GoughEdge, edge_join_info> eji;
-        prep_joins_for_generation(g, t, &eji);
+        prep_joins_for_generation(g, t, eji);
 
         for (auto &m : eji) {
             vector<gough_ins> &block = (*blocks)[gough_edge_id(g, m.first)];
