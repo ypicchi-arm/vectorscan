@@ -814,7 +814,6 @@ char nfaExecSheng_testEOD(const struct NFA *nfa, const char *state,
 char nfaExecSheng_reportCurrent(const struct NFA *n, struct mq *q) {
     const struct sheng *sh = (const struct sheng *)getImplNfa(n);
     NfaCallback cb = q->cb;
-    void *ctxt = q->context;
     u8 s = *(u8 *)q->state;
     const struct sstate_aux *aux = get_aux(sh, s);
     u64a offset = q_cur_offset(q);
@@ -823,6 +822,7 @@ char nfaExecSheng_reportCurrent(const struct NFA *n, struct mq *q) {
     assert(q_cur_type(q) == MQE_START);
 
     if (aux->accept) {
+        void *ctxt = q->context;
         if (sh->flags & SHENG_FLAG_SINGLE_REPORT) {
             fireSingleReport(cb, ctxt, sh->report, offset);
         } else {
