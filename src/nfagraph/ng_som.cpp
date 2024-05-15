@@ -3125,7 +3125,7 @@ sombe_rv doSomWithHaig(NG &ng, NGHolder &g, const ExpressionInfo &expr,
 
     // try a redundancy pass.
     if (addSomRedundancy(g, depths)) {
-        depths = getDistancesFromSOM(g);
+        depths = getDistancesFromSOM(g); // cppcheck-suppress unreadVariable
     }
 
     auto regions = assignRegions(g);

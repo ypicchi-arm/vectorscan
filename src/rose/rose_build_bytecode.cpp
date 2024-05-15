@@ -1901,8 +1901,8 @@ void findExclusiveSuffixes(RoseBuildImpl &tbi, build_context &bc,
 
         // We may have already built this NFA.
         if (contains(suffixes, s)) {
-            u32 id = suffixes[s];
             if (!tbi.isInETable(v)) {
+                u32 id = suffixes[s];
                 vertex_map[id].emplace_back(v);
             }
             continue;
@@ -2233,10 +2233,10 @@ vector<u32> buildSuffixEkeyLists(const RoseBuildImpl &build, build_context &bc,
 
     for (const auto &e : bc.suffixes) {
         const suffix_id &s = e.first;
-        u32 qi = e.second;
         set<u32> ekeys = reportsToEkeys(all_reports(s), build.rm);
 
         if (!ekeys.empty()) {
+            u32 qi = e.second;
             qi_to_ekeys[qi] = {ekeys.begin(), ekeys.end()};
         }
     }
@@ -2987,7 +2987,7 @@ void buildFragmentPrograms(const RoseBuildImpl &build,
             const auto &cfrag = fragments[pfrag.included_frag_id];
             /** assert(pfrag.s.length() >= cfrag.s.length() && **/
             assert(pfrag.s.length() == cfrag.s.length() &&
-                   !pfrag.s.any_nocase() >= !cfrag.s.any_nocase());
+                   !pfrag.s.any_nocase() != !cfrag.s.any_nocase());
             u32 child_offset = cfrag.delay_program_offset;
             DEBUG_PRINTF("child %u offset %u\n", cfrag.fragment_id,
                          child_offset);

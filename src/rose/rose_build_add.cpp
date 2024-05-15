@@ -1039,9 +1039,9 @@ bool canImplementGraph(NGHolder &h, bool prefilter, const ReportManager &rm,
 
     if (prefilter && cc.grey.prefilterReductions) {
         // If we're prefiltering, we can have another go with a reduced graph.
-        UNUSED size_t numBefore = num_vertices(h);
+        UNUSED size_t numBefore = num_vertices(h); // cppcheck-suppress unreadVariable
         prefilterReductions(h, cc);
-        UNUSED size_t numAfter = num_vertices(h);
+        UNUSED size_t numAfter = num_vertices(h);  // cppcheck-suppress unreadVariable
         DEBUG_PRINTF("reduced from %zu to %zu vertices\n", numBefore, numAfter);
 
         if (isImplementableNFA(h, &rm, cc)) {

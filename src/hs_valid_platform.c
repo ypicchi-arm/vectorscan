@@ -49,6 +49,7 @@ hs_error_t HS_CDECL hs_valid_platform(void) {
     }
 #elif !defined(VS_SIMDE_BACKEND) && (defined(ARCH_ARM32) || defined(ARCH_AARCH64))
    //check_neon returns true for now
+   // cppcheck-suppress knownConditionTrueFalse
    if (check_neon()) {
         return HS_SUCCESS;
     } else {

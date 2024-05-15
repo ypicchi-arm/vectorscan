@@ -800,7 +800,7 @@ bytecode_ptr<NFA> sheng64Compile(raw_dfa &raw, const CompileContext &cc,
     old_states = info.states;
     auto nfa = shengCompile_int<sheng64>(raw, cc, accel_states, strat, info);
     if (!nfa) {
-        info.states = old_states;
+        info.states = old_states;  // cppcheck-suppress unreadVariable
     }
     return nfa;
 }

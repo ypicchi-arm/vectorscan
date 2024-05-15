@@ -294,9 +294,6 @@ setupFullConfs(const vector<hwlmLiteral> &lits,
                const EngineDescription &eng,
                const map<BucketIndex, vector<LiteralIndex>> &bucketToLits,
                bool make_small) {
-    unique_ptr<TeddyEngineDescription> teddyDescr =
-        getTeddyDescription(eng.getID());
-
     BC2CONF bc2Conf;
     u32 totalConfirmSize = 0;
     for (BucketIndex b = 0; b < eng.getNumBuckets(); b++) {

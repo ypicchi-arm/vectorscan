@@ -221,7 +221,7 @@ class CorpusGeneratorImpl : public CorpusGenerator {
 public:
     CorpusGeneratorImpl(const NGHolder &graph_in, const ExpressionInfo &expr_in,
                         CorpusProperties &props);
-    ~CorpusGeneratorImpl() = default;
+    virtual ~CorpusGeneratorImpl() = default;
 
     void generateCorpus(vector<string> &data) override;
 

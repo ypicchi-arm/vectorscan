@@ -392,8 +392,9 @@ bool validateTransientMask(const vector<CharReach> &mask, bool anchored,
            none_of(begin(lits), end(lits), mixed_sensitivity));
 
     // Build the HWLM literal mask.
-    vector<u8> msk, lcmp;
+    vector<u8> msk;
     if (grey.roseHamsterMasks) {
+        vector<u8> lcmp;
         buildLiteralMask(mask, msk, lcmp, delay);
     }
 

@@ -267,7 +267,8 @@ hwlmcb_rv_t playDelaySlot(const struct RoseEngine *t,
     const u32 *programs = getByOffset(t, t->delayProgramOffset);
 
     for (u32 it = fatbit_iterate(vicSlot, delay_count, MMB_INVALID);
-         it != MMB_INVALID; it = fatbit_iterate(vicSlot, delay_count, it)) {
+        it != MMB_INVALID; it = fatbit_iterate(vicSlot, delay_count, it)) {
+        // cppcheck-suppress unreadVariable
         UNUSED rose_group old_groups = tctxt->groups;
 
         DEBUG_PRINTF("DELAYED MATCH id=%u offset=%llu\n", it, offset);

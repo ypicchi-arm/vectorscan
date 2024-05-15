@@ -861,7 +861,6 @@ u32 roseQuality(const RoseResources &res, const RoseEngine *t) {
     }
 
     if (eod_prefix) {
-        always_run++;
         DEBUG_PRINTF("eod prefixes are slow");
         return 0;
     }

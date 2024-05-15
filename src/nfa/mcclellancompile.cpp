@@ -1379,7 +1379,6 @@ void generate_symbol_chain(dfa_info &info, vector<symbol_t> &chain_tail) {
 
         for (size_t j = 0; j < width; j++) {
             dstate_id_t curr_id = state_chain[j];
-            dstate_id_t next_id = state_chain[j + 1];
 
             // The last state of the chain doesn't belong to a wide state.
             info.extra[curr_id].wideState = true;
@@ -1388,6 +1387,7 @@ void generate_symbol_chain(dfa_info &info, vector<symbol_t> &chain_tail) {
             if (j == width - 1) {
                 symbol_chain.emplace_back(chain_tail[i]);
             } else {
+                dstate_id_t next_id = state_chain[j + 1];
                 for (symbol_t sym = 0; sym < info.impl_alpha_size; sym++) {
                     if (rdfa.states[curr_id].next[sym] == next_id) {
                         symbol_chain.emplace_back(sym);
