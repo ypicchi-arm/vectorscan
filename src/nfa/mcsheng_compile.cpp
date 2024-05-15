@@ -534,7 +534,7 @@ double leakiness(const RdfaGraph &g, dfa_info &info,
 
 static
 dstate_id_t find_sheng_states(dfa_info &info,
-                              map<dstate_id_t, AccelScheme> &accel_escape_info,
+                              const map<dstate_id_t, AccelScheme> &accel_escape_info,
                               size_t max_sheng_states) {
     RdfaGraph g(info.raw);
     auto cyclics = find_vertices_in_cycles(g);

@@ -278,7 +278,7 @@ set<const GoughSSAVar *> live_during(GoughSSAVar *def, const GoughGraph &g,
 
 template<typename VarP>
 void set_initial_slots(const vector<VarP> &vars, u32 *next_slot) {
-    for (auto &var : vars) {
+    for (const auto &var : vars) {
         assert(var->slot == INVALID_SLOT);
         var->slot = (*next_slot)++;
     }

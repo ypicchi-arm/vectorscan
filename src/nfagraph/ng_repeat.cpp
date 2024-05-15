@@ -1978,7 +1978,7 @@ vector<NFAVertex> makeOwnStraw(NGHolder &g, const BoundedRepeatData &rd,
  * rewire the straw to start instead of removing the startDs self-loop.
  */
 static
-bool improveLeadingRepeatOutfix(NGHolder &g, BoundedRepeatData &rd,
+bool improveLeadingRepeatOutfix(NGHolder &g, const BoundedRepeatData &rd,
                                 unordered_set<NFAVertex> &created,
                                 const vector<BoundedRepeatData> &all_repeats) {
     assert(g.kind == NFA_OUTFIX);

@@ -132,7 +132,7 @@ void GoughSSAVarMin::replace_input(GoughSSAVar *old_v, GoughSSAVar *new_v) {
 }
 
 static
-void translateRawReports(UNUSED GoughGraph &cfg, UNUSED const raw_som_dfa &raw,
+void translateRawReports(UNUSED const GoughGraph &cfg, UNUSED const raw_som_dfa &raw,
                          const flat_map<u32, GoughSSAVarJoin *> &joins_at_s,
                          UNUSED GoughVertex s,
                          const set<som_report> &reports_in,
@@ -433,6 +433,7 @@ unique_ptr<GoughGraph> makeCFG(const raw_som_dfa &raw) {
 }
 
 static
+// cppcheck-suppress constParameterReference
 void copy_propagate_report_set(vector<pair<ReportID, GoughSSAVar *> > &rep) {
     vector<pair<ReportID, GoughSSAVar *> >::iterator it = rep.begin();
     while (it != rep.end()) {
@@ -650,8 +651,8 @@ GoughSSAVar *GoughSSAVarJoin::get_input(const GoughEdge &prev) const {
     return nullptr;
 }
 
-const flat_set<GoughEdge> &GoughSSAVarJoin::get_edges_for_input(
-                                                 GoughSSAVar *input) const {
+// cppcheck-suppress constParameterPointer
+const flat_set<GoughEdge> &GoughSSAVarJoin::get_edges_for_input(GoughSSAVar *input) const {
     return input_map.at(input);
 }
 

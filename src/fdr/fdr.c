@@ -333,7 +333,7 @@ void do_confirm_fdr(u64a *conf, u8 offset, hwlmcb_rv_t *control,
 }
 
 static really_inline
-void dumpZoneInfo(UNUSED struct zone *z, UNUSED size_t zone_id) {
+void dumpZoneInfo(UNUSED const struct zone *z, UNUSED size_t zone_id) {
 #ifdef DEBUG
     DEBUG_PRINTF("zone: zone=%zu, bufPtr=%p\n", zone_id, z->buf);
     DEBUG_PRINTF("zone: startPtr=%p, endPtr=%p, shift=%u\n",

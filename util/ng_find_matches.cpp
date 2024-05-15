@@ -896,7 +896,7 @@ bool canReach(const NGHolder &g, const NFAEdge &e, const struct fmstate &state) 
 
 static
 void getAcceptMatches(const NGHolder &g, MatchSet &matches,
-                      struct fmstate &state, NFAVertex accept_vertex,
+                      const struct fmstate &state, NFAVertex accept_vertex,
                       vector<StateSet::State> &active_states) {
     assert(accept_vertex == g.accept || accept_vertex == g.acceptEod);
 

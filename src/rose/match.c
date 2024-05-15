@@ -109,7 +109,7 @@ hwlmcb_rv_t roseHandleChainMatch(const struct RoseEngine *t,
                                  u64a top_squash_distance, u64a end,
                                  char in_catchup) {
     assert(event == MQE_TOP || event >= MQE_TOP_FIRST);
-    struct core_info *ci = &scratch->core_info;
+    const struct core_info *ci = &scratch->core_info;
 
     u8 *aa = getActiveLeafArray(t, scratch->core_info.state);
     u32 aaCount = t->activeArrayCount;

@@ -133,7 +133,7 @@ enum MiracleAction roseScanForMiracles(const struct RoseEngine *t, char *state,
                                        struct hs_scratch *scratch, u32 qi,
                                        const struct LeftNfaInfo *left,
                                        const struct NFA *nfa) {
-    struct core_info *ci = &scratch->core_info;
+    const struct core_info *ci = &scratch->core_info;
     const u32 qCount = t->queueCount;
     struct mq *q = scratch->queues + qi;
 
@@ -211,7 +211,7 @@ char roseCatchUpLeftfix(const struct RoseEngine *t, char *state,
                         const struct LeftNfaInfo *left) {
     assert(!left->transient); // active roses only
 
-    struct core_info *ci = &scratch->core_info;
+    const struct core_info *ci = &scratch->core_info;
     const u32 qCount = t->queueCount;
     struct mq *q = scratch->queues + qi;
     const struct NFA *nfa = getNfaByQueue(t, qi);

@@ -927,7 +927,7 @@ char JOIN(LIMEX_API_ROOT, _testEOD)(const struct NFA *n, const char *state,
                       context);
 }
 
-char JOIN(LIMEX_API_ROOT, _reportCurrent)(const struct NFA *n, struct mq *q) {
+char JOIN(LIMEX_API_ROOT, _reportCurrent)(const struct NFA *n, const struct mq *q) {
     const IMPL_NFA_T *limex = getImplNfa(n);
     REPORTCURRENT_FN(limex, q);
     return 1;

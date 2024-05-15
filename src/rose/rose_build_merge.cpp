@@ -1887,7 +1887,7 @@ void mergeSmallLeftfixes(RoseBuildImpl &tbi) {
         return;
     }
 
-    RoseGraph &g = tbi.g;
+    const RoseGraph &g = tbi.g;
 
     LeftfixBouquet nfa_leftfixes;
 
@@ -2180,7 +2180,7 @@ void mergeAcyclicSuffixes(RoseBuildImpl &tbi) {
 
     SuffixBouquet suffixes;
 
-    RoseGraph &g = tbi.g;
+    const RoseGraph &g = tbi.g;
 
     for (auto v : vertices_range(g)) {
         shared_ptr<NGHolder> h = g[v].suffix.graph;
@@ -2240,7 +2240,7 @@ void mergeSmallSuffixes(RoseBuildImpl &tbi) {
         return;
     }
 
-    RoseGraph &g = tbi.g;
+    const RoseGraph &g = tbi.g;
     SuffixBouquet suffixes;
 
     for (auto v : vertices_range(g)) {

@@ -315,7 +315,7 @@ bool hasInEdgeTops(const NGHolder &g, NFAVertex v) {
 
 /** Transform (1), removal of redundant vertices. */
 static
-bool doUselessMergePass(NGHolder &g, som_type som, VertexInfoMap &infoMap,
+bool doUselessMergePass(const NGHolder &g, const som_type som, VertexInfoMap &infoMap,
                         set<NFAVertex> &removable) {
     /* useless merges can be done in any order, no need to take any care with
      * ordering */
