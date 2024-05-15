@@ -127,7 +127,7 @@ void andMask(u8 *dest, const u8 *a, const u8 *b, u32 num_bytes) {
 }
 
 void FDRCompiler::createInitialState(FDR *fdr) {
-    u8 *start = (u8 *)&fdr->start;
+    u8 *start = reinterpret_cast<u8 *>(&fdr->start);
 
     /* initial state should to be 1 in each slot in the bucket up to bucket
      * minlen - 1, and 0 thereafter */
@@ -175,7 +175,7 @@ bytecode_ptr<FDR> FDRCompiler::setupFDR() {
     auto fdr = make_zeroed_bytecode_ptr<FDR>(size, 64);
     assert(fdr); // otherwise would have thrown std::bad_alloc
 
-    u8 *fdr_base = (u8 *)fdr.get();
+    u8 *fdr_base = reinterpret_cast<u8 *>(fdr.get());
 
     // Write header.
     fdr->size = size;

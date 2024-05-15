@@ -508,7 +508,7 @@ really_inline SuperVector<16> SuperVector<16>::Ones_vshl(uint8_t const N)
 template <>
 really_inline SuperVector<16> SuperVector<16>::loadu(void const *ptr)
 {
-    return SuperVector<16>(_mm_loadu_si128((const m128 *)ptr));
+    return SuperVector<16>(_mm_loadu_si128(reinterpret_cast<const m128 *>(ptr)));
 }
 
 template <>
@@ -516,14 +516,14 @@ really_inline SuperVector<16> SuperVector<16>::load(void const *ptr)
 {
     assert(ISALIGNED_N(ptr, alignof(SuperVector::size)));
     ptr = vectorscan_assume_aligned(ptr, SuperVector::size);
-    return SuperVector<16>(_mm_load_si128((const m128 *)ptr));
+    return SuperVector<16>(_mm_load_si128(reinterpret_cast<const m128 *>(ptr)));
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::loadu_maskz(void const *ptr, uint8_t const len)
 {
     SuperVector mask = Ones_vshr(16 -len);
-    SuperVector v = SuperVector<16>(_mm_loadu_si128((const m128 *)ptr));
+    SuperVector v = SuperVector<16>(_mm_loadu_si128(reinterpret_cast<const m128 *>(ptr)));
     return mask & v;
 }
 
