@@ -2992,7 +2992,7 @@ void buildFragmentPrograms(const RoseBuildImpl &build,
                                                     pfrag.lit_ids);
         if (pfrag.included_delay_frag_id != INVALID_FRAG_ID &&
             !rebuild_prog.empty()) {
-            auto &cfrag = fragments[pfrag.included_delay_frag_id];
+            const auto &cfrag = fragments[pfrag.included_delay_frag_id];
             assert(pfrag.s.length() >= cfrag.s.length() &&
                    !pfrag.s.any_nocase() >= !cfrag.s.any_nocase());
             u32 child_offset = cfrag.delay_program_offset;
