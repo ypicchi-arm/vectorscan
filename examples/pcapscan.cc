@@ -99,7 +99,7 @@ struct FiveTuple {
     unsigned int dstPort;
 
     // Construct a FiveTuple from a TCP or UDP packet.
-    FiveTuple(const struct ip *iphdr) {
+    explicit FiveTuple(const struct ip *iphdr) {
         // IP fields
         protocol = iphdr->ip_p;
         srcAddr = iphdr->ip_src.s_addr;
@@ -281,7 +281,7 @@ public:
     // Close all open Hyperscan streams (potentially generating any
     // end-anchored matches)
     void closeStreams() {
-        for (auto &stream : streams) {
+        for (const auto &stream : streams) {
             hs_error_t err = hs_close_stream(stream, scratch, onMatch,
                                              &matchCount);
             if (err != HS_SUCCESS) {

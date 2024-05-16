@@ -227,11 +227,13 @@ vector<u32> removeClique(CliqueGraph &cg) {
     while (!graph_empty(cg)) {
         const vector<u32> &c = cliquesVec.back();
         vector<CliqueVertex> dead;
-        for (const auto &v : vertices_range(cg)) {
-            if (find(c.begin(), c.end(), cg[v].stateId) != c.end()) {
-                dead.emplace_back(v);
-            }
-        }
+
+        auto deads = [&c=c, &cg=cg](const CliqueVertex &v) {
+            return (find(c.begin(), c.end(), cg[v].stateId) != c.end());
+        };
+        const auto &vr = vertices_range(cg);
+        std::copy_if(begin(vr), end(vr),  std::back_inserter(dead), deads);
+
         for (const auto &v : dead) {
             clear_vertex(v, cg);
             remove_vertex(v, cg);
@@ -294,7 +296,7 @@ vector<vector<u32>> checkExclusion(u32 &streamStateSize,
     size_t lower = 0;
     size_t total = 0;
     while (lower < trigSize) {
-        vector<CliqueVertex> vertices;
+        vector<CliqueVertex> clvertices;
         unique_ptr<CliqueGraph> cg = make_unique<CliqueGraph>();
 
         vector<vector<size_t>> min_reset_dist;
@@ -302,7 +304,7 @@ vector<vector<u32>> checkExclusion(u32 &streamStateSize,
         // get min reset distance for each repeat
         for (size_t i = lower; i < upper; i++) {
             CliqueVertex v = add_vertex(CliqueVertexProps(i), *cg);
-            vertices.emplace_back(v);
+            clvertices.emplace_back(v);
 
             const vector<size_t> &tmp_dist =
                 minResetDistToEnd(triggers[i], cr);
@@ -311,11 +313,11 @@ vector<vector<u32>> checkExclusion(u32 &streamStateSize,
 
         // find exclusive pair for each repeat
         for (size_t i = lower; i < upper; i++) {
-            CliqueVertex s = vertices[i - lower];
+            CliqueVertex s = clvertices[i - lower];
             for (size_t j = i + 1; j < upper; j++) {
                 if (findExclusivePair(i, j, lower, min_reset_dist,
                                       triggers)) {
-                    CliqueVertex d = vertices[j - lower];
+                    CliqueVertex d = clvertices[j - lower];
                     add_edge(s, d, *cg);
                 }
             }
@@ -655,7 +657,8 @@ buildCastle(const CastleProto &proto,
     if (!stale_iter.empty()) {
         c->staleIterOffset = verify_u32(ptr - base_ptr);
         copy_bytes(ptr, stale_iter);
-        ptr += byte_length(stale_iter);
+        // Removed unused increment operation
+        // ptr += byte_length(stale_iter);
     }
 
     return nfa;
@@ -919,7 +922,7 @@ void addToHolder(NGHolder &g, u32 top, const PureRepeat &pr) {
     u32 min_bound = pr.bounds.min; // always finite
     if (min_bound == 0) { // Vacuous case, we can only do this once.
         assert(!edge(g.start, g.accept, g).second);
-        NFAEdge e = add_edge(g.start, g.accept, g);
+        NFAEdge e = add_edge(g.start, g.accept, g).first;
         g[e].tops.insert(top);
         g[u].reports.insert(pr.reports.begin(), pr.reports.end());
         min_bound = 1;
@@ -928,7 +931,7 @@ void addToHolder(NGHolder &g, u32 top, const PureRepeat &pr) {
     for (u32 i = 0; i < min_bound; i++) {
         NFAVertex v = add_vertex(g);
         g[v].char_reach = pr.reach;
-        NFAEdge e = add_edge(u, v, g);
+        NFAEdge e = add_edge(u, v, g).first;
         if (u == g.start) {
             g[e].tops.insert(top);
         }
@@ -947,7 +950,7 @@ void addToHolder(NGHolder &g, u32 top, const PureRepeat &pr) {
             if (head != u) {
                 add_edge(head, v, g);
             }
-            NFAEdge e = add_edge(u, v, g);
+            NFAEdge e = add_edge(u, v, g).first;
             if (u == g.start) {
                 g[e].tops.insert(top);
             }

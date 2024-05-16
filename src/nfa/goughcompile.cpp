@@ -132,7 +132,7 @@ void GoughSSAVarMin::replace_input(GoughSSAVar *old_v, GoughSSAVar *new_v) {
 }
 
 static
-void translateRawReports(UNUSED GoughGraph &cfg, UNUSED const raw_som_dfa &raw,
+void translateRawReports(UNUSED const GoughGraph &cfg, UNUSED const raw_som_dfa &raw,
                          const flat_map<u32, GoughSSAVarJoin *> &joins_at_s,
                          UNUSED GoughVertex s,
                          const set<som_report> &reports_in,
@@ -206,10 +206,6 @@ void makeCFG_top_edge(GoughGraph &cfg, const vector<GoughVertex> &vertices,
             assert(contains(src_slots, slot_id));
 
             shared_ptr<GoughSSAVarMin> vmin = make_shared<GoughSSAVarMin>();
-            if (!vmin) {
-                assert(0);
-                throw std::bad_alloc();
-            }
             cfg[e].vars.emplace_back(vmin);
             final_var = vmin.get();
 
@@ -321,10 +317,6 @@ void makeCFG_edge(GoughGraph &cfg, const map<u32, u32> &som_creators,
             DEBUG_PRINTF("bypassing min on join %u\n", slot_id);
         } else {
             shared_ptr<GoughSSAVarMin> vmin = make_shared<GoughSSAVarMin>();
-            if (!vmin) {
-                assert(0);
-                throw std::bad_alloc();
-            }
             cfg[e].vars.emplace_back(vmin);
             final_var = vmin.get();
 
@@ -441,10 +433,11 @@ unique_ptr<GoughGraph> makeCFG(const raw_som_dfa &raw) {
 }
 
 static
+// cppcheck-suppress constParameterReference
 void copy_propagate_report_set(vector<pair<ReportID, GoughSSAVar *> > &rep) {
     vector<pair<ReportID, GoughSSAVar *> >::iterator it = rep.begin();
     while (it != rep.end()) {
-        GoughSSAVar *var = it->second;
+        const GoughSSAVar *var = it->second;
         if (!var) {
             ++it;
             continue;
@@ -546,7 +539,7 @@ void remove_dead(GoughGraph &g) {
     }
 
     while (!queue.empty()) {
-        GoughSSAVar *v = queue.back();
+        const GoughSSAVar *v = queue.back();
         queue.pop_back();
         for (GoughSSAVar *var : v->get_inputs()) {
             if (var->seen) {
@@ -658,8 +651,8 @@ GoughSSAVar *GoughSSAVarJoin::get_input(const GoughEdge &prev) const {
     return nullptr;
 }
 
-const flat_set<GoughEdge> &GoughSSAVarJoin::get_edges_for_input(
-                                                 GoughSSAVar *input) const {
+// cppcheck-suppress constParameterPointer
+const flat_set<GoughEdge> &GoughSSAVarJoin::get_edges_for_input(GoughSSAVar *input) const {
     return input_map.at(input);
 }
 
@@ -810,7 +803,7 @@ private:
 
 static
 void prep_joins_for_generation(const GoughGraph &g, GoughVertex v,
-                               map<GoughEdge, edge_join_info> *edge_info) {
+                               map<GoughEdge, edge_join_info> &edge_info) {
     DEBUG_PRINTF("writing out joins for %u\n", g[v].state_id);
     for (const auto &var : g[v].vars) {
         u32 dest_slot = var->slot;
@@ -821,7 +814,7 @@ void prep_joins_for_generation(const GoughGraph &g, GoughVertex v,
             }
 
             for (const GoughEdge &incoming_edge : var_edges.second) {
-                (*edge_info)[incoming_edge].insert(input, dest_slot);
+                edge_info[incoming_edge].insert(input, dest_slot);
                 DEBUG_PRINTF("need %u<-%u\n", dest_slot, input);
             }
         }
@@ -919,7 +912,7 @@ void build_blocks(const GoughGraph &g,
         }
 
         map<GoughEdge, edge_join_info> eji;
-        prep_joins_for_generation(g, t, &eji);
+        prep_joins_for_generation(g, t, eji);
 
         for (auto &m : eji) {
             vector<gough_ins> &block = (*blocks)[gough_edge_id(g, m.first)];
@@ -1017,7 +1010,7 @@ void update_accel_prog_offset(const gough_build_strat &gbs,
         verts[gbs.gg[v].state_id] = v;
     }
 
-    for (auto &m : gbs.built_accel) {
+    for (const auto &m : gbs.built_accel) {
         gough_accel *ga = m.first;
         assert(!ga->prog_offset);
         GoughVertex v = verts[m.second];
@@ -1050,7 +1043,7 @@ bytecode_ptr<NFA> goughCompile(raw_som_dfa &raw, u8 somPrecision,
            || !cc.streaming);
 
     if (!cc.grey.allowGough) {
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     DEBUG_PRINTF("hello world\n");
@@ -1081,7 +1074,7 @@ bytecode_ptr<NFA> goughCompile(raw_som_dfa &raw, u8 somPrecision,
     auto basic_dfa = mcclellanCompile_i(raw, gbs, cc);
     assert(basic_dfa);
     if (!basic_dfa) {
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     u8 alphaShift

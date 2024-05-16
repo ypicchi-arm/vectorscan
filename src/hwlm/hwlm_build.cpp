@@ -143,7 +143,7 @@ bytecode_ptr<HWLM> hwlmBuild(const HWLMProto &proto, const CompileContext &cc,
     }
 
     if (!eng) {
-        return nullptr;
+        return bytecode_ptr<HWLM>(nullptr);
     }
 
     assert(engSize);

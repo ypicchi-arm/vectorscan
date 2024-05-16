@@ -242,7 +242,7 @@ Position makeNewlineAssertPos(GlushkovBuildState &bs) {
 static
 void generateAccepts(GlushkovBuildStateImpl &bs, const PositionInfo &from,
                      vector<PositionInfo> *tolist) {
-    NFABuilder &builder = bs.getBuilder();
+    const NFABuilder &builder = bs.getBuilder();
     u32 flags = from.flags;
 
     bool require_eod = flags & POS_FLAG_WIRE_EOD;
@@ -455,11 +455,10 @@ void cleanupPositions(vector<PositionInfo> &a) {
     vector<PositionInfo> out;
     out.reserve(a.size()); // output should be close to input in size.
 
-    for (const auto &p : a) {
-        if (seen.emplace(p.pos, p.flags).second) {
-            out.emplace_back(p); // first encounter
-        }
-    }
+    auto seens = [&seen=seen](const PositionInfo &p) {
+        return (seen.emplace(p.pos, p.flags).second);
+    };
+    std::copy_if(begin(a), end(a),  std::back_inserter(out), seens);
 
     DEBUG_PRINTF("in %zu; out %zu\n", a.size(), out.size());
     a.swap(out);

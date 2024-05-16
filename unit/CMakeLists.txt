@@ -102,6 +102,7 @@ set(unit_internal_SOURCES
     internal/rvermicelli.cpp
     internal/simd_utils.cpp
     internal/supervector.cpp
+    internal/sheng.cpp
     internal/shuffle.cpp
     internal/shufti.cpp
     internal/state_compress.cpp

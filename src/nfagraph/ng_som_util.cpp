@@ -58,11 +58,12 @@ vector<DepthMinMax> getDistancesFromSOM(const NGHolder &g_orig) {
     cloneHolder(g, g_orig, &vmap);
 
     vector<NFAVertex> vstarts;
-    for (auto v : vertices_range(g)) {
-        if (is_virtual_start(v, g)) {
-            vstarts.emplace_back(v);
-        }
-    }
+    auto vstart = [&g=g](const NFAVertex &v) {
+        return (is_virtual_start(v, g));
+    };
+    const auto &vr = vertices_range(g);
+    std::copy_if(begin(vr), end(vr),  std::back_inserter(vstarts), vstart);
+
     vstarts.emplace_back(g.startDs);
 
     // wire the successors of every virtual start or startDs to g.start.
@@ -266,18 +267,6 @@ bool somMayGoBackwards(NFAVertex u, const NGHolder &g,
     be.clear();
     boost::depth_first_search(c_g, visitor(backEdgeVisitor)
                                    .root_vertex(c_g.start));
-
-    for (const auto &e : be) {
-        NFAVertex s = source(e, c_g);
-        NFAVertex t = target(e, c_g);
-        DEBUG_PRINTF("back edge %zu %zu\n", c_g[s].index, c_g[t].index);
-        if (s != t) {
-            assert(0);
-            DEBUG_PRINTF("eek big cycle\n");
-            rv = true; /* big cycle -> eek */
-            goto exit;
-        }
-    }
 
     DEBUG_PRINTF("checking acyclic+selfloop graph\n");
 

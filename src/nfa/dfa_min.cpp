@@ -304,6 +304,7 @@ void minimize_hopcroft(raw_dfa &rdfa, const Grey &grey) {
         DEBUG_PRINTF("dfa is empty\n");
     }
 
+    // cppcheck-suppress unreadVariable
     UNUSED const size_t states_before = rdfa.states.size();
 
     HopcroftInfo info(rdfa);

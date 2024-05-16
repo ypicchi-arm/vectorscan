@@ -99,7 +99,7 @@ struct dfa_info {
         return next(idx, TOP);
     }
     dstate &next(dstate_id_t idx, u16 chr) {
-        auto &src = (*this)[idx];
+        const auto &src = (*this)[idx];
         auto next_id = src.next[raw.alpha_remap[chr]];
         return states[next_id];
     }
@@ -109,7 +109,7 @@ struct dfa_info {
         // if DFA can't die, shift all indices left by 1
         return can_die ? idx : idx + 1;
     }
-    bool isDead(dstate &state) {
+    bool isDead(const dstate &state) {
         return raw_id(state.impl_id) == DEAD_STATE;
     }
     bool isDead(dstate_id_t idx) {
@@ -117,7 +117,7 @@ struct dfa_info {
     }
 
 private:
-    static bool dfaCanDie(raw_dfa &rdfa) {
+    static bool dfaCanDie(const raw_dfa &rdfa) {
         for (unsigned chr = 0; chr < 256; chr++) {
             for (dstate_id_t state = 0; state < rdfa.states.size(); state++) {
                 auto succ = rdfa.states[state].next[rdfa.alpha_remap[chr]];
@@ -138,7 +138,7 @@ struct raw_report_list {
     raw_report_list(const flat_set<ReportID> &reports_in,
                     const ReportManager &rm, bool do_remap) {
         if (do_remap) {
-            for (auto &id : reports_in) {
+            for (const auto &id : reports_in) {
                 reports.insert(rm.getProgramOffset(id));
             }
         } else {
@@ -334,14 +334,14 @@ void fillAccelOut(const map<dstate_id_t, AccelScheme> &accel_escape_info,
 
 template <typename T>
 static
-u8 getShengState(UNUSED dstate &state, UNUSED dfa_info &info,
-                 UNUSED map<dstate_id_t, AccelScheme> &accelInfo) {
+u8 getShengState(UNUSED const dstate &state, UNUSED dfa_info &info,
+                 UNUSED const map<dstate_id_t, AccelScheme> &accelInfo) {
     return 0;
 }
 
 template <>
-u8 getShengState<sheng>(dstate &state, dfa_info &info,
-                        map<dstate_id_t, AccelScheme> &accelInfo) {
+u8 getShengState<sheng>(const dstate &state, dfa_info &info,
+                        const map<dstate_id_t, AccelScheme> &accelInfo) {
     u8 s = state.impl_id;
     if (!state.reports.empty()) {
         s |= SHENG_STATE_ACCEPT;
@@ -356,8 +356,8 @@ u8 getShengState<sheng>(dstate &state, dfa_info &info,
 }
 
 template <>
-u8 getShengState<sheng32>(dstate &state, dfa_info &info,
-                          map<dstate_id_t, AccelScheme> &accelInfo) {
+u8 getShengState<sheng32>(const dstate &state, dfa_info &info,
+                          const map<dstate_id_t, AccelScheme> &accelInfo) {
     u8 s = state.impl_id;
     if (!state.reports.empty()) {
         s |= SHENG32_STATE_ACCEPT;
@@ -372,8 +372,8 @@ u8 getShengState<sheng32>(dstate &state, dfa_info &info,
 }
 
 template <>
-u8 getShengState<sheng64>(dstate &state, dfa_info &info,
-                          UNUSED map<dstate_id_t, AccelScheme> &accelInfo) {
+u8 getShengState<sheng64>(const dstate &state, dfa_info &info,
+                          UNUSED const map<dstate_id_t, AccelScheme> &accelInfo) {
     u8 s = state.impl_id;
     if (!state.reports.empty()) {
         s |= SHENG64_STATE_ACCEPT;
@@ -409,8 +409,8 @@ void fillAccelAux(struct NFA *n, dfa_info &info,
 
 template <typename T>
 static
-void populateBasicInfo(UNUSED struct NFA *n, UNUSED dfa_info &info,
-                       UNUSED map<dstate_id_t, AccelScheme> &accelInfo,
+void populateBasicInfo(UNUSED struct NFA *n, UNUSED dfa_info &info,  // cppcheck-suppress constParameterPointer
+                       UNUSED const map<dstate_id_t, AccelScheme> &accelInfo,
                        UNUSED u32 aux_offset, UNUSED u32 report_offset,
                        UNUSED u32 accel_offset, UNUSED u32 total_size,
                        UNUSED u32 dfa_size) {
@@ -418,7 +418,7 @@ void populateBasicInfo(UNUSED struct NFA *n, UNUSED dfa_info &info,
 
 template <>
 void populateBasicInfo<sheng>(struct NFA *n, dfa_info &info,
-                              map<dstate_id_t, AccelScheme> &accelInfo,
+                              const map<dstate_id_t, AccelScheme> &accelInfo,
                               u32 aux_offset, u32 report_offset,
                               u32 accel_offset, u32 total_size,
                               u32 dfa_size) {
@@ -443,7 +443,7 @@ void populateBasicInfo<sheng>(struct NFA *n, dfa_info &info,
 
 template <>
 void populateBasicInfo<sheng32>(struct NFA *n, dfa_info &info,
-                                map<dstate_id_t, AccelScheme> &accelInfo,
+                                const map<dstate_id_t, AccelScheme> &accelInfo,
                                 u32 aux_offset, u32 report_offset,
                                 u32 accel_offset, u32 total_size,
                                 u32 dfa_size) {
@@ -468,7 +468,7 @@ void populateBasicInfo<sheng32>(struct NFA *n, dfa_info &info,
 
 template <>
 void populateBasicInfo<sheng64>(struct NFA *n, dfa_info &info,
-                                map<dstate_id_t, AccelScheme> &accelInfo,
+                                const map<dstate_id_t, AccelScheme> &accelInfo,
                                 u32 aux_offset, u32 report_offset,
                                 u32 accel_offset, u32 total_size,
                                 u32 dfa_size) {
@@ -551,19 +551,19 @@ void fillSingleReport(NFA *n, ReportID r_id) {
 
 template <typename T>
 static
-bool createShuffleMasks(UNUSED T *s, UNUSED dfa_info &info,
-                        UNUSED map<dstate_id_t, AccelScheme> &accelInfo) {
+bool createShuffleMasks(UNUSED T *s, UNUSED dfa_info &info,  // cppcheck-suppress constParameterPointer
+                        UNUSED const map<dstate_id_t, AccelScheme> &accelInfo) {
     return true;
 }
 
 template <>
 bool createShuffleMasks<sheng>(sheng *s, dfa_info &info,
-                               map<dstate_id_t, AccelScheme> &accelInfo) {
+                               const map<dstate_id_t, AccelScheme> &accelInfo) {
     for (u16 chr = 0; chr < 256; chr++) {
         u8 buf[16] = {0};
 
         for (dstate_id_t idx = 0; idx < info.size(); idx++) {
-            auto &succ_state = info.next(idx, chr);
+            const auto &succ_state = info.next(idx, chr);
 
             buf[idx] = getShengState<sheng>(succ_state, info, accelInfo);
         }
@@ -577,13 +577,13 @@ bool createShuffleMasks<sheng>(sheng *s, dfa_info &info,
 
 template <>
 bool createShuffleMasks<sheng32>(sheng32 *s, dfa_info &info,
-                                 map<dstate_id_t, AccelScheme> &accelInfo) {
+                                 const map<dstate_id_t, AccelScheme> &accelInfo) {
     for (u16 chr = 0; chr < 256; chr++) {
         u8 buf[64] = {0};
 
         assert(info.size() <= 32);
         for (dstate_id_t idx = 0; idx < info.size(); idx++) {
-            auto &succ_state = info.next(idx, chr);
+            const auto &succ_state = info.next(idx, chr);
 
             buf[idx] = getShengState<sheng32>(succ_state, info, accelInfo);
             buf[32 + idx] = buf[idx];
@@ -598,13 +598,13 @@ bool createShuffleMasks<sheng32>(sheng32 *s, dfa_info &info,
 
 template <>
 bool createShuffleMasks<sheng64>(sheng64 *s, dfa_info &info,
-                                 map<dstate_id_t, AccelScheme> &accelInfo) {
+                                 const map<dstate_id_t, AccelScheme> &accelInfo) {
     for (u16 chr = 0; chr < 256; chr++) {
         u8 buf[64] = {0};
 
         assert(info.size() <= 64);
         for (dstate_id_t idx = 0; idx < info.size(); idx++) {
-            auto &succ_state = info.next(idx, chr);
+            const auto &succ_state = info.next(idx, chr);
 
             if (accelInfo.find(info.raw_id(succ_state.impl_id))
                 != accelInfo.end()) {
@@ -690,7 +690,7 @@ bytecode_ptr<NFA> shengCompile_int(raw_dfa &raw, const CompileContext &cc,
     }
 
     if (!createShuffleMasks<T>((T *)getMutableImplNfa(nfa.get()), info, accelInfo)) {
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     return nfa;
@@ -701,7 +701,7 @@ bytecode_ptr<NFA> shengCompile(raw_dfa &raw, const CompileContext &cc,
                                set<dstate_id_t> *accel_states) {
     if (!cc.grey.allowSheng) {
         DEBUG_PRINTF("Sheng is not allowed!\n");
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     sheng_build_strat strat(raw, rm, only_accel_init);
@@ -716,7 +716,7 @@ bytecode_ptr<NFA> shengCompile(raw_dfa &raw, const CompileContext &cc,
                  info.can_die ? "can" : "cannot", info.size());
     if (info.size() > 16) {
         DEBUG_PRINTF("Too many states\n");
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     return shengCompile_int<sheng>(raw, cc, accel_states, strat, info);
@@ -727,13 +727,20 @@ bytecode_ptr<NFA> sheng32Compile(raw_dfa &raw, const CompileContext &cc,
                                  set<dstate_id_t> *accel_states) {
     if (!cc.grey.allowSheng) {
         DEBUG_PRINTF("Sheng is not allowed!\n");
-        return nullptr;
+        bytecode_ptr<NFA>(nullptr);
     }
 
+#ifdef HAVE_SVE
+    if (svcntb()<32) {
+        DEBUG_PRINTF("Sheng32 failed, SVE width is too small!\n");
+        bytecode_ptr<NFA>(nullptr);
+    }
+#else
     if (!cc.target_info.has_avx512vbmi()) {
         DEBUG_PRINTF("Sheng32 failed, no HS_CPU_FEATURES_AVX512VBMI!\n");
-        return nullptr;
+        bytecode_ptr<NFA>(nullptr);
     }
+#endif
 
     sheng_build_strat strat(raw, rm, only_accel_init);
     dfa_info info(strat);
@@ -748,7 +755,7 @@ bytecode_ptr<NFA> sheng32Compile(raw_dfa &raw, const CompileContext &cc,
     assert(info.size() > 16);
     if (info.size() > 32) {
         DEBUG_PRINTF("Too many states\n");
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     return shengCompile_int<sheng32>(raw, cc, accel_states, strat, info);
@@ -759,13 +766,20 @@ bytecode_ptr<NFA> sheng64Compile(raw_dfa &raw, const CompileContext &cc,
                                  set<dstate_id_t> *accel_states) {
     if (!cc.grey.allowSheng) {
         DEBUG_PRINTF("Sheng is not allowed!\n");
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
+#ifdef HAVE_SVE
+    if (svcntb()<64) {
+        DEBUG_PRINTF("Sheng64 failed, SVE width is too small!\n");
+        return bytecode_ptr<NFA>(nullptr);
+    }
+#else
     if (!cc.target_info.has_avx512vbmi()) {
         DEBUG_PRINTF("Sheng64 failed, no HS_CPU_FEATURES_AVX512VBMI!\n");
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
+#endif
 
     sheng_build_strat strat(raw, rm, only_accel_init);
     dfa_info info(strat);
@@ -780,13 +794,13 @@ bytecode_ptr<NFA> sheng64Compile(raw_dfa &raw, const CompileContext &cc,
     assert(info.size() > 32);
     if (info.size() > 64) {
         DEBUG_PRINTF("Too many states\n");
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
     vector<dstate> old_states;
     old_states = info.states;
     auto nfa = shengCompile_int<sheng64>(raw, cc, accel_states, strat, info);
     if (!nfa) {
-        info.states = old_states;
+        info.states = old_states;  // cppcheck-suppress unreadVariable
     }
     return nfa;
 }
