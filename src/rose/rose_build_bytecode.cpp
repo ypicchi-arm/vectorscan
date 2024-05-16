@@ -2984,7 +2984,7 @@ void buildFragmentPrograms(const RoseBuildImpl &build,
                                                     pfrag.lit_ids);
         if (pfrag.included_delay_frag_id != INVALID_FRAG_ID &&
             !rebuild_prog.empty()) {
-            const auto &cfrag = fragments[pfrag.included_frag_id];
+            const auto &cfrag = fragments[pfrag.included_delay_frag_id];
             /** assert(pfrag.s.length() >= cfrag.s.length() && **/
             assert(pfrag.s.length() == cfrag.s.length() &&
                    !pfrag.s.any_nocase() != !cfrag.s.any_nocase());
