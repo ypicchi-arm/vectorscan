@@ -200,6 +200,8 @@ public:
 
     /// Are no bits set?
     bool none() const {
+        // cppcheck-suppress useStlAlgorithm
+        // XXX maybe do this one.. 
         for (const auto &e : bits) {
             if (e != 0) {
                 return false;

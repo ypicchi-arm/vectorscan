@@ -50,6 +50,7 @@ namespace ue2 {
 
 template<typename VarP, typename VarQ>
 void emplace_back_all_raw(vector<VarP> *out, const vector<VarQ> &in) {
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &var : in) {
         out->emplace_back(var.get());
     }
@@ -380,6 +381,7 @@ template<typename VarP>
 void add_to_dom_ordering(const vector<VarP> &vars,
                          vector<GoughSSAVar *> *out) {
     for (const auto &var : vars) {
+        // cppcheck-suppress useStlAlgorithm
         out->emplace_back(var.get());
     }
 }

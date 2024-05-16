@@ -137,6 +137,7 @@ NFAVertex findReformable(const NGHolder &g, const set<NFAVertex> &starts,
 static
 bool isStartNode(NFAVertex v, NFAVertex start, const NGHolder &g,
                  bool selfLoopIsAcceptable) {
+    // cppcheck-suppress useStlAlgorithm
     for (auto u : inv_adjacent_vertices_range(v, g)) {
         if (selfLoopIsAcceptable && u == v) {
             continue;
@@ -307,6 +308,7 @@ void reformUnanchoredRepeatsComponent(NGHolder &g,
             }
 
             for (auto v : otherV) {
+                // cppcheck-suppress useStlAlgorithm
                 if (!edge(dotV, v, g).second) {
                     return;
                 }
@@ -441,6 +443,7 @@ bool gatherParticipants(const NGHolder &g,
 
     /* All the non chained v connected to start must be in succ as well
      * TODO: remember why (and document). */
+    // cppcheck-suppress useStlAlgorithm
     for (auto u : adjacent_vertices_range(start, g)) {
         if (is_special(u, g)) {
             continue;

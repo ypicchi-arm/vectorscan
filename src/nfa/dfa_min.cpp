@@ -263,6 +263,7 @@ void mapping_new_states(const HopcroftInfo &info,
     new_states.reserve(num_partitions);
 
     for (const auto &m : ordering) {
+        // cppcheck-suppress useStlAlgorithm    
         new_states.emplace_back(rdfa.states[m.first]);
     }
     rdfa.states = std::move(new_states);

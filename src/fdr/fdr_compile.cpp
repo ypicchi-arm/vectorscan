@@ -136,6 +136,7 @@ void FDRCompiler::createInitialState(FDR *fdr) {
         const vector<LiteralIndex> &bucket_lits = bucketToLits[b];
         u32 min_len = ~0U;
         for (const LiteralIndex &lit_idx : bucket_lits) {
+            // cppcheck-suppress useStlAlgorithm
             min_len = min(min_len, verify_u32(lits[lit_idx].s.length()));
         }
 

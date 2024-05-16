@@ -453,6 +453,7 @@ void haig_do_preds(const NGHolder &g, const stateset &nfa_states,
         DEBUG_PRINTF("d vertex %zu\n", g[v].index);
         vector<u32> &out_map = preds[slot_id];
         for (auto u : inv_adjacent_vertices_range(v, g)) {
+            // cppcheck-suppress useStlAlgorithm
             out_map.emplace_back(g[u].index);
         }
 

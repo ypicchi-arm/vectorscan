@@ -303,6 +303,7 @@ setupFullConfs(const vector<hwlmLiteral> &lits,
         if (contains(bucketToLits, b)) {
             vector<hwlmLiteral> vl;
             for (const LiteralIndex &lit_idx : bucketToLits.at(b)) {
+                // cppcheck-suppress useStlAlgorithm
                 vl.emplace_back(lits[lit_idx]);
             }
 

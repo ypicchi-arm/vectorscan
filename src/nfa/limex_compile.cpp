@@ -482,6 +482,7 @@ bool allow_wide_accel(NFAVertex v, const NGHolder &g, NFAVertex sds_or_proxy) {
 static
 bool allow_wide_accel(const vector<NFAVertex> &vv, const NGHolder &g,
                       NFAVertex sds_or_proxy) {
+    // cppcheck-suppress useStlAlgorithm
     for (auto v : vv) {
         if (allow_wide_accel(v, g, sds_or_proxy)) {
             return true;
@@ -623,6 +624,7 @@ void fillAccelInfo(build_info &bi) {
 
     vector<NFAVertex> astates;
     for (const auto &m : accel_map) {
+        // cppcheck-suppress useStlAlgorithm
         astates.emplace_back(m.first);
     }
 
@@ -799,12 +801,14 @@ u32 getEffectiveAccelStates(const build_info &args,
             continue;
         }
         for (const auto &s_mask : args.squashMap | map_values) {
+            // cppcheck-suppress useStlAlgorithm
             if (!s_mask.test(state_id)) {
                 may_turn_off |= 1U << accel_id;
                 break;
             }
         }
         for (const auto &s_mask : args.reportSquashMap | map_values) {
+            // cppcheck-suppress useStlAlgorithm
             if (!s_mask.test(state_id)) {
                 may_turn_off |= 1U << accel_id;
                 break;

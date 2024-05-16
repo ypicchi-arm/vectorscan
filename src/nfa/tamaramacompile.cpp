@@ -42,6 +42,8 @@
 #include "util/container.h"
 #include "util/verify_types.h"
 
+#include <numeric>
+
 using namespace std;
 
 namespace ue2 {
@@ -127,9 +129,14 @@ buildTamarama(const TamaInfo &tamaInfo, const u32 queue,
         sizeof(u32) * subSize + 64; // offsets to subengines in bytecode and
                                     // padding for subengines
 
-    for (const auto &sub : tamaInfo.subengines) {
-        total_size += ROUNDUP_CL(sub->length);
-    }
+
+    auto subl = [](size_t z, NFA *sub) {
+        return z + (size_t)(ROUNDUP_CL(sub->length));
+    };
+    total_size += std::accumulate(tamaInfo.subengines.begin(), tamaInfo.subengines.end(), 0, subl);
+    // for (const auto &sub : tamaInfo.subengines) {
+    //     total_size += ROUNDUP_CL(sub->length);
+    // }
 
     // use subSize as a sentinel value for no active subengines,
     // so add one to subSize here

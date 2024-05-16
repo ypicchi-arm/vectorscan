@@ -75,6 +75,7 @@ bool hasSameBounds(const Container &reports, const ReportManager &rm) {
     assert(!reports.empty());
 
     const auto &first = rm.getReport(*reports.begin());
+    // cppcheck-suppress useStlAlgorithm
     for (auto id : reports) {
         const auto &report = rm.getReport(id);
         if (report.minOffset != first.minOffset ||
@@ -225,6 +226,7 @@ void updateReportBounds(ReportManager &rm, NGHolder &g,
 
 static
 bool hasVirtualStarts(const NGHolder &g) {
+    // cppcheck-suppress useStlAlgorithm
     for (auto v : adjacent_vertices_range(g.start, g)) {
         if (g[v].assert_flags & POS_FLAG_VIRTUAL_START) {
             return true;
@@ -439,6 +441,7 @@ bool hasOffsetAdjust(const ReportManager &rm, NGHolder &g,
     }
 
     int offsetAdjust = rm.getReport(*reports.begin()).offsetAdjust;
+    // cppcheck-suppress useStlAlgorithm
     for (auto report : reports) {
         const Report &ir = rm.getReport(report);
         if (ir.offsetAdjust != offsetAdjust) {

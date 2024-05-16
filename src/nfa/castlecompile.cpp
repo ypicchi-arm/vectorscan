@@ -672,6 +672,7 @@ set<ReportID> all_reports(const CastleProto &proto) {
 depth findMinWidth(const CastleProto &proto) {
     depth min_width(depth::infinity());
     for (const PureRepeat &pr : proto.repeats | map_values) {
+        // cppcheck-suppress useStlAlgorithm
         min_width = min(min_width, pr.bounds.min);
     }
     return min_width;
@@ -680,6 +681,7 @@ depth findMinWidth(const CastleProto &proto) {
 depth findMaxWidth(const CastleProto &proto) {
     depth max_width(0);
     for (const PureRepeat &pr : proto.repeats | map_values) {
+        // cppcheck-suppress useStlAlgorithm
         max_width = max(max_width, pr.bounds.max);
     }
     return max_width;
@@ -746,6 +748,7 @@ u32 CastleProto::merge(const PureRepeat &pr) {
 
     // First, see if this repeat is already in this castle.
     for (const auto &m : repeats) {
+        // cppcheck-suppress useStlAlgorithm
         if (m.second == pr) {
             DEBUG_PRINTF("repeat already present, with top %u\n", m.first);
             return m.first;
@@ -970,6 +973,7 @@ void addToHolder(NGHolder &g, u32 top, const PureRepeat &pr) {
 static
 bool hasZeroMinBound(const CastleProto &proto) {
     const depth zero(0);
+    // cppcheck-suppress useStlAlgorithm
     for (const PureRepeat &pr : proto.repeats | map_values) {
         if (pr.bounds.min == zero) {
             return true;
