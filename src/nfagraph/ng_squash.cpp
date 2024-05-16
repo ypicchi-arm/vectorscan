@@ -281,6 +281,7 @@ void findDerivedSquashers(const NGHolder &g, const vector<NFAVertex> &vByIndex,
                           smgb_cache &cache) {
     deque<NFAVertex> remaining;
     for (const auto &m : *squash) {
+        // cppcheck-suppress useStlAlgorithm
         remaining.emplace_back(m.first);
     }
 

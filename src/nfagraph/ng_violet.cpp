@@ -89,9 +89,11 @@ bool createsAnchoredLHS(const NGHolder &g, const vector<NFAVertex> &vv,
                         const Grey &grey, depth max_depth = depth::infinity()) {
     max_depth = min(max_depth, depth(grey.maxAnchoredRegion));
 
+    // cppcheck-suppress useStlAlgorithm
     for (auto v : vv) {
         /* avoid issues of self loops blowing out depths:
          *     look at preds, add 1 */
+        // cppcheck-suppress useStlAlgorithm
         for (auto u : inv_adjacent_vertices_range(v, g)) {
             if (u == v) {
                 continue;
@@ -116,9 +118,11 @@ bool createsTransientLHS(const NGHolder &g, const vector<NFAVertex> &vv,
                          const Grey &grey) {
     const depth max_depth(grey.maxHistoryAvailable);
 
+    // cppcheck-suppress useStlAlgorithm
     for (auto v : vv) {
         /* avoid issues of self loops blowing out depths:
          *     look at preds, add 1 */
+        // cppcheck-suppress useStlAlgorithm
         for (auto u : inv_adjacent_vertices_range(v, g)) {
             if (u == v) {
                 continue;
@@ -162,6 +166,7 @@ u32 min_len(const set<ue2_literal> &s) {
     u32 rv = ~0U;
 
     for (const auto &lit : s) {
+        // cppcheck-suppress useStlAlgorithm
         rv = min(rv, (u32)lit.length());
     }
 
@@ -173,6 +178,7 @@ u32 min_period(const set<ue2_literal> &s) {
     u32 rv = ~0U;
 
     for (const auto &lit : s) {
+        // cppcheck-suppress useStlAlgorithm
         rv = min(rv, (u32)minStringPeriod(lit));
     }
     DEBUG_PRINTF("min period %u\n", rv);
@@ -394,6 +400,7 @@ void getSimpleRoseLiterals(const NGHolder &g, bool seeking_anchored,
 
     lits->reserve(lit_info.size());
     for (auto &m : lit_info) {
+        // cppcheck-suppress useStlAlgorithm
         lits->emplace_back(std::move(m.second));
     }
     DEBUG_PRINTF("%zu candidate literal sets\n", lits->size());
@@ -1196,6 +1203,7 @@ bool checkValidNetflowLits(NGHolder &h, const vector<u64a> &scores,
 
         for (const auto &lit : cut.second) {
             if (lit.length() == 2) {
+                // cppcheck-suppress useStlAlgorithm
                 len_2_count++;
             }
         }
@@ -1807,6 +1815,7 @@ void removeRedundantLiterals(RoseInGraph &g, const CompileContext &cc) {
 static
 RoseInVertex getStart(RoseInGraph &vg) {
     for (RoseInVertex v : vertices_range(vg)) {
+        // cppcheck-suppress useStlAlgorithm
         if (vg[v].type == RIV_START || vg[v].type == RIV_ANCHORED_START) {
             return v;
         }
@@ -1822,6 +1831,7 @@ RoseInVertex getStart(RoseInGraph &vg) {
 static
 RoseInVertex getPrimaryAccept(RoseInGraph &vg) {
     for (RoseInVertex v : vertices_range(vg)) {
+        // cppcheck-suppress useStlAlgorithm
         if (vg[v].type == RIV_ACCEPT && vg[v].reports.empty()) {
             return v;
         }
@@ -2833,6 +2843,7 @@ bool doEarlyDfa(RoseBuild &rose, RoseInGraph &vg, NGHolder &h,
     DEBUG_PRINTF("trying for dfa\n");
 
     bool single_trigger;
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &e : edges) {
         if (vg[target(e, vg)].type == RIV_ACCEPT_EOD) {
             /* TODO: support eod prefixes */

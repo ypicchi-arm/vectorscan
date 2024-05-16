@@ -177,6 +177,7 @@ bool isVacuous(const NGHolder &h) {
 }
 
 bool isAnchored(const NGHolder &g) {
+    // cppcheck-suppress useStlAlgorithm
     for (auto v : adjacent_vertices_range(g.startDs, g)) {
         if (v != g.startDs) {
             return false;
@@ -186,6 +187,7 @@ bool isAnchored(const NGHolder &g) {
 }
 
 bool isFloating(const NGHolder &g) {
+    // cppcheck-suppress useStlAlgorithm
     for (auto v : adjacent_vertices_range(g.start, g)) {
         if (v != g.startDs && !edge(g.startDs, v, g).second) {
             return false;
@@ -228,6 +230,7 @@ bool hasBigCycles(const NGHolder &g) {
     boost::depth_first_search(g, backEdgeVisitor, make_small_color_map(g),
                               g.start);
 
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &e : dead) {
         if (source(e, g) != target(e, g)) {
             return true;
@@ -259,6 +262,7 @@ bool can_match_at_eod(const NGHolder &h) {
         return true;
     }
 
+    // cppcheck-suppress useStlAlgorithm
     for (auto e : in_edges_range(h.accept, h)) {
         if (h[e].assert_flags) {
             DEBUG_PRINTF("edge to accept has assert flags %d\n",

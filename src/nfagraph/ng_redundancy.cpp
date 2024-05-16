@@ -682,6 +682,7 @@ bool forwardPathReachSubset(const NFAEdge &e, const NFAVertex &dom,
 
 static
 bool allOutsSpecial(NFAVertex v, const NGHolder &g) {
+    // cppcheck-suppress useStlAlgorithm
     for (auto w : adjacent_vertices_range(v, g)) {
         if (!is_special(w, g)) {
             return false;
@@ -692,6 +693,7 @@ bool allOutsSpecial(NFAVertex v, const NGHolder &g) {
 
 static
 bool allInsSpecial(NFAVertex v, const NGHolder &g) {
+    // cppcheck-suppress useStlAlgorithm
     for (auto u : inv_adjacent_vertices_range(v, g)) {
         if (!is_special(u, g)) {
             return false;
@@ -704,6 +706,7 @@ bool allInsSpecial(NFAVertex v, const NGHolder &g) {
  * just a chain of vertices with no other edges. */
 static
 bool isIrreducible(const NGHolder &g) {
+    // cppcheck-suppress useStlAlgorithm
     for (auto v : vertices_range(g)) {
         // skip specials
         if (is_special(v, g)) {

@@ -86,6 +86,7 @@ const DepthMinMax &getDepth(NFAVertex v, const NGHolder &g,
 static
 bool hasFloatingPred(NFAVertex v, const NGHolder &g,
                      const vector<DepthMinMax> &depths) {
+    // cppcheck-suppress useStlAlgorithm
     for (auto u : inv_adjacent_vertices_range(v, g)) {
         const DepthMinMax &d = getDepth(u, g, depths);
         if (d.min != d.max) {

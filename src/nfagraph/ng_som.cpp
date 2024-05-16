@@ -545,6 +545,7 @@ bool finalRegion(const NGHolder &g,
                  const unordered_map<NFAVertex, u32> &regions,
                  NFAVertex v) {
     u32 region = regions.at(v);
+    // cppcheck-suppress useStlAlgorithm
     for (auto w : adjacent_vertices_range(v, g)) {
         if (w != g.accept && w != g.acceptEod && regions.at(w) != region) {
             return false;
@@ -2331,6 +2332,7 @@ bool splitOffLeadingLiterals(const NGHolder &g, set<ue2_literal> *lit_out,
     assert(!terms.empty());
     set<NFAVertex> adj_term1;
     insert(&adj_term1, adjacent_vertices(*terms.begin(), g));
+    // cppcheck-suppress useStlAlgorithm
     for (auto v : terms) {
         DEBUG_PRINTF("term %zu\n", g[v].index);
         set<NFAVertex> temp;

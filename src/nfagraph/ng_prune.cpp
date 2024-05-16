@@ -251,12 +251,14 @@ bool hasOnlySelfLoopAndExhaustibleAccepts(const NGHolder &g,
         return false;
     }
 
+    // cppcheck-suppress useStlAlgorithm
     for (auto w : adjacent_vertices_range(v, g)) {
         if (w != v && w != g.accept) {
             return false;
         }
     }
 
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &report_id : g[v].reports) {
         if (!isSimpleExhaustible(rm.getReport(report_id))) {
             return false;

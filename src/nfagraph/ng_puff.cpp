@@ -154,6 +154,7 @@ static
 bool triggerResetsPuff(const NGHolder &g, NFAVertex head) {
     const CharReach puff_escapes = ~g[head].char_reach;
 
+    // cppcheck-suppress useStlAlgorithm
     for (auto u : inv_adjacent_vertices_range(head, g)) {
         if (!g[u].char_reach.isSubsetOf(puff_escapes)) {
             DEBUG_PRINTF("no reset on trigger %zu %zu\n", g[u].index,
@@ -187,6 +188,7 @@ bool triggerFloodsPuff(const NGHolder &g, NFAVertex head) {
         DEBUG_PRINTF("temp new head = %zu\n", g[head].index);
     }
 
+    // cppcheck-suppress useStlAlgorithm
     for (auto s : inv_adjacent_vertices_range(head, g)) {
         DEBUG_PRINTF("s = %zu\n", g[s].index);
         if (!puff_cr.isSubsetOf(g[s].char_reach)) {
@@ -224,6 +226,7 @@ u32 allowedSquashDistance(const CharReach &cr, u32 min_width, const NGHolder &g,
 
     /* TODO: inspect further back in the pattern */
     for (auto u : inv_adjacent_vertices_range(pv, g)) {
+        // cppcheck-suppress useStlAlgorithm
         accept_cr |= g[u].char_reach;
     }
 
@@ -367,6 +370,7 @@ bool doComponent(RoseBuild &rose, ReportManager &rm, NGHolder &g, NFAVertex a,
 
     if (!nodes.empty() && proper_in_degree(nodes.back(), g) != 1) {
         for (auto u : inv_adjacent_vertices_range(nodes.back(), g)) {
+            // cppcheck-suppress useStlAlgorithm
             if (is_special(u, g)) {
                 DEBUG_PRINTF("pop\n");
                 a = nodes.back();
@@ -453,6 +457,7 @@ bool doComponent(RoseBuild &rose, ReportManager &rm, NGHolder &g, NFAVertex a,
     const auto &reports = g[nodes[0]].reports;
     assert(!reports.empty());
 
+    // cppcheck-suppress useStlAlgorithm
     for (auto report : reports) {
         const Report &ir = rm.getReport(report);
         const bool highlander = ir.ekey != INVALID_EKEY;
@@ -499,6 +504,7 @@ bool splitOffPuffs(RoseBuild &rose, ReportManager &rm, NGHolder &g,
 
     for (auto v : inv_adjacent_vertices_range(g.accept, g)) {
         if (doComponent(rose, rm, g, v, dead, cc, prefilter)) {
+            // cppcheck-suppress useStlAlgorithm
             count++;
         }
     }

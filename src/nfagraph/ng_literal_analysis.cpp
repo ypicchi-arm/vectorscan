@@ -674,9 +674,6 @@ u64a scoreSet(const set<ue2_literal> &s) {
     u64a score = 1ULL;
     auto cscore = [](u64a z, const ue2_literal &lit) { return z + calculateScore(lit); };
     score += std::accumulate(s.begin(), s.end(), 0, cscore);
-    // for (const auto &lit : s) {
-    //     score += calculateScore(lit);
-    // }
 
     return score;
 }

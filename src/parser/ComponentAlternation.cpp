@@ -130,6 +130,7 @@ vector<PositionInfo> ComponentAlternation::last() const {
 
 bool ComponentAlternation::empty(void) const {
     // an alternation can be empty if any of its components are empty
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &c : children) {
         if (c->empty()) {
             return true;
@@ -173,6 +174,7 @@ bool ComponentAlternation::checkEmbeddedEndAnchor(bool at_end) const {
 }
 
 bool ComponentAlternation::vacuous_everywhere(void) const {
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &c : children) {
         if (c->vacuous_everywhere()) {
             return true;
