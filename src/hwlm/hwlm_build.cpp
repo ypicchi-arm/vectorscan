@@ -155,6 +155,7 @@ bytecode_ptr<HWLM> hwlmBuild(const HWLMProto &proto, const CompileContext &cc,
     auto h = make_zeroed_bytecode_ptr<HWLM>(hwlm_len, 64);
 
     h->type = proto.engType;
+    // cppcheck-suppress cstyleCast
     memcpy(HWLM_DATA(h.get()), eng.get(), engSize);
 
     return h;
@@ -218,10 +219,12 @@ size_t hwlmSize(const HWLM *h) {
 
     switch (h->type) {
     case HWLM_ENGINE_NOOD:
-        engSize = noodSize((const noodTable *)HWLM_C_DATA(h));
+	// cppcheck-suppress cstyleCast
+        engSize = noodSize(reinterpret_cast<const noodTable *>(HWLM_C_DATA(h)));
         break;
     case HWLM_ENGINE_FDR:
-        engSize = fdrSize((const FDR *)HWLM_C_DATA(h));
+	// cppcheck-suppress cstyleCast
+        engSize = fdrSize(reinterpret_cast<const FDR *>(HWLM_C_DATA(h)));
         break;
     }
 

@@ -106,25 +106,27 @@ void writeCastleScanEngine(const CharReach &cr, Castle *c) {
 #ifdef HAVE_SVE2
     if (cr.count() <= 16) {
         c->type = CASTLE_NVERM16;
-        vermicelli16Build(cr, (u8 *)&c->u.verm16.mask);
+        vermicelli16Build(cr, reinterpret_cast<u8 *>(&c->u.verm16.mask));
         return;
     }
     if (negated.count() <= 16) {
         c->type = CASTLE_VERM16;
-        vermicelli16Build(negated, (u8 *)&c->u.verm16.mask);
+        vermicelli16Build(negated, reinterpret_cast<u8 *>(&c->u.verm16.mask));
         return;
     }
 #endif // HAVE_SVE2
 
-    if (shuftiBuildMasks(negated, (u8 *)&c->u.shuf.mask_lo,
-                         (u8 *)&c->u.shuf.mask_hi) != -1) {
+    if (shuftiBuildMasks(negated,
+                         reinterpret_cast<u8 *>(&c->u.shuf.mask_lo),
+                         reinterpret_cast<u8 *>(&c->u.shuf.mask_hi)) != -1) {
         c->type = CASTLE_SHUFTI;
         return;
     }
 
     c->type = CASTLE_TRUFFLE;
-    truffleBuildMasks(negated, (u8 *)(u8 *)&c->u.truffle.mask1,
-                      (u8 *)&c->u.truffle.mask2);
+    truffleBuildMasks(negated,
+                      reinterpret_cast<u8 *>(&c->u.truffle.mask1),
+                      reinterpret_cast<u8 *>(&c->u.truffle.mask2));
 }
 
 static
@@ -602,9 +604,9 @@ buildCastle(const CastleProto &proto,
     nfa->minWidth = verify_u32(minWidth);
     nfa->maxWidth = maxWidth.is_finite() ? verify_u32(maxWidth) : 0;
 
-    char * const base_ptr = (char *)nfa.get() + sizeof(NFA);
+    char * const base_ptr = reinterpret_cast<char *>(nfa.get()) + sizeof(NFA);
     char *ptr = base_ptr;
-    Castle *c = (Castle *)ptr;
+    Castle *c = reinterpret_cast<Castle *>(ptr);
     c->numRepeats = verify_u32(subs.size());
     c->numGroups = exclusiveInfo.numGroups;
     c->exclusive = verify_s8(exclusive);
@@ -615,7 +617,7 @@ buildCastle(const CastleProto &proto,
     writeCastleScanEngine(cr, c);
 
     ptr += sizeof(Castle);
-    SubCastle *subCastles = ((SubCastle *)(ROUNDUP_PTR(ptr, alignof(u32))));
+    SubCastle *subCastles = reinterpret_cast<SubCastle *>(ROUNDUP_PTR(ptr, alignof(u32)));
     copy(subs.begin(), subs.end(), subCastles);
 
     u32 length = 0;
@@ -625,16 +627,16 @@ buildCastle(const CastleProto &proto,
         SubCastle *sub = &subCastles[i];
         sub->repeatInfoOffset = offset;
 
-        ptr = (char *)sub + offset;
+        ptr = reinterpret_cast<char *>(sub) + offset;
         memcpy(ptr, &infos[i], sizeof(RepeatInfo));
 
         if (patchSize[i]) {
-            RepeatInfo *info = (RepeatInfo *)ptr;
-            u64a *table = ((u64a *)(ROUNDUP_PTR(((char *)(info) +
-                                    sizeof(*info)), alignof(u64a))));
+            RepeatInfo *info = reinterpret_cast<RepeatInfo *>(ptr);
+            u64a *table = reinterpret_cast<u64a *>(ROUNDUP_PTR(info +
+                                    sizeof(*info), alignof(u64a)));
             copy(tables.begin() + tableIdx,
                  tables.begin() + tableIdx + patchSize[i], table);
-            u32 diff = (char *)table - (char *)info +
+            u32 diff = reinterpret_cast<ptrdiff_t>(table) - reinterpret_cast<ptrdiff_t>(info) +
                        sizeof(u64a) * patchSize[i];
             info->length = diff;
             length += diff;
@@ -657,8 +659,6 @@ buildCastle(const CastleProto &proto,
     if (!stale_iter.empty()) {
         c->staleIterOffset = verify_u32(ptr - base_ptr);
         copy_bytes(ptr, stale_iter);
-        // Removed unused increment operation
-        // ptr += byte_length(stale_iter);
     }
 
     return nfa;

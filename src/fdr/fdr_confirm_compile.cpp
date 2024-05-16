@@ -58,7 +58,7 @@ u64a make_u64a_mask(const vector<u8> &v) {
     u64a mask = 0;
     size_t vlen = v.size();
     size_t len = std::min(vlen, sizeof(mask));
-    unsigned char *m = (unsigned char *)&mask;
+    u8 *m = reinterpret_cast<u8 *>(&mask);
     memcpy(m + sizeof(mask) - len, &v[vlen - len], len);
     return mask;
 }
@@ -245,10 +245,10 @@ bytecode_ptr<FDRConfirm> getFDRConfirm(const vector<hwlmLiteral> &lits,
     fdrc->groups = gm;
 
     // After the FDRConfirm, we have the lit index array.
-    u8 *fdrc_base = (u8 *)fdrc.get();
+    u8 *fdrc_base = reinterpret_cast<u8 *>(fdrc.get());
     u8 *ptr = fdrc_base + sizeof(*fdrc);
     ptr = ROUNDUP_PTR(ptr, alignof(u32));
-    u32 *bitsToLitIndex = (u32 *)ptr;
+    u32 *bitsToLitIndex = reinterpret_cast<u32 *>(ptr);
     ptr += bitsToLitIndexSize;
 
     // After the lit index array, we have the LitInfo structures themselves,
@@ -265,7 +265,7 @@ bytecode_ptr<FDRConfirm> getFDRConfirm(const vector<hwlmLiteral> &lits,
             LiteralIndex litIdx = *i;
 
             // Write LitInfo header.
-            LitInfo &finalLI = *(LitInfo *)ptr;
+            LitInfo &finalLI = *(reinterpret_cast<LitInfo *>(ptr));
             finalLI = tmpLitInfo[litIdx];
 
             ptr += sizeof(LitInfo); // String starts directly after LitInfo.
@@ -317,7 +317,7 @@ setupFullConfs(const vector<hwlmLiteral> &lits,
     auto buf = make_zeroed_bytecode_ptr<u8>(totalSize, 64);
     assert(buf); // otherwise would have thrown std::bad_alloc
 
-    u32 *confBase = (u32 *)buf.get();
+    u32 *confBase = reinterpret_cast<u32 *>(buf.get());
     u8 *ptr = buf.get() + totalConfSwitchSize;
     assert(ISALIGNED_CL(ptr));
 
