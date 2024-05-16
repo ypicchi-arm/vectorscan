@@ -124,7 +124,8 @@ void aligned_free(void *ptr) {
         return;
     }
 
-    ptrdiff_t *addr = static_cast<ptrdiff_t *>(ptr) - HACK_OFFSET;
+    char *addr_c = static_cast<char *>(ptr);
+    void *addr = static_cast<void *>(addr_c - HACK_OFFSET);
     DEBUG_PRINTF("asked to free %p freeing %p\n", ptr, addr);
 
     assert(ISALIGNED_N(addr, 64));
