@@ -358,9 +358,11 @@ public:
     // Return the number of bytes scanned
     size_t bytes() const {
         size_t sum = 0;
-        for (const auto &packet : packets) {
-            sum += packet.size();
-        }
+        auto packs = [](size_t z, const string &packet) { return z + packet.size(); };
+        sum += std::accumulate(packets.begin(), packets.end(), 0, packs);
+        // for (const auto &packet : packets) {
+        //     sum += packet.size();
+        // }
         return sum;
     }
 
@@ -461,6 +463,7 @@ public:
         vector<const char *> cstrPatterns;
         cstrPatterns.reserve(patterns.size());
         for (const auto &pattern : patterns) {
+            // cppcheck-suppress useStlAlgorithm
             cstrPatterns.push_back(pattern.c_str());
         }
 

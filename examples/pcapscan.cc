@@ -55,6 +55,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <numeric>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -250,9 +251,8 @@ public:
     // Return the number of bytes scanned
     size_t bytes() const {
         size_t sum = 0;
-        for (const auto &packet : packets) {
-            sum += packet.size();
-        }
+        auto packs = [](size_t z, const string &packet) { return z + packet.size(); };
+        sum += std::accumulate(packets.begin(), packets.end(), 0, packs);
         return sum;
     }
 
@@ -433,6 +433,7 @@ static void databasesFromFile(const char *filename,
     // storage.)
     vector<const char*> cstrPatterns;
     for (const auto &pattern : patterns) {
+        // cppcheck-suppress useStlAlgorithm
         cstrPatterns.push_back(pattern.c_str());
     }
 
