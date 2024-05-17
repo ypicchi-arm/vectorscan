@@ -54,6 +54,7 @@ CharReach getReachability(const NGHolder &h) {
     CharReach cr;
     for (const auto &v : vertices_range(h)) {
         if (!is_special(v, h)) {
+            // cppcheck-suppress useStlAlgorithm
             cr |= h[v].char_reach;
         }
     }
@@ -140,6 +141,7 @@ bool isSuffix(const vector<vector<CharReach>> &triggers1,
               const vector<vector<CharReach>> &triggers2) {
     // literal suffix test
     for (const auto &lit1 : triggers1) {
+        // cppcheck-suppress useStlAlgorithm
         for (const auto &lit2 : triggers2) {
             const size_t len = min(lit1.size(), lit2.size());
             if (equal(lit1.rbegin(), lit1.rbegin() + len,
@@ -240,6 +242,7 @@ bool isExclusive(const NGHolder &h,
             // Check if only literal states are on
             for (const auto &s : activeStates) {
                 if ((!is_any_start(s, h) && h[s].index <= num) ||
+                    // cppcheck-suppress useStlAlgorithm
                     contains(tailId, h[s].index)) {
                     skipList[id2].insert(id1);
                     return false;

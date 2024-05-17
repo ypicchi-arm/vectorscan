@@ -106,6 +106,7 @@ bool RoseVertexProps::fixedOffset(void) const {
 }
 
 bool RoseBuildImpl::isRootSuccessor(const RoseVertex &v) const {
+    // cppcheck-suppress useStlAlgorithm
     for (auto u : inv_adjacent_vertices_range(v, g)) {
         if (isAnyStart(u)) {
             return true;
@@ -115,6 +116,7 @@ bool RoseBuildImpl::isRootSuccessor(const RoseVertex &v) const {
 }
 
 bool RoseBuildImpl::isNonRootSuccessor(const RoseVertex &v) const {
+    // cppcheck-suppress useStlAlgorithm
     for (auto u : inv_adjacent_vertices_range(v, g)) {
         if (!isAnyStart(u)) {
             return true;
@@ -124,6 +126,7 @@ bool RoseBuildImpl::isNonRootSuccessor(const RoseVertex &v) const {
 }
 
 bool hasAnchHistorySucc(const RoseGraph &g, RoseVertex v) {
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &e : out_edges_range(v, g)) {
         if (g[e].history == ROSE_ROLE_HISTORY_ANCH) {
             return true;
@@ -134,6 +137,7 @@ bool hasAnchHistorySucc(const RoseGraph &g, RoseVertex v) {
 }
 
 bool hasLastByteHistorySucc(const RoseGraph &g, RoseVertex v) {
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &e : out_edges_range(v, g)) {
         if (g[e].history == ROSE_ROLE_HISTORY_LAST_BYTE) {
             return true;
@@ -183,6 +187,7 @@ bool RoseBuildImpl::hasLiteralInTable(RoseVertex v,
 /* Indicates that the floating table (if it exists) will be only run
    conditionally based on matches from the anchored table. */
 bool RoseBuildImpl::hasNoFloatingRoots() const {
+    // cppcheck-suppress useStlAlgorithm
     for (auto v : adjacent_vertices_range(root, g)) {
         if (isFloating(v)) {
             DEBUG_PRINTF("direct floating root %zu\n", g[v].index);
@@ -191,6 +196,7 @@ bool RoseBuildImpl::hasNoFloatingRoots() const {
     }
 
     /* need to check if the anchored_root has any literals which are too deep */
+    // cppcheck-suppress useStlAlgorithm
     for (auto v : adjacent_vertices_range(anchored_root, g)) {
         if (isFloating(v)) {
             DEBUG_PRINTF("indirect floating root %zu\n", g[v].index);
@@ -208,6 +214,7 @@ size_t RoseBuildImpl::maxLiteralLen(RoseVertex v) const {
     size_t maxlen = 0;
 
     for (const auto &lit_id : lit_ids) {
+        // cppcheck-suppress useStlAlgorithm
         maxlen = max(maxlen, literals.at(lit_id).elength());
     }
 
@@ -221,6 +228,7 @@ size_t RoseBuildImpl::minLiteralLen(RoseVertex v) const {
     size_t minlen = ROSE_BOUND_INF;
 
     for (const auto &lit_id : lit_ids) {
+        // cppcheck-suppress useStlAlgorithm
         minlen = min(minlen, literals.at(lit_id).elength());
     }
 
@@ -880,6 +888,7 @@ u32 findMinOffset(const RoseBuildImpl &build, u32 lit_id) {
 
     u32 min_offset = UINT32_MAX;
     for (const auto &v : lit_vertices) {
+        // cppcheck-suppress useStlAlgorithm
         min_offset = min(min_offset, build.g[v].min_offset);
     }
 
@@ -892,6 +901,7 @@ u32 findMaxOffset(const RoseBuildImpl &build, u32 lit_id) {
 
     u32 max_offset = 0;
     for (const auto &v : lit_vertices) {
+        // cppcheck-suppress useStlAlgorithm
         max_offset = max(max_offset, build.g[v].max_offset);
     }
 

@@ -158,9 +158,11 @@ void mergeAnchoredDfas(vector<unique_ptr<raw_dfa>> &dfas,
 
     // Rehome our groups into one vector.
     for (auto &rdfa : small_starts) {
+        // cppcheck-suppress useStlAlgorithm
         dfas.emplace_back(std::move(rdfa));
     }
     for (auto &rdfa : big_starts) {
+        // cppcheck-suppress useStlAlgorithm
         dfas.emplace_back(std::move(rdfa));
     }
 
@@ -784,6 +786,7 @@ vector<unique_ptr<raw_dfa>> getAnchoredDfas(RoseBuildImpl &build,
     // DFAs that already exist as raw_dfas.
     for (auto &anch_dfas : build.anchored_nfas) {
         for (auto &rdfa : anch_dfas.second) {
+            // cppcheck-suppress useStlAlgorithm
             dfas.emplace_back(std::move(rdfa));
         }
     }

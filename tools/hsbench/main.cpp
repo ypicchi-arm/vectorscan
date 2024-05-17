@@ -727,6 +727,7 @@ double fastestResult(const vector<unique_ptr<ThreadContext>> &threads) {
     double best = threads[0]->results[0].seconds;
     for (const auto &t : threads) {
         for (const auto &r : t->results) {
+            // cppcheck-suppress useStlAlgorithm
             best = min(best, r.seconds);
         }
     }
@@ -737,6 +738,7 @@ static
 u64a byte_size(const vector<DataBlock> &corpus_blocks) {
     u64a total = 0;
     for (const DataBlock &block : corpus_blocks) {
+        // cppcheck-suppress useStlAlgorithm
         total += block.payload.size();
     }
 
@@ -757,6 +759,7 @@ void displayResults(const vector<unique_ptr<ThreadContext>> &threads,
 
     // Sanity check: all of our results should have the same match count.
     for (const auto &t : threads) {
+        // cppcheck-suppress useStlAlgorithm
         if (!all_of(begin(t->results), end(t->results),
                     [&matchesPerRun](const ResultEntry &e) {
                         return e.matches == matchesPerRun;
@@ -813,6 +816,7 @@ void displayCsvResults(const vector<unique_ptr<ThreadContext>> &threads,
 
     // Sanity check: all of our results should have the same match count.
     for (const auto &t : threads) {
+        // cppcheck-suppress useStlAlgorithm
         if (!all_of(begin(t->results), end(t->results),
                     [&matchesPerRun](const ResultEntry &e) {
                         return e.matches == matchesPerRun;
@@ -867,6 +871,7 @@ void sqlResults(const vector<unique_ptr<ThreadContext>> &threads,
 
     // Sanity check: all of our results should have the same match count.
     for (const auto &t : threads) {
+        // cppcheck-suppress useStlAlgorithm
         if (!all_of(begin(t->results), end(t->results),
                     [&matchesPerRun](const ResultEntry &e) {
                         return e.matches == matchesPerRun;

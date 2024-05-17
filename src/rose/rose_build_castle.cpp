@@ -130,6 +130,7 @@ vector<rose_literal_id> literals_for_vertex(const RoseBuildImpl &tbi,
     vector<rose_literal_id> rv;
 
     for (const u32 id : tbi.g[v].literals) {
+        // cppcheck-suppress useStlAlgorithm
         rv.emplace_back(tbi.literals.at(id));
     }
 

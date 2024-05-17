@@ -582,6 +582,7 @@ bool compatibleLiteralsForMerge(
     }
 
     // We don't handle delayed cases yet.
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &ue : ulits) {
         const rose_literal_id &ul = *ue.first;
         if (ul.delay) {
@@ -589,6 +590,7 @@ bool compatibleLiteralsForMerge(
         }
     }
 
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &ve : vlits) {
         const rose_literal_id &vl = *ve.first;
         if (vl.delay) {
@@ -601,10 +603,12 @@ bool compatibleLiteralsForMerge(
        checked its status at offset X and X > Y). If we can not establish that
        the literals used for triggering will satisfy this property, then it is
        not safe to merge the engine. */
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &ue : ulits) {
         const rose_literal_id &ul = *ue.first;
         u32 ulag = ue.second;
 
+        // cppcheck-suppress useStlAlgorithm
         for (const auto &ve : vlits) {
             const rose_literal_id &vl = *ve.first;
             u32 vlag = ve.second;
@@ -743,6 +747,7 @@ bool mergeableRoseVertices(const RoseBuildImpl &tbi, RoseVertex u,
     vector<pair<const rose_literal_id *, u32>> ulits;
     ulits.reserve(tbi.g[u].literals.size());
     for (u32 id : tbi.g[u].literals) {
+        // cppcheck-suppress useStlAlgorithm
         ulits.emplace_back(&tbi.literals.at(id), ulag);
     }
 
@@ -750,6 +755,7 @@ bool mergeableRoseVertices(const RoseBuildImpl &tbi, RoseVertex u,
     vector<pair<const rose_literal_id *, u32>> vlits;
     vlits.reserve(tbi.g[v].literals.size());
     for (u32 id : tbi.g[v].literals) {
+        // cppcheck-suppress useStlAlgorithm
         vlits.emplace_back(&tbi.literals.at(id), vlag);
     }
 
@@ -820,6 +826,7 @@ bool checkPredDelays(const RoseBuildImpl &build, const VertexCont &v1,
     vector<const rose_literal_id *> pred_rose_lits;
     pred_rose_lits.reserve(pred_lits.size());
     for (const auto &p : pred_lits) {
+        // cppcheck-suppress useStlAlgorithm
         pred_rose_lits.emplace_back(&build.literals.at(p));
     }
 
@@ -885,6 +892,7 @@ bool mergeableRoseVertices(const RoseBuildImpl &tbi,
 
         u32 ulag = tbi.g[a].left.lag;
         for (u32 id : tbi.g[a].literals) {
+            // cppcheck-suppress useStlAlgorithm
             ulits.emplace_back(&tbi.literals.at(id), ulag);
         }
     }
@@ -897,6 +905,7 @@ bool mergeableRoseVertices(const RoseBuildImpl &tbi,
 
         u32 vlag = tbi.g[a].left.lag;
         for (u32 id : tbi.g[a].literals) {
+            // cppcheck-suppress useStlAlgorithm
             vlits.emplace_back(&tbi.literals.at(id), vlag);
         }
     }
@@ -1050,6 +1059,7 @@ bool checkVerticesOkForLeftfixMerge(const RoseBuildImpl &build,
     for (auto a : targets_1) {
         u32 ulag = build.g[a].left.lag;
         for (u32 id : build.g[a].literals) {
+            // cppcheck-suppress useStlAlgorithm
             ulits.emplace_back(&build.literals.at(id), ulag);
         }
     }
@@ -1058,6 +1068,7 @@ bool checkVerticesOkForLeftfixMerge(const RoseBuildImpl &build,
     for (auto a : targets_2) {
         u32 vlag = build.g[a].left.lag;
         for (u32 id : build.g[a].literals) {
+            // cppcheck-suppress useStlAlgorithm
             vlits.emplace_back(&build.literals.at(id), vlag);
         }
     }

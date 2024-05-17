@@ -262,6 +262,7 @@ bool findMaskLiterals(const vector<CharReach> &mask, vector<ue2_literal> *lit,
 
         // Candidates have been expanded in reverse order.
         for (auto &cand : candidates) {
+            // cppcheck-suppress useStlAlgorithm
             cand = reverse_literal(cand);
         }
 
@@ -443,7 +444,9 @@ bool maskIsNeeded(const ue2_literal &lit, const NGHolder &g) {
         curr.swap(next);
     }
 
+    // cppcheck-suppress useStlAlgorithm
     for (auto v : curr) {
+        // cppcheck-suppress useStlAlgorithm
         for (auto u : inv_adjacent_vertices_range(v, g)) {
             if (u == g.start || u == g.startDs) {
                 DEBUG_PRINTF("literal spans graph from start to accept\n");

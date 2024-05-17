@@ -490,6 +490,7 @@ bool isNoRunsVertex(const RoseBuildImpl &build, RoseVertex u) {
         return false;
     }
 
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &oe : out_edges_range(u, g)) {
         RoseVertex v = target(oe, g);
         if (g[oe].maxBound != ROSE_BOUND_INF) {
@@ -532,6 +533,7 @@ bool isNoRunsLiteral(const RoseBuildImpl &build, const u32 id,
     }
 
     // Undelayed vertices.
+    // cppcheck-suppress useStlAlgorithm
     for (RoseVertex v : info.vertices) {
         if (!isNoRunsVertex(build, v)) {
             return false;
@@ -543,6 +545,7 @@ bool isNoRunsLiteral(const RoseBuildImpl &build, const u32 id,
         assert(d < build.literal_info.size());
         const rose_literal_info &delayed_info = build.literal_info.at(d);
         assert(delayed_info.undelayed_id == id);
+        // cppcheck-suppress useStlAlgorithm
         for (RoseVertex v : delayed_info.vertices) {
             if (!isNoRunsVertex(build, v)) {
                 return false;
