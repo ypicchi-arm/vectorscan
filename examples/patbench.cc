@@ -459,10 +459,8 @@ public:
         // dynamic storage.)
         vector<const char *> cstrPatterns;
         cstrPatterns.reserve(patterns.size());
-        for (const auto &pattern : patterns) {
-            // cppcheck-suppress useStlAlgorithm
-            cstrPatterns.push_back(pattern.c_str());
-        }
+        auto pstr = [](const string &pattern) { return pattern.c_str(); };
+        std::transform(patterns.begin(), patterns.end(), std::back_inserter(cstrPatterns), pstr);
 
         Clock clock;
         clock.start();
