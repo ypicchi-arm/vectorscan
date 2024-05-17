@@ -485,7 +485,7 @@ void stopTotalTimer(const ThreadContext *ctx) {
 /** Run a benchmark over a given engine and corpus in block mode. */
 static
 void benchBlock(void *context) {
-    ThreadContext *ctx = (ThreadContext *)context;
+    ThreadContext *ctx = reinterpret_cast<ThreadContext *>(context);
 
     // Synchronization point
     ctx->barrier();
@@ -603,7 +603,7 @@ void benchStreamingInternal(ThreadContext *ctx, vector<StreamInfo> &streams,
 /** Run a benchmark over a given engine and corpus in streaming mode. */
 static
 void benchStreaming(void *context) {
-    ThreadContext *ctx = (ThreadContext *)context;
+    ThreadContext *ctx = reinterpret_cast<ThreadContext *>(context);
     vector<StreamInfo> streams = prepStreamingData(ctx);
 
     // Synchronization point
@@ -622,7 +622,7 @@ void benchStreaming(void *context) {
 
 static
 void benchStreamingCompress(void *context) {
-    ThreadContext *ctx = (ThreadContext *)context;
+    ThreadContext *ctx = reinterpret_cast<ThreadContext *>(context);
     vector<StreamInfo> streams = prepStreamingData(ctx);
 
     // Synchronization point
@@ -671,8 +671,8 @@ vector<VectoredInfo> prepVectorData(const ThreadContext *ctx) {
 /** Run a benchmark over a given engine and corpus in vectored mode. */
 static
 void benchVectored(void *context) {
-    ThreadContext *ctx = (ThreadContext *)context;
-
+    ThreadContext *ctx = reinterpret_cast<ThreadContext *>(context);
+    
     vector<VectoredInfo> v_plans = prepVectorData(ctx);
 
     // Synchronization point
