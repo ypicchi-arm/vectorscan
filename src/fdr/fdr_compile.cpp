@@ -135,10 +135,10 @@ void FDRCompiler::createInitialState(FDR *fdr) {
         // Find the minimum length for the literals in this bucket.
         const vector<LiteralIndex> &bucket_lits = bucketToLits[b];
         u32 min_len = ~0U;
-        for (const LiteralIndex &lit_idx : bucket_lits) {
-            // cppcheck-suppress useStlAlgorithm
-            min_len = min(min_len, verify_u32(lits[lit_idx].s.length()));
-        }
+        auto mlit = [lits=lits](const LiteralIndex &m, const LiteralIndex &n) {
+            return verify_u32(lits[m].s.length()) < verify_u32(lits[n].s.length()); };
+        auto minel = std::min_element(bucket_lits.begin(), bucket_lits.end(), mlit);
+        min_len = min(min_len, verify_u32(lits[*minel].s.length()));
 
         DEBUG_PRINTF("bucket %u has min_len=%u\n", b, min_len);
         assert(min_len);
