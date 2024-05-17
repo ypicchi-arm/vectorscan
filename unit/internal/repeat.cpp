@@ -738,7 +738,7 @@ protected:
         ptr = new char[sizeof(RepeatInfo) +
                        sizeof(u64a) * (rsi.patchSize + 2)];
 
-        info = (struct RepeatInfo *)ptr;
+        info = reinterpret_cast<struct RepeatInfo *>(ptr);
 
         info->type = REPEAT_SPARSE_OPTIMAL_P;
         info->repeatMin = test_info.repeatMin;
@@ -756,7 +756,7 @@ protected:
         info->patchesOffset = rsi.patchesOffset;
 
         u32 repeatMax = info->patchSize;
-        u64a *table = (u64a *)(ROUNDUP_PTR((ptr + sizeof(RepeatInfo)),
+        u64a *table = reinterpret_cast<u64a *>(ROUNDUP_PTR((ptr + sizeof(RepeatInfo)),
                                            alignof(u64a)));
         for (u32 i = 0; i < repeatMax + 1; i++) {
             table[i] = rsi.table[i];
@@ -859,8 +859,8 @@ TEST_P(SparseOptimalTest, TwoTopsNeg) {
         }
     }
 
-    const struct RepeatRingControl *xs = (const struct RepeatRingControl *)
-                                         ctrl;
+    const struct RepeatRingControl *xs = reinterpret_cast<const struct RepeatRingControl *>
+                                         (ctrl);
     ASSERT_EQ(exit2, repeatNextMatch(info, ctrl, state,
                                      MAX(xs->offset, exit)));
     ASSERT_EQ(exit2, repeatNextMatch(info, ctrl, state,

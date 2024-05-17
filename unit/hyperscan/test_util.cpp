@@ -41,7 +41,7 @@ using namespace std;
 
 int record_cb(unsigned id, unsigned long long, unsigned long long to,
               unsigned, void *ctxt) {
-    CallBackContext *c = (CallBackContext *)ctxt;
+    CallBackContext *c = reinterpret_cast<CallBackContext *>(ctxt);
 
     c->matches.emplace_back(to, id);
 
@@ -189,8 +189,8 @@ void *count_malloc(size_t n) {
     }
 
     allocated_count += n;
-    *(size_t *)pp = n;
-    void *p = (char *)pp + 16;
+    *(reinterpret_cast<size_t *>(pp)) = n;
+    void *p = static_cast<char *>(pp) + 16;
 
     return p;
 }
@@ -200,8 +200,8 @@ void count_free(void *p) {
         return;
     }
 
-    void *pp = (char *)p - 16;
-    size_t n = *(size_t *)pp;
+    void *pp = static_cast<char *>(p) - 16;
+    size_t n = *(reinterpret_cast<size_t *>(pp));
 
     allocated_count -= n;
 
@@ -215,8 +215,8 @@ void *count_malloc_b(size_t n) {
     }
 
     allocated_count_b += n;
-    *(size_t *)pp = n;
-    void *p = (char *)pp + 32;
+    *(reinterpret_cast<size_t *>(pp)) = n;
+    void *p = static_cast<char *>(pp) + 32;
 
     return p;
 }
@@ -226,8 +226,8 @@ void count_free_b(void *p) {
         return;
     }
 
-    void *pp = (char *)p - 32;
-    size_t n = *(size_t *)pp;
+    void *pp = static_cast<char *>(p) - 32;
+    size_t n = *(reinterpret_cast<size_t *>(pp));
 
     allocated_count_b -= n;
 

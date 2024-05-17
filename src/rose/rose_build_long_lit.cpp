@@ -134,7 +134,7 @@ vector<u8> buildBloomFilter(const vector<ue2_case_string> &lits, size_t max_len,
             continue;
         }
         for (u32 offset = 1; offset < lit.s.size() - max_len + 1; offset++) {
-            const u8 *substr = (const u8 *)lit.s.c_str() + offset;
+            const u8 *substr = reinterpret_cast<const u8 *>(lit.s.c_str()) + offset;
             addToBloomFilter(bloom, substr, nocase);
         }
     }
@@ -234,7 +234,7 @@ map<u32, LitOffsetVector> computeLitHashes(const vector<ue2_case_string> &lits,
             continue;
         }
         for (u32 offset = 1; offset < lit.s.size() - max_len + 1; offset++) {
-            const u8 *substr = (const u8 *)lit.s.c_str() + offset;
+            const u8 *substr = reinterpret_cast<const u8 *>(lit.s.c_str()) + offset;
             u32 hash = hashLongLiteral(substr, max_len, lit.nocase);
             hashToLitOffPairs[hash].emplace_back(lit_id, offset);
         }
@@ -413,7 +413,7 @@ u32 buildLongLiteralTable(const RoseBuildImpl &build, RoseEngineBlob &blob,
     assert(table); // otherwise would have thrown std::bad_alloc
 
     // Fill in the RoseLongLitTable header structure.
-    RoseLongLitTable *header = (RoseLongLitTable *)(table.get());
+    RoseLongLitTable *header = reinterpret_cast<RoseLongLitTable *>(table.get());
     header->size = verify_u32(tabSize);
     header->maxLen = verify_u8(max_len); // u8 so doesn't matter; won't go > 255
     header->caseful.hashOffset = verify_u32(htOffsetCase);

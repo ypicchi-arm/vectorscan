@@ -58,14 +58,14 @@ TEST(ExtParam, LargeMinOffset) {
     // ensure it doesn't match.
     string corpus = "hatstand" + string(80000, '_') + "teakettle";
     err = hs_scan(db, corpus.c_str(), corpus.length(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(0U, c.matches.size());
 
     // Try exactly at the min_offset.
     corpus = "hatstand" + string(99983, '_') + "teakettle";
     err = hs_scan(db, corpus.c_str(), corpus.length(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(1U, c.matches.size());
     ASSERT_EQ(MatchRecord(100000, 0), c.matches[0]);
@@ -97,7 +97,7 @@ TEST(ExtParam, LargeExactOffset) {
     // ensure it doesn't match.
     string corpus = "hatstand" + string(199982, '_') + "teakettle";
     err = hs_scan(db, corpus.c_str(), corpus.length(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(0U, c.matches.size());
 
@@ -113,7 +113,7 @@ TEST(ExtParam, LargeExactOffset) {
     c.clear();
     corpus = "hatstand" + string(199984, '_') + "teakettle";
     err = hs_scan(db, corpus.c_str(), corpus.length(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(0U, c.matches.size());
 
@@ -143,14 +143,14 @@ TEST(ExtParam, LargeMinLength) {
     // short.
     string corpus = string(10000, '_') + "hatstand" + string(80000, '_') + "teakettle";
     err = hs_scan(db, corpus.c_str(), corpus.length(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(0U, c.matches.size());
 
     // Now, a match of the right length.
     corpus = string(10000, '_') + "hatstand" + string(99983, '_') + "teakettle";
     err = hs_scan(db, corpus.c_str(), corpus.length(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(1U, c.matches.size());
     ASSERT_EQ(MatchRecord(110000, 0), c.matches[0]);

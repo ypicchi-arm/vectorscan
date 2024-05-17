@@ -59,7 +59,7 @@ TEST(MMAdaptor, norm_cont1) { // UE-901
 
     c.halt = 0;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(3U, c.matches.size());
     ASSERT_EQ(MatchRecord(4, 30), c.matches[0]);
@@ -92,7 +92,7 @@ TEST(MMAdaptor, norm_cont2) {
 
     c.halt = 0;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(3U, c.matches.size());
     ASSERT_TRUE(c.matches.end() != find(c.matches.begin(), c.matches.end(), MatchRecord(20, 30)));
@@ -125,7 +125,7 @@ TEST(MMAdaptor, norm_halt1) {
 
     c.halt = 1;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SCAN_TERMINATED, err);
     ASSERT_EQ(1U, c.matches.size());
     ASSERT_EQ(MatchRecord(4, 30), c.matches[0]);
@@ -156,7 +156,7 @@ TEST(MMAdaptor, norm_halt2) { // UE-901
 
     c.halt = 1;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SCAN_TERMINATED, err);
     ASSERT_EQ(1U, c.matches.size());
     ASSERT_EQ(MatchRecord(20, 30), c.matches[0]);
@@ -187,7 +187,7 @@ TEST(MMAdaptor, high_cont1) { // UE-901
 
     c.halt = 0;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(2U, c.matches.size());
     ASSERT_TRUE(c.matches.end() != find(c.matches.begin(), c.matches.end(), MatchRecord(4, 30)));
@@ -219,7 +219,7 @@ TEST(MMAdaptor, high_cont2) {
 
     c.halt = 0;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(2U, c.matches.size());
     ASSERT_TRUE(c.matches.end() != find(c.matches.begin(), c.matches.end(), MatchRecord(20, 30)));
@@ -251,7 +251,7 @@ TEST(MMAdaptor, high_halt1) {
 
     c.halt = 1;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SCAN_TERMINATED, err);
     ASSERT_EQ(1U, c.matches.size());
     ASSERT_EQ(MatchRecord(4, 30), c.matches[0]);
@@ -282,7 +282,7 @@ TEST(MMAdaptor, high_halt2) {
 
     c.halt = 1;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SCAN_TERMINATED, err);
     ASSERT_EQ(1U, c.matches.size());
     ASSERT_TRUE(MatchRecord(20, 30) == c.matches[0]
@@ -311,7 +311,7 @@ TEST(MPV, UE_2395) {
 
     CallBackContext c;
     err = hs_scan(db, data.data(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
 
     unsigned seen = 39;
@@ -358,7 +358,7 @@ TEST(MMRoseLiteralPath, issue_141) {
 
     c.halt = 0;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(1U, c.matches.size());
     ASSERT_EQ(MatchRecord(19, 0), c.matches[0]);
