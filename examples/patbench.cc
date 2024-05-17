@@ -360,9 +360,6 @@ public:
         size_t sum = 0;
         auto packs = [](size_t z, const string &packet) { return z + packet.size(); };
         sum += std::accumulate(packets.begin(), packets.end(), 0, packs);
-        // for (const auto &packet : packets) {
-        //     sum += packet.size();
-        // }
         return sum;
     }
 

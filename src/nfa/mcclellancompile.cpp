@@ -535,10 +535,6 @@ size_t calcWideRegionSize(const dfa_info &info) {
                (info.impl_alpha_size + 1) * sizeof(u16) + 2);
     };
     rv += std::accumulate(info.wide_symbol_chain.begin(), info.wide_symbol_chain.end(), 0, chainz);
-    // for (const auto &chain : info.wide_symbol_chain) {
-    //     rv += ROUNDUP_N(chain.size(), 2) +
-    //           (info.impl_alpha_size + 1) * sizeof(u16) + 2;
-    // }
 
     return ROUNDUP_16(rv);
 }
