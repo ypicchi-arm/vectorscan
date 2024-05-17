@@ -202,7 +202,7 @@ struct FiveTuple {
     unsigned int dstPort;
 
     // Construct a FiveTuple from a TCP or UDP packet.
-    FiveTuple(const struct ip *iphdr) {
+    explicit FiveTuple(const struct ip *iphdr) {
         // IP fields
         protocol = iphdr->ip_p;
         srcAddr = iphdr->ip_src.s_addr;
@@ -391,7 +391,7 @@ public:
     // Close all open Hyperscan streams (potentially generating any
     // end-anchored matches)
     void closeStreams() {
-        for (auto &stream : streams) {
+        for (const auto &stream : streams) {
             hs_error_t err =
                 hs_close_stream(stream, scratch, onMatch, &matchCount);
             if (err != HS_SUCCESS) {
@@ -444,7 +444,7 @@ class Sigdata {
 
 public:
     Sigdata() {}
-    Sigdata(const char *filename) {
+    explicit Sigdata(const char *filename) {
         parseFile(filename, patterns, flags, ids, originals);
 
     }
@@ -568,7 +568,7 @@ double measure_block_time(Benchmark &bench, unsigned int repeatCount) {
 }
 
 static
-double eval_set(Benchmark &bench, Sigdata &sigs, unsigned int mode,
+double eval_set(Benchmark &bench, const Sigdata &sigs, unsigned int mode,
                 unsigned repeatCount, Criterion criterion,
                 bool diagnose = true) {
     double compileTime = 0;
@@ -608,8 +608,9 @@ double eval_set(Benchmark &bench, Sigdata &sigs, unsigned int mode,
         scan_time = measure_stream_time(bench, repeatCount);
     }
     size_t bytes = bench.bytes();
-    size_t matches = bench.matches();
+    
     if (diagnose) {
+        size_t matches = bench.matches();
         std::ios::fmtflags f(cout.flags());
         cout << "Scan time " << std::fixed << std::setprecision(3) << scan_time
              << " sec, Scanned " << bytes * repeatCount << " bytes, Throughput "

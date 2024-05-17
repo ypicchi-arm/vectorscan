@@ -521,8 +521,8 @@ bool roseHasTops(const RoseBuildImpl &build, RoseVertex v) {
             graph_tops.insert(g[e].rose_top);
         }
     }
-
-    return is_subset_of(graph_tops, all_tops(g[v].left));
+    
+    return is_subset_of(graph_tops, all_tops(left_id(g[v].left)));
 }
 #endif
 
@@ -869,7 +869,6 @@ u32 roseQuality(const RoseResources &res, const RoseEngine *t) {
     }
 
     if (eod_prefix) {
-        always_run++;
         DEBUG_PRINTF("eod prefixes are slow");
         return 0;
     }
@@ -1014,16 +1013,16 @@ bool hasOrphanedTops(const RoseBuildImpl &build) {
 
     for (auto v : vertices_range(g)) {
         if (g[v].left) {
-            set<u32> &tops = leftfixes[g[v].left];
             if (!build.isRootSuccessor(v)) {
                 // Tops for infixes come from the in-edges.
+                set<u32> &tops = leftfixes[left_id(g[v].left)];
                 for (const auto &e : in_edges_range(v, g)) {
                     tops.insert(g[e].rose_top);
                 }
             }
         }
         if (g[v].suffix) {
-            suffixes[g[v].suffix].insert(g[v].suffix.top);
+            suffixes[suffix_id(g[v].suffix)].insert(g[v].suffix.top);
         }
     }
 

@@ -514,17 +514,17 @@ bool removeSiblingsOfStartDotStar(NGHolder &g) {
  * for SOM mode. (see UE-1544) */
 bool optimiseVirtualStarts(NGHolder &g) {
     vector<NFAEdge> dead;
+    auto deads = [&g=g](const NFAEdge &e) {
+        return (!is_any_start(source(e, g), g));
+    };
+
     for (auto v : adjacent_vertices_range(g.startDs, g)) {
         u32 flags = g[v].assert_flags;
         if (!(flags & POS_FLAG_VIRTUAL_START)) {
             continue;
         }
-
-        for (const auto &e : in_edges_range(v, g)) {
-            if (!is_any_start(source(e, g), g)) {
-                dead.emplace_back(e);
-            }
-        }
+        const auto &e = in_edges_range(v, g);
+        std::copy_if(begin(e), end(e),  std::back_inserter(dead), deads);
     }
 
     if (dead.empty()) {

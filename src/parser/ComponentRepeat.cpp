@@ -110,7 +110,7 @@ void addBase(Position base, vector<PositionInfo> &firsts,
 }
 
 static
-void checkPositions(vector<PositionInfo> &v, const GlushkovBuildState &bs) {
+void checkPositions(const vector<PositionInfo> &v, const GlushkovBuildState &bs) {
     const NFABuilder& builder = bs.getBuilder();
     for (const auto &e : v) {
         // cppcheck-suppress useStlAlgorithm
@@ -133,7 +133,7 @@ void ComponentRepeat::notePositions(GlushkovBuildState &bs) {
     posFirst = bs.getBuilder().numVertices();
     sub_comp->notePositions(bs);
 
-    u32 copies = m_max < NoLimit ? m_max : MAX(m_min, 1);
+    u32 copies = (m_max < NoLimit) ? m_max : std::max(m_min, 1U);
     DEBUG_PRINTF("building %u copies of repeated region\n", copies);
     m_firsts.clear();
     m_lasts.clear();
@@ -321,8 +321,8 @@ void ComponentRepeat::wireRepeats(GlushkovBuildState &bs) {
         }
     }
 
-    DEBUG_PRINTF("wiring up %d optional repeats\n", copies - m_min);
-    for (u32 rep = MAX(m_min, 1); rep < copies; rep++) {
+    DEBUG_PRINTF("wiring up %u optional repeats\n", copies - m_min);
+    for (u32 rep = std::max(m_min, 1U); rep < copies; rep++) {
         vector<PositionInfo> lasts = m_lasts[rep - 1];
         if (rep != m_min) {
             lasts.insert(lasts.end(), optLasts.begin(), optLasts.end());

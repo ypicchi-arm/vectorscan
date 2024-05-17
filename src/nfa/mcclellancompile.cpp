@@ -177,7 +177,7 @@ static
 mstate_aux *getAux(NFA *n, dstate_id_t i) {
     assert(isMcClellanType(n->type));
 
-    mcclellan *m = (mcclellan *)getMutableImplNfa(n);
+    const mcclellan *m = (mcclellan *)getMutableImplNfa(n);
     mstate_aux *aux_base = (mstate_aux *)((char *)n + m->aux_offset);
 
     mstate_aux *aux = aux_base + i;
@@ -203,7 +203,7 @@ void markEdges(NFA *n, u16 *succ_table, const dfa_info &info) {
                 continue;
             }
 
-            mstate_aux *aux = getAux(n, succ_table[c_prime]);
+            const mstate_aux *aux = getAux(n, succ_table[c_prime]);
 
             if (aux->accept) {
                 succ_table[c_prime] |= ACCEPT_FLAG;
@@ -232,7 +232,7 @@ void markEdges(NFA *n, u16 *succ_table, const dfa_info &info) {
                 continue;
             }
 
-            mstate_aux *aux = getAux(n, succ_i);
+            const mstate_aux *aux = getAux(n, succ_i);
 
             if (aux->accept) {
                 succ_i |= ACCEPT_FLAG;
@@ -262,7 +262,7 @@ void markEdges(NFA *n, u16 *succ_table, const dfa_info &info) {
             // check successful transition
             u16 next = unaligned_load_u16((u8 *)trans);
             if (next < wide_limit) {
-                mstate_aux *aux = getAux(n, next);
+                const mstate_aux *aux = getAux(n, next);
                 if (aux->accept) {
                     next |= ACCEPT_FLAG;
                 }
@@ -279,7 +279,7 @@ void markEdges(NFA *n, u16 *succ_table, const dfa_info &info) {
                 if (next_k >= wide_limit) {
                     continue;
                 }
-                mstate_aux *aux_k = getAux(n, next_k);
+                const mstate_aux *aux_k = getAux(n, next_k);
                 if (aux_k->accept) {
                     next_k |= ACCEPT_FLAG;
                 }
@@ -362,7 +362,7 @@ struct raw_report_list {
     raw_report_list(const flat_set<ReportID> &reports_in,
                     const ReportManager &rm, bool do_remap) {
         if (do_remap) {
-            for (auto &id : reports_in) {
+            for (const auto &id : reports_in) {
                 reports.insert(rm.getProgramOffset(id));
             }
         } else {
@@ -546,7 +546,7 @@ size_t calcWideRegionSize(const dfa_info &info) {
 static
 void fillInAux(mstate_aux *aux, dstate_id_t i, const dfa_info &info,
                const vector<u32> &reports, const vector<u32> &reports_eod,
-               vector<u32> &reportOffsets) {
+               const vector<u32> &reportOffsets) {
     const dstate &raw_state = info.states[i];
     aux->accept = raw_state.reports.empty() ? 0 : reportOffsets[reports[i]];
     aux->accept_eod = raw_state.reports_eod.empty() ? 0
@@ -631,7 +631,7 @@ bytecode_ptr<NFA> mcclellanCompile16(dfa_info &info, const CompileContext &cc,
     if (!allocateFSN16(info, &count_real_states, &wide_limit)) {
         DEBUG_PRINTF("failed to allocate state numbers, %zu states total\n",
                      info.size());
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     DEBUG_PRINTF("count_real_states: %d\n", count_real_states);
@@ -800,8 +800,8 @@ bytecode_ptr<NFA> mcclellanCompile16(dfa_info &info, const CompileContext &cc,
         }
 
         for (size_t i : order) {
-            vector<dstate_id_t> &state_chain = info.wide_state_chain[i];
-            vector<symbol_t> &symbol_chain = info.wide_symbol_chain[i];
+            const vector<dstate_id_t> &state_chain = info.wide_state_chain[i];
+            const vector<symbol_t> &symbol_chain = info.wide_symbol_chain[i];
 
             u16 width = verify_u16(symbol_chain.size());
             *(u16 *)(curr_wide_entry + WIDE_WIDTH_OFFSET) = width;
@@ -1373,11 +1373,11 @@ bool store_chain_longest(vector<vector<dstate_id_t>> &candidate_chain,
 /* \brief Generate wide_symbol_chain from wide_state_chain. */
 static
 void generate_symbol_chain(dfa_info &info, vector<symbol_t> &chain_tail) {
-    raw_dfa &rdfa = info.raw;
+    const raw_dfa &rdfa = info.raw;
     assert(chain_tail.size() == info.wide_state_chain.size());
 
     for (size_t i = 0; i < info.wide_state_chain.size(); i++) {
-        vector<dstate_id_t> &state_chain = info.wide_state_chain[i];
+        const vector<dstate_id_t> &state_chain = info.wide_state_chain[i];
         vector<symbol_t> symbol_chain;
 
         info.extra[state_chain[0]].wideHead = true;
@@ -1385,7 +1385,6 @@ void generate_symbol_chain(dfa_info &info, vector<symbol_t> &chain_tail) {
 
         for (size_t j = 0; j < width; j++) {
             dstate_id_t curr_id = state_chain[j];
-            dstate_id_t next_id = state_chain[j + 1];
 
             // The last state of the chain doesn't belong to a wide state.
             info.extra[curr_id].wideState = true;
@@ -1394,6 +1393,7 @@ void generate_symbol_chain(dfa_info &info, vector<symbol_t> &chain_tail) {
             if (j == width - 1) {
                 symbol_chain.emplace_back(chain_tail[i]);
             } else {
+                dstate_id_t next_id = state_chain[j + 1];
                 for (symbol_t sym = 0; sym < info.impl_alpha_size; sym++) {
                     if (rdfa.states[curr_id].next[sym] == next_id) {
                         symbol_chain.emplace_back(sym);

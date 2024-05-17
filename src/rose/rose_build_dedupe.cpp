@@ -129,7 +129,7 @@ RoseDedupeAuxImpl::RoseDedupeAuxImpl(const RoseBuildImpl &build_in)
         // Several vertices may share a suffix, so we collect the set of
         // suffixes first to avoid repeating work.
         if (g[v].suffix) {
-            suffixes.insert(g[v].suffix);
+            suffixes.insert(suffix_id(g[v].suffix));
         }
     }
 

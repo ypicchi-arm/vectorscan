@@ -98,8 +98,7 @@ void addToBloomFilter(vector<u8> &bloom, const u8 *substr, bool nocase) {
 
     const auto hash_functions = { bloomHash_1, bloomHash_2, bloomHash_3 };
     for (const auto &hash_func : hash_functions) {
-        u32 hash = hash_func(substr, nocase);
-        u32 key = hash & key_mask;
+        u32 key = hash_func(substr, nocase) & key_mask;
         DEBUG_PRINTF("set key %u (of %zu)\n", key, bloom.size() * 8);
         bloom[key / 8] |= 1U << (key % 8);
     }
@@ -193,10 +192,8 @@ vector<RoseLongLitHashEntry> buildHashTable(
     }
 
     for (const auto &m : hashToLitOffPairs) {
-        u32 hash = m.first;
+        u32 bucket = m.first % numEntries;
         const LitOffsetVector &d = m.second;
-
-        u32 bucket = hash % numEntries;
 
         // Placement via linear probing.
         for (const auto &lit_offset : d) {

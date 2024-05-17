@@ -819,7 +819,7 @@ void RoseBuildImpl::findTransientLeftfixes(void) {
             continue;
         }
 
-        const left_id &left(g[v].left);
+        const left_id &left(left_id(g[v].left));
 
         if (::ue2::isAnchored(left) && !isInETable(v)) {
             /* etable prefixes currently MUST be transient as we do not know
@@ -871,7 +871,7 @@ map<left_id, vector<RoseVertex>> findLeftSucc(const RoseBuildImpl &build) {
     for (auto v : vertices_range(build.g)) {
         if (build.g[v].left) {
             const LeftEngInfo &lei = build.g[v].left;
-            leftfixes[lei].emplace_back(v);
+            leftfixes[left_id(lei)].emplace_back(v);
         }
     }
     return leftfixes;
@@ -1153,10 +1153,10 @@ void findTopTriggerCancels(RoseBuildImpl &build) {
 
     for (const auto &r : left_succ) {
         const left_id &left = r.first;
-        const vector<RoseVertex> &succs = r.second;
+        const vector<RoseVertex> &rsuccs = r.second;
 
-        assert(!succs.empty());
-        if (build.isRootSuccessor(*succs.begin())) {
+        assert(!rsuccs.empty());
+        if (build.isRootSuccessor(*rsuccs.begin())) {
             /* a prefix is never an infix */
             continue;
         }
@@ -1165,7 +1165,7 @@ void findTopTriggerCancels(RoseBuildImpl &build) {
         set<RoseEdge> rose_edges;
         set<u32> pred_lit_ids;
 
-        for (auto v : succs) {
+        for (auto v : rsuccs) {
             for (const auto &e : in_edges_range(v, build.g)) {
                 RoseVertex u = source(e, build.g);
                 tops_seen.insert(build.g[e].rose_top);
@@ -1221,11 +1221,11 @@ void buildRoseSquashMasks(RoseBuildImpl &tbi) {
      * successor of the nfa and all the literals */
     for (const auto &e : roses) {
         const left_id &left = e.first;
-        const vector<RoseVertex> &succs = e.second;
+        const vector<RoseVertex> &rsuccs = e.second;
 
         set<u32> lit_ids;
         bool anchored_pred = false;
-        for (auto v : succs) {
+        for (auto v : rsuccs) {
             lit_ids.insert(tbi.g[v].literals.begin(), tbi.g[v].literals.end());
             for (auto u : inv_adjacent_vertices_range(v, tbi.g)) {
                 anchored_pred |= tbi.isAnchored(u);
@@ -1239,7 +1239,7 @@ void buildRoseSquashMasks(RoseBuildImpl &tbi) {
         if (anchored_pred) { /* infix with pred in anchored table */
             u32 min_off = ~0U;
             u32 max_off = 0U;
-            for (auto v : succs) {
+            for (auto v : rsuccs) {
                 for (auto u : inv_adjacent_vertices_range(v, tbi.g)) {
                     min_off = min(min_off, tbi.g[u].min_offset);
                     max_off = max(max_off, tbi.g[u].max_offset);
@@ -1259,7 +1259,7 @@ void buildRoseSquashMasks(RoseBuildImpl &tbi) {
             if (!info.delayed_ids.empty()
                 || !all_of_in(info.vertices,
                               [&](RoseVertex v) {
-                                  return left == tbi.g[v].left; })) {
+                                  return left == left_id(tbi.g[v].left); })) {
                 DEBUG_PRINTF("group %llu is unsquashable\n", info.group_mask);
                 unsquashable |= info.group_mask;
             }
@@ -1402,7 +1402,7 @@ void addSmallBlockLiteral(RoseBuildImpl &tbi, const simple_anchored_info &sai,
             g[v].max_offset = sai.max_bound + sai.literal.length();
             lit_info.vertices.insert(v);
 
-            RoseEdge e = add_edge(anchored_root, v, g);
+            RoseEdge e = add_edge(anchored_root, v, g).first;
             g[e].minBound = sai.min_bound;
             g[e].maxBound = sai.max_bound;
         }
@@ -1426,7 +1426,7 @@ void addSmallBlockLiteral(RoseBuildImpl &tbi, const ue2_literal &lit,
     g[v].literals.insert(lit_id);
     g[v].reports = reports;
 
-    RoseEdge e = add_edge(tbi.root, v, g);
+    RoseEdge e = add_edge(tbi.root, v, g).first;
     g[e].minBound = 0;
     g[e].maxBound = ROSE_BOUND_INF;
     g[v].min_offset = 1;

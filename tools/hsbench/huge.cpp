@@ -183,7 +183,7 @@ long gethugepagesize(void) {
         hpage_size = -1;
     } else {
         /* convert from kb to bytes */
-        hpage_size = 1024 * hpage_kb;
+        hpage_size = 1024L * hpage_kb;
     }
 
     return hpage_size;

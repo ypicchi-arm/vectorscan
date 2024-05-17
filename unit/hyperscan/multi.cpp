@@ -44,8 +44,8 @@ TEST(MMAdaptor, norm_cont1) { // UE-901
     CallBackContext c;
     string data = "aooAaooAbarZ";
     const char *expr[] = {"aoo[A-K]", "bar[L-Z]"};
-    unsigned flags[] = {0, 0};
-    unsigned ids[] = {30, 31};
+    const unsigned flags[] = {0, 0};
+    const unsigned ids[] = {30, 31};
     hs_error_t err = hs_compile_multi(expr, flags, ids, 2, HS_MODE_NOSTREAM,
                                       nullptr, &db, &compile_err);
 
@@ -77,8 +77,8 @@ TEST(MMAdaptor, norm_cont2) {
     CallBackContext c;
     string data = "aooAaooAbarZ                      ";
     const char *expr[] = {"aoo[A-K][^\n]{16}", "bar[L-Z][^\n]{16}"};
-    unsigned flags[] = {0, 0};
-    unsigned ids[] = {30, 31};
+    const unsigned flags[] = {0, 0};
+    const unsigned ids[] = {30, 31};
     hs_error_t err = hs_compile_multi(expr, flags, ids, 2, HS_MODE_NOSTREAM,
                                       nullptr, &db, &compile_err);
 
@@ -110,8 +110,8 @@ TEST(MMAdaptor, norm_halt1) {
     CallBackContext c;
     string data = "aooAaooAbarZ";
     const char *expr[] = {"aoo[A-K]", "bar[L-Z]"};
-    unsigned flags[] = {0, 0};
-    unsigned ids[] = {30, 31};
+    const unsigned flags[] = {0, 0};
+    const unsigned ids[] = {30, 31};
     hs_error_t err = hs_compile_multi(expr, flags, ids, 2, HS_MODE_NOSTREAM,
                                       nullptr, &db, &compile_err);
 
@@ -141,8 +141,8 @@ TEST(MMAdaptor, norm_halt2) { // UE-901
     CallBackContext c;
     string data = "aooAaooAbarZ                      ";
     const char *expr[] = {"aoo[A-K][^\n]{16}", "bar[L-Z][^\n]{16}"};
-    unsigned flags[] = {0, 0};
-    unsigned ids[] = {30, 31};
+    const unsigned flags[] = {0, 0};
+    const unsigned ids[] = {30, 31};
     hs_error_t err = hs_compile_multi(expr, flags, ids, 2, HS_MODE_NOSTREAM,
                                       nullptr, &db, &compile_err);
 
@@ -172,8 +172,8 @@ TEST(MMAdaptor, high_cont1) { // UE-901
     CallBackContext c;
     string data = "aooAaooAbarZ";
     const char *expr[] = {"aoo[A-K]", "bar[L-Z]"};
-    unsigned flags[] = {HS_FLAG_SINGLEMATCH, 0};
-    unsigned ids[] = {30, 31};
+    const unsigned flags[] = {HS_FLAG_SINGLEMATCH, 0};
+    const unsigned ids[] = {30, 31};
     hs_error_t err = hs_compile_multi(expr, flags, ids, 2, HS_MODE_NOSTREAM,
                                       nullptr, &db, &compile_err);
 
@@ -204,8 +204,8 @@ TEST(MMAdaptor, high_cont2) {
     CallBackContext c;
     string data = "aooAaooAbarZ                      ";
     const char *expr[] = {"aoo[A-K][^\n]{16}", "bar[L-Z][^\n]{16}"};
-    unsigned flags[] = {HS_FLAG_SINGLEMATCH, 0};
-    unsigned ids[] = {30, 31};
+    const unsigned flags[] = {HS_FLAG_SINGLEMATCH, 0};
+    const unsigned ids[] = {30, 31};
     hs_error_t err = hs_compile_multi(expr, flags, ids, 2, HS_MODE_NOSTREAM,
                                       nullptr, &db, &compile_err);
 
@@ -236,8 +236,8 @@ TEST(MMAdaptor, high_halt1) {
     CallBackContext c;
     string data = "aooAaooAbarZ";
     const char *expr[] = {"aoo[A-K]", "bar[L-Z]"};
-    unsigned flags[] = {HS_FLAG_SINGLEMATCH, 0};
-    unsigned ids[] = {30, 31};
+    const unsigned flags[] = {HS_FLAG_SINGLEMATCH, 0};
+    const unsigned ids[] = {30, 31};
     hs_error_t err = hs_compile_multi(expr, flags, ids, 2, HS_MODE_NOSTREAM,
                                       nullptr, &db, &compile_err);
 
@@ -267,8 +267,8 @@ TEST(MMAdaptor, high_halt2) {
     CallBackContext c;
     string data = "aooAaooAbarZbarZaooA                      ";
     const char *expr[] = {"aoo[A-K][^\n]{16}", "bar[L-Z][^\n]{16}"};
-    unsigned flags[] = {HS_FLAG_SINGLEMATCH, 0};
-    unsigned ids[] = {30, 31};
+    const unsigned flags[] = {HS_FLAG_SINGLEMATCH, 0};
+    const unsigned ids[] = {30, 31};
     hs_error_t err = hs_compile_multi(expr, flags, ids, 2, HS_MODE_NOSTREAM,
                                       nullptr, &db, &compile_err);
 
@@ -342,7 +342,7 @@ TEST(MMRoseLiteralPath, issue_141) {
     const char *expr[] = {"/odezhda-dlya-bega/",
                           "kurtki-i-vetrovki-dlya-bega",
                           "futbolki-i-mayki-dlya-bega"};
-    unsigned flags[] = {HS_FLAG_DOTALL | HS_FLAG_SINGLEMATCH,
+    const unsigned flags[] = {HS_FLAG_DOTALL | HS_FLAG_SINGLEMATCH,
                         HS_FLAG_DOTALL | HS_FLAG_SINGLEMATCH,
                         HS_FLAG_DOTALL | HS_FLAG_SINGLEMATCH};
     hs_error_t err = hs_compile_multi(expr, flags, nullptr, 3, HS_MODE_BLOCK,

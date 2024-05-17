@@ -166,9 +166,9 @@ void reformAnchoredRepeatsComponent(NGHolder &g,
         return;
     }
 
-    NFAVertex dotV = NGHolder::null_vertex();
+    
     set<NFAVertex> otherV;
-    dotV = findReformable(g, compAnchoredStarts, otherV);
+    NFAVertex dotV = findReformable(g, compAnchoredStarts, otherV);
     if (dotV == NGHolder::null_vertex()) {
         DEBUG_PRINTF("no candidate reformable dot found.\n");
         return;
@@ -258,7 +258,7 @@ void reformAnchoredRepeatsComponent(NGHolder &g,
 
 static
 void reformUnanchoredRepeatsComponent(NGHolder &g,
-                                      set<NFAVertex> &compAnchoredStarts,
+                                      const set<NFAVertex> &compAnchoredStarts,
                                       set<NFAVertex> &compUnanchoredStarts,
                                       set<NFAVertex> &dead,
                                       depth *startBegin, depth *startEnd) {
@@ -269,9 +269,9 @@ void reformUnanchoredRepeatsComponent(NGHolder &g,
     }
 
     while (true) {
-        NFAVertex dotV = NGHolder::null_vertex();
+        
         set<NFAVertex> otherV;
-        dotV = findReformable(g, compUnanchoredStarts, otherV);
+        NFAVertex dotV = findReformable(g, compUnanchoredStarts, otherV);
         if (dotV == NGHolder::null_vertex()) {
             DEBUG_PRINTF("no candidate reformable dot found.\n");
             return;
@@ -488,15 +488,15 @@ void collapseVariableDotRepeat(NGHolder &g, NFAVertex start,
 
     // Collect all the other optional dot vertices and the successor vertices
     // by walking down the graph from initialDot
-    set<NFAVertex> dots, succ;
-    if (!gatherParticipants(g, start, initialDot, dots, succ)) {
+    set<NFAVertex> dots, succr;
+    if (!gatherParticipants(g, start, initialDot, dots, succr)) {
         DEBUG_PRINTF("gatherParticipants failed\n");
         return;
     }
 
     DEBUG_PRINTF("optional dot repeat with %zu participants, "
                  "terminating in %zu non-dot nodes\n",
-                 dots.size(), succ.size());
+                 dots.size(), succr.size());
 
     // Remove all the participants and set the start offset
     dead.insert(dots.begin(), dots.end());
@@ -512,7 +512,7 @@ void collapseVariableDotRepeat(NGHolder &g, NFAVertex start,
     assert(startEnd->is_reachable());
 
     // Connect our successor vertices to both start and startDs.
-    for (auto v : succ) {
+    for (auto v : succr) {
         add_edge_if_not_present(g.start, v, g);
         add_edge_if_not_present(g.startDs, v, g);
     }
@@ -558,7 +558,7 @@ void collapseVariableRepeats(NGHolder &g, depth *startBegin, depth *startEnd) {
 }
 
 static
-void addDotsBetween(NGHolder &g, NFAVertex lhs, vector<NFAVertex> &rhs,
+void addDotsBetween(NGHolder &g, NFAVertex lhs, const vector<NFAVertex> &rhs,
                     depth min_repeat, depth max_repeat) {
     const bool unbounded = max_repeat.is_infinite();
     if (unbounded) {

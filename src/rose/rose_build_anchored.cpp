@@ -350,11 +350,11 @@ public:
             next[s].wdelay = wdelay;
         }
 
-        nfa_state_set succ;
+        nfa_state_set gsucc;
 
         if (wdelay != in.wdelay) {
             DEBUG_PRINTF("enabling start\n");
-            succ.set(vertexToIndex[g.startDs]);
+            gsucc.set(vertexToIndex[g.startDs]);
         }
 
         for (size_t i = in.wrap_state.find_first(); i != nfa_state_set::npos;
@@ -370,12 +370,12 @@ public:
                     continue;
                 }
 
-                succ.set(vertexToIndex[w]);
+                gsucc.set(vertexToIndex[w]);
             }
         }
 
-        for (size_t j = succ.find_first(); j != nfa_state_set::npos;
-             j = succ.find_next(j)) {
+        for (size_t j = gsucc.find_first(); j != nfa_state_set::npos;
+             j = gsucc.find_next(j)) {
             const CharReach &cr = cr_by_index[j];
             for (size_t s = cr.find_first(); s != CharReach::npos;
                  s = cr.find_next(s)) {
@@ -870,13 +870,13 @@ vector<raw_dfa> buildAnchoredDfas(RoseBuildImpl &build,
 }
 
 bytecode_ptr<anchored_matcher_info>
-buildAnchoredMatcher(RoseBuildImpl &build, const vector<LitFragment> &fragments,
+buildAnchoredMatcher(const RoseBuildImpl &build, const vector<LitFragment> &fragments,
                      vector<raw_dfa> &dfas) {
     const CompileContext &cc = build.cc;
 
     if (dfas.empty()) {
         DEBUG_PRINTF("empty\n");
-        return nullptr;
+        return bytecode_ptr<anchored_matcher_info>(nullptr);
     }
 
     for (auto &rdfa : dfas) {
@@ -899,7 +899,7 @@ buildAnchoredMatcher(RoseBuildImpl &build, const vector<LitFragment> &fragments,
     for (size_t i = 0; i < nfas.size(); i++) {
         const NFA *nfa = nfas[i].get();
         anchored_matcher_info *ami = (anchored_matcher_info *)curr;
-        char *prev_curr = curr;
+        const char *prev_curr = curr;
 
         curr += sizeof(anchored_matcher_info);
 

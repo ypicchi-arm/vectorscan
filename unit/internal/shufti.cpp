@@ -79,8 +79,8 @@ TEST(Shufti, BuildMask2) {
     int ret = shuftiBuildMasks(chars, (u8 *)&lomask, (u8 *)&himask);
     ASSERT_NE(-1, ret);
 
-    u8 *lo = (u8 *)&lomask;
-    u8 *hi = (u8 *)&himask;
+    const u8 *lo = (u8 *)&lomask;
+    const u8 *hi = (u8 *)&himask;
     ASSERT_TRUE(lo['a' % 16] & hi['a' >> 4]);
     ASSERT_TRUE(lo['B' % 16] & hi['B' >> 4]);
     ASSERT_FALSE(lo['a' % 16] & hi['B' >> 4]);
@@ -100,8 +100,8 @@ TEST(Shufti, BuildMask4) {
     int ret = shuftiBuildMasks(chars, (u8 *)&lomask, (u8 *)&himask);
     ASSERT_NE(-1, ret);
 
-    u8 *lo = (u8 *)&lomask;
-    u8 *hi = (u8 *)&himask;
+    const u8 *lo = (u8 *)&lomask;
+    const u8 *hi = (u8 *)&himask;
     ASSERT_TRUE(lo['a' % 16] & hi['a' >> 4]);
     ASSERT_TRUE(lo['A' % 16] & hi['A' >> 4]);
     ASSERT_TRUE(lo['b' % 16] & hi['b' >> 4]);
@@ -331,10 +331,10 @@ TEST(DoubleShufti, BuildMask2) {
                                      (u8 *)&lo2m, (u8 *)&hi2m);
     ASSERT_TRUE(ret);
 
-    u8 *lo1 = (u8 *)&lo1m;
-    u8 *lo2 = (u8 *)&lo2m;
-    u8 *hi1 = (u8 *)&hi1m;
-    u8 *hi2 = (u8 *)&hi2m;
+    const u8 *lo1 = (u8 *)&lo1m;
+    const u8 *lo2 = (u8 *)&lo2m;
+    const u8 *hi1 = (u8 *)&hi1m;
+    const u8 *hi2 = (u8 *)&hi2m;
     ASSERT_NE(0xff,
               lo1['a' % 16] | hi1['a' >> 4] | lo2['z' % 16] | hi2['z' >> 4]);
     ASSERT_NE(0xff,
@@ -359,10 +359,10 @@ TEST(DoubleShufti, BuildMask4) {
                                      (u8 *)&lo2m, (u8 *)&hi2m);
     ASSERT_TRUE(ret);
 
-    u8 *lo1 = (u8 *)&lo1m;
-    u8 *lo2 = (u8 *)&lo2m;
-    u8 *hi1 = (u8 *)&hi1m;
-    u8 *hi2 = (u8 *)&hi2m;
+    const u8 *lo1 = (u8 *)&lo1m;
+    const u8 *lo2 = (u8 *)&lo2m;
+    const u8 *hi1 = (u8 *)&hi1m;
+    const u8 *hi2 = (u8 *)&hi2m;
     ASSERT_NE(0xff,
               lo1['a' % 16] | hi1['a' >> 4] | lo2['z' % 16] | hi2['z' >> 4]);
     ASSERT_NE(0xff,
@@ -388,10 +388,10 @@ TEST(DoubleShufti, BuildMask5) {
                                      (u8 *)&lo2m, (u8 *)&hi2m);
     ASSERT_TRUE(ret);
 
-    u8 *lo1 = (u8 *)&lo1m;
-    u8 *lo2 = (u8 *)&lo2m;
-    u8 *hi1 = (u8 *)&hi1m;
-    u8 *hi2 = (u8 *)&hi2m;
+    const u8 *lo1 = (u8 *)&lo1m;
+    const u8 *lo2 = (u8 *)&lo2m;
+    const u8 *hi1 = (u8 *)&hi1m;
+    const u8 *hi2 = (u8 *)&hi2m;
     ASSERT_NE(0xff,
               lo1['a' % 16] | hi1['a' >> 4] | lo2['z' % 16] | hi2['z' >> 4]);
     ASSERT_EQ(0xff,
@@ -426,10 +426,10 @@ TEST(DoubleShufti, BuildMask6) {
                                      (u8 *)&lo2m, (u8 *)&hi2m);
     ASSERT_TRUE(ret);
 
-    u8 *lo1 = (u8 *)&lo1m;
-    u8 *lo2 = (u8 *)&lo2m;
-    u8 *hi1 = (u8 *)&hi1m;
-    u8 *hi2 = (u8 *)&hi2m;
+    const u8 *lo1 = (u8 *)&lo1m;
+    const u8 *lo2 = (u8 *)&lo2m;
+    const u8 *hi1 = (u8 *)&hi1m;
+    const u8 *hi2 = (u8 *)&hi2m;
     ASSERT_NE(0xff,
               lo1['a' % 16] | hi1['a' >> 4] | lo2['z' % 16] | hi2['z' >> 4]);
     ASSERT_NE(0xff,

@@ -56,7 +56,7 @@ u64a make_u64a_mask(const vector<u8> &v) {
 
     u64a mask = 0;
     size_t len = v.size();
-    unsigned char *m = (unsigned char *)&mask;
+    u8 *m = reinterpret_cast<u8 *>(&mask);
     DEBUG_PRINTF("making mask len %zu\n", len);
     memcpy(m, &v[0], len);
     return mask;

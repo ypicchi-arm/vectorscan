@@ -100,15 +100,14 @@ struct FiveTuple {
     unsigned int dstPort;
 
     // Construct a FiveTuple from a TCP or UDP packet.
-    FiveTuple(const struct ip *iphdr) {
+    explicit FiveTuple(const struct ip *iphdr) {
         // IP fields
         protocol = iphdr->ip_p;
         srcAddr = iphdr->ip_src.s_addr;
         dstAddr = iphdr->ip_dst.s_addr;
 
         // UDP/TCP ports
-        const struct udphdr *uh =
-            (const struct udphdr *)(((const char *)iphdr) + (iphdr->ip_hl * 4));
+        const struct udphdr *uh = reinterpret_cast<const struct udphdr *>(iphdr) + (iphdr->ip_hl * 4);
         srcPort = uh->uh_sport;
         dstPort = uh->uh_dport;
     }
@@ -137,7 +136,7 @@ static
 int onMatch(unsigned int id, unsigned long long from, unsigned long long to,
             unsigned int flags, void *ctx) {
     // Our context points to a size_t storing the match count
-    size_t *matches = (size_t *)ctx;
+    size_t *matches = static_cast<size_t *>(ctx);
     (*matches)++;
     return 0; // continue matching
 }
@@ -233,9 +232,8 @@ public:
             }
 
             // Valid TCP or UDP packet
-            const struct ip *iphdr = (const struct ip *)(pktData
-                    + sizeof(struct ether_header));
-            const char *payload = (const char *)pktData + offset;
+            const struct ip *iphdr = reinterpret_cast<const struct ip *>(pktData) + sizeof(struct ether_header);
+            const char *payload = reinterpret_cast<const char *>(pktData) + offset;
 
             size_t id = stream_map.insert(std::make_pair(FiveTuple(iphdr),
                                           stream_map.size())).first->second;
@@ -281,7 +279,7 @@ public:
     // Close all open Hyperscan streams (potentially generating any
     // end-anchored matches)
     void closeStreams() {
-        for (auto &stream : streams) {
+        for (const auto &stream : streams) {
             hs_error_t err = hs_close_stream(stream, scratch, onMatch,
                                              &matchCount);
             if (err != HS_SUCCESS) {
@@ -575,7 +573,7 @@ int main(int argc, char **argv) {
  */
 static bool payloadOffset(const unsigned char *pkt_data, unsigned int *offset,
                           unsigned int *length) {
-    const ip *iph = (const ip *)(pkt_data + sizeof(ether_header));
+    const ip *iph = reinterpret_cast<const ip *>(pkt_data) + sizeof(ether_header);
     const tcphdr *th = nullptr;
 
     // Ignore packets that aren't IPv4
@@ -594,7 +592,7 @@ static bool payloadOffset(const unsigned char *pkt_data, unsigned int *offset,
 
     switch (iph->ip_p) {
     case IPPROTO_TCP:
-        th = (const tcphdr *)((const char *)iph + ihlen);
+        th = reinterpret_cast<const tcphdr *>(iph) + ihlen;
         thlen = th->th_off * 4;
         break;
     case IPPROTO_UDP:

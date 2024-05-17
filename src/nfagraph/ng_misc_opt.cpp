@@ -404,19 +404,19 @@ CharReach reduced_cr(NFAVertex v, const NGHolder &g,
         return v_cr;
     }
 
-    NFAVertex pred = getSoleSourceVertex(g, v);
-    assert(pred);
+    NFAVertex s_pred = getSoleSourceVertex(g, v);
+    assert(s_pred);
 
-    /* require pred to be fed by one vertex OR (start + startDS) */
+    /* require s_pred to be fed by one vertex OR (start + startDS) */
     NFAVertex predpred;
-    size_t idp = in_degree(pred, g);
-    if (hasSelfLoop(pred, g)) {
+    size_t idp = in_degree(s_pred, g);
+    if (hasSelfLoop(s_pred, g)) {
         return v_cr; /* not cliche */
     } else if (idp == 1) {
-        predpred = getSoleSourceVertex(g, pred);
+        predpred = getSoleSourceVertex(g, s_pred);
     } else if (idp == 2
-               && edge(g.start, pred, g).second
-               && edge(g.startDs, pred, g).second) {
+               && edge(g.start, s_pred, g).second
+               && edge(g.startDs, s_pred, g).second) {
         predpred = g.startDs;
     } else {
         return v_cr; /* not cliche */
@@ -425,7 +425,7 @@ CharReach reduced_cr(NFAVertex v, const NGHolder &g,
     assert(predpred);
 
     /* require predpred to be cyclic and its cr to be a superset of
-       pred and v */
+       s_pred and v */
     if (!hasSelfLoop(predpred, g)) {
         return v_cr; /* not cliche */
     }
@@ -435,7 +435,7 @@ CharReach reduced_cr(NFAVertex v, const NGHolder &g,
         return v_cr; /* fake cyclic */
     }
 
-    const CharReach &p_cr = g[pred].char_reach;
+    const CharReach &p_cr = g[s_pred].char_reach;
     const CharReach &pp_cr = g[predpred].char_reach;
     if (!v_cr.isSubsetOf(pp_cr) || !p_cr.isSubsetOf(pp_cr)) {
         return v_cr; /* not cliche */
@@ -446,7 +446,7 @@ CharReach reduced_cr(NFAVertex v, const NGHolder &g,
     set<NFAVertex> v_succ;
     insert(&v_succ, adjacent_vertices(v, g));
     set<NFAVertex> p_succ;
-    insert(&p_succ, adjacent_vertices(pred, g));
+    insert(&p_succ, adjacent_vertices(s_pred, g));
 
     if (!is_subset_of(v_succ, p_succ)) {
         DEBUG_PRINTF("fail\n");
@@ -456,7 +456,7 @@ CharReach reduced_cr(NFAVertex v, const NGHolder &g,
     if (contains(v_succ, g.accept) || contains(v_succ, g.acceptEod)) {
         /* need to check that reports of v are a subset of p's */
         if (!is_subset_of(g[v].reports,
-                        g[pred].reports)) {
+                        g[s_pred].reports)) {
             DEBUG_PRINTF("fail - reports not subset\n");
             return v_cr; /* not cliche */
         }

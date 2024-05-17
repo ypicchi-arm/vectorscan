@@ -84,8 +84,9 @@ void buildAccelSingle(const AccelInfo &info, AccelAux *aux) {
 #endif
 
     DEBUG_PRINTF("attempting shufti for %zu chars\n", outs);
-    if (-1 != shuftiBuildMasks(info.single_stops, (u8 *)&aux->shufti.lo,
-                               (u8 *)&aux->shufti.hi)) {
+    if (-1 != shuftiBuildMasks(info.single_stops,
+                               reinterpret_cast<u8 *>(&aux->shufti.lo),
+                               reinterpret_cast<u8 *>(&aux->shufti.hi))) {
         aux->accel_type = ACCEL_SHUFTI;
         aux->shufti.offset = offset;
         DEBUG_PRINTF("shufti built OK\n");
@@ -98,8 +99,9 @@ void buildAccelSingle(const AccelInfo &info, AccelAux *aux) {
         DEBUG_PRINTF("building Truffle for %zu chars\n", outs);
         aux->accel_type = ACCEL_TRUFFLE;
         aux->truffle.offset = offset;
-        truffleBuildMasks(info.single_stops, (u8 *)&aux->truffle.mask1,
-                          (u8 *)&aux->truffle.mask2);
+        truffleBuildMasks(info.single_stops,
+                          reinterpret_cast<u8 *>(&aux->truffle.mask1),
+                          reinterpret_cast<u8 *>(&aux->truffle.mask2));
         return;
     }
 
@@ -219,8 +221,9 @@ void buildAccelDouble(const AccelInfo &info, AccelAux *aux) {
                              c1, c2);
                 return;
             } else if (outs2 <= 8 &&
-                       vermicelliDouble16Build(info.double_stop2, (u8 *)&aux->dverm16.mask,
-                                               (u8 *)&aux->dverm16.firsts)) {
+                       vermicelliDouble16Build(info.double_stop2,
+                                               reinterpret_cast<u8 *>(&aux->dverm16.mask),
+                                               reinterpret_cast<u8 *>(&aux->dverm16.firsts))) {
                 aux->accel_type = ACCEL_DVERM16;
                 aux->dverm16.offset = offset;
                 DEBUG_PRINTF("building double16-vermicelli\n");
@@ -254,9 +257,11 @@ void buildAccelDouble(const AccelInfo &info, AccelAux *aux) {
         aux->accel_type = ACCEL_DSHUFTI;
         aux->dshufti.offset = offset;
         if (shuftiBuildDoubleMasks(
-                info.double_stop1, info.double_stop2, (u8 *)&aux->dshufti.lo1,
-                (u8 *)&aux->dshufti.hi1, (u8 *)&aux->dshufti.lo2,
-                (u8 *)&aux->dshufti.hi2)) {
+                info.double_stop1, info.double_stop2,
+                reinterpret_cast<u8 *>(&aux->dshufti.lo1),
+                reinterpret_cast<u8 *>(&aux->dshufti.hi1),
+                reinterpret_cast<u8 *>(&aux->dshufti.lo2),
+                reinterpret_cast<u8 *>(&aux->dshufti.hi2))) {
             return;
         }
     }

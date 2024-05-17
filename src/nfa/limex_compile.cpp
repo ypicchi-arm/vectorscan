@@ -290,7 +290,7 @@ void maskSetBits(Mask &m, const NFAStateSet &bits) {
 
 template<class Mask>
 bool isMaskZero(Mask &m) {
-    u8 *m8 = (u8 *)&m;
+    const u8 *m8 = (u8 *)&m;
     for (u32 i = 0; i < sizeof(m); i++) {
         if (m8[i]) {
             return false;
@@ -329,11 +329,11 @@ void buildReachMapping(const build_info &args, vector<NFAStateSet> &reach,
     // Build a list of vertices with a state index assigned.
     vector<NFAVertex> verts;
     verts.reserve(args.num_states);
-    for (auto v : vertices_range(h)) {
-        if (state_ids.at(v) != NO_STATE) {
-            verts.emplace_back(v);
-        }
-    }
+    auto sidat = [&state_ids=state_ids](const NFAVertex &v) {
+        return (state_ids.at(v) != NO_STATE);
+    };
+    const auto &vr = vertices_range(h);
+    std::copy_if(begin(vr), end(vr),  std::back_inserter(verts), sidat);
 
     // Build a mapping from set-of-states -> reachability.
     map<NFAStateSet, CharReach> mapping;
@@ -556,7 +556,8 @@ void filterAccelStates(NGHolder &g, const map<u32, set<NFAVertex>> &tops,
 
     // Similarly, connect (start, startDs) if necessary.
     if (!edge(g.start, g.startDs, g).second) {
-        NFAEdge e = add_edge(g.start, g.startDs, g);
+        NFAEdge e;
+        std::tie(e, std::ignore) = add_edge(g.start, g.startDs, g);
         tempEdges.emplace_back(e); // Remove edge later.
     }
 
@@ -1485,6 +1486,7 @@ u32 buildExceptionMap(const build_info &args, ReportListCache &reports_cache,
                     continue;
                 }
                 u32 j = args.state_ids.at(w);
+                // j can be NO_STATE if args.state_ids.at(w) returns NO_STATE
                 if (j == NO_STATE) {
                     continue;
                 }
@@ -1576,7 +1578,7 @@ u32 findMaxVarShift(const build_info &args, u32 nShifts) {
 static
 int getLimexScore(const build_info &args, u32 nShifts) {
     const NGHolder &h = args.h;
-    u32 maxVarShift = nShifts;
+    u32 maxVarShift;
     int score = 0;
 
     score += SHIFT_COST * nShifts;
@@ -1704,7 +1706,7 @@ struct Factory {
     static
     void allocState(NFA *nfa, u32 repeatscratchStateSize,
                     u32 repeatStreamState) {
-        implNFA_t *limex = (implNFA_t *)getMutableImplNfa(nfa);
+        const implNFA_t *limex = (implNFA_t *)getMutableImplNfa(nfa);
 
         // LimEx NFAs now store the following in state:
         // 1. state bitvector (always present)
@@ -2222,7 +2224,7 @@ struct Factory {
     static
     bytecode_ptr<NFA> generateNfa(const build_info &args) {
         if (args.num_states > NFATraits<dtype>::maxStates) {
-            return nullptr;
+            return bytecode_ptr<NFA>(nullptr);
         }
 
         // Build bounded repeat structures.
@@ -2581,7 +2583,7 @@ bytecode_ptr<NFA> generate(NGHolder &h,
 
     if (!cc.grey.allowLimExNFA) {
         DEBUG_PRINTF("limex not allowed\n");
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     // If you ask for a particular type, it had better be an NFA.
@@ -2616,7 +2618,7 @@ bytecode_ptr<NFA> generate(NGHolder &h,
 
     if (scores.empty()) {
         DEBUG_PRINTF("No NFA returned a valid score for this case.\n");
-        return nullptr;
+        return bytecode_ptr<NFA>(nullptr);
     }
 
     // Sort acceptable models in priority order, lowest score first.
@@ -2635,7 +2637,7 @@ bytecode_ptr<NFA> generate(NGHolder &h,
     }
 
     DEBUG_PRINTF("NFA build failed.\n");
-    return nullptr;
+    return bytecode_ptr<NFA>(nullptr);
 }
 
 u32 countAccelStates(NGHolder &h,
