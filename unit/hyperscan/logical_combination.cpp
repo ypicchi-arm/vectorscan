@@ -60,7 +60,7 @@ TEST(LogicalCombination, SingleComb1) {
 
     c.halt = 0;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(16U, c.matches.size());
     ASSERT_EQ(MatchRecord(3, 101), c.matches[0]);
@@ -108,7 +108,7 @@ TEST(LogicalCombination, SingleCombQuietSub1) {
 
     c.halt = 0;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(8U, c.matches.size());
     ASSERT_EQ(MatchRecord(18, 1001), c.matches[0]);
@@ -151,7 +151,7 @@ TEST(LogicalCombination, MultiCombQuietSub1) {
 
     c.halt = 0;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(10U, c.matches.size());
     ASSERT_EQ(MatchRecord(3, 1003), c.matches[0]);
@@ -198,7 +198,7 @@ TEST(LogicalCombination, MultiHighlanderCombQuietSub1) {
 
     c.halt = 0;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(4U, c.matches.size());
     ASSERT_EQ(MatchRecord(3, 1003), c.matches[0]);
@@ -237,7 +237,7 @@ TEST(LogicalCombination, MultiQuietCombQuietSub1) {
 
     c.halt = 0;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(2U, c.matches.size());
     ASSERT_EQ(MatchRecord(3, 1003), c.matches[0]);
@@ -270,7 +270,7 @@ TEST(LogicalCombination, SingleComb2) {
 
     c.halt = 0;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(13U, c.matches.size());
     ASSERT_EQ(MatchRecord(6, 202), c.matches[0]);
@@ -315,7 +315,7 @@ TEST(LogicalCombination, SingleCombQuietSub2) {
 
     c.halt = 0;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(8U, c.matches.size());
     ASSERT_EQ(MatchRecord(18, 1002), c.matches[0]);
@@ -354,7 +354,7 @@ TEST(LogicalCombination, SingleComb3) {
 
     c.halt = 0;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(17U, c.matches.size());
     ASSERT_EQ(MatchRecord(3, 301), c.matches[0]);
@@ -403,7 +403,7 @@ TEST(LogicalCombination, SingleCombQuietSub3) {
 
     c.halt = 0;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(8U, c.matches.size());
     ASSERT_EQ(MatchRecord(23, 303), c.matches[0]);
@@ -445,7 +445,7 @@ TEST(LogicalCombination, MultiCombDupSub4) {
 
     c.halt = 0;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(23U, c.matches.size());
     ASSERT_EQ(MatchRecord(6, 202), c.matches[0]);
@@ -503,7 +503,7 @@ TEST(LogicalCombination, MultiCombQuietDupSub4) {
 
     c.halt = 0;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(17U, c.matches.size());
     ASSERT_EQ(MatchRecord(18, 1002), c.matches[0]);
@@ -564,7 +564,7 @@ TEST(LogicalCombination, MultiCombUniSub5) {
 
     c.halt = 0;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(46U, c.matches.size());
     ASSERT_EQ(MatchRecord(3, 101), c.matches[0]);
@@ -656,7 +656,7 @@ TEST(LogicalCombination, MultiCombQuietUniSub5) {
 
     c.halt = 0;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(30U, c.matches.size());
     ASSERT_EQ(MatchRecord(3, 101), c.matches[0]);
@@ -717,7 +717,7 @@ TEST(LogicalCombination, SingleCombPurelyNegative6) {
 
     c.halt = 0;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(1U, c.matches.size());
     ASSERT_EQ(MatchRecord(53, 1002), c.matches[0]);
@@ -749,7 +749,7 @@ TEST(LogicalCombination, SingleCombQuietPurelyNegative6) {
 
     c.halt = 0;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(0U, c.matches.size());
 
@@ -793,7 +793,7 @@ TEST(LogicalCombination, MultiCombPurelyNegativeUniSub6) {
 
     c.halt = 0;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(3U, c.matches.size());
     ASSERT_EQ(MatchRecord(106, 202), c.matches[0]);
@@ -841,7 +841,7 @@ TEST(LogicalCombination, MultiCombPurelyNegativeUniSubEOD6) {
 
     c.halt = 0;
     err = hs_scan(db, data.c_str(), data.size(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(8U, c.matches.size());
     ASSERT_EQ(MatchRecord(106, 102), c.matches[0]);
@@ -897,7 +897,7 @@ TEST(LogicalCombination, MultiCombStream1) {
     int i;
     for (i = 0; i < 11; i++) {
         err = hs_scan_stream(stream, data[i].c_str(), data[i].size(), 0,
-                             scratch, record_cb, (void *)&c);
+                             scratch, record_cb, reinterpret_cast<void *>(&c));
         ASSERT_EQ(HS_SUCCESS, err);
     }
     err = hs_close_stream(stream, scratch, dummy_cb, nullptr);

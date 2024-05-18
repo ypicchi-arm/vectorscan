@@ -454,7 +454,7 @@ void findForwardAccelScheme(const vector<AccelString> &lits,
 #endif // HAVE_SVE2
 
     if (-1 !=
-        shuftiBuildMasks(cr, (u8 *)&aux->shufti.lo, (u8 *)&aux->shufti.hi)) {
+        shuftiBuildMasks(cr, reinterpret_cast<u8 *>(&aux->shufti.lo), reinterpret_cast<u8 *>(&aux->shufti.hi))) {
         DEBUG_PRINTF("built shufti for %s (%zu chars, offset %u)\n",
                      describeClass(cr).c_str(), cr.count(), min_offset);
         aux->shufti.accel_type = ACCEL_SHUFTI;
@@ -462,7 +462,7 @@ void findForwardAccelScheme(const vector<AccelString> &lits,
         return;
     }
 
-    truffleBuildMasks(cr, (u8 *)&aux->truffle.mask1, (u8 *)&aux->truffle.mask2);
+    truffleBuildMasks(cr, reinterpret_cast<u8 *>(&aux->truffle.mask1), reinterpret_cast<u8 *>(&aux->truffle.mask2));
     DEBUG_PRINTF("built truffle for %s (%zu chars, offset %u)\n",
                  describeClass(cr).c_str(), cr.count(), min_offset);
     aux->truffle.accel_type = ACCEL_TRUFFLE;

@@ -73,7 +73,7 @@ struct LbrTestParams {
 
 static
 int onMatch(u64a, u64a, ReportID, void *ctx) {
-    unsigned *matches = (unsigned *)ctx;
+    unsigned *matches = reinterpret_cast<unsigned *>(ctx);
     (*matches)++;
     return MO_CONTINUE_MATCHING;
 }
@@ -191,7 +191,7 @@ TEST_P(LbrTest, MatchMin) {
     const string corpus = matchingCorpus(params.min);
 
     initQueue();
-    q.buffer = (const u8 *)corpus.c_str();
+    q.buffer = reinterpret_cast<const u8 *>(corpus.c_str());
     q.length = corpus.length();
     u64a end = corpus.length();
 
@@ -238,7 +238,7 @@ TEST_P(LbrTest, QueueExecToMatch) {
     const string corpus = matchingCorpus(params.min);
 
     initQueue();
-    q.buffer = (const u8 *)corpus.c_str();
+    q.buffer = reinterpret_cast<const u8 *>(corpus.c_str());
     q.length = corpus.length();
     u64a end = corpus.length();
 

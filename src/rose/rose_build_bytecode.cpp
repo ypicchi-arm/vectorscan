@@ -2019,7 +2019,7 @@ void buildCountingMiracles(build_context &bc) {
             rcm.c = cr.find_first();
         } else {
             rcm.shufti = 1;
-            int rv = shuftiBuildMasks(cr, (u8 *)&rcm.lo, (u8 *)&rcm.hi);
+            int rv = shuftiBuildMasks(cr, reinterpret_cast<u8 *>(&rcm.lo), reinterpret_cast<u8 *>(&rcm.hi));
             if (rv == -1) {
                 DEBUG_PRINTF("failed to build shufti\n");
                 lbi.countingMiracleCount = 0; /* remove counting miracle */
@@ -3504,7 +3504,7 @@ bytecode_ptr<RoseEngine> addSmallWriteEngine(const RoseBuildImpl &build,
     const size_t newSize = smwrOffset + smallWriteSize;
 
     auto rose2 = make_zeroed_bytecode_ptr<RoseEngine>(newSize, 64);
-    char *ptr = (char *)rose2.get();
+    char *ptr = reinterpret_cast<char *>(rose2.get());
     memcpy(ptr, rose.get(), mainSize);
     memcpy(ptr + smwrOffset, smwr_engine.get(), smallWriteSize);
 
@@ -3869,7 +3869,7 @@ bytecode_ptr<RoseEngine> RoseBuildImpl::buildFinalEngine(u32 minWidth) {
     // Copy in our prototype engine data.
     memcpy(engine.get(), &proto, sizeof(proto));
 
-    write_out(&engine->state_init, (char *)engine.get(), state_scatter,
+    write_out(&engine->state_init, reinterpret_cast<char *>(engine.get()), state_scatter,
               state_scatter_aux_offset);
 
     // Copy in the engine blob.

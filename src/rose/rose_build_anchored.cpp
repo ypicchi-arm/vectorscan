@@ -264,11 +264,11 @@ u32 anchoredStateSize(const anchored_matcher_info &atable) {
     // Walk the list until we find the last element; total state size will be
     // that engine's state offset plus its state requirement.
     while (curr->next_offset) {
-        curr = (const anchored_matcher_info *)
-            ((const char *)curr + curr->next_offset);
+        curr = reinterpret_cast<const anchored_matcher_info *>
+            (reinterpret_cast<const char *>(curr) + curr->next_offset);
     }
 
-    const NFA *nfa = (const NFA *)((const char *)curr + sizeof(*curr));
+    const NFA *nfa = reinterpret_cast<const  NFA *>(reinterpret_cast<const char *>(curr) + sizeof(*curr));
     return curr->state_offset + nfa->streamStateSize;
 }
 
@@ -890,12 +890,12 @@ buildAnchoredMatcher(const RoseBuildImpl &build, const vector<LitFragment> &frag
 
     auto atable =
         make_zeroed_bytecode_ptr<anchored_matcher_info>(total_size, 64);
-    char *curr = (char *)atable.get();
+    char *curr = reinterpret_cast<char *>(atable.get());
 
     u32 state_offset = 0;
     for (size_t i = 0; i < nfas.size(); i++) {
         const NFA *nfa = nfas[i].get();
-        anchored_matcher_info *ami = (anchored_matcher_info *)curr;
+        anchored_matcher_info *ami = reinterpret_cast<anchored_matcher_info *>(curr);
         const char *prev_curr = curr;
 
         curr += sizeof(anchored_matcher_info);
