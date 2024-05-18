@@ -1077,7 +1077,6 @@ bytecode_ptr<NFA> goughCompile(raw_som_dfa &raw, u8 somPrecision,
         return bytecode_ptr<NFA>(nullptr);
     }
 
-    // cppcheck-suppress cstyleCast
     const auto nfa = static_cast<const mcclellan *>(getImplNfa(basic_dfa.get()));
     u8 alphaShift = nfa->alphaShift;
     u32 edge_count = (1U << alphaShift) * raw.states.size();
@@ -1134,7 +1133,6 @@ bytecode_ptr<NFA> goughCompile(raw_som_dfa &raw, u8 somPrecision,
     gough_dfa->streamStateSize = base_state_size + slot_count * somPrecision;
     gough_dfa->scratchStateSize = (u32)(16 + scratch_slot_count * sizeof(u64a));
 
-    // cppcheck-suppress cstyleCast
     auto *m = reinterpret_cast<mcclellan *>(getMutableImplNfa(gough_dfa.get()));
     m->haig_offset = haig_offset;
 
