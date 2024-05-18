@@ -51,7 +51,7 @@ static const u32 MATCH_REPORT = 1024;
 
 static
 int onMatch(u64a, u64a, ReportID, void *ctx) {
-    unsigned *matches = (unsigned *)ctx;
+    unsigned *matches = reinterpret_cast<unsigned *>(ctx);
     (*matches)++;
     return MO_CONTINUE_MATCHING;
 }
@@ -100,7 +100,7 @@ protected:
         q.state = full_state.get();
         q.streamState = stream_state.get();
         q.offset = 0;
-        q.buffer = (const u8 *)SCAN_DATA.c_str();
+        q.buffer = reinterpret_cast<const u8 *>(SCAN_DATA.c_str());
         q.length = SCAN_DATA.size();
         q.history = nullptr;
         q.hlength = 0;
@@ -341,7 +341,7 @@ TEST_P(LimExReverseTest, BlockExecReverse) {
     ASSERT_TRUE(nfa.get() != nullptr);
 
     u64a offset = 0;
-    const u8 *buf = (const u8 *)SCAN_DATA.c_str();
+    const u8 *buf = reinterpret_cast<const u8 *>(SCAN_DATA.c_str());
     const size_t buflen = SCAN_DATA.size();
     const u8 *hbuf = nullptr;
     const size_t hlen = 0;
@@ -394,7 +394,7 @@ protected:
         q.state = full_state.get();
         q.streamState = stream_state.get();
         q.offset = 0;
-        q.buffer = (const u8 *)ZOMBIE_SCAN_DATA.c_str();
+        q.buffer = reinterpret_cast<const u8 *>(ZOMBIE_SCAN_DATA.c_str());
         q.length = ZOMBIE_SCAN_DATA.length();
         q.history = nullptr;
         q.hlength = 0;
