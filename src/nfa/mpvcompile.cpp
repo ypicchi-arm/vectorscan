@@ -180,7 +180,7 @@ void writeKiloPuff(const map<ClusterKey, vector<raw_puff>>::const_iterator &it,
 #ifdef HAVE_SVE2
     } else if (reach.count() >= 240) {
         kp->type = MPV_VERM16;
-        vermicelli16Build(~reach, reinterpret_casT<u8 *>(&kp->u.verm16.mask));
+        vermicelli16Build(~reach, reinterpret_cast<u8 *>(&kp->u.verm16.mask));
     } else if (reach.count() <= 16) {
         kp->type = MPV_NVERM16;
         vermicelli16Build(reach, reinterpret_cast<u8 *>(&kp->u.verm16.mask));
