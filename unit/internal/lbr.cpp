@@ -212,7 +212,7 @@ TEST_P(LbrTest, MatchMax) {
     const string corpus = matchingCorpus(params.max);
 
     initQueue();
-    q.buffer = (const u8 *)corpus.c_str();
+    q.buffer = reinterpret_cast<const u8 *>(corpus.c_str());
     q.length = corpus.length();
     u64a end = corpus.length();
 

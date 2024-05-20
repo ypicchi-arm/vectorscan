@@ -180,7 +180,7 @@ void raw_report_info_impl::fillReportLists(NFA *n, size_t base_offset,
     for (const auto &reps : rl) {
         ro.emplace_back(base_offset);
 
-        report_list *p = (report_list *)((char *)n + base_offset);
+        report_list *p = reinterpret_cast<report_list *>(reinterpret_cast<char *>(n) + base_offset);
 
         u32 i = 0;
         for (const ReportID report : reps.reports) {
@@ -389,17 +389,17 @@ static
 void fillAccelAux(struct NFA *n, dfa_info &info,
                   map<dstate_id_t, AccelScheme> &accelInfo) {
     DEBUG_PRINTF("Filling accel aux structures\n");
-    T *s = (T *)getMutableImplNfa(n);
+    T *s = reinterpret_cast<T *>(getMutableImplNfa(n));
     u32 offset = s->accel_offset;
 
     for (dstate_id_t i = 0; i < info.size(); i++) {
         dstate_id_t state_id = info.raw_id(i);
         if (accelInfo.find(state_id) != accelInfo.end()) {
             s->flags |= SHENG_FLAG_HAS_ACCEL;
-            AccelAux *aux = (AccelAux *)((char *)n + offset);
+            AccelAux *aux = reinterpret_cast<AccelAux *>(reinterpret_cast<char *>(n) + offset);
             info.strat.buildAccel(state_id, accelInfo[state_id], aux);
             sstate_aux *saux =
-                (sstate_aux *)((char *)n + s->aux_offset) + state_id;
+                reinterpret_cast<sstate_aux *>(reinterpret_cast<char *>(n) + s->aux_offset) + state_id;
             saux->accel = offset;
             DEBUG_PRINTF("Accel offset: %u\n", offset);
             offset += ROUNDUP_N(sizeof(AccelAux), alignof(AccelAux));
@@ -429,7 +429,7 @@ void populateBasicInfo<sheng>(struct NFA *n, dfa_info &info,
     n->type = SHENG_NFA;
     n->flags |= info.raw.hasEodReports() ? NFA_ACCEPTS_EOD : 0;
 
-    sheng *s = (sheng *)getMutableImplNfa(n);
+    sheng *s = reinterpret_cast<sheng *>(getMutableImplNfa(n));
     s->aux_offset = aux_offset;
     s->report_offset = report_offset;
     s->accel_offset = accel_offset;
@@ -454,7 +454,7 @@ void populateBasicInfo<sheng32>(struct NFA *n, dfa_info &info,
     n->type = SHENG_NFA_32;
     n->flags |= info.raw.hasEodReports() ? NFA_ACCEPTS_EOD : 0;
 
-    sheng32 *s = (sheng32 *)getMutableImplNfa(n);
+    sheng32 *s = reinterpret_cast<sheng32 *>(getMutableImplNfa(n));
     s->aux_offset = aux_offset;
     s->report_offset = report_offset;
     s->accel_offset = accel_offset;
@@ -479,7 +479,7 @@ void populateBasicInfo<sheng64>(struct NFA *n, dfa_info &info,
     n->type = SHENG_NFA_64;
     n->flags |= info.raw.hasEodReports() ? NFA_ACCEPTS_EOD : 0;
 
-    sheng64 *s = (sheng64 *)getMutableImplNfa(n);
+    sheng64 *s = reinterpret_cast<sheng64 *>(getMutableImplNfa(n));
     s->aux_offset = aux_offset;
     s->report_offset = report_offset;
     s->accel_offset = accel_offset;
@@ -495,15 +495,15 @@ template <typename T>
 static
 void fillTops(NFA *n, dfa_info &info, dstate_id_t id,
               map<dstate_id_t, AccelScheme> &accelInfo) {
-    T *s = (T *)getMutableImplNfa(n);
+    T *s = reinterpret_cast<T *>(getMutableImplNfa(n));
     u32 aux_base = s->aux_offset;
 
     DEBUG_PRINTF("Filling tops for state %u\n", id);
 
-    sstate_aux *aux = (sstate_aux *)((char *)n + aux_base) + id;
+    sstate_aux *aux = reinterpret_cast<sstate_aux *>(reinterpret_cast<char *>(n) + aux_base) + id;
 
     DEBUG_PRINTF("Aux structure for state %u, offset %zd\n", id,
-                 (char *)aux - (char *)n);
+                 reinterpret_cast<char *>(aux) - reinterpret_cast<char *>(n));
 
     /* we could conceivably end up in an accept/dead state on a top event,
      * so mark top as accept/dead state if it indeed is.
@@ -519,13 +519,13 @@ template <typename T>
 static
 void fillAux(NFA *n, dfa_info &info, dstate_id_t id, vector<u32> &reports,
                  vector<u32> &reports_eod, vector<u32> &report_offsets) {
-    T *s = (T *)getMutableImplNfa(n);
+    T *s = reinterpret_cast<T *>(getMutableImplNfa(n));
     u32 aux_base = s->aux_offset;
     auto raw_id = info.raw_id(id);
 
     auto &state = info[id];
 
-    sstate_aux *aux = (sstate_aux *)((char *)n + aux_base) + id;
+    sstate_aux *aux = reinterpret_cast<sstate_aux *>(reinterpret_cast<char *>(n) + aux_base) + id;
 
     DEBUG_PRINTF("Filling aux and report structures for state %u\n", id);
     DEBUG_PRINTF("Aux structure for state %u, offset %zd\n", id,
@@ -542,7 +542,7 @@ void fillAux(NFA *n, dfa_info &info, dstate_id_t id, vector<u32> &reports,
 template <typename T>
 static
 void fillSingleReport(NFA *n, ReportID r_id) {
-    T *s = (T *)getMutableImplNfa(n);
+    T *s = reinterpret_cast<T *>(getMutableImplNfa(n));
 
     DEBUG_PRINTF("Single report ID: %u\n", r_id);
     s->report = r_id;
@@ -689,7 +689,8 @@ bytecode_ptr<NFA> shengCompile_int(raw_dfa &raw, const CompileContext &cc,
         fillAccelOut(accelInfo, accel_states);
     }
 
-    if (!createShuffleMasks<T>((T *)getMutableImplNfa(nfa.get()), info, accelInfo)) {
+    T *s = reinterpret_cast<T *>(getMutableImplNfa(nfa.get()));
+    if (!createShuffleMasks<T>(s, info, accelInfo)) {
         return bytecode_ptr<NFA>(nullptr);
     }
 
@@ -727,18 +728,18 @@ bytecode_ptr<NFA> sheng32Compile(raw_dfa &raw, const CompileContext &cc,
                                  set<dstate_id_t> *accel_states) {
     if (!cc.grey.allowSheng) {
         DEBUG_PRINTF("Sheng is not allowed!\n");
-        bytecode_ptr<NFA>(nullptr);
+        return bytecode_ptr<NFA>(nullptr);
     }
 
 #ifdef HAVE_SVE
     if (svcntb()<32) {
         DEBUG_PRINTF("Sheng32 failed, SVE width is too small!\n");
-        bytecode_ptr<NFA>(nullptr);
+        return bytecode_ptr<NFA>(nullptr);
     }
 #else
     if (!cc.target_info.has_avx512vbmi()) {
         DEBUG_PRINTF("Sheng32 failed, no HS_CPU_FEATURES_AVX512VBMI!\n");
-        bytecode_ptr<NFA>(nullptr);
+        return bytecode_ptr<NFA>(nullptr);
     }
 #endif
 

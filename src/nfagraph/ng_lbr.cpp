@@ -182,7 +182,7 @@ bytecode_ptr<NFA> buildLbrVerm(const CharReach &cr, const depth &repeatMin,
     enum RepeatType rtype = chooseRepeatType(repeatMin, repeatMax, minPeriod,
                                              is_reset);
     auto nfa = makeLbrNfa<lbr_verm>(LBR_NFA_VERM, rtype, repeatMax);
-    struct lbr_verm *lv = (struct lbr_verm *)getMutableImplNfa(nfa.get());
+    struct lbr_verm *lv = reinterpret_cast<struct lbr_verm *>(getMutableImplNfa(nfa.get()));
     lv->c = escapes.find_first();
 
     fillNfa<lbr_verm>(nfa.get(), &lv->common, report, repeatMin, repeatMax,

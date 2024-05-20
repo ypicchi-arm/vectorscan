@@ -632,11 +632,12 @@ buildCastle(const CastleProto &proto,
 
         if (patchSize[i]) {
             RepeatInfo *info = reinterpret_cast<RepeatInfo *>(ptr);
-            u64a *table = reinterpret_cast<u64a *>(ROUNDUP_PTR(info +
+	    char *info_base = reinterpret_cast<char *>(info);
+            u64a *table = reinterpret_cast<u64a *>(ROUNDUP_PTR(info_base +
                                     sizeof(*info), alignof(u64a)));
             copy(tables.begin() + tableIdx,
                  tables.begin() + tableIdx + patchSize[i], table);
-            u32 diff = reinterpret_cast<ptrdiff_t>(table) - reinterpret_cast<ptrdiff_t>(info) +
+            u32 diff = reinterpret_cast<char *>(table) - info_base +
                        sizeof(u64a) * patchSize[i];
             info->length = diff;
             length += diff;

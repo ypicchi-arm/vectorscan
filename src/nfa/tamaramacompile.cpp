@@ -142,9 +142,9 @@ buildTamarama(const TamaInfo &tamaInfo, const u32 queue,
     nfa->length = verify_u32(total_size);
     nfa->queueIndex = queue;
 
-    char *ptr = (char *)nfa.get() + sizeof(NFA);
+    char *ptr = reinterpret_cast<char *>(nfa.get()) + sizeof(NFA);
     char *base_offset = ptr;
-    Tamarama *t = (Tamarama *)ptr;
+    Tamarama *t = reinterpret_cast<Tamarama *>(ptr);
     t->numSubEngines = verify_u32(subSize);
     t->activeIdxSize = verify_u8(activeIdxSize);
 
@@ -152,11 +152,11 @@ buildTamarama(const TamaInfo &tamaInfo, const u32 queue,
     copy_bytes(ptr, top_base);
     ptr += byte_length(top_base);
 
-    u32 *offsets = (u32 *)ptr;
+    u32 *offsets = reinterpret_cast<u32 *>(ptr);
     char *sub_nfa_offset = ptr + sizeof(u32) * subSize;
     copyInSubnfas(base_offset, *nfa, tamaInfo, offsets, sub_nfa_offset,
                   activeIdxSize);
-    assert((size_t)(sub_nfa_offset - (char *)nfa.get()) <= total_size);
+    assert(static_cast<size_t>(sub_nfa_offset - reinterpret_cast<char *>(nfa.get())) <= total_size);
     return nfa;
 }
 

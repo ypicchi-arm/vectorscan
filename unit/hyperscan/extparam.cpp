@@ -104,7 +104,7 @@ TEST(ExtParam, LargeExactOffset) {
     // Try the exact match.
     corpus = "hatstand" + string(199983, '_') + "teakettle";
     err = hs_scan(db, corpus.c_str(), corpus.length(), 0, scratch, record_cb,
-                  (void *)&c);
+                  reinterpret_cast<void *>(&c));
     ASSERT_EQ(HS_SUCCESS, err);
     ASSERT_EQ(1U, c.matches.size());
     ASSERT_EQ(MatchRecord(200000, 0), c.matches[0]);

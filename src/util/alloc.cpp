@@ -68,8 +68,8 @@ namespace ue2 {
 #endif
 
 void *aligned_malloc_internal(size_t size, size_t align) {
-    // cppcheck-suppress cstyleCast
     void *mem= nullptr;;
+    // cppcheck-suppress cstyleCast
     int rv = posix_memalign(&mem, align, size);
     if (rv != 0) {
         DEBUG_PRINTF("posix_memalign returned %d when asked for %zu bytes\n",

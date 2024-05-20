@@ -269,7 +269,7 @@ void maskClear(Mask &m) {
 template<class Mask>
 u8 *maskGetByte(Mask &m, u32 bit) {
     assert(bit < sizeof(m)*8);
-    u8 *m8 = (u8 *)&m;
+    u8 *m8 = reinterpret_cast<u8 *>(&m);
 
     return m8 + bit/8;
 }
@@ -290,7 +290,7 @@ void maskSetBits(Mask &m, const NFAStateSet &bits) {
 
 template<class Mask>
 bool isMaskZero(Mask &m) {
-    const u8 *m8 = (u8 *)&m;
+    const u8 *m8 = reinterpret_cast<u8 *>(&m);
     for (u32 i = 0; i < sizeof(m); i++) {
         if (m8[i]) {
             return false;
@@ -303,7 +303,7 @@ bool isMaskZero(Mask &m) {
 template<class Mask>
 void maskSetByte(Mask &m, const unsigned int idx, const char val) {
     assert(idx < sizeof(m));
-    char *m8 = (char *)&m;
+    char *m8 = reinterpret_cast<char *>(&m);
     char &byte = m8[idx];
     byte = val;
 }
@@ -1702,7 +1702,7 @@ struct Factory {
     static
     void allocState(NFA *nfa, u32 repeatscratchStateSize,
                     u32 repeatStreamState) {
-        const implNFA_t *limex = (implNFA_t *)getMutableImplNfa(nfa);
+        const implNFA_t *limex = reinterpret_cast<implNFA_t *>(getMutableImplNfa(nfa));
 
         // LimEx NFAs now store the following in state:
         // 1. state bitvector (always present)
@@ -1768,7 +1768,7 @@ struct Factory {
             u32 tableOffset, tugMaskOffset;
             size_t len = repeatAllocSize(br, &tableOffset, &tugMaskOffset);
             auto info = make_zeroed_bytecode_ptr<NFARepeatInfo>(len);
-            char *info_ptr = (char *)info.get();
+            char *info_ptr = reinterpret_cast<char *>(info.get());
 
             // Collect state space info.
             RepeatStateInfo rsi(br.type, br.repeatMin, br.repeatMax, br.minPeriod);
@@ -1783,8 +1783,7 @@ struct Factory {
             info->tugMaskOffset = tugMaskOffset;
 
             // Fill the RepeatInfo structure.
-            RepeatInfo *repeat =
-                (RepeatInfo *)(info_ptr + sizeof(NFARepeatInfo));
+            RepeatInfo *repeat = reinterpret_cast<RepeatInfo *>(info_ptr + sizeof(NFARepeatInfo));
             repeat->type = br.type;
             repeat->repeatMin = depth_to_u32(br.repeatMin);
             repeat->repeatMax = depth_to_u32(br.repeatMax);
@@ -1810,7 +1809,7 @@ struct Factory {
             }
 
             // Fill the tug mask.
-            tableRow_t *tugMask = (tableRow_t *)(info_ptr + tugMaskOffset);
+            tableRow_t *tugMask = reinterpret_cast<tableRow_t *>(info_ptr + tugMaskOffset);
             for (auto v : br.tug_triggers) {
                 u32 state_id = args.state_ids.at(v);
                 assert(state_id != NO_STATE);
@@ -1931,7 +1930,7 @@ struct Factory {
                          const u32 reportListOffset) {
         DEBUG_PRINTF("exceptionsOffset=%u\n", exceptionsOffset);
 
-        exception_t *etable = (exception_t *)((char *)limex + exceptionsOffset);
+        exception_t *etable = reinterpret_cast<exception_t *>(reinterpret_cast<char *>(limex) + exceptionsOffset);
         assert(ISALIGNED(etable));
 
         map<u32, ExceptionProto> exception_by_state;
@@ -1979,10 +1978,10 @@ struct Factory {
         limex->exceptionCount = ecount;
 
         if (args.num_states > 64 && args.cc.target_info.has_avx512vbmi()) {
-            const u8 *exceptionMask = (const u8 *)(&limex->exceptionMask);
-            u8 *shufMask = (u8 *)&limex->exceptionShufMask;
-            u8 *bitMask = (u8 *)&limex->exceptionBitMask;
-            u8 *andMask = (u8 *)&limex->exceptionAndMask;
+            const u8 *exceptionMask = reinterpret_cast<const u8 *>(&limex->exceptionMask);
+            u8 *shufMask = reinterpret_cast<u8 *>(&limex->exceptionShufMask);
+            u8 *bitMask = reinterpret_cast<u8 *>(&limex->exceptionBitMask);
+            u8 *andMask = reinterpret_cast<u8 *>(&limex->exceptionAndMask);
 
             u32 tot_cnt = 0;
             u32 pos = 0;
@@ -2042,7 +2041,7 @@ struct Factory {
         copy(reachMap.begin(), reachMap.end(), &limex->reachMap[0]);
 
         // Reach table is right after the LimEx structure.
-        tableRow_t *reachMask = (tableRow_t *)((char *)limex + reachOffset);
+        tableRow_t *reachMask = reinterpret_cast<tableRow_t *>(reinterpret_cast<char *>(limex) + reachOffset);
         assert(ISALIGNED(reachMask));
         for (size_t i = 0, end = reach.size(); i < end; i++) {
             maskSetBits(reachMask[i], reach[i]);
@@ -2056,7 +2055,7 @@ struct Factory {
         DEBUG_PRINTF("topsOffset=%u\n", topsOffset);
 
         limex->topOffset = topsOffset;
-        tableRow_t *topMasks = (tableRow_t *)((char *)limex + topsOffset);
+        tableRow_t *topMasks = reinterpret_cast<tableRow_t *>(reinterpret_cast<char *>(limex) + topsOffset);
         assert(ISALIGNED(topMasks));
 
         for (size_t i = 0, end = tops.size(); i < end; i++) {
@@ -2068,8 +2067,8 @@ struct Factory {
 
     static
     void writeAccelSsse3Masks(const NFAStateSet &accelMask, implNFA_t *limex) {
-        char *perm_base = (char *)&limex->accelPermute;
-        char *comp_base = (char *)&limex->accelCompare;
+        char *perm_base = reinterpret_cast<char *>(&limex->accelPermute);
+        char *comp_base = reinterpret_cast<char *>(&limex->accelCompare);
 
         u32 num = 0; // index in accel table.
         for (size_t i = accelMask.find_first(); i != accelMask.npos;
@@ -2080,8 +2079,8 @@ struct Factory {
             // PSHUFB permute and compare masks
             size_t mask_idx = sizeof(u_128) * (state_id / 128U);
             DEBUG_PRINTF("mask_idx=%zu\n", mask_idx);
-            u_128 *perm = (u_128 *)(perm_base + mask_idx);
-            u_128 *comp = (u_128 *)(comp_base + mask_idx);
+            u_128 *perm = reinterpret_cast<u_128 *>(perm_base + mask_idx);
+            u_128 *comp = reinterpret_cast<u_128 *>(comp_base + mask_idx);
             maskSetByte(*perm, num, ((state_id % 128U) / 8U));
             maskSetByte(*comp, num, ~(1U << (state_id % 8U)));
         }
@@ -2099,11 +2098,11 @@ struct Factory {
         // Write accel lookup table.
         limex->accelTableOffset = accelTableOffset;
         copy(accelTable.begin(), accelTable.end(),
-             (u8 *)((char *)limex + accelTableOffset));
+             reinterpret_cast<u8 *>(reinterpret_cast<char *>(limex) + accelTableOffset));
 
         // Write accel aux structures.
         limex->accelAuxOffset = accelAuxOffset;
-        AccelAux *auxTable = (AccelAux *)((char *)limex + accelAuxOffset);
+        AccelAux *auxTable = reinterpret_cast<AccelAux *>(reinterpret_cast<char *>(limex) + accelAuxOffset);
         assert(ISALIGNED(auxTable));
         copy(accelAux.begin(), accelAux.end(), auxTable);
 
@@ -2133,7 +2132,7 @@ struct Factory {
                       const vector<NFAStateSet> &squash, implNFA_t *limex,
                       const u32 acceptsOffset, const u32 acceptsEodOffset,
                       const u32 squashOffset, const u32 reportListOffset) {
-        char *limex_base = (char *)limex;
+        char *limex_base = reinterpret_cast<char *>(limex);
 
         DEBUG_PRINTF("acceptsOffset=%u, acceptsEodOffset=%u, squashOffset=%u\n",
                      acceptsOffset, acceptsEodOffset, squashOffset);
@@ -2156,7 +2155,7 @@ struct Factory {
         limex->acceptOffset = acceptsOffset;
         limex->acceptCount = verify_u32(accepts.size());
         DEBUG_PRINTF("NFA has %zu accepts\n", accepts.size());
-        NFAAccept *acceptsTable = (NFAAccept *)(limex_base + acceptsOffset);
+        NFAAccept *acceptsTable = reinterpret_cast<NFAAccept *>(limex_base + acceptsOffset);
         assert(ISALIGNED(acceptsTable));
         transform(accepts.begin(), accepts.end(), acceptsTable,
                   transform_offset_fn);
@@ -2165,7 +2164,7 @@ struct Factory {
         limex->acceptEodOffset = acceptsEodOffset;
         limex->acceptEodCount = verify_u32(acceptsEod.size());
         DEBUG_PRINTF("NFA has %zu EOD accepts\n", acceptsEod.size());
-        NFAAccept *acceptsEodTable = (NFAAccept *)(limex_base + acceptsEodOffset);
+        NFAAccept *acceptsEodTable = reinterpret_cast<NFAAccept *>(limex_base + acceptsEodOffset);
         assert(ISALIGNED(acceptsEodTable));
         transform(acceptsEod.begin(), acceptsEod.end(), acceptsEodTable,
                   transform_offset_fn);
@@ -2174,7 +2173,7 @@ struct Factory {
         limex->squashCount = verify_u32(squash.size());
         limex->squashOffset = squashOffset;
         DEBUG_PRINTF("NFA has %zu report squash masks\n", squash.size());
-        tableRow_t *mask = (tableRow_t *)(limex_base + squashOffset);
+        tableRow_t *mask = reinterpret_cast<tableRow_t *>(limex_base + squashOffset);
         assert(ISALIGNED(mask));
         for (size_t i = 0, end = squash.size(); i < end; i++) {
             maskSetBits(mask[i], squash[i]);
@@ -2196,13 +2195,13 @@ struct Factory {
         for (u32 i = 0; i < num_repeats; i++) {
             repeatOffsets[i] = offset;
             assert(repeats[i]);
-            memcpy((char *)limex + offset, repeats[i].get(), repeats[i].size());
+            memcpy(reinterpret_cast<char *>(limex) + offset, repeats[i].get(), repeats[i].size());
             offset += repeats[i].size();
         }
 
         // Write repeat offset lookup table.
-        assert(ISALIGNED_N((char *)limex + repeatOffsetsOffset, alignof(u32)));
-        copy_bytes((char *)limex + repeatOffsetsOffset, repeatOffsets);
+        assert(ISALIGNED_N(reinterpret_cast<char *>(limex) + repeatOffsetsOffset, alignof(u32)));
+        copy_bytes(reinterpret_cast<char *>(limex) + repeatOffsetsOffset, repeatOffsets);
 
         limex->repeatOffset = repeatOffsetsOffset;
         limex->repeatCount = num_repeats;
@@ -2212,9 +2211,9 @@ struct Factory {
     void writeReportList(const vector<ReportID> &reports, implNFA_t *limex,
                          const u32 reportListOffset) {
         DEBUG_PRINTF("reportListOffset=%u\n", reportListOffset);
-        assert(ISALIGNED_N((char *)limex + reportListOffset,
+        assert(ISALIGNED_N(reinterpret_cast<char *>(limex) + reportListOffset,
                            alignof(ReportID)));
-        copy_bytes((char *)limex + reportListOffset, reports);
+        copy_bytes(reinterpret_cast<char *>(limex) + reportListOffset, reports);
     }
 
     static
@@ -2323,7 +2322,7 @@ struct Factory {
         auto nfa = make_zeroed_bytecode_ptr<NFA>(nfaSize);
         assert(nfa); // otherwise we would have thrown std::bad_alloc
 
-        implNFA_t *limex = (implNFA_t *)getMutableImplNfa(nfa.get());
+        implNFA_t *limex = reinterpret_cast<implNFA_t *>(getMutableImplNfa(nfa.get()));
         assert(ISALIGNED(limex));
 
         writeReachMapping(reach, reachMap, limex, reachOffset);
