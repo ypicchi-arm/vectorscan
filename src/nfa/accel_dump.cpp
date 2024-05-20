@@ -210,31 +210,31 @@ void dumpAccelInfo(FILE *f, const AccelAux &accel) {
         break;
     case ACCEL_SHUFTI: {
         fprintf(f, "\n");
-        dumpShuftiMasks(f, (const u8 *)&accel.shufti.lo,
-                        (const u8 *)&accel.shufti.hi);
-        dumpShuftiCharReach(f, (const u8 *)&accel.shufti.lo,
-                            (const u8 *)&accel.shufti.hi);
+        dumpShuftiMasks(f, reinterpret_cast<const u8 *>(&accel.shufti.lo),
+                        reinterpret_cast<const u8 *>(&accel.shufti.hi));
+        dumpShuftiCharReach(f, reinterpret_cast<const u8 *>(&accel.shufti.lo),
+                            reinterpret_cast<const u8 *>(&accel.shufti.hi));
         break;
     }
     case ACCEL_DSHUFTI:
         fprintf(f, "\n");
         fprintf(f, "mask 1\n");
-        dumpShuftiMasks(f, (const u8 *)&accel.dshufti.lo1,
-                        (const u8 *)&accel.dshufti.hi1);
+        dumpShuftiMasks(f, reinterpret_cast<const u8 *>(&accel.dshufti.lo1),
+                        reinterpret_cast<const u8 *>(&accel.dshufti.hi1));
         fprintf(f, "mask 2\n");
-        dumpShuftiMasks(f, (const u8 *)&accel.dshufti.lo2,
-                        (const u8 *)&accel.dshufti.hi2);
-        dumpDShuftiCharReach(f, (const u8 *)&accel.dshufti.lo1,
-                             (const u8 *)&accel.dshufti.hi1,
-                             (const u8 *)&accel.dshufti.lo2,
-                             (const u8 *)&accel.dshufti.hi2);
+        dumpShuftiMasks(f, reinterpret_cast<const u8 *>(&accel.dshufti.lo2),
+                        reinterpret_cast<const u8 *>(&accel.dshufti.hi2));
+        dumpDShuftiCharReach(f, reinterpret_cast<const u8 *>(&accel.dshufti.lo1),
+                             reinterpret_cast<const u8 *>(&accel.dshufti.hi1),
+                             reinterpret_cast<const u8 *>(&accel.dshufti.lo2),
+                             reinterpret_cast<const u8 *>(&accel.dshufti.hi2));
         break;
     case ACCEL_TRUFFLE: {
         fprintf(f, "\n");
-        dumpTruffleMasks(f, (const u8 *)&accel.truffle.mask1,
-                         (const u8 *)&accel.truffle.mask2);
-        dumpTruffleCharReach(f, (const u8 *)&accel.truffle.mask1,
-                             (const u8 *)&accel.truffle.mask2);
+        dumpTruffleMasks(f, reinterpret_cast<const u8 *>(&accel.truffle.mask1),
+                         reinterpret_cast<const u8 *>(&accel.truffle.mask2));
+        dumpTruffleCharReach(f, reinterpret_cast<const u8 *>(&accel.truffle.mask1),
+                             reinterpret_cast<const u8 *>(&accel.truffle.mask2));
         break;
     }
     default:

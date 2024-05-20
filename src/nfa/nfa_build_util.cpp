@@ -195,7 +195,7 @@ enum NFACategory {NFA_LIMEX, NFA_OTHER};
         = "LimEx "#mlt_size;                                            \
     template<> struct getDescription<LIMEX_NFA_##mlt_size> {            \
         static string call(const void *p) {                             \
-            return getDescriptionLimEx<LIMEX_NFA_##mlt_size>((const NFA *)p); \
+            return getDescriptionLimEx<LIMEX_NFA_##mlt_size>(reinterpret_cast<const NFA *>(p)); \
         }                                                               \
     };)
 

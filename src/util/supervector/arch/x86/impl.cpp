@@ -1112,7 +1112,7 @@ really_inline SuperVector<32> SuperVector<32>::Ones_vshl(uint8_t const N)
 template <>
 really_inline SuperVector<32> SuperVector<32>::loadu(void const *ptr)
 {
-    return {SuperVector<32>(_mm256_loadu_si256((const m256 *)ptr))};
+    return {SuperVector<32>(_mm256_loadu_si256(reinterpret_cast<const m256 *>(ptr)))};
 }
 
 template <>
@@ -1120,7 +1120,7 @@ really_inline SuperVector<32> SuperVector<32>::load(void const *ptr)
 {
     assert(ISALIGNED_N(ptr, alignof(SuperVector::size)));
     ptr = vectorscan_assume_aligned(ptr, SuperVector::size);
-    return {SuperVector<32>(_mm256_load_si256((const m256 *)ptr))};
+    return {SuperVector<32>(_mm256_load_si256(reinterpret_cast<const m256 *>(ptr)))};
 }
 
 template <>
@@ -1128,7 +1128,7 @@ really_inline SuperVector<32> SuperVector<32>::loadu_maskz(void const *ptr, uint
 {
 #ifdef HAVE_AVX512
     u32 mask = (~0ULL) >> (32 - len);
-    SuperVector<32> v = SuperVector<32>(_mm256_mask_loadu_epi8(Zeroes().u.v256[0], mask, (const m256 *)ptr));
+    SuperVector<32> v = SuperVector<32>(_mm256_mask_loadu_epi8(Zeroes().u.v256[0], mask, reinterpret_cast<const m256 *>(ptr)));
     v.print8("v");
     return v;
 #else
@@ -1136,7 +1136,7 @@ really_inline SuperVector<32> SuperVector<32>::loadu_maskz(void const *ptr, uint
     SuperVector<32> mask = Ones_vshr(32 -len);
     mask.print8("mask");
     (Ones() >> (32 - len)).print8("mask");
-    SuperVector<32> v = SuperVector<32>(_mm256_loadu_si256((const m256 *)ptr));
+    SuperVector<32> v = SuperVector<32>(_mm256_loadu_si256(reinterpret_cast<const m256 *>(ptr)));
     v.print8("v");
     return mask & v;
 #endif
@@ -1762,7 +1762,7 @@ really_inline SuperVector<64> SuperVector<64>::operator<<(uint8_t const N) const
 template <>
 really_inline SuperVector<64> SuperVector<64>::loadu(void const *ptr)
 {
-    return {SuperVector<64>(_mm512_loadu_si512((const m512 *)ptr))};
+    return {SuperVector<64>(_mm512_loadu_si512(reinterpret_cast<const m512 *>(ptr)))};
 }
 
 template <>
@@ -1770,7 +1770,7 @@ really_inline SuperVector<64> SuperVector<64>::load(void const *ptr)
 {
     assert(ISALIGNED_N(ptr, alignof(SuperVector::size)));
     ptr = vectorscan_assume_aligned(ptr, SuperVector::size);
-    return {SuperVector<64>(_mm512_load_si512((const m512 *)ptr))};
+    return {SuperVector<64>(_mm512_load_si512(reinterpret_cast<const m512 *>(ptr)))};
 }
 
 template <>
@@ -1778,7 +1778,7 @@ really_inline SuperVector<64> SuperVector<64>::loadu_maskz(void const *ptr, uint
 {
     u64a mask = (~0ULL) >> (64 - len);
     DEBUG_PRINTF("mask = %016llx\n", mask);
-    SuperVector<64> v = SuperVector<64>(_mm512_mask_loadu_epi8(Zeroes().u.v512[0], mask, (const m512 *)ptr));
+    SuperVector<64> v = SuperVector<64>(_mm512_mask_loadu_epi8(Zeroes().u.v512[0], mask, reinterpret_cast<const m512 *>(ptr)));
     v.print8("v");
     return v;
 }

@@ -74,9 +74,9 @@ void dumpLitIndex(const FDRConfirm *fdrc, FILE *f) {
 static
 void dumpConfirms(const void *fdr_base, u32 conf_offset, u32 num_confirms,
                   FILE *f) {
-    const u32 *conf = (const u32 *)((const char *)fdr_base + conf_offset);
+    const u32 *conf = reinterpret_cast<const u32 *>(reinterpret_cast<const char *>(fdr_base) + conf_offset);
     for (u32 i = 0; i < num_confirms; i++) {
-        const auto *fdrc = (const FDRConfirm *)((const char *)conf + conf[i]);
+        const auto *fdrc = reinterpret_cast<const FDRConfirm *>(reinterpret_cast<const char *>(conf) + conf[i]);
         fprintf(f, "    confirm %u\n", i);
         fprintf(f, "      andmsk  0x%016llx\n", fdrc->andmsk);
         fprintf(f, "      mult    0x%016llx\n", fdrc->mult);
@@ -157,7 +157,7 @@ void dumpTeddy(const Teddy *teddy, FILE *f) {
     fprintf(f, "    buckets    %u\n", des->getNumBuckets());
     fprintf(f, "    packed     %s\n", des->packed ? "true" : "false");
     fprintf(f, "    strings    %u\n", teddy->numStrings);
-    fprintf(f, "    size       %zu bytes\n", fdrSize((const FDR *)teddy));
+    fprintf(f, "    size       %zu bytes\n", fdrSize(reinterpret_cast<const FDR *>(teddy)));
     fprintf(f, "    max length %u\n", teddy->maxStringLen);
     fprintf(f, "    floodoff   %u (%x)\n", teddy->floodOffset,
             teddy->floodOffset);
@@ -165,7 +165,7 @@ void dumpTeddy(const Teddy *teddy, FILE *f) {
 
     u32 maskWidth = des->getNumBuckets() / 8;
     size_t headerSize = sizeof(Teddy);
-    const u8 *teddy_base = (const u8 *)teddy;
+    const u8 *teddy_base = reinterpret_cast<const u8 *>(teddy);
     const u8 *baseMsk = teddy_base + ROUNDUP_CL(headerSize);
     dumpTeddyMasks(baseMsk, des->numMasks, maskWidth, f);
     size_t maskLen = des->numMasks * 16 * 2 * maskWidth;
@@ -201,7 +201,7 @@ void dumpFDR(const FDR *fdr, FILE *f) {
 
 void fdrPrintStats(const FDR *fdr, FILE *f) {
     if (fdrIsTeddy(fdr)) {
-        dumpTeddy((const Teddy *)fdr, f);
+        dumpTeddy(reinterpret_cast<const Teddy *>(fdr), f);
     } else {
         dumpFDR(fdr, f);
     }
