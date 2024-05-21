@@ -112,6 +112,7 @@ struct hs_database {
 
 static really_inline
 const void *hs_get_bytecode(const struct hs_database *db) {
+    // cppcheck-suppress cstyleCast
     return ((const char *)db + db->bytecode);
 }
 

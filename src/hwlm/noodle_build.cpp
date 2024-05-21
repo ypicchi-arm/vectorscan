@@ -156,7 +156,7 @@ void noodPrintStats(const noodTable *n, FILE *f) {
             n->msk_len);
     fprintf(f, "String: ");
     for (u32 i = 0; i < n->msk_len; i++) {
-        const u8 *m = (const u8 *)&n->cmp;
+        const u8 *m = reinterpret_cast<const u8 *>(&n->cmp);
         if (isgraph(m[i]) && m[i] != '\\') {
             fprintf(f, "%c", m[i]);
         } else {
