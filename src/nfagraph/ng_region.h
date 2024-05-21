@@ -141,12 +141,14 @@ bool isRegionExit(const Graph &g, NFAVertex v,
 template <class Graph>
 bool isSingletonRegion(const Graph &g, NFAVertex v,
                        const std::unordered_map<NFAVertex, u32> &region_map) {
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &e : in_edges_range(v, g)) {
         auto u = source(e, g);
         if (u != v && inSameRegion(g, v, u, region_map)) {
             return false;
         }
 
+        // cppcheck-suppress useStlAlgorithm
         for (auto w : ue2::adjacent_vertices_range(u, g)) {
             if (w != v && inSameRegion(g, v, w, region_map)) {
                 return false;
@@ -154,11 +156,13 @@ bool isSingletonRegion(const Graph &g, NFAVertex v,
         }
     }
 
+    // cppcheck-suppress useStlAlgorithm
     for (auto w : adjacent_vertices_range(v, g)) {
         if (w != v && inSameRegion(g, v, w, region_map)) {
             return false;
         }
 
+        // cppcheck-suppress useStlAlgorithm
         for (const auto &e : in_edges_range(w, g)) {
             auto u = source(e, g);
             if (u != v && inSameRegion(g, v, u, region_map)) {
@@ -201,7 +205,7 @@ bool isOptionalRegion(const Graph &g, NFAVertex v,
         DEBUG_PRINTF("  searching from u=%zu\n", g[u].index);
 
         assert(inEarlierRegion(g, v, u, region_map));
-
+        // cppcheck-suppress useStlAlgorithm
         for (auto w : adjacent_vertices_range(u, g)) {
             DEBUG_PRINTF("    searching to w=%zu\n", g[w].index);
             if (inLaterRegion(g, v, w, region_map)) {

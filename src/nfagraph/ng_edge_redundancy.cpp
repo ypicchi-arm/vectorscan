@@ -63,6 +63,7 @@ bool checkVerticesFwd(const NGHolder &g, const set<NFAVertex> &sad,
     for (auto u : sad) {
         bool ok = false;
         for (auto v : adjacent_vertices_range(u, g)) {
+            // cppcheck-suppress useStlAlgorithm
             if (contains(happy, v)) {
                 ok = true;
                 break;
@@ -85,6 +86,7 @@ bool checkVerticesRev(const NGHolder &g, const set<NFAVertex> &sad,
     for (auto v : sad) {
         bool ok = false;
         for (auto u : inv_adjacent_vertices_range(v, g)) {
+            // cppcheck-suppress useStlAlgorithm
             if (contains(happy, u)) {
                 ok = true;
                 break;

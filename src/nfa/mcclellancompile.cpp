@@ -55,6 +55,7 @@
 #include <cstring>
 #include <map>
 #include <memory>
+#include <numeric>
 #include <queue>
 #include <set>
 #include <vector>
@@ -529,10 +530,11 @@ size_t calcWideRegionSize(const dfa_info &info) {
     size_t rv = info.wide_symbol_chain.size() * sizeof(u32) + 4;
 
     // wide info body
-    for (const auto &chain : info.wide_symbol_chain) {
-        rv += ROUNDUP_N(chain.size(), 2) +
-              (info.impl_alpha_size + 1) * sizeof(u16) + 2;
-    }
+    auto chainz = [info=info](size_t z, const vector<symbol_t> &chain) {
+        return z + (size_t)(ROUNDUP_N(chain.size(), 2) +   
+               (info.impl_alpha_size + 1) * sizeof(u16) + 2);
+    };
+    rv += std::accumulate(info.wide_symbol_chain.begin(), info.wide_symbol_chain.end(), 0, chainz);
 
     return ROUNDUP_16(rv);
 }

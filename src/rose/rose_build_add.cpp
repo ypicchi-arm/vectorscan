@@ -241,6 +241,7 @@ RoseRoleHistory selectHistory(const RoseBuildImpl &tbi, const RoseBuildData &bd,
 
 static
 bool hasSuccessorLiterals(RoseInVertex iv, const RoseInGraph &ig) {
+    // cppcheck-suppress useStlAlgorithm
     for (auto v : adjacent_vertices_range(iv, ig)) {
         if (ig[v].type != RIV_ACCEPT) {
             return true;
@@ -833,6 +834,7 @@ bool suitableForEod(const RoseInGraph &ig, vector<RoseInVertex> topo,
 
         if (ig[v].type == RIV_ACCEPT) {
             DEBUG_PRINTF("[ACCEPT]\n");
+            // cppcheck-suppress useStlAlgorithm
             for (const auto &e : in_edges_range(v, ig)) {
                 if (!ig[e].graph || !can_only_match_at_eod(*ig[e].graph)) {
                     DEBUG_PRINTF("floating accept\n");
@@ -1057,6 +1059,7 @@ static
 bool predsAreDelaySensitive(const RoseInGraph &ig, RoseInVertex v) {
     assert(in_degree(v, ig));
 
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &e : in_edges_range(v, ig)) {
         if (ig[e].graph || ig[e].haig) {
             DEBUG_PRINTF("edge graph\n");
@@ -1626,6 +1629,7 @@ bool roseCheckRose(const RoseInGraph &ig, bool prefilter,
         graphs.emplace_back(ig[e].graph.get());
     }
 
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &g : graphs) {
         if (!canImplementGraph(*g, prefilter, rm, cc)) {
             return false;
@@ -1930,6 +1934,7 @@ bool RoseBuildImpl::addAnchoredAcyclic(const NGHolder &h) {
     flat_set<u32> added_lit_ids;          /* literal ids added for this NFA */
 
     for (auto v : inv_adjacent_vertices_range(h.accept, h)) {
+        // cppcheck-suppress useStlAlgorithm
         if (!prepAcceptForAddAnchoredNFA(*this, h, v, vertexDepths, depthMap,
                                          reportMap, allocated_reports,
                                          added_lit_ids)) {

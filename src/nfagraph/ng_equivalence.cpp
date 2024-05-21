@@ -197,6 +197,7 @@ bool outIsIrreducible(const NFAVertex &v, const NGHolder &g) {
     unsigned nonSpecialVertices = 0;
     for (auto w : adjacent_vertices_range(v, g)) {
         if (!is_special(w, g) && w != v) {
+            // cppcheck-suppress useStlAlgorithm
             nonSpecialVertices++;
         }
     }
@@ -208,6 +209,7 @@ bool inIsIrreducible(const NFAVertex &v, const NGHolder &g) {
     unsigned nonSpecialVertices = 0;
     for (auto u : inv_adjacent_vertices_range(v, g)) {
         if (!is_special(u, g) && u != v) {
+            // cppcheck-suppress useStlAlgorithm
             nonSpecialVertices++;
         }
     }

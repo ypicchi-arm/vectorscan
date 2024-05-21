@@ -80,11 +80,13 @@ string pathToString(const NGHolder &g, const VertexPath &p) {
 /** True if this graph has no non-special successors of start or startDs. */
 static
 bool graph_is_empty(const NGHolder &g) {
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &v : adjacent_vertices_range(g.start, g)) {
         if (!is_special(v, g)) {
             return false;
         }
     }
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &v : adjacent_vertices_range(g.start, g)) {
         if (!is_special(v, g)) {
             return false;
@@ -468,6 +470,7 @@ void CorpusGeneratorUtf8::generateCorpus(vector<string> &data) {
     }
 
     for (const auto &e : raw) {
+        // cppcheck-suppress useStlAlgorithm
         data.push_back(encodeUtf8(e));
     }
 }
@@ -545,6 +548,7 @@ CorpusGeneratorUtf8::pathToCorpus(const vector<CodePointSet> &path) {
 
     // Generate a corpus from our path
     for (const auto &e : path) {
+        // cppcheck-suppress useStlAlgorithm
         s.push_back(getChar(e));
     }
 

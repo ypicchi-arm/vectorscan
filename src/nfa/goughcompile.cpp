@@ -643,6 +643,7 @@ void GoughSSAVarJoin::generate(UNUSED vector<gough_ins> *out) const {
 
 GoughSSAVar *GoughSSAVarJoin::get_input(const GoughEdge &prev) const {
     for (const auto &var_edge : input_map) {
+        // cppcheck-suppress useStlAlgorithm
         if (contains(var_edge.second, prev)) {
             return var_edge.first;
         }
@@ -985,6 +986,7 @@ void copy_in_blocks(raw_som_dfa &raw, u8 alphaShift, const GoughGraph &cfg,
 }
 
 bool find_normal_self_loop(GoughVertex v, const GoughGraph &g, GoughEdge *out) {
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &e : out_edges_range(v, g)) {
         if (target(e, g) != v) {
             continue;

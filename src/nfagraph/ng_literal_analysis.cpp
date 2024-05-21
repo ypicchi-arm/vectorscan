@@ -46,6 +46,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <numeric>
 #include <queue>
 
 #include <boost/graph/boykov_kolmogorov_max_flow.hpp>
@@ -359,6 +360,7 @@ u64a litUniqueness(const string &s) {
 static
 u64a litCountBits(const ue2_literal &lit) {
     u64a n = 0;
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &c : lit) {
         n += c.nocase ? 7 : 8;
     }
@@ -670,10 +672,8 @@ u64a scoreSet(const set<ue2_literal> &s) {
     }
 
     u64a score = 1ULL;
-
-    for (const auto &lit : s) {
-        score += calculateScore(lit);
-    }
+    auto cscore = [](u64a z, const ue2_literal &lit) { return z + calculateScore(lit); };
+    score += std::accumulate(s.begin(), s.end(), 0, cscore);
 
     return score;
 }

@@ -154,6 +154,7 @@ void predCRIntersection(const NGHolder &g, NFAVertex v, CharReach &add) {
     add.setall();
     for (auto u : inv_adjacent_vertices_range(v, g)) {
         if (u != v) {
+            // cppcheck-suppress useStlAlgorithm
             add &= g[u].char_reach;
         }
     }
@@ -165,6 +166,7 @@ void succCRIntersection(const NGHolder &g, NFAVertex v, CharReach &add) {
     add.setall();
     for (auto u : adjacent_vertices_range(v, g)) {
         if (u != v) {
+            // cppcheck-suppress useStlAlgorithm
             add &= g[u].char_reach;
         }
     }
@@ -195,6 +197,7 @@ set<NFAVertex> findSustainSet(const NGHolder &g, NFAVertex p,
             CharReach sus_cr;
             for (auto v : adjacent_vertices_range(u, g)) {
                 if (contains(cand, v)) {
+                    // cppcheck-suppress useStlAlgorithm
                     sus_cr |= g[v].char_reach;
                 }
             }
@@ -227,6 +230,7 @@ set<NFAVertex> findSustainSet_rev(const NGHolder &g, NFAVertex p,
             CharReach sus_cr;
             for (auto v : inv_adjacent_vertices_range(u, g)) {
                 if (contains(cand, v)) {
+                    // cppcheck-suppress useStlAlgorithm
                     sus_cr |= g[v].char_reach;
                 }
             }
@@ -282,6 +286,7 @@ bool enlargeCyclicVertex(NGHolder &g, som_type som, NFAVertex v) {
             CharReach sustain_cr;
             for (auto pv : adjacent_vertices_range(pp, g)) {
                 if (contains(sustain, pv)) {
+                    // cppcheck-suppress useStlAlgorithm
                     sustain_cr |= g[pv].char_reach;
                 }
             }
@@ -332,6 +337,7 @@ bool enlargeCyclicVertex_rev(NGHolder &g, NFAVertex v) {
             CharReach sustain_cr;
             for (auto pv : inv_adjacent_vertices_range(pp, g)) {
                 if (contains(sustain, pv)) {
+                    // cppcheck-suppress useStlAlgorithm
                     sustain_cr |= g[pv].char_reach;
                 }
             }

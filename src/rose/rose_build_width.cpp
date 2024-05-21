@@ -44,6 +44,7 @@ namespace ue2 {
 
 static
 bool is_end_anchored(const RoseGraph &g, RoseVertex v) {
+    // cppcheck-suppress useStlAlgorithm
     for (auto w : adjacent_vertices_range(v, g)) {
         if (g[w].eod_accept) {
             return true;

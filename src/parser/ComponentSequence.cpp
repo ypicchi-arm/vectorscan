@@ -253,6 +253,7 @@ vector<PositionInfo> ComponentSequence::last() const {
 
 bool ComponentSequence::empty(void) const {
     // a sequence can be empty if all its subcomponents can be empty
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &c : children) {
         if (!c->empty()) {
             return false;
@@ -342,6 +343,7 @@ bool ComponentSequence::checkEmbeddedEndAnchor(bool at_end) const {
 }
 
 bool ComponentSequence::vacuous_everywhere() const {
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &c : children) {
         if (!c->vacuous_everywhere()) {
             return false;

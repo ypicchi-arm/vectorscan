@@ -358,9 +358,8 @@ public:
     // Return the number of bytes scanned
     size_t bytes() const {
         size_t sum = 0;
-        for (const auto &packet : packets) {
-            sum += packet.size();
-        }
+        auto packs = [](size_t z, const string &packet) { return z + packet.size(); };
+        sum += std::accumulate(packets.begin(), packets.end(), 0, packs);
         return sum;
     }
 
@@ -460,9 +459,8 @@ public:
         // dynamic storage.)
         vector<const char *> cstrPatterns;
         cstrPatterns.reserve(patterns.size());
-        for (const auto &pattern : patterns) {
-            cstrPatterns.push_back(pattern.c_str());
-        }
+        auto pstr = [](const string &pattern) { return pattern.c_str(); };
+        std::transform(patterns.begin(), patterns.end(), std::back_inserter(cstrPatterns), pstr);
 
         Clock clock;
         clock.start();

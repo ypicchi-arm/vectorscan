@@ -674,6 +674,7 @@ void validate_fuzzy_compile(const NGHolder &g, u32 edit_distance, bool hamming,
     }
     // graph isn't fuzzable if there are edge assertions anywhere in the graph
     for (auto e : edges_range(g)) {
+        // cppcheck-suppress useStlAlgorithm
         if (g[e].assert_flags) {
             throw CompileError("Zero-width assertions are disallowed for "
                                "approximate matching.");

@@ -44,6 +44,8 @@
 #include "util/container.h"
 #include "util/verify_types.h"
 
+#include <numeric>
+
 using namespace std;
 
 namespace ue2 {

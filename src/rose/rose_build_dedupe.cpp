@@ -307,6 +307,7 @@ bool RoseDedupeAuxImpl::requiresDedupeSupport(
 
     /* literals */
 
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &m : lits) {
         if (m.second > 1) {
             DEBUG_PRINTF("lit %u used by >1 reporting roles\n", m.first);

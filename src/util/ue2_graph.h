@@ -616,12 +616,14 @@ public:
                                                vertex_descriptor v) const {
         if (in_degree_impl(v) < out_degree_impl(u)) {
             for (const edge_descriptor &e : in_edges_range(v, *this)) {
+                // cppcheck-suppress useStlAlgorithm
                 if (source_impl(e) == u) {
                     return {e, true};
                 }
             }
         } else {
             for (const edge_descriptor &e : out_edges_range(u, *this)) {
+                // cppcheck-suppress useStlAlgorithm
                 if (target_impl(e) == v) {
                     return {e, true};
                 }

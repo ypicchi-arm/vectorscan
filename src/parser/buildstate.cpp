@@ -175,6 +175,7 @@ void checkEmbeddedEndAnchor(const PositionInfo &from,
     }
 
     for (const auto &first : firsts) {
+        // cppcheck-suppress useStlAlgorithm
         if (first.pos != GlushkovBuildStateImpl::POS_EPSILON) {
             /* can make it through the parse tree */
             throw ParseError("Embedded end anchors not supported.");

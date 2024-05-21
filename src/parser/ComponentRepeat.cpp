@@ -113,6 +113,7 @@ static
 void checkPositions(const vector<PositionInfo> &v, const GlushkovBuildState &bs) {
     const NFABuilder& builder = bs.getBuilder();
     for (const auto &e : v) {
+        // cppcheck-suppress useStlAlgorithm
         if (builder.isSpecialState(e.pos)) {
             throw ParseError("Embedded anchors not supported.");
         }
@@ -341,6 +342,7 @@ inf_check:
 
 static
 bool hasPositionFlags(const Component &c) {
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &e : c.first()) {
         if (e.flags) {
             return true;

@@ -258,6 +258,7 @@ bool samePredecessors(RoseVertex a, RoseVertex b, const RoseGraph &g) {
             return false;
         }
 
+        // cppcheck-suppress useStlAlgorithm
         for (const auto &e_a : in_edges_range(a, g)) {
             auto edge_result = edge(source(e_a, g), b, g);
             RoseEdge e = edge_result.first;
@@ -275,6 +276,7 @@ bool samePredecessors(RoseVertex a, RoseVertex b, const RoseGraph &g) {
 static
 bool hasCommonSuccWithBadBounds(RoseVertex a, RoseVertex b,
                                 const RoseGraph &g) {
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &e_a : out_edges_range(a, g)) {
         auto edge_result = edge(b, target(e_a, g), g);
         RoseEdge e = edge_result.first;
@@ -296,6 +298,7 @@ bool hasCommonSuccWithBadBounds(RoseVertex a, RoseVertex b,
 static
 bool hasCommonPredWithBadBounds(RoseVertex a, RoseVertex b,
                                 const RoseGraph &g) {
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &e_a : in_edges_range(a, g)) {
         auto edge_result = edge(source(e_a, g), b, g);
         RoseEdge e = edge_result.first;
@@ -334,8 +337,10 @@ bool canMergeLiterals(RoseVertex a, RoseVertex b, const RoseBuildImpl &build) {
     }
 
     // Otherwise, all the literals involved must have the same length.
+    // cppcheck-suppress useStlAlgorithm
     for (u32 a_id : lits_a) {
         const rose_literal_id &la = build.literals.at(a_id);
+        // cppcheck-suppress useStlAlgorithm
         for (u32 b_id : lits_b) {
             const rose_literal_id &lb = build.literals.at(b_id);
 
@@ -705,6 +710,7 @@ bool hasCommonPredWithDiffRoses(RoseVertex a, RoseVertex b,
 
     const bool equal_roses = hasEqualLeftfixes(a, b, g);
 
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &e_a : in_edges_range(a, g)) {
         auto edge_result = edge(source(e_a, g), b, g);
         RoseEdge e = edge_result.first;
@@ -731,6 +737,7 @@ void pruneReportIfUnused(const RoseBuildImpl &build, shared_ptr<NGHolder> h,
     DEBUG_PRINTF("trying to prune %u from %p (v %zu)\n", report, h.get(),
                  verts.size());
     for (RoseVertex v : verts) {
+        // cppcheck-suppress useStlAlgorithm
         if (build.g[v].left.graph == h &&
             build.g[v].left.leftfix_report == report) {
             DEBUG_PRINTF("report %u still in use\n", report);
@@ -1947,6 +1954,7 @@ bool hasNoDiamondSiblings(const RoseGraph &g, RoseVertex v) {
     if (has_successor(v, g)) {
         bool only_succ = true;
         for (const auto &w : adjacent_vertices_range(v, g)) {
+            // cppcheck-suppress useStlAlgorithm
             if (in_degree(w, g) > 1) {
                 only_succ = false;
                 break;
@@ -1963,6 +1971,7 @@ bool hasNoDiamondSiblings(const RoseGraph &g, RoseVertex v) {
 
     bool only_pred = true;
     for (const auto &u : inv_adjacent_vertices_range(v, g)) {
+        // cppcheck-suppress useStlAlgorithm
         if (out_degree(u, g) > 1) {
             only_pred = false;
             break;

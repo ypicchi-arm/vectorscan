@@ -71,6 +71,7 @@ void getTeddyDescriptions(vector<TeddyEngineDescription> *out) {
     };
     out->clear();
     for (const auto &def : defns) {
+        // cppcheck-suppress useStlAlgorithm
         out->emplace_back(def);
     }
 }
@@ -123,6 +124,7 @@ bool isAllowed(const vector<hwlmLiteral> &vl, const TeddyEngineDescription &eng,
         u32 n_small_lits = 0;
         for (const auto &lit : vl) {
             if (lit.s.length() < eng.numMasks) {
+                // cppcheck-suppress useStlAlgorithm
                 n_small_lits++;
             }
         }
@@ -204,6 +206,7 @@ unique_ptr<TeddyEngineDescription> getTeddyDescription(u32 engineID) {
     getTeddyDescriptions(&descs);
 
     for (const auto &desc : descs) {
+        // cppcheck-suppress useStlAlgorithm
         if (desc.getID() == engineID) {
             return std::make_unique<TeddyEngineDescription>(desc);
         }

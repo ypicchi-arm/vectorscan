@@ -253,6 +253,7 @@ void checkForMultilineStart(ReportManager &rm, NGHolder &g,
 
 static
 bool hasAssertVertices(const NGHolder &g) {
+    // cppcheck-suppress useStlAlgorithm
     for (auto v : vertices_range(g)) {
         int flags = g[v].assert_flags;
         if (flags & WORDBOUNDARY_FLAGS) {

@@ -241,6 +241,7 @@ bool mergeDfas(vector<unique_ptr<raw_dfa>> &dfas, const ReportManager &rm,
     vector<const raw_dfa *> dfa_ptrs;
     dfa_ptrs.reserve(dfas.size());
     for (auto &d : dfas) {
+        // cppcheck-suppress useStlAlgorithm
         dfa_ptrs.emplace_back(d.get());
     }
 
@@ -331,6 +332,7 @@ bool add_to_trie(const ue2_literal &literal, ReportID report, LitTrie &trie) {
     for (const auto &c : literal) {
         auto next = LitTrie::null_vertex();
         for (auto v : adjacent_vertices_range(u, trie)) {
+            // cppcheck-suppress useStlAlgorithm
             if (trie[v].c == (u8)c.c) {
                 next = v;
                 break;
@@ -409,6 +411,7 @@ struct ACVisitor : public boost::default_bfs_visitor {
         while (u != trie.root) {
             auto f = failure_map.at(u);
             for (auto w : adjacent_vertices_range(f, trie)) {
+                // cppcheck-suppress useStlAlgorithm
                 if (trie[w].c == c) {
                     return w;
                 }

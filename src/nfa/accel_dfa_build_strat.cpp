@@ -182,6 +182,7 @@ vector<vector<CharReach>> generate_paths(const raw_dfa &rdfa,
     vector<vector<CharReach>> rv;
     rv.reserve(paths.size());
     for (auto &p : paths) {
+        // cppcheck-suppress useStlAlgorithm
         rv.emplace_back(vector<CharReach>(std::make_move_iterator(p.reach.begin()),
                                        std::make_move_iterator(p.reach.end())));
     }

@@ -347,6 +347,7 @@ private:
 
 static
 bool isFloodProne(const map<s32, CharReach> &look, const CharReach &flood_cr) {
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &m : look) {
         const CharReach &look_cr = m.second;
         if (!overlaps(look_cr, flood_cr)) {
@@ -365,6 +366,7 @@ bool isFloodProne(const map<s32, CharReach> &look,
         return false;
     }
 
+    // cppcheck-suppress useStlAlgorithm
     for (const CharReach &flood_cr : flood_reach) {
         if (isFloodProne(look, flood_cr)) {
             return true;
@@ -748,6 +750,7 @@ bool getTransientPrefixReach(const NGHolder &g, ReportID report, u32 lag,
             assert(!is_special(v, g));
 
             for (auto u : inv_adjacent_vertices_range(v, g)) {
+                // cppcheck-suppress useStlAlgorithm
                 if (u == g.start || u == g.startDs) {
                     curr[idx] = g.startDs;
                     break;

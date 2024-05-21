@@ -208,6 +208,7 @@ u32 countRosePrefixes(const vector<LeftNfaInfo> &roses) {
     u32 num = 0;
     for (const auto &r : roses) {
         if (!r.infix) {
+            // cppcheck-suppress useStlAlgorithm
             num++;
         }
     }
@@ -242,6 +243,7 @@ bool needsCatchup(const RoseBuildImpl &build) {
 
     const RoseGraph &g = build.g;
 
+    // cppcheck-suppress useStlAlgorithm
     for (auto v : vertices_range(g)) {
         if (g[v].suffix) {
             /* TODO: check that they have non-eod reports */
@@ -304,6 +306,7 @@ bool isPureFloating(const RoseResources &resources, const CompileContext &cc) {
 
 static
 bool isSingleOutfix(const RoseBuildImpl &tbi) {
+    // cppcheck-suppress useStlAlgorithm
     for (auto v : vertices_range(tbi.g)) {
         if (tbi.isAnyStart(v)) {
             continue;
@@ -986,6 +989,7 @@ bool checkSuitableForEager(bool is_prefix, const left_id &left,
         return false;
     }
 
+    // cppcheck-suppress useStlAlgorithm
     for (RoseVertex s : vsuccs) {
         if (build.isInETable(s)
             || contains(rg[s].literals, build.eod_event_literal_id)) {
@@ -1599,6 +1603,7 @@ void findSuffixTriggers(const RoseBuildImpl &tbi,
 
 static
 bool hasNonSmallBlockOutfix(const vector<OutfixInfo> &outfixes) {
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &out : outfixes) {
         if (!out.in_sbmatcher) {
             return true;
@@ -1948,6 +1953,7 @@ bool buildSuffixes(const RoseBuildImpl &tbi, build_context &bc,
     // order.
     vector<pair<u32, suffix_id>> ordered;
     for (const auto &e : bc.suffixes) {
+        // cppcheck-suppress useStlAlgorithm
         ordered.emplace_back(e.second, e.first);
     }
     sort(begin(ordered), end(ordered));
@@ -2285,6 +2291,7 @@ u32 buildEodNfaIterator(build_context &bc, const u32 activeQueueCount) {
 
 static
 bool hasMpvTrigger(const set<u32> &reports, const ReportManager &rm) {
+    // cppcheck-suppress useStlAlgorithm
     for (u32 r : reports) {
         if (rm.getReport(r).type == INTERNAL_ROSE_CHAIN) {
             return true;
@@ -2315,6 +2322,7 @@ bool anyEndfixMpvTriggers(const RoseBuildImpl &build) {
     }
 
     /* outfixes */
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &out : build.outfixes) {
         if (hasMpvTrigger(all_reports(out), build.rm)) {
             return true;
@@ -2598,6 +2606,7 @@ unordered_map<RoseVertex, u32> assignStateIndices(const RoseBuildImpl &build) {
         // eagerly-reported EOD vertices.
         bool needs_state_index = false;
         for (const auto &e : out_edges_range(v, g)) {
+            // cppcheck-suppress useStlAlgorithm
             if (!canEagerlyReportAtEod(build, e)) {
                 needs_state_index = true;
                 break;
@@ -2788,6 +2797,7 @@ bool isUsedLiteral(const RoseBuildImpl &build, u32 lit_id) {
         return true;
     }
 
+    // cppcheck-suppress useStlAlgorithm
     for (const u32 &delayed_id : info.delayed_ids) {
         assert(delayed_id < build.literal_info.size());
         const rose_literal_info &delayed_info = build.literal_info[delayed_id];
@@ -3218,6 +3228,7 @@ pair<u32, u32> buildReportPrograms(const RoseBuildImpl &build,
 static
 bool hasEodAnchoredSuffix(const RoseBuildImpl &build) {
     const RoseGraph &g = build.g;
+    // cppcheck-suppress useStlAlgorithm
     for (auto v : vertices_range(g)) {
         if (g[v].suffix && build.isInETable(v)) {
             DEBUG_PRINTF("vertex %zu is in eod table and has a suffix\n",
@@ -3231,6 +3242,7 @@ bool hasEodAnchoredSuffix(const RoseBuildImpl &build) {
 static
 bool hasEodMatcher(const RoseBuildImpl &build) {
     const RoseGraph &g = build.g;
+    // cppcheck-suppress useStlAlgorithm
     for (auto v : vertices_range(g)) {
         if (build.isInETable(v)) {
             DEBUG_PRINTF("vertex %zu is in eod table\n", g[v].index);

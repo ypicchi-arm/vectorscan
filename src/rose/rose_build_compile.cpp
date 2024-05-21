@@ -96,6 +96,7 @@ bool limited_explosion(const ue2_literal &s) {
 
     for (const auto &e : s) {
         if (e.nocase) {
+            // cppcheck-suppress useStlAlgorithm
             nc_count++;
         }
     }
@@ -268,6 +269,7 @@ bool RoseBuildImpl::isPseudoStarOrFirstOnly(const RoseEdge &e) const {
 }
 
 bool RoseBuildImpl::hasOnlyPseudoStarInEdges(RoseVertex v) const {
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &e : in_edges_range(v, g)) {
         if (!isPseudoStar(e)) {
             return false;
@@ -413,6 +415,7 @@ bool RoseBuildImpl::isDirectReport(u32 id) const {
         }
 
         // Use the program to handle cases that aren't external reports.
+        // cppcheck-suppress useStlAlgorithm
         for (const ReportID &rid : g[v].reports) {
             if (!isExternalReport(rm.getReport(rid))) {
                 return false;
@@ -451,6 +454,7 @@ bool RoseBuildImpl::isDirectReport(u32 id) const {
  * larger than avoiding running an eod table over the last N bytes. */
 static
 bool checkFloatingKillableByPrefixes(const RoseBuildImpl &tbi) {
+    // cppcheck-suppress useStlAlgorithm
     for (auto v : vertices_range(tbi.g)) {
         if (!tbi.isRootSuccessor(v)) {
             continue;
@@ -699,6 +703,7 @@ bool suitableForAnchored(const RoseBuildImpl &tbi, const rose_literal_id &l_id,
             return false;
         }
 
+        // cppcheck-suppress useStlAlgorithm
         for (auto w : adjacent_vertices_range(v, g)) {
             if (!g[w].eod_accept) {
                 DEBUG_PRINTF("non eod accept literal\n");
@@ -771,6 +776,7 @@ bool RoseBuildImpl::isDelayed(u32 id) const {
 }
 
 bool RoseBuildImpl::hasDelayedLiteral(RoseVertex v) const {
+    // cppcheck-suppress useStlAlgorithm
     for (u32 lit_id : g[v].literals) {
         if (literals.at(lit_id).delay) {
             return true;
@@ -781,6 +787,7 @@ bool RoseBuildImpl::hasDelayedLiteral(RoseVertex v) const {
 }
 
 bool RoseBuildImpl::hasDelayPred(RoseVertex v) const {
+    // cppcheck-suppress useStlAlgorithm
     for (auto u : inv_adjacent_vertices_range(v, g)) {
         if (hasDelayedLiteral(u)) {
             return true;
@@ -791,6 +798,7 @@ bool RoseBuildImpl::hasDelayPred(RoseVertex v) const {
 }
 
 bool RoseBuildImpl::hasAnchoredTablePred(RoseVertex v) const {
+    // cppcheck-suppress useStlAlgorithm
     for (auto u : inv_adjacent_vertices_range(v, g)) {
         if (isAnchored(u)) {
             return true;
@@ -956,6 +964,7 @@ bool reduceTopTriggerLoad(RoseBuildImpl &build, NGHolder &h, RoseVertex u) {
     u32 new_top = ~0U;
     /* check if there is already a top with the right the successor set */
     for (const auto &elem : h_top_info) {
+        // cppcheck-suppress useStlAlgorithm
         if (elem.second == edges_to_trigger) {
             new_top = elem.first;
             break;
@@ -1497,6 +1506,7 @@ bool extractSEPLiterals(const raw_dfa &rdfa,
 
         CharReach cr;
         for (const auto &sym : symbols) {
+            // cppcheck-suppress useStlAlgorithm
             cr |= reach[sym];
         }
 
@@ -1522,6 +1532,7 @@ bool extractSEPLiterals(const OutfixInfo &outfix, const ReportManager &rm,
         return false;
     }
 
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &report_id : all_reports(outfix)) {
         const auto &report = rm.getReport(report_id);
         if (!isSimpleExhaustible(report)) {
@@ -1556,6 +1567,7 @@ void addAnchoredSmallBlockLiterals(RoseBuildImpl &tbi) {
     // literals are direct reports (i.e. leaf nodes in the Rose graph).
     for (const set<u32> &lits : tbi.anchored_simple | map_values) {
         for (u32 lit_id : lits) {
+            // cppcheck-suppress useStlAlgorithm
             if (!tbi.isDirectReport(lit_id)) {
                 DEBUG_PRINTF("not all anchored lits are direct reports\n");
                 return;

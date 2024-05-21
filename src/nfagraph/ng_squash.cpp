@@ -280,9 +280,8 @@ void findDerivedSquashers(const NGHolder &g, const vector<NFAVertex> &vByIndex,
                           const unordered_map<NFAVertex, u32> &region_map,
                           smgb_cache &cache) {
     deque<NFAVertex> remaining;
-    for (const auto &m : *squash) {
-        remaining.emplace_back(m.first);
-    }
+    auto mfirst = [](const pair<NFAVertex, NFAStateSet> &m) { return m.first; };
+    std::transform(squash->begin(), squash->end(), std::back_inserter(remaining), mfirst);
 
     while (!remaining.empty()) {
         NFAVertex v = remaining.back();

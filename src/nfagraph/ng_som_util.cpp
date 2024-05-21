@@ -152,6 +152,7 @@ bool firstMatchIsFirst(const NGHolder &p) {
     /* run the prefix the main graph */
     states = execute_graph(p, p, states);
 
+    // cppcheck-suppress useStlAlgorithm
     for (auto v : states) {
         /* need to check if this vertex may represent an infix match - ie
          * it does not have an edge to accept. */
@@ -253,6 +254,7 @@ bool somMayGoBackwards(NFAVertex u, const NGHolder &g,
             continue;
         }
         for (auto v : adjacent_vertices_range(t, g)) {
+            // cppcheck-suppress useStlAlgorithm
             if (contains(u_succ, v)) {
                 /* due to virtual starts being aliased with normal starts in the
                  * copy of the graph, we may have already added the edges. */

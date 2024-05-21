@@ -292,6 +292,7 @@ void stripCheckHandledInstruction(RoseProgram &prog) {
 /** Returns true if the program may read the interpreter's work_done flag */
 static
 bool reads_work_done_flag(const RoseProgram &prog) {
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &ri : prog) {
         if (dynamic_cast<const RoseInstrSquashGroups *>(ri.get())) {
             return true;
@@ -914,6 +915,7 @@ void makeRoleGroups(const RoseGraph &g, ProgramBuild &prog_build,
     assert(in_degree(v, g) > 0);
     rose_group already_on = ~rose_group{0};
     for (const auto &u : inv_adjacent_vertices_range(v, g)) {
+        // cppcheck-suppress useStlAlgorithm
         already_on &= prog_build.vertex_group_map.at(u);
     }
 
@@ -2020,6 +2022,7 @@ bool onlyAtEod(const RoseBuildImpl &tbi, RoseVertex v) {
         return false;
     }
 
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &e : out_edges_range(v, g)) {
         RoseVertex w = target(e, g);
         if (!g[w].eod_accept) {
