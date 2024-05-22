@@ -126,8 +126,8 @@ void nfaExecLbrTruf_dump(const NFA *nfa, const string &base) {
     const lbr_truf *lt = reinterpret_cast<const lbr_truf *>(getImplNfa(nfa));
     lbrDumpCommon(&lt->common, f);
 
-    CharReach cr = truffle2cr((const u8 *)(&lt->mask1),
-                              (const u8 *)(&lt->mask2));
+    CharReach cr = truffle2cr(reinterpret_cast<const u8 *>(&lt->mask1),
+                              reinterpret_cast<const u8 *>(&lt->mask2));
     fprintf(f, "TRUFFLE model, scanning for: %s (%zu chars)\n",
             describeClass(cr, 20, CC_OUT_TEXT).c_str(), cr.count());
     fprintf(f, "\n");
