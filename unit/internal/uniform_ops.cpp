@@ -52,7 +52,6 @@ TEST(Uniform, loadstore_u8) {
     for (int i = 0; i < 8; i++) {
         u8 in = 1 << i;
         const char *cin = reinterpret_cast<const char *>(&in);
-        // cppcheck-suppress cstyleCast
         u8 out = load_u8(cin);
         EXPECT_EQ(in, out);
         char ALIGN_DIRECTIVE stored[1];
@@ -65,7 +64,6 @@ TEST(Uniform, loadstore_u16) {
     for (int i = 0; i < 16; i++) {
         u16 in = 1 << i;
         const char *cin = reinterpret_cast<const char *>(&in);
-        // cppcheck-suppress cstyleCast
         u16 out = load_u16(cin);
         EXPECT_EQ(in, out);
         void *stored = aligned_zmalloc(2);
@@ -79,7 +77,6 @@ TEST(Uniform, loadstore_u32) {
     for (int i = 0; i < 32; i++) {
         u32 in = 1U << i;
         const char *cin = reinterpret_cast<const char *>(&in);
-        // cppcheck-suppress cstyleCast
         u32 out = load_u32(cin);
         EXPECT_EQ(in, out);
         void *stored = aligned_zmalloc(32/8);
@@ -93,7 +90,6 @@ TEST(Uniform, loadstore_u64a) {
     for (int i = 0; i < 64; i++) {
         u64a in = 1ULL << i;
         const char *cin = reinterpret_cast<const char *>(&in);
-        // cppcheck-suppress cstyleCast
         u64a out = load_u64a(cin);
         EXPECT_EQ(in, out);
         void *stored = aligned_zmalloc(64/8);
