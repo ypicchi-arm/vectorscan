@@ -53,9 +53,11 @@ void hwlmGenerateDumpFiles(const HWLM *h, const string &base) {
 
     switch (h->type) {
     case HWLM_ENGINE_NOOD:
+        // cppcheck-suppress cstyleCast
         noodPrintStats(reinterpret_cast<const noodTable *>(HWLM_C_DATA(h)), f);
         break;
     case HWLM_ENGINE_FDR:
+        // cppcheck-suppress cstyleCast
         fdrPrintStats(reinterpret_cast<const FDR *>(HWLM_C_DATA(h)), f);
         break;
     default:

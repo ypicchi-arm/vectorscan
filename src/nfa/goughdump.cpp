@@ -123,7 +123,7 @@ void describeNode(const NFA *n, const mcclellan *m, u16 i, FILE *f) {
 
     if (aux->accel_offset) {
         dumpAccelDot(f, i,
-          &((const gough_accel *)(reinterpret_cast<const char *>(m) + aux->accel_offset))->accel);
+          &(reinterpret_cast<const gough_accel *>(reinterpret_cast<const char *>(m) + aux->accel_offset))->accel);
     }
 
     if (aux->accept_eod) {
