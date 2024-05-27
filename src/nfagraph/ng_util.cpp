@@ -776,12 +776,14 @@ bool allMatchStatesHaveReports(const NGHolder &g) {
 
 bool isCorrectlyTopped(const NGHolder &g) {
     if (is_triggered(g)) {
+        // cppcheck-suppress useStlAlgorithm
         for (const auto &e : out_edges_range(g.start, g)) {
             if (g[e].tops.empty() != (target(e, g) == g.startDs)) {
                 return false;
             }
         }
     } else {
+        // cppcheck-suppress useStlAlgorithm
         for (const auto &e : out_edges_range(g.start, g)) {
             if (!g[e].tops.empty()) {
                 return false;

@@ -336,7 +336,7 @@ void nfaExecGough16_dumpText(const struct NFA *nfa, FILE *f) {
             m->state_count, m->length);
     fprintf(f, "astart: %hu, fstart: %hu\n", m->start_anchored,
             m->start_floating);
-    fprintf(f, "single accept: %d\n", !!(int)m->flags & MCCLELLAN_FLAG_SINGLE);
+    fprintf(f, "single accept: %d\n", !!(m->flags & MCCLELLAN_FLAG_SINGLE));
     fprintf(f, "sherman_limit: %u, sherman_end: %u\n", m->sherman_limit,
             m->sherman_end);
 

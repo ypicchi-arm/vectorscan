@@ -113,7 +113,7 @@ void dumpTeddyDupMasks(const u8 *dmsk, u32 numMasks, FILE *f) {
     u32 maskWidth = 2;
     fprintf(f, "    dup nibble masks:\n");
     for (u32 i = 0; i < numMasks * 2; i++) {
-        fprintf(f, "      -%d%s: ", 1 + i / 2, (i % 2) ? "hi" : "lo");
+        fprintf(f, "      -%u%s: ", 1 + i / 2, (i % 2) ? "hi" : "lo");
         for (u32 j = 0; j < 16 * maskWidth * 2; j++) {
             u8 val = dmsk[i * 16 * maskWidth * 2 + j];
             for (u32 k = 0; k < 8; k++) {
@@ -131,7 +131,7 @@ void dumpTeddyMasks(const u8 *baseMsk, u32 numMasks, u32 maskWidth, FILE *f) {
     // dump nibble masks
     fprintf(f, "    nibble masks:\n");
     for (u32 i = 0; i < numMasks * 2; i++) {
-        fprintf(f, "      -%d%s: ", 1 + i / 2, (i % 2) ? "hi" : "lo");
+        fprintf(f, "      -%u%s: ", 1 + i / 2, (i % 2) ? "hi" : "lo");
         for (u32 j = 0; j < 16 * maskWidth; j++) {
             u8 val = baseMsk[i * 16 * maskWidth + j];
             for (u32 k = 0; k < 8; k++) {

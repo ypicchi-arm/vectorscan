@@ -105,6 +105,7 @@ void writeSentinel(mpv_puffette *out) {
 static
 void writeDeadPoint(mpv_kilopuff *out, const vector<raw_puff> &puffs) {
     for (const auto &puff : puffs) {
+        // cppcheck-suppress useStlAlgorithm
         if (puff.unbounded) { /* mpv can never die */
             out->dead_point = MPV_DEAD_VALUE;
             return;
@@ -313,6 +314,7 @@ static
 const mpv_counter_info &findCounter(const vector<mpv_counter_info> &counters,
                                     u32 i) {
     for (const auto &counter : counters) {
+        // cppcheck-suppress useStlAlgorithm
         if (i >= counter.kilo_begin && i < counter.kilo_end) {
             return counter;
         }

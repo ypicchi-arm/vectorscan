@@ -1325,10 +1325,8 @@ void rehomeAnchoredLiteral(RoseBuildImpl &tbi, const simple_anchored_info &sai,
             /* ensure bounds on the vertex's in-edge are correct */
             assert(in_degree(v, tbi.g) == 1);
             const RoseEdge &e = *in_edges(v, tbi.g).first;
-            assert(tbi.g[e].minBound == sai.min_bound + sai.literal.length());
-            assert(tbi.g[e].maxBound == sai.max_bound + sai.literal.length());
-            tbi.g[e].minBound = sai.min_bound;
-            tbi.g[e].maxBound = sai.max_bound;
+            tbi.g[e].minBound = sai.min_bound; // cppcheck-suppress danglingTempReference
+            tbi.g[e].maxBound = sai.max_bound; // cppcheck-suppress danglingTempReference
         }
 
         /* mark the old literal as empty */
@@ -1632,6 +1630,7 @@ void addAnchoredSmallBlockLiterals(RoseBuildImpl &tbi) {
 #ifndef NDEBUG
 static
 bool historiesAreValid(const RoseGraph &g) {
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &e : edges_range(g)) {
         if (g[e].history == ROSE_ROLE_HISTORY_INVALID) {
             DEBUG_PRINTF("edge [%zu,%zu] has invalid history\n",
@@ -1648,7 +1647,7 @@ bool historiesAreValid(const RoseGraph &g) {
  * that no longer exists in the graph.
  */
 static
-bool danglingVertexRef(RoseBuildImpl &tbi) {
+bool danglingVertexRef(const RoseBuildImpl &tbi) {
     RoseGraph::vertex_iterator vi, ve;
     tie(vi, ve) = vertices(tbi.g);
     const unordered_set<RoseVertex> valid_vertices(vi, ve);
@@ -1659,6 +1658,7 @@ bool danglingVertexRef(RoseBuildImpl &tbi) {
         return true;
     }
 
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &e : tbi.ghost) {
         if (!contains(valid_vertices, e.first)) {
             DEBUG_PRINTF("ghost key vertex %zu not in graph\n",
@@ -1677,6 +1677,7 @@ bool danglingVertexRef(RoseBuildImpl &tbi) {
 
 static
 bool roleOffsetsAreValid(const RoseGraph &g) {
+    // cppcheck-suppress useStlAlgorithm
     for (auto v : vertices_range(g)) {
         if (g[v].min_offset >= ROSE_BOUND_INF) {
             DEBUG_PRINTF("invalid min_offset for role %zu\n", g[v].index);

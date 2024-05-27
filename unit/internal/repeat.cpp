@@ -66,6 +66,7 @@ ostream& operator<<(ostream &os, const RepeatInfo &info) {
 
 class RepeatTest : public TestWithParam<RepeatTestInfo> {
 protected:
+    RepeatTest() = default;
     virtual void SetUp() {
         test_info = GetParam();
 
@@ -94,12 +95,12 @@ protected:
         delete [] state_int;
     }
 
-    RepeatTestInfo test_info; // Test params
-    RepeatInfo info; // Repeat info structure
-    RepeatControl *ctrl;
-    char *state;
+    RepeatTestInfo test_info{}; // Test params
+    RepeatInfo info{}; // Repeat info structure
+    RepeatControl *ctrl = nullptr;
+    char *state = nullptr;
 private:
-    char *state_int;
+    char *state_int = nullptr;
 
 };
 
@@ -728,6 +729,7 @@ void test_sparse3entryExpire(const RepeatInfo *info, RepeatControl *ctrl,
 
 class SparseOptimalTest : public TestWithParam<tuple<u32, RepeatTestInfo> > {
 protected:
+    SparseOptimalTest() = default;
     virtual void SetUp() {
         u32 period;
         tie(period, test_info) = GetParam();
@@ -773,13 +775,13 @@ protected:
         delete[] ptr;
     }
 
-    RepeatTestInfo test_info; // Test params
-    RepeatInfo *info; // Repeat info structure
-    RepeatControl *ctrl;
-    char *state;
+    RepeatTestInfo test_info{}; // Test params
+    RepeatInfo *info = nullptr; // Repeat info structure
+    RepeatControl *ctrl = nullptr;
+    char *state = nullptr;
 private:
-    char *ptr;
-    char *state_int;
+    char *ptr = nullptr;
+    char *state_int = nullptr;
 
 };
 

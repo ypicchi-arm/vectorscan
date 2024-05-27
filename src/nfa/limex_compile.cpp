@@ -140,6 +140,7 @@ reindexByStateId(const unordered_map<NFAVertex, NFAStateSet> &in,
         for (size_t i = m.second.find_first(); i != m.second.npos;
              i = m.second.find_next(i)) {
             u32 state_id = indexToState[i];
+	    // cppcheck-suppress knownConditionTrueFalse
             if (state_id == NO_STATE) {
                 continue;
             }
@@ -586,6 +587,7 @@ bool containsBadSubset(const limex_accel_info &accel,
         subset = state_set;
         subset.reset(j);
 
+        // cppcheck-suppress knownConditionTrueFalse
         if (effective_sds != NO_STATE && subset.count() == 1 &&
             subset.test(effective_sds)) {
             continue;
@@ -1088,6 +1090,7 @@ void buildAccepts(const build_info &args, ReportListCache &reports_cache,
     for (auto v : vertices_range(h)) {
         u32 state_id = args.state_ids.at(v);
 
+        // cppcheck-suppress knownConditionTrueFalse
         if (state_id == NO_STATE || !is_match_vertex(v, h)) {
             continue;
         }
@@ -1147,6 +1150,7 @@ u32 compressedStateSize(const NGHolder &h, const NFAStateSet &maskedStates,
 
     for (auto v : vertices_range(h)) {
         u32 i = state_ids.at(v);
+        // cppcheck-suppress knownConditionTrueFalse
         if (i == NO_STATE || maskedStates.test(i)) {
             continue;
         }
@@ -1172,6 +1176,7 @@ bool hasSquashableInitDs(const build_info &args) {
 
     NFAStateSet initDs(args.num_states);
     u32 sds_state = args.state_ids.at(h.startDs);
+    // cppcheck-suppress knownConditionTrueFalse
     if (sds_state == NO_STATE) {
         DEBUG_PRINTF("no states in initds\n");
         return false;
@@ -1232,6 +1237,7 @@ void findMaskedCompressionStates(const build_info &args,
         // Rose leftfixes can mask out initds, which is worth doing if it will
         // stay on forever (i.e. it's not squashable).
         u32 sds_i = args.state_ids.at(h.startDs);
+        // cppcheck-suppress knownConditionTrueFalse
         if (sds_i != NO_STATE && !hasSquashableInitDs(args)) {
             maskedStates.set(sds_i);
             DEBUG_PRINTF("masking out initds state\n");
@@ -1247,6 +1253,7 @@ void findMaskedCompressionStates(const build_info &args,
         for (const auto &e : edges_range(h)) {
             u32 from = args.state_ids.at(source(e, h));
             u32 to = args.state_ids.at(target(e, h));
+            // cppcheck-suppress knownConditionTrueFalse
             if (from == NO_STATE) {
                 continue;
             }
@@ -1254,6 +1261,7 @@ void findMaskedCompressionStates(const build_info &args,
             // We cannot mask out EOD accepts, as they have to perform an
             // action after they're switched on that may be delayed until the
             // next stream write.
+            // cppcheck-suppress knownConditionTrueFalse
             if (to == NO_STATE && target(e, h) != h.acceptEod) {
                 continue;
             }
@@ -1404,6 +1412,7 @@ u32 buildExceptionMap(const build_info &args, ReportListCache &reports_cache,
     for (auto v : vertices_range(h)) {
         const u32 i = args.state_ids.at(v);
 
+        // cppcheck-suppress knownConditionTrueFalse
         if (i == NO_STATE) {
             continue;
         }
@@ -1487,6 +1496,7 @@ u32 buildExceptionMap(const build_info &args, ReportListCache &reports_cache,
                 }
                 u32 j = args.state_ids.at(w);
                 // j can be NO_STATE if args.state_ids.at(w) returns NO_STATE
+                // cppcheck-suppress knownConditionTrueFalse
                 if (j == NO_STATE) {
                     continue;
                 }
@@ -1559,6 +1569,7 @@ u32 findMaxVarShift(const build_info &args, u32 nShifts) {
     for (const auto &e : edges_range(h)) {
         u32 from = args.state_ids.at(source(e, h));
         u32 to = args.state_ids.at(target(e, h));
+        // cppcheck-suppress knownConditionTrueFalse
         if (from == NO_STATE || to == NO_STATE) {
             continue;
         }
@@ -1588,6 +1599,7 @@ int getLimexScore(const build_info &args, u32 nShifts) {
     for (const auto &e : edges_range(h)) {
         u32 from = args.state_ids.at(source(e, h));
         u32 to = args.state_ids.at(target(e, h));
+        // cppcheck-suppress knownConditionTrueFalse
         if (from == NO_STATE || to == NO_STATE) {
             continue;
         }
@@ -1836,6 +1848,7 @@ struct Factory {
         u32 s_i = args.state_ids.at(h.start);
         u32 sds_i = args.state_ids.at(h.startDs);
 
+        // cppcheck-suppress knownConditionTrueFalse
         if (s_i != NO_STATE) {
             maskSetBit(limex->init, s_i);
             if (is_triggered(h)) {
@@ -1843,6 +1856,7 @@ struct Factory {
             }
         }
 
+        // cppcheck-suppress knownConditionTrueFalse
         if (sds_i != NO_STATE) {
             maskSetBit(limex->init, sds_i);
             maskSetBit(limex->initDS, sds_i);
@@ -1878,6 +1892,7 @@ struct Factory {
         for (const auto &e : edges_range(h)) {
             u32 from = args.state_ids.at(source(e, h));
             u32 to = args.state_ids.at(target(e, h));
+            // cppcheck-suppress knownConditionTrueFalse
             if (from == NO_STATE || to == NO_STATE) {
                 continue;
             }
@@ -1916,6 +1931,7 @@ struct Factory {
         for (const auto &e : edges_range(h)) {
             u32 from = args.state_ids.at(source(e, h));
             u32 to = args.state_ids.at(target(e, h));
+            // cppcheck-suppress knownConditionTrueFalse
             if (from == NO_STATE || to == NO_STATE) {
                 continue;
             }
@@ -2458,6 +2474,7 @@ bool isSane(const NGHolder &h, const map<u32, set<NFAVertex>> &tops,
             return false;
         }
         const u32 i = state_ids.at(v);
+        // cppcheck-suppress knownConditionTrueFalse
         if (i == NO_STATE) {
             continue;
         }
@@ -2538,6 +2555,7 @@ bool isFast(const build_info &args) {
                     continue;
                 }
                 u32 j = args.state_ids.at(w);
+                // cppcheck-suppress knownConditionTrueFalse
                 if (j == NO_STATE) {
                     continue;
                 }

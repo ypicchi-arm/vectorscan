@@ -101,7 +101,7 @@ void dumpHeader(FILE *f, const sheng *s) {
     fprintf(f, "aux base offset: %u, reports base offset: %u, "
                "accel offset: %u\n",
             s->aux_offset, s->report_offset, s->accel_offset);
-    fprintf(f, "anchored start state: %u, floating start state: %u\n",
+    fprintf(f, "anchored start state: %d, floating start state: %d\n",
             s->anchored & SHENG_STATE_MASK, s->floating & SHENG_STATE_MASK);
     fprintf(f, "has accel: %u can die: %u single report: %u\n",
             !!(s->flags & SHENG_FLAG_HAS_ACCEL),
@@ -116,7 +116,7 @@ void dumpHeader32(FILE *f, const sheng32 *s) {
     fprintf(f, "aux base offset: %u, reports base offset: %u, "
                "accel offset: %u\n",
             s->aux_offset, s->report_offset, s->accel_offset);
-    fprintf(f, "anchored start state: %u, floating start state: %u\n",
+    fprintf(f, "anchored start state: %d, floating start state: %d\n",
             s->anchored & SHENG32_STATE_MASK, s->floating & SHENG32_STATE_MASK);
     fprintf(f, "has accel: %u can die: %u single report: %u\n",
             !!(s->flags & SHENG_FLAG_HAS_ACCEL),
@@ -131,7 +131,7 @@ void dumpHeader64(FILE *f, const sheng64 *s) {
     fprintf(f, "aux base offset: %u, reports base offset: %u, "
                "accel offset: %u\n",
             s->aux_offset, s->report_offset, s->accel_offset);
-    fprintf(f, "anchored start state: %u, floating start state: %u\n",
+    fprintf(f, "anchored start state: %d, floating start state: %d\n",
             s->anchored & SHENG64_STATE_MASK, s->floating & SHENG64_STATE_MASK);
     fprintf(f, "has accel: %u can die: %u single report: %u\n",
             !!(s->flags & SHENG_FLAG_HAS_ACCEL),
@@ -182,9 +182,9 @@ void dumpMasks(FILE *f, const sheng *s) {
         for (u32 pos = 0; pos < 16; pos++) {
             u8 c = buf[pos];
             if (c & SHENG_STATE_FLAG_MASK) {
-                fprintf(f, "%2u* ", c & SHENG_STATE_MASK);
+                fprintf(f, "%2d* ", c & SHENG_STATE_MASK);
             } else {
-                fprintf(f, "%2u  ", c & SHENG_STATE_MASK);
+                fprintf(f, "%2d  ", c & SHENG_STATE_MASK);
             }
         }
         fprintf(f, "\n");
@@ -202,9 +202,9 @@ void dumpMasks32(FILE *f, const sheng32 *s) {
         for (u32 pos = 0; pos < 64; pos++) {
             u8 c = buf[pos];
             if (c & SHENG32_STATE_FLAG_MASK) {
-                fprintf(f, "%2u* ", c & SHENG32_STATE_MASK);
+                fprintf(f, "%2d* ", c & SHENG32_STATE_MASK);
             } else {
-                fprintf(f, "%2u  ", c & SHENG32_STATE_MASK);
+                fprintf(f, "%2d  ", c & SHENG32_STATE_MASK);
             }
         }
         fprintf(f, "\n");
@@ -222,9 +222,9 @@ void dumpMasks64(FILE *f, const sheng64 *s) {
         for (u32 pos = 0; pos < 64; pos++) {
             u8 c = buf[pos];
             if (c & SHENG64_STATE_FLAG_MASK) {
-                fprintf(f, "%2u* ", c & SHENG64_STATE_MASK);
+                fprintf(f, "%2d* ", c & SHENG64_STATE_MASK);
             } else {
-                fprintf(f, "%2u  ", c & SHENG64_STATE_MASK);
+                fprintf(f, "%2d  ", c & SHENG64_STATE_MASK);
             }
         }
         fprintf(f, "\n");
@@ -358,7 +358,7 @@ void dumpDotPreambleDfa(FILE *f) {
 template <typename T>
 static
 void describeNode(UNUSED const NFA *n, UNUSED const T *s, UNUSED u16 i,
-                  UNUSED FILE *f) {
+                  UNUSED FILE *f) { // cppcheck-suppress constParameterPointer
 }
 
 template <>

@@ -115,6 +115,7 @@ bool isRegionEntry(const Graph &g, NFAVertex v,
                    const std::unordered_map<NFAVertex, u32> &region_map) {
     // Note that some graph types do not have inv_adjacent_vertices, so we must
     // use in_edges here.
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &e : in_edges_range(v, g)) {
         if (!inSameRegion(g, v, source(e, g), region_map)) {
             return true;
@@ -128,6 +129,7 @@ bool isRegionEntry(const Graph &g, NFAVertex v,
 template <class Graph>
 bool isRegionExit(const Graph &g, NFAVertex v,
                   const std::unordered_map<NFAVertex, u32> &region_map) {
+    // cppcheck-suppress useStlAlgorithm
     for (auto w : adjacent_vertices_range(v, g)) {
         if (!inSameRegion(g, v, w, region_map)) {
             return true;

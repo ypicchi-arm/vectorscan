@@ -210,7 +210,6 @@ u32 countStates(const unordered_map<NFAVertex, u32> &state_ids) {
     u32 max_state = 0;
     for (const auto &m : state_ids) {
         if (m.second != NO_STATE) {
-            // cppcheck-suppress useStlAlgorithm
             max_state = max(m.second, max_state);
         }
     }

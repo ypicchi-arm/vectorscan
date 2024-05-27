@@ -210,6 +210,7 @@ set<ReportID> all_reports(const raw_dfa &rdfa) {
 }
 
 bool has_eod_accepts(const raw_dfa &rdfa) {
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &ds : rdfa.states) {
         if (!ds.reports_eod.empty()) {
             return true;
@@ -219,6 +220,7 @@ bool has_eod_accepts(const raw_dfa &rdfa) {
 }
 
 bool has_non_eod_accepts(const raw_dfa &rdfa) {
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &ds : rdfa.states) {
         if (!ds.reports.empty()) {
             return true;

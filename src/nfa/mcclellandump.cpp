@@ -360,7 +360,7 @@ void dumpCommonHeader(FILE *f, const mcclellan *m) {
     fprintf(f, "astart: %hu, fstart: %hu\n", m->start_anchored,
             m->start_floating);
     fprintf(f, "single accept: %d, has_accel: %d\n",
-            !!(int)m->flags & MCCLELLAN_FLAG_SINGLE, m->has_accel);
+            !!(m->flags & MCCLELLAN_FLAG_SINGLE), m->has_accel);
 }
 
 static

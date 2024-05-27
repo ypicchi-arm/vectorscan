@@ -1421,6 +1421,7 @@ void dumpProgram(ofstream &os, const RoseEngine *t, const char *pc) {
                 os << "    base_offset " << ri->base_offset << endl;
                 os << "    last_start " << ri->last_start << endl;
                 os << "    fail_jump " << offset + ri->fail_jump << endl;
+		// cppcheck-suppress pointerOutOfBounds
                 dumpMultipathShufti(os, 16, ri->nib_mask, ri->nib_mask + 16,
                                     ri->bucket_select_mask,
                                     ri->data_select_mask,
@@ -1868,6 +1869,7 @@ void dumpComponentInfoCsv(const RoseEngine *t, const string &base) {
             }
         }
 
+	// cppcheck-suppress invalidPrintfArgType_sint
         fprintf(f, "%u,%zd,\"%s\",%u,%u,%u,%s,%s\n", i,
                 (reinterpret_cast<const char *>(n) - reinterpret_cast<const char *>(t)), describe(*n).c_str(),
                 n->nPositions, n->streamStateSize, n->length,

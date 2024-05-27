@@ -278,7 +278,7 @@ int main(){
             // we imitate the noodle unit tests
             std::string str;
             const size_t char_len = 5;
-            str.resize(char_len + 1);
+            str.resize(char_len + 2);
             for (size_t j = 0; j < char_len; j++) {
                 srand(time(NULL));
                 int key = rand() % +36;

@@ -131,7 +131,7 @@ buildTamarama(const TamaInfo &tamaInfo, const u32 queue,
         sizeof(u32) * subSize + 64; // offsets to subengines in bytecode and
                                     // padding for subengines
 
-    auto subl = [](size_t z, NFA *sub) {
+    auto subl = [](size_t z, const NFA *sub) {
         return z + (size_t)(ROUNDUP_CL(sub->length));
     };
     total_size += std::accumulate(tamaInfo.subengines.begin(), tamaInfo.subengines.end(), 0, subl);

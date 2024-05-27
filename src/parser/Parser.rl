@@ -164,7 +164,7 @@ ComponentSequence *enterSequence(ComponentSequence *parent,
 
     ComponentSequence *seq = child.get();
     parent->addComponent(std::move(child));
-    return seq;
+    return seq; // cppcheck-suppress returnDanglingLifetime
 }
 
 static

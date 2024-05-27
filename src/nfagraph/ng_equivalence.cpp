@@ -220,6 +220,7 @@ bool inIsIrreducible(const NFAVertex &v, const NGHolder &g) {
  * just a chain of vertices with no other edges. */
 static
 bool isIrreducible(const NGHolder &g) {
+    // cppcheck-suppress useStlAlgorithm
     for (auto v : vertices_range(g)) {
         // skip specials
         if (is_special(v, g)) {
@@ -244,11 +245,13 @@ bool isIrreducible(const NGHolder &g) {
 #ifndef NDEBUG
 static
 bool hasEdgeAsserts(NFAVertex v, const NGHolder &g) {
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &e : in_edges_range(v, g)) {
         if (g[e].assert_flags != 0) {
             return true;
         }
     }
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &e : out_edges_range(v, g)) {
         if (g[e].assert_flags != 0) {
             return true;

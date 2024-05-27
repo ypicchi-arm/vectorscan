@@ -138,7 +138,7 @@ vector<u32> getValidFdrEngines() {
 
 
 static
-bytecode_ptr<FDR> buildFDREngineHinted(std::vector<hwlmLiteral> &lits,
+bytecode_ptr<FDR> buildFDREngineHinted(const std::vector<hwlmLiteral> &lits,
                                        bool make_small, u32 hint,
                                        const target_t &target,
                                        const Grey &grey) {
@@ -151,7 +151,7 @@ bytecode_ptr<FDR> buildFDREngineHinted(std::vector<hwlmLiteral> &lits,
 }
 
 static
-bytecode_ptr<FDR> buildFDREngine(std::vector<hwlmLiteral> &lits,
+bytecode_ptr<FDR> buildFDREngine(const std::vector<hwlmLiteral> &lits,
                                  bool make_small, const target_t &target,
                                  const Grey &grey) {
     auto proto = fdrBuildProto(HWLM_ENGINE_FDR, lits, make_small, target, grey);

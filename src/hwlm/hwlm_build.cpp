@@ -93,6 +93,7 @@ void dumpLits(UNUSED const vector<hwlmLiteral> &lits) {
 // Called by an assertion.
 static
 bool everyoneHasGroups(const vector<hwlmLiteral> &lits) {
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &lit : lits) {
         if (!lit.groups) {
             return false;

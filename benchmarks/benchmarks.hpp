@@ -61,7 +61,7 @@ public:
     std::vector<u8> buf;
 
     // Noodle
-    struct hs_scratch scratch;
+    struct hs_scratch scratch{};
     ue2::bytecode_ptr<noodTable> nt;
 
     MicroBenchmark(char const *label_, size_t size_)

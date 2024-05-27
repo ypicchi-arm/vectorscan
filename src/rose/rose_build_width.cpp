@@ -65,7 +65,7 @@ u32 findMinWidth(const RoseBuildImpl &tbi, enum rose_literal_table table) {
     const RoseGraph &g = tbi.g;
 
     vector<RoseVertex> table_verts;
-    auto tvs = [&tbi=tbi, &table=table](const RoseVertex &v) {
+    auto tvs = [&tbi=tbi, table](const RoseVertex &v) {
         return (tbi.hasLiteralInTable(v, table));
     };
     const auto &vr = vertices_range(g);
@@ -189,7 +189,7 @@ u32 findMaxBAWidth(const RoseBuildImpl &tbi, enum rose_literal_table table) {
                   table == ROSE_FLOATING ? "floating" : "anchored");
 
     vector<RoseVertex> table_verts;
-    auto tvs = [&tbi=tbi, &table=table](const RoseVertex &v) {
+    auto tvs = [&tbi=tbi, table](const RoseVertex &v) {
         return ((table == ROSE_FLOATING && tbi.isFloating(v))
                || (table == ROSE_ANCHORED && tbi.isAnchored(v)));
     };

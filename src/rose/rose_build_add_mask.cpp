@@ -188,7 +188,7 @@ bool expandFmlCandidates(const CharReach &cr, vector<ue2_literal> &curr,
         }
     }
 
-    if (curr.back().length() > MAX_MASK2_WIDTH &&
+    if (!curr.empty() && curr.back().length() > MAX_MASK2_WIDTH &&
         any_of(begin(curr), end(curr), mixed_sensitivity)) {
         DEBUG_PRINTF("mixed-sensitivity lit is too long, stopping\n");
         return false;

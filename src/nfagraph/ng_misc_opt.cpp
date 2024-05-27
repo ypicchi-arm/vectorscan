@@ -482,6 +482,7 @@ vector<CharReach> reduced_cr(const NGHolder &g,
 
 static
 bool anyOutSpecial(NFAVertex v, const NGHolder &g) {
+    // cppcheck-suppress useStlAlgorithm
     for (auto w : adjacent_vertices_range(v, g)) {
         if (is_special(w, g) && w != v) {
             return true;

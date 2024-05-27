@@ -223,7 +223,7 @@ class CorpusGeneratorImpl : public CorpusGenerator {
 public:
     CorpusGeneratorImpl(const NGHolder &graph_in, const ExpressionInfo &expr_in,
                         CorpusProperties &props);
-    virtual ~CorpusGeneratorImpl() = default;
+    virtual ~CorpusGeneratorImpl() override = default;
 
     void generateCorpus(vector<string> &data) override;
 
@@ -419,7 +419,7 @@ class CorpusGeneratorUtf8 : public CorpusGenerator {
 public:
     CorpusGeneratorUtf8(const NGHolder &graph_in, const ExpressionInfo &expr_in,
                         CorpusProperties &props);
-    ~CorpusGeneratorUtf8() = default;
+    virtual ~CorpusGeneratorUtf8() override = default;
 
     void generateCorpus(vector<string> &data) override;
 

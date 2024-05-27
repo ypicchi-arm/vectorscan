@@ -138,7 +138,7 @@ template<NFAEngineType t>
 static
 string getDescriptionLimEx(const NFA *nfa) {
     const typename NFATraits<t>::implNFA_t *limex =
-        (const typename NFATraits<t>::implNFA_t *)getImplNfa(nfa);
+        reinterpret_cast<const typename NFATraits<t>::implNFA_t *>(getImplNfa(nfa));
     ostringstream oss;
     oss << NFATraits<t>::name << "/" << limex->exceptionCount;
     if (limex->repeatCount) {

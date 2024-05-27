@@ -227,8 +227,6 @@ void describeClass(ostream &os, const CharReach &incr, size_t maxLength,
     int out_count = describeClassInt(out, incr, maxLength, out_type);
 
     std::ostringstream neg;
-    UNUSED int neg_count = describeClassInt(neg, ~incr, maxLength, out_type);
-
     if (out.tellp() <= neg.tellp()) {
         if (out_count > 1) {
             os << '[' << out.str() << ']';

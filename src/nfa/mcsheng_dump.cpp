@@ -530,7 +530,7 @@ void dumpCommonHeader(FILE *f, const mcsheng *m) {
     fprintf(f, "astart: %hu, fstart: %hu\n", m->start_anchored,
             m->start_floating);
     fprintf(f, "single accept: %d, has_accel: %d\n",
-            !!(int)m->flags & MCSHENG_FLAG_SINGLE, m->has_accel);
+            !!(m->flags & MCSHENG_FLAG_SINGLE), m->has_accel);
     fprintf(f, "sheng_end:         %hu\n", m->sheng_end);
     fprintf(f, "sheng_accel_limit: %hu\n", m->sheng_accel_limit);
 }
@@ -655,7 +655,7 @@ void dumpCommonHeader64(FILE *f, const mcsheng64 *m) {
     fprintf(f, "astart: %hu, fstart: %hu\n", m->start_anchored,
             m->start_floating);
     fprintf(f, "single accept: %d, has_accel: %d\n",
-            !!(int)m->flags & MCSHENG_FLAG_SINGLE, m->has_accel);
+            !!(m->flags & MCSHENG_FLAG_SINGLE), m->has_accel);
     fprintf(f, "sheng_end:         %hu\n", m->sheng_end);
     fprintf(f, "sheng_accel_limit: %hu\n", m->sheng_accel_limit);
 }

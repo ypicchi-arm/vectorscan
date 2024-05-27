@@ -1496,6 +1496,7 @@ void transformSuffixDelay(RoseInGraph &ig, const CompileContext &cc) {
 #ifndef NDEBUG
 static
 bool validateKinds(const RoseInGraph &g) {
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &e : edges_range(g)) {
         if (g[e].graph && g[e].graph->kind != whatRoseIsThis(g, e)) {
             return false;
@@ -1934,10 +1935,9 @@ bool RoseBuildImpl::addAnchoredAcyclic(const NGHolder &h) {
     flat_set<u32> added_lit_ids;          /* literal ids added for this NFA */
 
     for (auto v : inv_adjacent_vertices_range(h.accept, h)) {
-        // cppcheck-suppress useStlAlgorithm
         if (!prepAcceptForAddAnchoredNFA(*this, h, v, vertexDepths, depthMap,
                                          reportMap, allocated_reports,
-                                         added_lit_ids)) {
+                                         added_lit_ids)) { // cppcheck-suppress useStlAlgorithm
             removeAddedLiterals(*this, added_lit_ids);
             return false;
         }

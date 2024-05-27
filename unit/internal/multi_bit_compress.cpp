@@ -94,11 +94,11 @@ public:
     }
     operator u8 *() {
         assert(data);
-        return data.get() + 7;
+        return reinterpret_cast<u8 *>(data.get()) + 7;
     }
     operator const u8 *() const {
         assert(data);
-        return data.get() + 7;
+        return reinterpret_cast<u8 *>(data.get()) + 7;
     }
 
 private:
@@ -116,11 +116,11 @@ public:
     }
     operator u8 *() {
         assert(data);
-        return data.get() + 7;
+        return reinterpret_cast<u8 *>(data.get()) + 7;
     }
     operator const u8 *() const {
         assert(data);
-        return data.get() + 7;
+        return reinterpret_cast<u8 *>(data.get()) + 7;
     }
 
 private:

@@ -737,8 +737,8 @@ void pruneReportIfUnused(const RoseBuildImpl &build, shared_ptr<NGHolder> h,
     DEBUG_PRINTF("trying to prune %u from %p (v %zu)\n", report, h.get(),
                  verts.size());
     for (RoseVertex v : verts) {
-        // cppcheck-suppress useStlAlgorithm
         if (build.g[v].left.graph == h &&
+            // cppcheck-suppress useStlAlgorithm
             build.g[v].left.leftfix_report == report) {
             DEBUG_PRINTF("report %u still in use\n", report);
             return;

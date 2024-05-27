@@ -595,6 +595,7 @@ void GoughSSAVarNew::generate(vector<gough_ins> *out) const {
 #ifndef NDEBUG
 template<typename C, typename K>
 bool contains_loose(const C &container, const K &key) {
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &elem : container) {
         if (elem == key) {
             return true;
@@ -986,7 +987,6 @@ void copy_in_blocks(raw_som_dfa &raw, u8 alphaShift, const GoughGraph &cfg,
 }
 
 bool find_normal_self_loop(GoughVertex v, const GoughGraph &g, GoughEdge *out) {
-    // cppcheck-suppress useStlAlgorithm
     for (const auto &e : out_edges_range(v, g)) {
         if (target(e, g) != v) {
             continue;

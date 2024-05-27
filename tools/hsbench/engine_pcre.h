@@ -54,7 +54,7 @@ struct CompilePCREStats {
 class EnginePCREContext : public EngineContext{
 public:
     explicit EnginePCREContext(int capture_cnt);
-    ~EnginePCREContext();
+    virtual ~EnginePCREContext() override;
 
     int *ovec = nullptr;
 };
@@ -72,7 +72,7 @@ class EnginePCRE : public Engine {
 public:
     explicit EnginePCRE(std::vector<std::unique_ptr<PcreDB>> dbs_in,
                         CompilePCREStats cs, int capture_cnt_in);
-    ~EnginePCRE();
+    virtual ~EnginePCRE() override;
 
     std::unique_ptr<EngineContext> makeContext() const override;
 

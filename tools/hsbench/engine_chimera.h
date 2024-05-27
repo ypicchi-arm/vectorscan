@@ -55,7 +55,7 @@ struct CompileCHStats {
 class EngineCHContext : public EngineContext{
 public:
     explicit EngineCHContext(const ch_database_t *db);
-    ~EngineCHContext();
+    virtual ~EngineCHContext() override;
 
     ch_scratch_t *scratch = nullptr;
 };
@@ -64,7 +64,7 @@ public:
 class EngineChimera : public Engine {
 public:
     explicit EngineChimera(ch_database_t *db, CompileCHStats cs);
-    ~EngineChimera();
+    virtual ~EngineChimera() override;
 
     std::unique_ptr<EngineContext> makeContext() const override;
 

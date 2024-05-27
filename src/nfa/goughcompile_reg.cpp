@@ -50,8 +50,8 @@ namespace ue2 {
 
 template<typename VarP, typename VarQ>
 void emplace_back_all_raw(vector<VarP> *out, const vector<VarQ> &in) {
-    // cppcheck-suppress useStlAlgorithm
     for (const auto &var : in) {
+        // cppcheck-suppress useStlAlgorithm
         out->emplace_back(var.get());
     }
 }

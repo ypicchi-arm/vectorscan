@@ -463,6 +463,7 @@ void blowoutPathsLessStrictSegment(vector<vector<CharReach> > &paths) {
     /* paths segments which are a superset of an earlier segment should never be
      * picked as an acceleration segment -> to improve processing just replace
      * with dot */
+    // cppcheck-suppress constVariableReference
     for (auto &p : paths) {
         for (auto it = p.begin(); it != p.end();  ++it) {
             for (auto jt = next(it); jt != p.end(); ++jt) {

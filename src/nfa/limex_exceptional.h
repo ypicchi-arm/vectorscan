@@ -322,6 +322,7 @@ int PE_FN(STATE_ARG, ESTATE_ARG, UNUSED u32 diffmask, STATE_T *succ,
 #ifdef ARCH_64_BIT
         t >>= 1; // Due to diffmask64, which leaves holes in the bitmask.
 #endif
+	// cppcheck-suppress unsignedLessThanZero
         assert(t < ARRAY_LENGTH(chunks));
         CHUNK_T word = chunks[t];
         assert(word != 0);

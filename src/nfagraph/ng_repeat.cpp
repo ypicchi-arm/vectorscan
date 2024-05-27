@@ -2181,6 +2181,7 @@ bool hasOverlappingRepeats(UNUSED const NGHolder &g,
             DEBUG_PRINTF("already seen pos %zu\n", g[br.pos_trigger].index);
             return true;
         }
+        // cppcheck-suppress useStlAlgorithm
         for (auto v : br.tug_triggers) {
             if (contains(involved, v)) {
                 DEBUG_PRINTF("already seen tug %zu\n", g[v].index);

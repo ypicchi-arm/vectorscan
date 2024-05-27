@@ -537,14 +537,14 @@ really_inline SuperVector<16> SuperVector<16>::Ones_vshl(uint8_t const N)
 template <>
 really_inline SuperVector<16> SuperVector<16>::loadu(void const *ptr)
 {
-    return SuperVector<16>(vec_xl(0, (const long64_t*)ptr));
+    return SuperVector<16>(vec_xl(0, reinterpret_cast<const long64_t*>(ptr)));
 }
 
 template <>
 really_inline SuperVector<16> SuperVector<16>::load(void const *ptr)
 {
     assert(ISALIGNED_N(ptr, alignof(SuperVector::size)));
-    return SuperVector<16>(vec_xl(0, (const long64_t*)ptr));
+    return SuperVector<16>(vec_xl(0, reinterpret_cast<const long64_t*>(ptr)));
 }
 
 template <>

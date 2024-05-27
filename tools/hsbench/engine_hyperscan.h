@@ -56,7 +56,7 @@ struct CompileHSStats {
 class EngineHSContext : public EngineContext {
 public:
     explicit EngineHSContext(const hs_database_t *db);
-    ~EngineHSContext();
+    virtual ~EngineHSContext() override;
 
     hs_scratch_t *scratch = nullptr;
 };
@@ -64,7 +64,7 @@ public:
 /** Streaming mode scans have persistent stream state associated with them. */
 class EngineHSStream : public EngineStream {
 public:
-    ~EngineHSStream();
+    virtual ~EngineHSStream() override;
     hs_stream_t *id = nullptr;
     EngineHSContext *ctx = nullptr;
 };
@@ -73,7 +73,7 @@ public:
 class EngineHyperscan : public Engine {
 public:
     explicit EngineHyperscan(hs_database_t *db, CompileHSStats cs);
-    ~EngineHyperscan();
+    virtual ~EngineHyperscan() override;
 
     std::unique_ptr<EngineContext> makeContext() const override;
 

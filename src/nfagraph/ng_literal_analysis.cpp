@@ -360,8 +360,8 @@ u64a litUniqueness(const string &s) {
 static
 u64a litCountBits(const ue2_literal &lit) {
     u64a n = 0;
-    // cppcheck-suppress useStlAlgorithm
     for (const auto &c : lit) {
+        // cppcheck-suppress useStlAlgorithm
         n += c.nocase ? 7 : 8;
     }
     return n;
@@ -491,8 +491,8 @@ vector<LitEdge> add_reverse_edges_and_index(LitGraph &lg) {
     vector<LitEdge> fwd_edges;
     fwd_edges.reserve(edge_count);
 
-    const auto &e = edges_range(lg);
-    std::copy(begin(e), end(e),  std::back_inserter(fwd_edges));
+    const auto &er = edges_range(lg);
+    std::copy(begin(er), end(er),  std::back_inserter(fwd_edges));
 
     vector<LitEdge> rev_map(2 * edge_count);
 
@@ -881,6 +881,7 @@ bool literalIsWholeGraph(const NGHolder &g, const ue2_literal &lit) {
     }
 
     // Our last value for v should have only start states for predecessors.
+    // cppcheck-suppress useStlAlgorithm
     for (auto u : inv_adjacent_vertices_range(v, g)) {
         if (!is_any_start(u, g)) {
             DEBUG_PRINTF("pred is not start\n");

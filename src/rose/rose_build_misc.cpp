@@ -1027,6 +1027,7 @@ bool hasOrphanedTops(const RoseBuildImpl &build) {
     }
 
     for (const auto &e : leftfixes) {
+        // cppcheck-suppress useStlAlgorithm
         if (all_tops(e.first) != e.second) {
             DEBUG_PRINTF("rose tops (%s) don't match rose graph (%s)\n",
                          as_string_list(all_tops(e.first)).c_str(),
@@ -1036,6 +1037,7 @@ bool hasOrphanedTops(const RoseBuildImpl &build) {
     }
 
     for (const auto &e : suffixes) {
+        // cppcheck-suppress useStlAlgorithm
         if (all_tops(e.first) != e.second) {
             DEBUG_PRINTF("suffix tops (%s) don't match rose graph (%s)\n",
                          as_string_list(all_tops(e.first)).c_str(),

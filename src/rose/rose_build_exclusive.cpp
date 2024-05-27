@@ -140,6 +140,7 @@ static
 bool isSuffix(const vector<vector<CharReach>> &triggers1,
               const vector<vector<CharReach>> &triggers2) {
     // literal suffix test
+    // cppcheck-suppress useStlAlgorithm
     for (const auto &lit1 : triggers1) {
         // cppcheck-suppress useStlAlgorithm
         for (const auto &lit2 : triggers2) {

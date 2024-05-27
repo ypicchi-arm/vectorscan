@@ -192,6 +192,7 @@ void *count_malloc(size_t n) {
     *(reinterpret_cast<size_t *>(pp)) = n;
     void *p = static_cast<char *>(pp) + 16;
 
+    // cppcheck-suppress memleak
     return p;
 }
 
@@ -218,6 +219,7 @@ void *count_malloc_b(size_t n) {
     *(reinterpret_cast<size_t *>(pp)) = n;
     void *p = static_cast<char *>(pp) + 32;
 
+    // cppcheck-suppress memleak
     return p;
 }
 

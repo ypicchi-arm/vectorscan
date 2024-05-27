@@ -99,7 +99,8 @@ public:
     const NFABuilder &getBuilder() const override { return builder; }
 
     /** \brief Wire up the lasts of one component to the firsts of another. */
-    void connectRegions(const vector<PositionInfo> &lasts,
+    // cppcheck-suppress virtualCallInConstructor
+    virtual void connectRegions(const vector<PositionInfo> &lasts,
                         const vector<PositionInfo> &firsts) override;
 
     /** \brief Wire the lasts of the main sequence to accepts. */
