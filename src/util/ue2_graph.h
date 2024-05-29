@@ -796,6 +796,9 @@ public:
         explicit prop_map(value_type P_of::*m_in) : member(m_in) { }
 
         reference operator[](key_type k) const {
+            if (k.raw() == nullptr || &(k.raw()->props) == nullptr) {
+                throw std::invalid_argument("Invalid key");
+            }
             return k.raw()->props.*member;
         }
         reference operator()(key_type k) const { return (*this)[k]; }

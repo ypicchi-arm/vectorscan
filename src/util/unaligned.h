@@ -58,6 +58,9 @@ u32 unaligned_load_u32(const void *ptr) {
 /// Perform an unaligned 64-bit load
 static really_inline
 u64a unaligned_load_u64a(const void *ptr) {
+    if (ptr == NULL) {
+        return 0;  // Return a default value
+    }
     struct unaligned { u64a u; } PACKED__MAY_ALIAS;
     // cppcheck-suppress cstyleCast
     const struct unaligned *uptr = (const struct unaligned *)ptr;
