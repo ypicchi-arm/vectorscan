@@ -67,7 +67,7 @@ char SHENG_IMPL(u8 *state, NfaCallback cb, void *ctxt, const struct sheng *s,
 
         if (unlikely(ACCEPT_FUNC(tmp))) {
             DEBUG_PRINTF("Accept state %u reached\n", tmp & SHENG_STATE_MASK);
-            u64a match_offset = base_offset + (cur_buf - buf) + 1;
+            u64a match_offset = base_offset + (cur_buf - buf) + 1;  //NOLINT (clang-analyzer-deadcode.DeadStores)
             DEBUG_PRINTF("Match @ %llu\n", match_offset);
             if (STOP_AT_MATCH) {
                 DEBUG_PRINTF("Stopping at match @ %lli\n",
