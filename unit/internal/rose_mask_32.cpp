@@ -40,9 +40,9 @@ union RoseLookaroundMask32 {
 
 struct ValidateMask32TestInfo {
     RoseLookaroundMask32 data;
-    u32 valid_mask;
     RoseLookaroundMask32 and_mask;
     RoseLookaroundMask32 cmp_mask;
+    u32 valid_mask;
     u32 neg_mask;
 };
 

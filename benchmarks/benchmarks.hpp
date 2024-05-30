@@ -41,8 +41,12 @@
 
 class MicroBenchmark {
 public:
+    struct hs_scratch scratch{};
     char const *label;
     size_t size;
+    std::vector<u8> buf;
+    ue2::bytecode_ptr<noodTable> nt;
+    ue2::CharReach chars;
 
     // Shufti/Truffle
     union {
@@ -57,12 +61,6 @@ public:
 #endif
         };
     };
-    ue2::CharReach chars;
-    std::vector<u8> buf;
-
-    // Noodle
-    struct hs_scratch scratch{};
-    ue2::bytecode_ptr<noodTable> nt;
 
     MicroBenchmark(char const *label_, size_t size_)
         : label(label_), size(size_), buf(size_){};
