@@ -185,8 +185,8 @@ void findPaths(const NGHolder &g, CorpusProperties &cProps,
                 continue;
             }
 
-            if (p && !contains(one_way_in, v) &&
-                has_greater_than(p->begin(), p->end(), v, cycleLimit)) {
+            if (!contains(one_way_in, v) &&
+                has_greater_than(p->begin(), p->end(), v, cycleLimit)) {    //NOLINT (clang-analyzer-cplusplus.Move)
                 // Note that vertices that only have one predecessor don't need
                 // their cycle limit checked, as their predecessors will have
                 // the same count.
