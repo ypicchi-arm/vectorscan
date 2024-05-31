@@ -129,7 +129,7 @@ char SHENG_IMPL(u8 *state, NfaCallback cb, void *ctxt, const struct sheng *s,
 
         if (unlikely(INTERESTING_FUNC(a1, a2, a3, a4))) {
             if (ACCEPT_FUNC(a1)) {
-                u64a match_offset = base_offset + b1 - buf;
+                u64a match_offset = base_offset + b1 - buf; //NOLINT (clang-analyzer-deadcode.DeadStores)
                 DEBUG_PRINTF("Accept state %u reached\n",
                              a1 & SHENG_STATE_MASK);
                 DEBUG_PRINTF("Match @ %llu\n", match_offset);
@@ -154,7 +154,7 @@ char SHENG_IMPL(u8 *state, NfaCallback cb, void *ctxt, const struct sheng *s,
                 }
             }
             if (ACCEPT_FUNC(a2)) {
-                u64a match_offset = base_offset + b2 - buf;
+                u64a match_offset = base_offset + b2 - buf; //NOLINT (clang-analyzer-deadcode.DeadStores)
                 DEBUG_PRINTF("Accept state %u reached\n",
                              a2 & SHENG_STATE_MASK);
                 DEBUG_PRINTF("Match @ %llu\n", match_offset);
@@ -179,7 +179,7 @@ char SHENG_IMPL(u8 *state, NfaCallback cb, void *ctxt, const struct sheng *s,
                 }
             }
             if (ACCEPT_FUNC(a3)) {
-                u64a match_offset = base_offset + b3 - buf;
+                u64a match_offset = base_offset + b3 - buf;     //NOLINT (clang-analyzer-deadcode.DeadStores)
                 DEBUG_PRINTF("Accept state %u reached\n",
                              a3 & SHENG_STATE_MASK);
                 DEBUG_PRINTF("Match @ %llu\n", match_offset);
@@ -204,7 +204,7 @@ char SHENG_IMPL(u8 *state, NfaCallback cb, void *ctxt, const struct sheng *s,
                 }
             }
             if (ACCEPT_FUNC(a4)) {
-                u64a match_offset = base_offset + b4 - buf;
+                u64a match_offset = base_offset + b4 - buf; //NOLINT (clang-analyzer-deadcode.DeadStores)
                 DEBUG_PRINTF("Accept state %u reached\n",
                              a4 & SHENG_STATE_MASK);
                 DEBUG_PRINTF("Match @ %llu\n", match_offset);

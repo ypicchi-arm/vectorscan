@@ -122,7 +122,7 @@ void partial_store_u64a(void *ptr, u64a value, u32 numBytes) {
         break;
     case 1:
         // cppcheck-suppress cstyleCast
-        *(u8 *)ptr = (u8)value;
+        *(u8 *)ptr = (u8)value;     //NOLINT (clang-analyzer-cplusplus.NewDelete)
         break;
     case 0:
         break;
@@ -167,7 +167,7 @@ u64a partial_load_u64a(const void *ptr, u32 numBytes) {
         return value;
     case 1:
         // cppcheck-suppress cstyleCast
-        value = *(const u8 *)ptr;
+        value = *(const u8 *)ptr; 
         return value;
     case 0:
         break;
