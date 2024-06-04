@@ -494,7 +494,7 @@ static
 void processArgs(int argc, char *argv[], UNUSED const unique_ptr<Grey> &grey) {
     const char options[] = "e:E:s:z:hHLNV8G:T:BC";
     bool signatureSet = false;
-    int literalFlag = 0;
+    static int literalFlag = 0;
 
     static struct option longopts[] = {
         {"literal-on", no_argument, &literalFlag, 1},
