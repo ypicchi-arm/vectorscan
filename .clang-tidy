@@ -1,0 +1,9 @@
+#unit/gtest/gtest-all.cc,build/src/parser/Parser.cpp,build/src/parser/control_verbs.cpp
+#Dont change first comment ignores specific files from clang-tidy
+
+Checks:              'clang-analyzer-*,-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling'
+WarningsAsErrors:    ''
+HeaderFilterRegex:   '.*'
+FormatStyle:         none
+InheritParentConfig: true
+User:                user
