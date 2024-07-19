@@ -147,7 +147,35 @@ void get_conf_stride_1(const u8 *itPtr, UNUSED const u8 *start_ptr,
                        const u64a *ft, u64a *conf0, u64a *conf8, m128 *s) {
     /* +1: the zones ensure that we can read the byte at z->end */
     assert(itPtr >= start_ptr && itPtr + ITER_BYTES <= end_ptr);
+#if defined(HAVE_NEON)
+    uint8x16_t input = vld1q_u8(itPtr);
+    uint8x16_t shifted_input = vextq_u8(input, vdupq_n_u8(0), 1);
 
+    uint16x8_t even = vreinterpretq_u16_u8(input);
+    uint16x8_t odd = vreinterpretq_u16_u8(shifted_input);
+    //between those two we have 15 values. The last one will still be scalar.
+
+    uint16x8_t vect_domain_mask = vdupq_n_u16(domain_mask);
+    even = vandq_u16(vect_domain_mask, even);
+    odd = vandq_u16(vect_domain_mask, odd);
+
+    uint16_t reach0  = vgetq_lane_u16(even, 0);
+    uint16_t reach1  = vgetq_lane_u16(odd, 0);
+    uint16_t reach2  = vgetq_lane_u16(even, 1);
+    uint16_t reach3  = vgetq_lane_u16(odd, 1);
+    uint16_t reach4  = vgetq_lane_u16(even, 2);
+    uint16_t reach5  = vgetq_lane_u16(odd, 2);
+    uint16_t reach6  = vgetq_lane_u16(even, 3);
+    uint16_t reach7  = vgetq_lane_u16(odd, 3);
+    uint16_t reach8  = vgetq_lane_u16(even, 4);
+    uint16_t reach9  = vgetq_lane_u16(odd, 4);
+    uint16_t reach10 = vgetq_lane_u16(even, 5);
+    uint16_t reach11 = vgetq_lane_u16(odd, 5);
+    uint16_t reach12 = vgetq_lane_u16(even, 6);
+    uint16_t reach13 = vgetq_lane_u16(odd, 6);
+    uint16_t reach14 = vgetq_lane_u16(even, 7);
+    uint16_t reach15 = domain_mask & unaligned_load_u16(itPtr + 15);
+#else
     u64a it_hi = *(const u64a *)itPtr;
     u64a it_lo = *(const u64a *)(itPtr + 8);
     u64a reach0  = domain_mask & it_hi;
@@ -166,6 +194,7 @@ void get_conf_stride_1(const u8 *itPtr, UNUSED const u8 *start_ptr,
     u64a reach13 = domain_mask & (it_lo >> 40);
     u64a reach14 = domain_mask & (it_lo >> 48);
     u64a reach15 = domain_mask & unaligned_load_u32(itPtr + 15);
+#endif
 
     m128 st0  = load_m128_from_u64a(ft + reach0);
     m128 st1  = lshiftbyte_m128(load_m128_from_u64a(ft + reach1), 1);
@@ -215,25 +244,53 @@ void get_conf_stride_2(const u8 *itPtr, UNUSED const u8 *start_ptr,
                        const u64a *ft, u64a *conf0, u64a *conf8, m128 *s) {
     assert(itPtr >= start_ptr && itPtr + ITER_BYTES <= end_ptr);
 
-    u64a reach0 = domain_mask & *(itPtr);
-    u64a reach2 = domain_mask & *(itPtr + 2);
-    u64a reach4 = domain_mask & *(itPtr + 4);
-    u64a reach6 = domain_mask & *(itPtr + 6);
+#if defined(HAVE_NEON)
+    uint8x16_t input = vld1q_u8(itPtr);
+    uint16x8_t even = vreinterpretq_u16_u8(input);
+
+    uint16x8_t vect_domain_mask = vdupq_n_u16(domain_mask);
+    even = vandq_u16(vect_domain_mask, even);
+
+    uint16_t reach0  = vgetq_lane_u16(even, 0);
+    uint16_t reach2  = vgetq_lane_u16(even, 1);
+    uint16_t reach4  = vgetq_lane_u16(even, 2);
+    uint16_t reach6  = vgetq_lane_u16(even, 3);
 
     m128 st0 = load_m128_from_u64a(ft + reach0);
     m128 st2 = load_m128_from_u64a(ft + reach2);
     m128 st4 = load_m128_from_u64a(ft + reach4);
     m128 st6 = load_m128_from_u64a(ft + reach6);
 
-    u64a reach8 = domain_mask & *(itPtr + 8);
-    u64a reach10 = domain_mask & *(itPtr + 10);
-    u64a reach12 = domain_mask & *(itPtr + 12);
-    u64a reach14 = domain_mask & *(itPtr + 14);
+    uint16_t reach8  = vgetq_lane_u16(even, 4);
+    uint16_t reach10 = vgetq_lane_u16(even, 5);
+    uint16_t reach12 = vgetq_lane_u16(even, 6);
+    uint16_t reach14 = vgetq_lane_u16(even, 7);
 
     m128 st8 = load_m128_from_u64a(ft + reach8);
     m128 st10 = load_m128_from_u64a(ft + reach10);
     m128 st12 = load_m128_from_u64a(ft + reach12);
     m128 st14 = load_m128_from_u64a(ft + reach14);
+#else
+    u64a reach0 = andn(domain_mask_flipped, itPtr);
+    u64a reach2 = andn(domain_mask_flipped, itPtr + 2);
+    u64a reach4 = andn(domain_mask_flipped, itPtr + 4);
+    u64a reach6 = andn(domain_mask_flipped, itPtr + 6);
+
+    m128 st0 = load_m128_from_u64a(ft + reach0);
+    m128 st2 = load_m128_from_u64a(ft + reach2);
+    m128 st4 = load_m128_from_u64a(ft + reach4);
+    m128 st6 = load_m128_from_u64a(ft + reach6);
+
+    u64a reach8 = andn(domain_mask_flipped, itPtr + 8);
+    u64a reach10 = andn(domain_mask_flipped, itPtr + 10);
+    u64a reach12 = andn(domain_mask_flipped, itPtr + 12);
+    u64a reach14 = andn(domain_mask_flipped, itPtr + 14);
+
+    m128 st8 = load_m128_from_u64a(ft + reach8);
+    m128 st10 = load_m128_from_u64a(ft + reach10);
+    m128 st12 = load_m128_from_u64a(ft + reach12);
+    m128 st14 = load_m128_from_u64a(ft + reach14);
+#endif
 
     st2  = lshiftbyte_m128(st2, 2);
     st4  = lshiftbyte_m128(st4, 4);
