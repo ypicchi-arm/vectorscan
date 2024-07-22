@@ -143,11 +143,10 @@ m128 getInitState(const struct FDR *fdr, u8 len_history, const u64a *ft,
 
 static really_inline
 void get_conf_stride_1(const u8 *itPtr, UNUSED const u8 *start_ptr,
-                       UNUSED const u8 *end_ptr, u32 domain_mask_flipped,
+                       UNUSED const u8 *end_ptr, uint16_t domain_mask,
                        const u64a *ft, u64a *conf0, u64a *conf8, m128 *s) {
     /* +1: the zones ensure that we can read the byte at z->end */
     assert(itPtr >= start_ptr && itPtr + ITER_BYTES <= end_ptr);
-    u64a domain_mask = ~domain_mask_flipped;
 
     u64a it_hi = *(const u64a *)itPtr;
     u64a it_lo = *(const u64a *)(itPtr + 8);
@@ -212,24 +211,24 @@ void get_conf_stride_1(const u8 *itPtr, UNUSED const u8 *start_ptr,
 
 static really_inline
 void get_conf_stride_2(const u8 *itPtr, UNUSED const u8 *start_ptr,
-                       UNUSED const u8 *end_ptr, u32 domain_mask_flipped,
+                       UNUSED const u8 *end_ptr, uint16_t domain_mask,
                        const u64a *ft, u64a *conf0, u64a *conf8, m128 *s) {
     assert(itPtr >= start_ptr && itPtr + ITER_BYTES <= end_ptr);
 
-    u64a reach0 = andn(domain_mask_flipped, itPtr);
-    u64a reach2 = andn(domain_mask_flipped, itPtr + 2);
-    u64a reach4 = andn(domain_mask_flipped, itPtr + 4);
-    u64a reach6 = andn(domain_mask_flipped, itPtr + 6);
+    u64a reach0 = domain_mask & *(itPtr);
+    u64a reach2 = domain_mask & *(itPtr + 2);
+    u64a reach4 = domain_mask & *(itPtr + 4);
+    u64a reach6 = domain_mask & *(itPtr + 6);
 
     m128 st0 = load_m128_from_u64a(ft + reach0);
     m128 st2 = load_m128_from_u64a(ft + reach2);
     m128 st4 = load_m128_from_u64a(ft + reach4);
     m128 st6 = load_m128_from_u64a(ft + reach6);
 
-    u64a reach8 = andn(domain_mask_flipped, itPtr + 8);
-    u64a reach10 = andn(domain_mask_flipped, itPtr + 10);
-    u64a reach12 = andn(domain_mask_flipped, itPtr + 12);
-    u64a reach14 = andn(domain_mask_flipped, itPtr + 14);
+    u64a reach8 = domain_mask & *(itPtr + 8);
+    u64a reach10 = domain_mask & *(itPtr + 10);
+    u64a reach12 = domain_mask & *(itPtr + 12);
+    u64a reach14 = domain_mask & *(itPtr + 14);
 
     m128 st8 = load_m128_from_u64a(ft + reach8);
     m128 st10 = load_m128_from_u64a(ft + reach10);
@@ -265,14 +264,14 @@ void get_conf_stride_2(const u8 *itPtr, UNUSED const u8 *start_ptr,
 
 static really_inline
 void get_conf_stride_4(const u8 *itPtr, UNUSED const u8 *start_ptr,
-                       UNUSED const u8 *end_ptr, u32 domain_mask_flipped,
+                       UNUSED const u8 *end_ptr, uint16_t domain_mask,
                        const u64a *ft, u64a *conf0, u64a *conf8, m128 *s) {
     assert(itPtr >= start_ptr && itPtr + ITER_BYTES <= end_ptr);
 
-    u64a reach0 = andn(domain_mask_flipped, itPtr);
-    u64a reach4 = andn(domain_mask_flipped, itPtr + 4);
-    u64a reach8 = andn(domain_mask_flipped, itPtr + 8);
-    u64a reach12 = andn(domain_mask_flipped, itPtr + 12);
+    u64a reach0 = domain_mask & *(itPtr);
+    u64a reach4 = domain_mask & *(itPtr + 4);
+    u64a reach8 = domain_mask & *(itPtr + 8);
+    u64a reach12 = domain_mask & *(itPtr + 12);
 
     m128 st0 = load_m128_from_u64a(ft + reach0);
     m128 st4 = load_m128_from_u64a(ft + reach4);
@@ -683,7 +682,7 @@ size_t prepareZones(const u8 *buf, size_t len, const u8 *hend,
             __builtin_prefetch(itPtr + ITER_BYTES);                         \
             u64a conf0;                                                     \
             u64a conf8;                                                     \
-            get_conf_fn(itPtr, start_ptr, end_ptr, domain_mask_flipped,     \
+            get_conf_fn(itPtr, start_ptr, end_ptr, fdr->domainMask,         \
                         ft, &conf0, &conf8, &s);                            \
             do_confirm_fdr(&conf0, 0, &control, confBase, a, itPtr,         \
                            &last_match_id, zz);                             \
@@ -703,7 +702,6 @@ hwlm_error_t fdr_engine_exec(const struct FDR *fdr,
 
     u32 floodBackoff = FLOOD_BACKOFF_START;
     u32 last_match_id = INVALID_MATCH_ID;
-    u32 domain_mask_flipped = ~fdr->domainMask;
     u8 stride = fdr->stride;
     const u64a *ft =
         (const u64a *)((const u8 *)fdr + ROUNDUP_CL(sizeof(struct FDR)));
