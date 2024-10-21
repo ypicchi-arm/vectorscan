@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2021, Intel Corporation
+ * Copyright (c) 2024-2025, Arm ltd
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -1208,6 +1209,194 @@ hs_error_t HS_CDECL hs_populate_platform(hs_platform_info_t *platform);
  * HS_FLAG_SOM_LEFTMOST expression flag.
  */
 #define HS_MODE_SOM_HORIZON_SMALL   (1U << 26)
+
+/**
+ * The following functions are part of the extended API and are not cross
+ * compatible with hyperscan. This extension intends on providing the developer
+ * with minimal overhead search functions.
+ *
+ * All search functions handle a limited kind of patterns. For more generic
+ * patterns, use @ref hs_compile()
+ * All search functions are considered case-sensitive.
+ */
+
+/**
+ * This function compiles a short literal expression to be then searched for in
+ * @ref hs_short_literal_search() The expression must be at most @ref
+ * HS_SHORT_PATTERN_THRESHOLD characters longs. For longer expressions, use @ref
+ * hs_compile_long_literal_search() and @ref hs_long_literal_search() instead.
+ * Potentially faster search exist for character pairs and sets.
+ *
+ * @param expression
+ *      The expression to parse. Note that this string must represent ONLY the
+ * pattern to be matched, with no delimiters. Null characters are accepted as
+ * part of the expression.
+ *
+ * @param expression_length
+ *      The length of the expression in byte.
+ *
+ * @param output_database
+ *      A pointer to the user-allocated @ref hs_short_literal_compiled_pattern_t
+ * structure On success, it will fill it with the data required to run @ref
+ * hs_short_literal_search() with the given expression.
+ *
+ * @return
+ *      @ref HS_SUCCESS is returned on successful compilation; @ref
+ *      HS_COMPILER_ERROR otherwise.
+ */
+hs_error_t HS_CDECL hs_compile_short_literal_search(
+    const char *expression, size_t expression_length,
+    hs_short_literal_compiled_pattern_t *output_database);
+
+/**
+ * This function compiles a literal expression to be then searched for in @ref
+ * hs_long_literal_search() There is no size limit. For expressions up to @ref
+ * HS_SHORT_PATTERN_THRESHOLD character longs, @ref
+ * hs_compile_short_literal_search() and @ref hs_short_literal_search() might be
+ * faster
+ *
+ * @param expression
+ *      The expression to parse. Note that this string must represent ONLY the
+ * pattern to be matched, with no delimiters. Null characters are accepted as
+ * part of the expression.
+ *
+ * @param expression_length
+ *      The length of the expression in byte.
+ *
+ * @param output_database
+ *      A pointer to the user-allocated @ref hs_long_literal_compiled_pattern_t
+ * structure On success, it will fill it with the data required to run @ref
+ * hs_long_literal_search() with the given expression.
+ *
+ * @return
+ *      @ref HS_SUCCESS is returned on successful compilation; @ref
+ *      HS_COMPILER_ERROR otherwise.
+ */
+hs_error_t HS_CDECL hs_compile_long_literal_search(
+    const char *expression, size_t expression_length,
+    hs_long_literal_compiled_pattern_t *output_database);
+
+/**
+ * This function compiles several literal expression to be then searched for in
+ * @ref hs_multi_literal_search() There is no size limit.
+ *
+ * @param expression
+ *      The array of expressions to parse. Note that the strings must represent
+ * ONLY the patterns to be matched, with no delimiters. Null characters are
+ * accepted as part of the expression.
+ *
+ * @param pattern_count
+ *      The number of expressions in the @p expression array.
+ *
+ * @param expression_length
+ *      The array of length of each expression in the @p expression array.
+ * Expressed in byte.
+ *
+ * @param output_database
+ *      A pointer to the user-allocated @ref hs_multi_literal_compiled_pattern_t
+ * structure On success, it will fill it with the data required to run @ref
+ * hs_multi_literal_search() with the given expression.
+ *
+ * @return
+ *      @ref HS_SUCCESS is returned on successful compilation; @ref
+ *      HS_COMPILER_ERROR otherwise.
+ */
+hs_error_t HS_CDECL hs_compile_multi_literal_search(
+    const char **expression, size_t pattern_count, size_t *expression_length,
+    hs_multi_literal_compiled_pattern_t *output_database);
+
+/**
+ * This function compiles a single characters to then searched for in @ref
+ * hs_single_char_search().
+ *
+ * @param character
+ *      The single character to be searched. It is case sensitive.
+ *
+ * @param output_database
+ *      A pointer to the user-allocated @ref hs_single_char_compiled_pattern_t
+ * structure On success, it will fill it with the data required to run @ref
+ * hs_single_char_search() with the given expression.
+ *
+ * @return
+ *      @ref HS_SUCCESS is returned on successful compilation; @ref
+ *      HS_COMPILER_ERROR otherwise.
+ */
+hs_error_t HS_CDECL hs_compile_single_char_search(
+    const char character, hs_single_char_compiled_pattern_t *output_database);
+
+// -- find char from a char set --
+/**
+ * This function compiles a set of characters to then searched for in @ref
+ * hs_multi_char_search().
+ *
+ * @param character_array
+ *      The string or character array containing all the character in the set.
+ * It is case sensitive. Null terminator is optional.
+ *
+ * @param character_count
+ *      The number of characters in @p character_array
+ *
+ * @param output_database
+ *      A pointer to the user-allocated @ref hs_multi_char_compiled_pattern_t
+ * structure On success, it will fill it with the data required to run @ref
+ * hs_multi_char_search() with the given expression.
+ *
+ * @return
+ *      @ref HS_SUCCESS is returned on successful compilation; @ref
+ *      HS_COMPILER_ERROR otherwise.
+ */
+hs_error_t HS_CDECL hs_compile_multi_char_search(
+    const char *character_array, size_t character_count,
+    hs_multi_char_compiled_pattern_t *output_database);
+
+/**
+ * This function compiles a pair of characters to then searched for in @ref
+ * hs_single_char_pair_search(). Note that the character are ordered in the
+ * pair. "Aj" won't match "jA"
+ *
+ * @param pair
+ *      The string or character array containing the pair. Null terminator is
+ * optional.
+ *
+ * @param output_database
+ *      A pointer to the user-allocated @ref
+ * hs_single_char_pair_compiled_pattern_t structure On success, it will fill it
+ * with the data required to run @ref hs_single_char_pair_search() with the
+ * given expression.
+ *
+ * @return
+ *      @ref HS_SUCCESS is returned on successful compilation; @ref
+ *      HS_COMPILER_ERROR otherwise.
+ */
+hs_error_t HS_CDECL hs_compile_single_char_pair_search(
+    const char *pair, hs_single_char_pair_compiled_pattern_t *output_database);
+
+/**
+ * This function compiles severals pairs to then searched for in @ref
+ * hs_multi_char_pair_search(). Note that the character are ordered in each
+ * pair. "Aj" won't match "jA"
+ *
+ * @param expression
+ *      The concatenation of all pairs to be parsed. If one want to search for
+ * "ab" or "Cd", then @p expression would be ['a','b','C','d']. Null terminator
+ * is optional.
+ *
+ * @param pair_count
+ *      The number of characters pair in @p expression
+ *
+ * @param output_database
+ *      A pointer to the user-allocated @ref
+ * hs_multi_char_pair_compiled_pattern_t structure On success, it will fill it
+ * with the data required to run @ref hs_multi_char_pair_search() with the given
+ * expression.
+ *
+ * @return
+ *      @ref HS_SUCCESS is returned on successful compilation; @ref
+ *      HS_COMPILER_ERROR otherwise.
+ */
+hs_error_t HS_CDECL hs_compile_multi_char_pair_search(
+    const char *expression, size_t pair_count,
+    hs_multi_char_pair_compiled_pattern_t *output_database);
 
 /** @} */
 

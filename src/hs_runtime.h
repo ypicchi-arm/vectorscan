@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2018, Intel Corporation
+ * Copyright (c) 2024-2025, Arm ltd
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -613,6 +614,243 @@ hs_error_t HS_CDECL hs_free_scratch(hs_scratch_t *scratch);
  * too early to be tracked with the requested SOM_HORIZON precision.
  */
 #define HS_OFFSET_PAST_HORIZON    (~0ULL)
+
+/**
+ * The following functions are part of the extended API and are not cross
+ * compatible with hyperscan. This extension intends on providing the developer
+ * with minimal overhead search functions.
+ *
+ * All search functions handle a limited kind of patterns. For more generic
+ * patterns, use @ref hs_scan()
+ * All search functions are considered case-sensitive.
+ */
+
+/** Callback return value indicating that we should continue matching. */
+#define CB_CONTINUE_MATCHING (int)(~0U)
+
+/** Callback return value indicating that we should halt matching. */
+#define CB_TERMINATE_MATCHING (int)0
+
+/**
+ * Search the given data for the short literal pattern up to
+ * @ref HS_SHORT_PATTERN_THRESHOLD chars long. For longer patterns, use @ref
+ * hs_long_literal_search(). Other options exists for character pairs or set.
+ *
+ * @param database
+ *      The compiled pattern returned by @ref hs_compile_short_literal_search()
+ * @param data
+ *      Pointer to the data to be scanned.
+ * @param length
+ *      The number of bytes to scan.
+ * @param scratch
+ *      A per-thread scratch space allocated by @ref hs_alloc_scratch() for this
+ *      database. If a NULL pointer is given a scratch will be created and freed
+ *      as needed
+ * @param onEvent
+ *      Pointer to a @ref match_event_handler callback function. If a NULL
+ *      pointer is given, no matches will be returned.
+ * @param context
+ *      The user defined pointer which will be passed to the callback function.
+ *
+ * @return
+ *      Returns @ref HS_SUCCESS on success; @ref HS_SCAN_TERMINATED if the
+ *      match callback indicated that scanning should stop; other values on
+ *      error.
+ */
+hs_error_t HS_CDECL hs_short_literal_search(
+    const hs_short_literal_compiled_pattern_t *database, const char *data,
+    size_t length, struct hs_scratch *scratch, match_event_handler onEvent,
+    void *context);
+
+/**
+ * Search the given data for the long literal pattern. If the pattern length is
+ * less or equal to @ref HS_SHORT_PATTERN_THRESHOLD, @ref
+ * hs_short_literal_search() may be faster
+ *
+ * @param database
+ *      The compiled pattern returned by @ref hs_compile_long_literal_search()
+ * @param data
+ *      Pointer to the data to be scanned.
+ * @param length
+ *      The number of bytes to scan.
+ * @param scratch
+ *      A per-thread scratch space allocated by @ref hs_alloc_scratch() for this
+ *      database. If a NULL pointer is given a scratch will be created and freed
+ *      as needed
+ * @param onEvent
+ *      Pointer to a @ref match_event_handler callback function. If a NULL
+ *      pointer is given, no matches will be returned.
+ * @param context
+ *      The user defined pointer which will be passed to the callback function.
+ *
+ * @return
+ *      Returns @ref HS_SUCCESS on success; @ref HS_SCAN_TERMINATED if the
+ *      match callback indicated that scanning should stop; other values on
+ *      error.
+ */
+hs_error_t HS_CDECL hs_long_literal_search(
+    const hs_long_literal_compiled_pattern_t *database, const char *data,
+    size_t length, struct hs_scratch *scratch, match_event_handler onEvent,
+    void *context);
+
+/**
+ * Search the given data for several long literal patterns at once.
+ *
+ * @param database
+ *      The compiled pattern returned by @ref hs_compile_multi_literal_search()
+ * @param data
+ *      Pointer to the data to be scanned.
+ * @param length
+ *      The number of bytes to scan.
+ * @param start_offset
+ *      Offset in Byte at which to start the search in the buffer.
+ * @param cb
+ *      Pointer to a @ref match_event_handler callback function. If a NULL
+ *      pointer is given, no matches will be returned.
+ * @param scratch
+ *      A per-thread scratch space allocated by @ref hs_alloc_scratch() for this
+ *      database. If a NULL pointer is given a scratch will be created and freed
+ *      as needed
+ * @param context
+ *      The user defined pointer which will be passed to the callback function.
+ *
+ * @return
+ *      Returns @ref HS_SUCCESS on success; @ref HS_SCAN_TERMINATED if the
+ *      match callback indicated that scanning should stop; other values on
+ *      error.
+ */
+hs_error_t HS_CDECL hs_multi_literal_search(
+    const hs_multi_literal_compiled_pattern_t *database, const char *data,
+    size_t length, struct hs_scratch *scratch, match_event_handler onEvent,
+    void *context);
+
+/**
+ * Search the given data for any occurrence of the given character.
+ *
+ * @param database
+ *      The compiled pattern returned by @ref hs_compile_single_char_search()
+ * @param data
+ *      Pointer to the data to be scanned.
+ * @param length
+ *      The number of bytes to scan.
+ * @param start_offset
+ *      Offset in Byte at which to start the search in the buffer.
+ * @param cb
+ *      Pointer to a @ref match_event_handler callback function. If a NULL
+ *      pointer is given, no matches will be returned.
+ * @param scratch
+ *      A per-thread scratch space allocated by @ref hs_alloc_scratch() for this
+ *      database. If a NULL pointer is given a scratch will be created and freed
+ *      as needed
+ * @param context
+ *      The user defined pointer which will be passed to the callback function.
+ *
+ * @return
+ *      Returns @ref HS_SUCCESS on success; @ref HS_SCAN_TERMINATED if the
+ *      match callback indicated that scanning should stop; other values on
+ *      error.
+ */
+hs_error_t HS_CDECL hs_single_char_search(
+    const hs_single_char_compiled_pattern_t *database, const char *data,
+    size_t length, struct hs_scratch *scratch, match_event_handler onEvent,
+    void *context);
+
+/**
+ * Search the given data for occurrences of any character from the given
+ * character set.
+ *
+ * @param database
+ *      The compiled pattern returned by @ref hs_compile_multi_char_search()
+ * @param data
+ *      Pointer to the data to be scanned.
+ * @param length
+ *      The number of bytes to scan.
+ * @param start_offset
+ *      Offset in Byte at which to start the search in the buffer.
+ * @param cb
+ *      Pointer to a @ref match_event_handler callback function. If a NULL
+ *      pointer is given, no matches will be returned.
+ * @param scratch
+ *      A per-thread scratch space allocated by @ref hs_alloc_scratch() for this
+ *      database. If a NULL pointer is given a scratch will be created and freed
+ *      as needed
+ * @param context
+ *      The user defined pointer which will be passed to the callback function.
+ *
+ * @return
+ *      Returns @ref HS_SUCCESS on success; @ref HS_SCAN_TERMINATED if the
+ *      match callback indicated that scanning should stop; other values on
+ *      error.
+ */
+hs_error_t HS_CDECL hs_multi_char_search(
+    const hs_multi_char_compiled_pattern_t *database, const char *data,
+    size_t length, struct hs_scratch *scratch, match_event_handler onEvent,
+    void *context);
+
+/**
+ * Search the given data for occurrences of the given ordered character pair
+ * ("Aj" won't match "jA").
+ *
+ * @param database
+ *      The compiled pattern returned by @ref hs_compile_char_pair_search()
+ * @param data
+ *      Pointer to the data to be scanned.
+ * @param length
+ *      The number of bytes to scan.
+ * @param start_offset
+ *      Offset in Byte at which to start the search in the buffer.
+ * @param cb
+ *      Pointer to a @ref match_event_handler callback function. If a NULL
+ *      pointer is given, no matches will be returned.
+ * @param scratch
+ *      A per-thread scratch space allocated by @ref hs_alloc_scratch() for this
+ *      database. If a NULL pointer is given a scratch will be created and freed
+ *      as needed
+ * @param context
+ *      The user defined pointer which will be passed to the callback function.
+ *
+ * @return
+ *      Returns @ref HS_SUCCESS on success; @ref HS_SCAN_TERMINATED if the
+ *      match callback indicated that scanning should stop; other values on
+ *      error.
+ */
+hs_error_t HS_CDECL hs_single_char_pair_search(
+    const hs_single_char_pair_compiled_pattern_t *database, const char *data,
+    size_t length, struct hs_scratch *scratch, match_event_handler onEvent,
+    void *context);
+
+/**
+ * Search the given data for occurrences of any of the ordered character pair
+ * from the given set ("Aj" won't match "jA")
+ *
+ * @param database
+ *      The compiled pattern returned by @ref
+ * hs_compile_multi_char_pair_search()
+ * @param data
+ *      Pointer to the data to be scanned.
+ * @param length
+ *      The number of bytes to scan.
+ * @param start_offset
+ *      Offset in Byte at which to start the search in the buffer.
+ * @param cb
+ *      Pointer to a @ref match_event_handler callback function. If a NULL
+ *      pointer is given, no matches will be returned.
+ * @param scratch
+ *      A per-thread scratch space allocated by @ref hs_alloc_scratch() for this
+ *      database. If a NULL pointer is given a scratch will be created and freed
+ *      as needed
+ * @param context
+ *      The user defined pointer which will be passed to the callback function.
+ *
+ * @return
+ *      Returns @ref HS_SUCCESS on success; @ref HS_SCAN_TERMINATED if the
+ *      match callback indicated that scanning should stop; other values on
+ *      error.
+ */
+hs_error_t HS_CDECL hs_multi_char_pair_search(
+    const hs_multi_char_pair_compiled_pattern_t *database, const char *data,
+    size_t length, struct hs_scratch *scratch, match_event_handler onEvent,
+    void *context);
 
 #ifdef __cplusplus
 } /* extern "C" */

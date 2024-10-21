@@ -291,6 +291,7 @@ set (hs_exec_SRCS
     src/crc32.h
     src/report.h
     src/runtime.c
+    src/hs_extended_api.cpp
     src/stream_compress.c
     src/stream_compress.h
     src/stream_compress_impl.h
