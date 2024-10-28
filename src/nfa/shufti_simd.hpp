@@ -50,7 +50,7 @@ static really_inline
 const SuperVector<S> blockSingleMask(SuperVector<S> mask_lo, SuperVector<S> mask_hi, SuperVector<S> chars);
 template <uint16_t S>
 static really_inline
-SuperVector<S> blockDoubleMask(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi, SuperVector<S> mask2_lo, SuperVector<S> mask2_hi, SuperVector<S> chars);
+SuperVector<S> blockDoubleMask(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi, SuperVector<S> mask2_lo, SuperVector<S> mask2_hi, SuperVector<S> chars, SuperVector<S> offset_chars);
 
 #if defined(VS_SIMDE_BACKEND)
 #include "x86/shufti.hpp"
@@ -82,9 +82,9 @@ const u8 *revBlock(SuperVector<S> mask_lo, SuperVector<S> mask_hi, SuperVector<S
 
 template <uint16_t S>
 static really_inline
-const u8 *fwdBlockDouble(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi, SuperVector<S> mask2_lo, SuperVector<S> mask2_hi, SuperVector<S> chars, const u8 *buf) {
+const u8 *fwdBlockDouble(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi, SuperVector<S> mask2_lo, SuperVector<S> mask2_hi, SuperVector<S> chars, SuperVector<S> offset_chars, const u8 *buf) {
 
-    SuperVector<S> mask = blockDoubleMask(mask1_lo, mask1_hi, mask2_lo, mask2_hi, chars);
+    SuperVector<S> mask = blockDoubleMask(mask1_lo, mask1_hi, mask2_lo, mask2_hi, chars, offset_chars);
 
     return first_zero_match_inverted<S>(buf, mask);
 }
@@ -204,6 +204,8 @@ const u8 *shuftiDoubleExecReal(m128 mask1_lo, m128 mask1_hi, m128 mask2_lo, m128
     DEBUG_PRINTF("shufti %p len %zu\n", buf, buf_end - buf);
     DEBUG_PRINTF("b %s\n", buf);
 
+    const u8 *buf_one_off_end = buf_end - 1;
+
     const SuperVector<S> wide_mask1_lo(mask1_lo);
     const SuperVector<S> wide_mask1_hi(mask1_hi);
     const SuperVector<S> wide_mask2_lo(mask2_lo);
@@ -217,24 +219,26 @@ const u8 *shuftiDoubleExecReal(m128 mask1_lo, m128 mask1_hi, m128 mask2_lo, m128
     __builtin_prefetch(d + 3*64);
     __builtin_prefetch(d + 4*64);
     DEBUG_PRINTF("start %p end %p \n", d, buf_end);
-    assert(d < buf_end);
-    if (d + S <= buf_end) {
+    assert(d < buf_one_off_end);
+    if (d + S <= buf_one_off_end) {
         // peel off first part to cacheline boundary
         DEBUG_PRINTF("until aligned %p \n", ROUNDUP_PTR(d, S));
         if (!ISALIGNED_N(d, S)) {
             SuperVector<S> chars = SuperVector<S>::loadu(d);
-            rv = fwdBlockDouble(wide_mask1_lo, wide_mask1_hi, wide_mask2_lo, wide_mask2_hi, chars, d);
+            SuperVector<S> offset_char = SuperVector<S>::loadu(d + 1);
+            rv = fwdBlockDouble(wide_mask1_lo, wide_mask1_hi, wide_mask2_lo, wide_mask2_hi, chars, offset_char, d);
             DEBUG_PRINTF("rv %p \n", rv);
             if (rv) return rv;
             d = ROUNDUP_PTR(d, S);
         }
 
-        while(d + S <= buf_end) {
+        while(d + S <= buf_one_off_end) {
             __builtin_prefetch(d + 64);
             DEBUG_PRINTF("d %p \n", d);
 
             SuperVector<S> chars = SuperVector<S>::load(d);
-            rv = fwdBlockDouble(wide_mask1_lo, wide_mask1_hi, wide_mask2_lo, wide_mask2_hi, chars, d);
+            SuperVector<S> offset_char = SuperVector<S>::loadu(d + 1);
+            rv = fwdBlockDouble(wide_mask1_lo, wide_mask1_hi, wide_mask2_lo, wide_mask2_hi, chars, offset_char, d);
             if (rv) return rv;
             d += S;
         }
@@ -243,17 +247,19 @@ const u8 *shuftiDoubleExecReal(m128 mask1_lo, m128 mask1_hi, m128 mask2_lo, m128
     DEBUG_PRINTF("tail d %p e %p \n", d, buf_end);
     // finish off tail
 
-    if (d != buf_end) {
+    if (d < buf_one_off_end) {
         SuperVector<S> chars = SuperVector<S>::Zeroes();
+        SuperVector<S> offset_char = SuperVector<S>::Zeroes();
         const u8 *end_buf;
         if (buf_end - buf < S) {
           memcpy(&chars.u, buf, buf_end - buf);
           end_buf = buf;
         } else {
-          chars = SuperVector<S>::loadu(buf_end - S);
+          chars = SuperVector<S>::loadu(buf_one_off_end - S);
+          offset_char = SuperVector<S>::loadu(buf_end - S);
           end_buf = buf_end - S;
         }
-        rv = fwdBlockDouble(wide_mask1_lo, wide_mask1_hi, wide_mask2_lo, wide_mask2_hi, chars, end_buf);
+        rv = fwdBlockDouble(wide_mask1_lo, wide_mask1_hi, wide_mask2_lo, wide_mask2_hi, chars, offset_char, end_buf);
         DEBUG_PRINTF("rv %p \n", rv);
         if (rv && rv < buf_end) return rv;
     }

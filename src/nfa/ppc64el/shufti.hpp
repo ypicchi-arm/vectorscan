@@ -48,7 +48,7 @@ const SuperVector<S> blockSingleMask(SuperVector<S> mask_lo, SuperVector<S> mask
 
 template <uint16_t S>
 static really_inline
-SuperVector<S> blockDoubleMask(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi, SuperVector<S> mask2_lo, SuperVector<S> mask2_hi, SuperVector<S> chars) {
+SuperVector<S> blockDoubleMask(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi, SuperVector<S> mask2_lo, SuperVector<S> mask2_hi, SuperVector<S> chars, SuperVector<S> offset_char) {
 
     const SuperVector<S> low4bits = SuperVector<S>::dup_u8(0xf);
     SuperVector<S> chars_lo = chars & low4bits;
@@ -62,14 +62,18 @@ SuperVector<S> blockDoubleMask(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi,
     SuperVector<S> t1 = c1_lo | c1_hi;
     t1.print8("t1");
 
-    SuperVector<S> c2_lo = mask2_lo.template pshufb<true>(chars_lo);
+    SuperVector<S> chars_lo2 = offset_char & low4bits;
+    chars_lo.print8("chars_lo2");
+    SuperVector<S> chars_hi2 = offset_char.template vshr_64_imm<4>() & low4bits;
+    chars_hi.print8("chars_hi2");
+
+    SuperVector<S> c2_lo = mask2_lo.template pshufb<true>(chars_lo2);
     c2_lo.print8("c2_lo");
-    SuperVector<S> c2_hi = mask2_hi.template pshufb<true>(chars_hi);
+    SuperVector<S> c2_hi = mask2_hi.template pshufb<true>(chars_hi2);
     c2_hi.print8("c2_hi");
     SuperVector<S> t2 = c2_lo | c2_hi;
     t2.print8("t2");
-    t2.template vshr_128_imm<1>().print8("t2.vshr_128(1)");
-    SuperVector<S> t = t1 | (t2.template vshr_128_imm<1>());
+    SuperVector<S> t = t1 | t2;
     t.print8("t");
 
     return t.eq(SuperVector<S>::Ones());

@@ -155,31 +155,36 @@ svbool_t doubleMatched(svuint8_t mask1_lo, svuint8_t mask1_hi,
                        svuint8_t mask2_lo, svuint8_t mask2_hi,
                        const u8 *buf, const svbool_t pg) {
     svuint8_t vec = svld1_u8(pg, buf);
+    svuint8_t vec2 = svld1_u8(pg, buf + 1);
 
     svuint8_t chars_lo = svand_x(svptrue_b8(), vec, (uint8_t)0xf);
     svuint8_t chars_hi = svlsr_x(svptrue_b8(), vec, 4);
+    svuint8_t chars_lo2 = svand_x(svptrue_b8(), vec2, (uint8_t)0xf);
+    svuint8_t chars_hi2 = svlsr_x(svptrue_b8(), vec2, 4);
 
     svuint8_t c1_lo  = svtbl(mask1_lo, chars_lo);
     svuint8_t c1_hi  = svtbl(mask1_hi, chars_hi);
     svuint8_t t1     = svorr_x(svptrue_b8(), c1_lo, c1_hi);
 
-    svuint8_t c2_lo  = svtbl(mask2_lo, chars_lo);
-    svuint8_t c2_hi  = svtbl(mask2_hi, chars_hi);
-    svuint8_t t2     = svext(svorr_z(pg, c2_lo, c2_hi), svdup_u8(0), 1);
+    svuint8_t c2_lo  = svtbl(mask2_lo, chars_lo2);
+    svuint8_t c2_hi  = svtbl(mask2_hi, chars_hi2);
+    svuint8_t t2     = svorr_x(svptrue_b8(), c2_lo, c2_hi);
 
     svuint8_t t      = svorr_x(svptrue_b8(), t1, t2);
 
-    return svnot_z(svptrue_b8(), svcmpeq(svptrue_b8(), t, (uint8_t)0xff));
+    return svnot_z(pg, svcmpeq(svptrue_b8(), t, (uint8_t)0xff));
 }
 
 static really_inline
 const u8 *dshuftiOnce(svuint8_t mask1_lo, svuint8_t mask1_hi,
                       svuint8_t mask2_lo, svuint8_t mask2_hi,
                       const u8 *buf, const u8 *buf_end) {
+    const u8 *buf_one_off_end = buf_end - 1;
+
     DEBUG_PRINTF("start %p end %p\n", buf, buf_end);
-    assert(buf < buf_end);
+    assert(buf < buf_one_off_end);
     DEBUG_PRINTF("l = %td\n", buf_end - buf);
-    svbool_t pg = svwhilelt_b8_s64(0, buf_end - buf);
+    svbool_t pg = svwhilelt_b8_s64(0, buf_one_off_end - buf);
     svbool_t matched = doubleMatched(mask1_lo, mask1_hi, mask2_lo, mask2_hi,
                                      buf, pg);
     return accelSearchCheckMatched(buf, matched);
@@ -199,9 +204,11 @@ static really_inline
 const u8 *dshuftiSearch(svuint8_t mask1_lo, svuint8_t mask1_hi,
                         svuint8_t mask2_lo, svuint8_t mask2_hi,
                         const u8 *buf, const u8 *buf_end) {
-    assert(buf < buf_end);
+    const u8 *buf_one_off_end = buf_end - 1;
+
+    assert(buf < buf_one_off_end);
     size_t len = buf_end - buf;
-    if (len <= svcntb()) {
+    if (len <= svcntb() + 1) {
         return dshuftiOnce(mask1_lo, mask1_hi,
                            mask2_lo, mask2_hi, buf, buf_end);
     }
@@ -214,7 +221,7 @@ const u8 *dshuftiSearch(svuint8_t mask1_lo, svuint8_t mask1_hi,
         if (ptr) return ptr;
     }
     buf = aligned_buf;
-    size_t loops = (buf_end - buf) / svcntb();
+    size_t loops = (buf_one_off_end - buf) / svcntb();
     DEBUG_PRINTF("loops %zu \n", loops);
     for (size_t i = 0; i < loops; i++, buf += svcntb()) {
         const u8 *ptr = dshuftiLoopBody(mask1_lo, mask1_hi,
@@ -222,9 +229,9 @@ const u8 *dshuftiSearch(svuint8_t mask1_lo, svuint8_t mask1_hi,
         if (ptr) return ptr;
     }
     DEBUG_PRINTF("buf %p buf_end %p \n", buf, buf_end);
-    return buf == buf_end ? NULL : dshuftiLoopBody(mask1_lo, mask1_hi,
+    return buf == buf_one_off_end ? NULL : dshuftiLoopBody(mask1_lo, mask1_hi,
                                                    mask2_lo, mask2_hi,
-                                                   buf_end - svcntb());
+                                                   buf_one_off_end - svcntb());
 }
 
 const u8 *shuftiDoubleExec(m128 mask1_lo, m128 mask1_hi,
