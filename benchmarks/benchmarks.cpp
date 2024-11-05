@@ -176,6 +176,31 @@ int main(){
         }
 
         for (size_t i = 0; i < std::size(sizes); i++) {
+            MicroBenchmark bench("Double Shufti", sizes[i]);
+            run_benchmarks(
+                sizes[i], MAX_LOOPS / sizes[i], matches[m], false, bench,
+                [&](MicroBenchmark &b) {
+                    ue2::shuftiBuildMasks(b.chars, reinterpret_cast<u8 *>(&b.lo), reinterpret_cast<u8 *>(&b.hi));
+                    b.chars.clear();
+                    ue2::flat_set<std::pair<u8, u8>> pattern;
+                    pattern.insert({'a', 'b'});
+                    ue2::shuftiBuildDoubleMasks(b.chars, pattern,
+                                                reinterpret_cast<u8 *>(&b.truffle_mask_lo),
+                                                reinterpret_cast<u8 *>(&b.truffle_mask_hi),
+                                                reinterpret_cast<u8 *>(&b.double_shufti_lo2),
+                                                reinterpret_cast<u8 *>(&b.double_shufti_hi2));
+                    memset(b.buf.data(), 'b', b.size);
+                },
+                [&](MicroBenchmark &b) {
+                    return shuftiDoubleExec(b.truffle_mask_lo,
+                                            b.truffle_mask_hi,
+                                            b.double_shufti_lo2,
+                                            b.double_shufti_hi2,
+                                            b.buf.data(), b.buf.data() + b.size);
+                });
+        }
+
+        for (size_t i = 0; i < std::size(sizes); i++) {
             MicroBenchmark bench("Truffle", sizes[i]);
             run_benchmarks(
                 sizes[i], MAX_LOOPS / sizes[i], matches[m], false, bench,

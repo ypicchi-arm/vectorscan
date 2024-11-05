@@ -61,6 +61,7 @@ public:
 #endif
         };
     };
+    m128 double_shufti_lo2, double_shufti_hi2;
 
     MicroBenchmark(char const *label_, size_t size_)
         : label(label_), size(size_), buf(size_){};
