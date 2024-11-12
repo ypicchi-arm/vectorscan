@@ -339,7 +339,7 @@ really_inline SuperVector<16> SuperVector<16>::vshl_16 (uint8_t const N) const
     if (N == 0) return *this;
     if (N == 16) return Zeroes();
     SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {SuperVector<16>(_mm_slli_epi16(v->u.v128[0], n))}; });
+    Unroller<1, 16>::iterator([&,v=this](auto const i) { if (N == i.value) result = {SuperVector<16>(_mm_slli_epi16(v->u.v128[0], i.value))}; });
     return result;
 }
 
@@ -354,7 +354,7 @@ really_inline SuperVector<16> SuperVector<16>::vshl_32 (uint8_t const N) const
     if (N == 0) return *this;
     if (N == 16) return Zeroes();
     SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {SuperVector<16>(_mm_slli_epi32(v->u.v128[0], n))}; });
+    Unroller<1, 16>::iterator([&,v=this](auto const i) { if (N == i.value) result = {SuperVector<16>(_mm_slli_epi32(v->u.v128[0], i.value))}; });
     return result;
 }
 
@@ -369,7 +369,7 @@ really_inline SuperVector<16> SuperVector<16>::vshl_64 (uint8_t const N) const
     if (N == 0) return *this;
     if (N == 16) return Zeroes();
     SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {SuperVector<16>(_mm_slli_epi64(v->u.v128[0], n))}; });
+    Unroller<1, 16>::iterator([&,v=this](auto const i) { if (N == i.value) result = {SuperVector<16>(_mm_slli_epi64(v->u.v128[0], i.value))}; });
     return result;
 }
 
@@ -384,7 +384,7 @@ really_inline SuperVector<16> SuperVector<16>::vshl_128(uint8_t const N) const
     if (N == 0) return *this;
     if (N == 16) return Zeroes();
     SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {SuperVector<16>(_mm_slli_si128(v->u.v128[0], n))}; });
+    Unroller<1, 16>::iterator([&,v=this](auto const i) { if (N == i.value) result = {SuperVector<16>(_mm_slli_si128(v->u.v128[0], i.value))}; });
     return result;
 }
 
@@ -414,7 +414,7 @@ really_inline SuperVector<16> SuperVector<16>::vshr_16 (uint8_t const N) const
     if (N == 0) return *this;
     if (N == 16) return Zeroes();
     SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {SuperVector<16>(_mm_srli_epi16(v->u.v128[0], n))}; });
+    Unroller<1, 16>::iterator([&,v=this](auto const i) { if (N == i.value) result = {SuperVector<16>(_mm_srli_epi16(v->u.v128[0], i.value))}; });
     return result;
 }
 
@@ -429,7 +429,7 @@ really_inline SuperVector<16> SuperVector<16>::vshr_32 (uint8_t const N) const
     if (N == 0) return *this;
     if (N == 16) return Zeroes();
     SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {SuperVector<16>(_mm_srli_epi32(v->u.v128[0], n))}; });
+    Unroller<1, 16>::iterator([&,v=this](auto const i) { if (N == i.value) result = {SuperVector<16>(_mm_srli_epi32(v->u.v128[0], i.value))}; });
     return result;
 }
 
@@ -444,7 +444,7 @@ really_inline SuperVector<16> SuperVector<16>::vshr_64 (uint8_t const N) const
     if (N == 0) return *this;
     if (N == 16) return Zeroes();
     SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {SuperVector<16>(_mm_srli_epi64(v->u.v128[0], n))}; });
+    Unroller<1, 16>::iterator([&,v=this](auto const i) { if (N == i.value) result = {SuperVector<16>(_mm_srli_epi64(v->u.v128[0], i.value))}; });
     return result;
 }
 
@@ -459,7 +459,7 @@ really_inline SuperVector<16> SuperVector<16>::vshr_128(uint8_t const N) const
     if (N == 0) return *this;
     if (N == 16) return Zeroes();
     SuperVector result;
-    Unroller<1, 16>::iterator([&,v=this](auto const i) { constexpr uint8_t n = i.value; if (N == n) result = {SuperVector<16>(_mm_srli_si128(v->u.v128[0], n))}; });
+    Unroller<1, 16>::iterator([&,v=this](auto const i) { if (N == i.value) result = {SuperVector<16>(_mm_srli_si128(v->u.v128[0], i.value))}; });
     return result;
 }
 

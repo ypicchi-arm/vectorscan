@@ -512,6 +512,7 @@ set<NFAVertex> findZombies(const NGHolder &h,
     }
 
     for (const auto &v : inv_adjacent_vertices_range(h.accept, h)) {
+        // cppcheck-suppress knownConditionTrueFalse
         if (state_ids.at(v) != NO_STATE) {
             zombies.insert(v);
         }

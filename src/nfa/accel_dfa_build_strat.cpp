@@ -431,6 +431,7 @@ accel_dfa_build_strat::buildAccel(UNUSED dstate_id_t this_idx,
 
     DEBUG_PRINTF("accelerations scheme has offset s%u/d%u\n", info.offset,
                  info.double_offset);
+    // cppcheck-suppress redundantInitialization
     accel->generic.offset = verify_u8(info.offset);
 
     if (double_byte_ok(info) && info.double_cr.none() &&

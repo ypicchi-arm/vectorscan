@@ -2018,8 +2018,7 @@ void buildCountingMiracles(build_context &bc) {
             continue;
         }
 
-        RoseCountingMiracle rcm;
-        memset(&rcm, 0, sizeof(rcm));
+        RoseCountingMiracle rcm = {}; // Initialize rcm to zero
 
         if (cr.count() == 1) {
             rcm.c = cr.find_first();
@@ -3299,7 +3298,7 @@ void addEodAnchorProgram(const RoseBuildImpl &build, const build_context &bc,
 }
 
 static
-void addEodEventProgram(const RoseBuildImpl &build, build_context &bc,
+void addEodEventProgram(const RoseBuildImpl &build,const build_context &bc,
                         ProgramBuild &prog_build, RoseProgram &program) {
     if (build.eod_event_literal_id == MO_INVALID_IDX) {
         return;
@@ -3336,7 +3335,7 @@ void addEodEventProgram(const RoseBuildImpl &build, build_context &bc,
 }
 
 static
-RoseProgram makeEodProgram(const RoseBuildImpl &build, build_context &bc,
+RoseProgram makeEodProgram(const RoseBuildImpl &build,const build_context &bc,
                            ProgramBuild &prog_build, u32 eodNfaIterOffset) {
     RoseProgram program;
 

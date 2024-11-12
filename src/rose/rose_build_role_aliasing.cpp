@@ -2223,6 +2223,7 @@ void mergeCluster(RoseGraph &g, const ReportManager &rm,
         for (it2 = it;
              it2 != vcluster.end() && cluster.size() < MERGE_GROUP_SIZE_MAX;
              ++it2) {
+            // cppcheck-suppress derefInvalidIteratorRedundantCheck 
             RoseVertex v = *it2;
             NGHolder *h = g[v].suffix.graph.get();
             assert(!g[v].suffix.haig); /* should not be here if haig */

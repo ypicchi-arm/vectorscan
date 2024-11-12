@@ -312,7 +312,7 @@ static
 string dbSettingsHash(const string &filename, u32 mode) {
     ostringstream info_oss;
 
-    info_oss << filename.c_str() << ' ';
+    info_oss << filename << ' ';
     info_oss << mode << ' ';
 
     string info = info_oss.str();

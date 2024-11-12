@@ -262,6 +262,7 @@ static
 bool hasSuffixLiterals(const set<ue2_literal> &s) {
     for (auto it = s.begin(), ite = s.end(); it != ite; ++it) {
         for (auto jt = std::next(it); jt != ite; ++jt) {
+            // cppcheck-suppress useStlAlgorithm
             if (isSuffix(*it, *jt) || isSuffix(*jt, *it)) {
                 DEBUG_PRINTF("'%s' and '%s' have suffix issues\n",
                              dumpString(*it).c_str(),
@@ -530,7 +531,7 @@ void findMinCut(LitGraph &lg, vector<LitEdge> &cutset) {
     vector<s32> distances(num_verts);
     vector<LitEdge> predecessors(num_verts);
     vector<u64a> residuals(num_edges(lg));
-
+    //cppcheck-suppress unreadVariable
     UNUSED u64a flow = boykov_kolmogorov_max_flow(lg,
             get(&LitGraphEdgeProps::score, lg),
             make_iterator_property_map(residuals.begin(), e_index_map),

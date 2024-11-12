@@ -331,6 +331,7 @@ void buildReachMapping(const build_info &args, vector<NFAStateSet> &reach,
     vector<NFAVertex> verts;
     verts.reserve(args.num_states);
     auto sidat = [&state_ids=state_ids](const NFAVertex &v) {
+        // cppcheck-suppress knownConditionTrueFalse
         return (state_ids.at(v) != NO_STATE);
     };
     const auto &vr = vertices_range(h);
@@ -921,11 +922,13 @@ void buildAccel(const build_info &args, NFAStateSet &accelMask,
 
     // Start with the NONE case.
     auxvec.emplace_back(AccelAux());
+    // cppcheck-suppress memsetClassFloat
     memset(&auxvec[0], 0, sizeof(AccelAux));
     auxvec[0].accel_type = ACCEL_NONE; // no states on.
 
     AccelAux aux;
     for (u32 i = 1; i < accelCount; i++) {
+        // cppcheck-suppress memsetClassFloat
         memset(&aux, 0, sizeof(aux));
 
         NFAStateSet effective_states(args.num_states);
@@ -1218,10 +1221,11 @@ bool hasSquashableInitDs(const build_info &args) {
 static
 bool hasInitDsStates(const NGHolder &h,
                      const unordered_map<NFAVertex, u32> &state_ids) {
+    // cppcheck-suppress knownConditionTrueFalse
     if (state_ids.at(h.startDs) != NO_STATE) {
         return true;
     }
-
+    // cppcheck-suppress knownConditionTrueFalse
     if (is_triggered(h) && state_ids.at(h.start) != NO_STATE) {
         return true;
     }
@@ -1696,7 +1700,7 @@ static
 bool cannotDie(const build_info &args) {
     const auto &h = args.h;
     const auto &state_ids = args.state_ids;
-
+    // cppcheck-suppress knownConditionTrueFalse
     // If we have a startDs we're actually using, we can't die.
     if (state_ids.at(h.startDs) != NO_STATE) {
         DEBUG_PRINTF("is using startDs\n");

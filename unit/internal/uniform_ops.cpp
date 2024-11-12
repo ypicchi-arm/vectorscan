@@ -105,7 +105,7 @@ TEST(Uniform, loadstore_m128) {
         u32 words[128/32];
     } in;
     for (int i = 0; i < 128; i++) {
-        memset(&in, 0, sizeof(in));
+        memset(&in, 0, sizeof(in)); // cppcheck-suppress memsetClassFloat
         in.words[i/32] = 1U << (i % 32);
         const char *cin = reinterpret_cast<const char *>(&in);
         m128 out = load_m128(cin);
@@ -123,7 +123,7 @@ TEST(Uniform, loadstore_m256) {
         u32 words[256/32];
     } in;
     for (int i = 0; i < 256; i++) {
-        memset(&in, 0, sizeof(in));
+        memset(&in, 0, sizeof(in)); // cppcheck-suppress memsetClassFloat
         in.words[i/32] = 1U << (i % 32);
         const char *cin = reinterpret_cast<const char *>(&in);
         m256 out = load_m256(cin);
@@ -141,7 +141,7 @@ TEST(Uniform, loadstore_m512) {
         u32 words[512/32];
     } in;
     for (int i = 0; i < 512; i++) {
-        memset(&in, 0, sizeof(in));
+        memset(&in, 0, sizeof(in)); // cppcheck-suppress memsetClassFloat
         in.words[i/32] = 1U << (i % 32);
         const char *cin = reinterpret_cast<const char *>(&in);
         m512 out = load_m512(cin);

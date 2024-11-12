@@ -38,8 +38,8 @@ using namespace ue2;
 
 TEST(Truffle, CompileDot) {
     m128 mask1, mask2;
-    memset(&mask1, 0, sizeof(mask1));
-    memset(&mask2, 0, sizeof(mask2));
+    memset(&mask1, 0, sizeof(mask1)); // cppcheck-suppress memsetClassFloat
+    memset(&mask2, 0, sizeof(mask2)); // cppcheck-suppress memsetClassFloat
 
     CharReach chars;
 
@@ -93,8 +93,8 @@ TEST(Truffle, CompileChars) {
 
 TEST(Truffle, ExecNoMatch1) {
     m128 mask1, mask2;
-    memset(&mask1, 0, sizeof(mask1));
-    memset(&mask2, 0, sizeof(mask2));
+    memset(&mask1, 0, sizeof(mask1)); // cppcheck-suppress memsetClassFloat
+    memset(&mask2, 0, sizeof(mask2)); // cppcheck-suppress memsetClassFloat
 
     CharReach chars;
 

@@ -127,6 +127,7 @@ static really_really_inline
 m128 lshift64_m128(m128 a, unsigned b) {
 #if defined(HAVE__BUILTIN_CONSTANT_P)
     if (__builtin_constant_p(b)) {
+        // cppcheck-suppress unsignedLessThanZero
         return _mm_slli_epi64(a, b);
     }
 #endif
