@@ -229,3 +229,51 @@ TEST(rebar, lh3lh3_reb_date_grep) {
     err = hs_free_scratch(scratch);
     ASSERT_EQ(HS_SUCCESS, err);
 }
+
+
+const char *patterns[] = {
+    "^muvoy-nyemcynjywynamlahi/nyzye/khjdrehko-(qjhn|lyol)-.*/0$",
+    "^cop/devel/workflows-(prod|test)-.*/[0-9]+$", // Regex pattern that will match our fixture
+    
+};
+
+TEST(bug317, regressionOnx86Bug317) {
+    hs_database_t *database;
+    hs_compile_error_t *compile_err;    
+
+    unsigned ids[2] = {0};
+    ids[0]=0;
+    ids[1]=1;
+    
+    const unsigned flag = HS_FLAG_SINGLEMATCH | HS_FLAG_ALLOWEMPTY | HS_FLAG_UTF8 | HS_FLAG_PREFILTER;
+    std::vector<unsigned> flags;
+    for (size_t i = 0; i < 2; ++i) {
+        flags.push_back(flag);
+    } 
+    hs_error_t err = hs_compile_multi(patterns, flags.data(), ids, 2, HS_MODE_BLOCK, NULL, &database, &compile_err);
+    ASSERT_EQ(HS_SUCCESS, err);
+    ASSERT_TRUE(database != nullptr);
+
+    // Allocate scratch space
+    hs_scratch_t *scratch = NULL;
+    err = hs_alloc_scratch(database, &scratch);
+    ASSERT_EQ(HS_SUCCESS, err);
+    ASSERT_TRUE(scratch != nullptr);
+    // This input should match
+    const char* input = "cop/devel/workflows-prod-build-cop-cop-ingestor/0";
+    
+    // Scan the input
+    bool matchFound = false;
+    auto matchHandler = [](unsigned int, unsigned long long, unsigned long long, unsigned int, void *ctx) -> int {
+        bool *matchFound = static_cast<bool*>(ctx);
+        *matchFound = true;
+        return 0;
+    };
+
+    err= hs_scan(database, input, strlen(input), 0, scratch, matchHandler, reinterpret_cast<void *>(&matchFound));
+    ASSERT_EQ(HS_SUCCESS, err);
+    ASSERT_EQ(true, matchFound);
+    // Clean up
+    hs_free_database(database);
+    err = hs_free_scratch(scratch);
+}

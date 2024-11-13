@@ -244,16 +244,8 @@ const u8 *shuftiDoubleExecReal(m128 mask1_lo, m128 mask1_hi, m128 mask2_lo, m128
     // finish off tail
 
     if (d != buf_end) {
-        SuperVector<S> chars = SuperVector<S>::Zeroes();
-        const u8 *end_buf;
-        if (buf_end - buf < S) {
-          memcpy(&chars.u, buf, buf_end - buf);
-          end_buf = buf;
-        } else {
-          chars = SuperVector<S>::loadu(buf_end - S);
-          end_buf = buf_end - S;
-        }
-        rv = fwdBlockDouble(wide_mask1_lo, wide_mask1_hi, wide_mask2_lo, wide_mask2_hi, chars, end_buf);
+        SuperVector<S> chars = SuperVector<S>::loadu(d);
+        rv = fwdBlockDouble(wide_mask1_lo, wide_mask1_hi, wide_mask2_lo, wide_mask2_hi, chars, d);
         DEBUG_PRINTF("rv %p \n", rv);
         if (rv && rv < buf_end) return rv;
     }
