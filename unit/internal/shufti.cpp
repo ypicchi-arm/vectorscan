@@ -899,7 +899,12 @@ TEST(DoubleShufti, ExecMatchMixed3) {
         const u8 *rv = shuftiDoubleExec(lo1, hi1, lo2, hi2,
                                         reinterpret_cast<u8 *>(t2), reinterpret_cast<u8 *>(t2) + len);
 
-        ASSERT_EQ(reinterpret_cast<const u8 *>(&t2[len - i]), rv);
+        if(i < 2) {
+            // i=0 is "xy" out of buffer. i=1 is "x" in buffer but not "y"
+            ASSERT_EQ(reinterpret_cast<const u8 *>(t2 + len), rv);
+        }else {
+            ASSERT_EQ(reinterpret_cast<const u8 *>(&t2[len - i]), rv);
+        }
     }
 }
 
