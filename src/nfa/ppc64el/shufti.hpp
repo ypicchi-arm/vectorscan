@@ -48,7 +48,7 @@ const SuperVector<S> blockSingleMask(SuperVector<S> mask_lo, SuperVector<S> mask
 
 template <uint16_t S>
 static really_inline
-SuperVector<S> blockDoubleMask(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi, SuperVector<S> mask2_lo, SuperVector<S> mask2_hi, SuperVector<S> chars) {
+SuperVector<S> blockDoubleMask(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi, SuperVector<S> mask2_lo, SuperVector<S> mask2_hi, SuperVector<S> *inout_t1, SuperVector<S> chars) {
 
     const SuperVector<S> low4bits = SuperVector<S>::dup_u8(0xf);
     SuperVector<S> chars_lo = chars & low4bits;
@@ -59,18 +59,25 @@ SuperVector<S> blockDoubleMask(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi,
     c1_lo.print8("c1_lo");
     SuperVector<S> c1_hi = mask1_hi.template pshufb<true>(chars_hi);
     c1_hi.print8("c1_hi");
-    SuperVector<S> t1 = c1_lo | c1_hi;
-    t1.print8("t1");
+    SuperVector<S> new_t1 = c1_lo | c1_hi;
+    // t1 is the match mask for the first char of the patterns
+    new_t1.print8("t1");
 
     SuperVector<S> c2_lo = mask2_lo.template pshufb<true>(chars_lo);
     c2_lo.print8("c2_lo");
     SuperVector<S> c2_hi = mask2_hi.template pshufb<true>(chars_hi);
     c2_hi.print8("c2_hi");
     SuperVector<S> t2 = c2_lo | c2_hi;
+    // t2 is the match mask for the second char of the patterns
     t2.print8("t2");
-    t2.template vshr_128_imm<1>().print8("t2.vshr_128(1)");
-    SuperVector<S> t = t1 | (t2.template vshr_128_imm<1>());
+
+    // offset t1 so it aligns with t2. The hole created by the offset is filled
+    // with the last elements of the previous t1 so no info is lost.
+    // If bits with value 0 lines up, it indicate a match.
+    SuperVector<S> t = (new_t1.alignr(*inout_t1, S-1)) | t2;
     t.print8("t");
+
+    *inout_t1 = new_t1;
 
     return t.eq(SuperVector<S>::Ones());
 }
