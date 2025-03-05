@@ -230,6 +230,19 @@ set_source_files_properties(
 
 ragelmaker(src/parser/control_verbs.rl)
 
+# BSD has the _np funcs in a _np header
+CHECK_INCLUDE_FILE_CXX(pthread_np.h HAVE_PTHREAD_NP_H)
+if (HAVE_PTHREAD_NP_H)
+    set (PTHREAD_NP_INC pthread_np.h)
+else ()
+    set (PTHREAD_NP_INC pthread.h)
+endif ()
+CHECK_CXX_SYMBOL_EXISTS(pthread_setaffinity_np ${PTHREAD_NP_INC} HAVE_DECL_PTHREAD_SETAFFINITY_NP)
+
+CHECK_FUNCTION_EXISTS(malloc_info HAVE_MALLOC_INFO)
+CHECK_FUNCTION_EXISTS(shmget HAVE_SHMGET)
+set(HAVE_SHMGET ${HAVE_SHMGET} CACHE BOOL "shmget()")
+
 # do substitutions
 configure_file(${CMAKE_MODULE_PATH}/config.h.in ${PROJECT_BINARY_DIR}/config.h)
 configure_file(src/hs_version.h.in ${PROJECT_BINARY_DIR}/hs_version.h)
