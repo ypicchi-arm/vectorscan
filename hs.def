@@ -41,3 +41,24 @@ EXPORTS
    hs_stream_size
    hs_valid_platform
    hs_version
+   hs_short_literal_search
+   hs_long_literal_search
+   hs_multi_literal_search
+   hs_single_char_search
+   hs_char_set_search
+   hs_single_char_pair_search
+   hs_char_pair_set_search
+   hs_compile_short_literal_search   
+   hs_compile_long_literal_search
+   hs_compile_multi_literal_search
+   hs_compile_single_char_search
+   hs_compile_char_set_search
+   hs_compile_single_char_pair_search
+   hs_compile_char_pair_set_search
+   hs_free_short_literal_pattern
+   hs_free_long_literal_pattern
+   hs_free_multi_literal_pattern
+   hs_free_single_char_pattern
+   hs_free_char_set_pattern
+   hs_free_single_char_pair_pattern
+   hs_free_char_pair_set_pattern

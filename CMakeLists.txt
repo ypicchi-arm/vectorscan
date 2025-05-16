@@ -304,6 +304,7 @@ set (hs_exec_SRCS
     src/crc32.h
     src/report.h
     src/runtime.c
+    src/hs_direct_search.cpp
     src/stream_compress.c
     src/stream_compress.h
     src/stream_compress_impl.h
@@ -484,6 +485,7 @@ SET (hs_compile_SRCS
     src/hs.cpp
     src/hs_internal.h
     src/hs_version.h.in
+    src/hs_direct_search_compile.cpp
     src/scratch.h
     src/state.h
     src/ue2common.h

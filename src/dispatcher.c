@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2016-2020, Intel Corporation
  * Copyright (c) 2024, VectorCamp PC
+ * Copyright (c) 2025, Arm ltd
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -351,6 +352,99 @@ CONNECT_DISPATCH_2(hs_error_t, hs_reset_and_expand_stream, hs_stream_t *to_strea
                 match_event_handler onEvent, void *context);
 CONNECT_ARGS_3(hs_error_t, hs_reset_and_expand_stream, to_stream,
                 buf, buf_size, scratch, onEvent, context);
+
+/** DIRECT API **/
+
+CREATE_DISPATCH(hs_error_t, hs_short_literal_search,
+                const hs_short_literal_compiled_pattern_t *database,
+                const char *data, size_t length, match_event_handler onEvent,
+                void *context);
+CONNECT_ARGS_1(hs_error_t, hs_short_literal_search, database, data, length,
+               onEvent, context);
+CONNECT_DISPATCH_2(hs_error_t, hs_short_literal_search,
+                   const hs_short_literal_compiled_pattern_t *database,
+                   const char *data, size_t length, match_event_handler onEvent,
+                   void *context);
+CONNECT_ARGS_3(hs_error_t, hs_short_literal_search, database, data, length,
+               onEvent, context);
+
+CREATE_DISPATCH(hs_error_t, hs_long_literal_search,
+                const hs_long_literal_compiled_pattern_t *database,
+                const char *data, size_t length, match_event_handler onEvent,
+                void *context);
+CONNECT_ARGS_1(hs_error_t, hs_long_literal_search, database, data, length,
+               onEvent, context);
+CONNECT_DISPATCH_2(hs_error_t, hs_long_literal_search,
+                   const hs_long_literal_compiled_pattern_t *database,
+                   const char *data, size_t length, match_event_handler onEvent,
+                   void *context);
+CONNECT_ARGS_3(hs_error_t, hs_long_literal_search, database, data, length,
+               onEvent, context);
+
+CREATE_DISPATCH(hs_error_t, hs_multi_literal_search,
+                const hs_multi_literal_compiled_pattern_t *database,
+                const char *data, size_t length, match_event_handler onEvent,
+                void *context);
+CONNECT_ARGS_1(hs_error_t, hs_multi_literal_search, database, data, length,
+               onEvent, context);
+CONNECT_DISPATCH_2(hs_error_t, hs_multi_literal_search,
+                   const hs_multi_literal_compiled_pattern_t *database,
+                   const char *data, size_t length, match_event_handler onEvent,
+                   void *context);
+CONNECT_ARGS_3(hs_error_t, hs_multi_literal_search, database, data, length,
+               onEvent, context);
+
+CREATE_DISPATCH(hs_error_t, hs_single_char_search,
+                const hs_single_char_compiled_pattern_t *database,
+                const char *data, size_t length, match_event_handler onEvent,
+                void *context);
+CONNECT_ARGS_1(hs_error_t, hs_single_char_search, database, data, length,
+               onEvent, context);
+CONNECT_DISPATCH_2(hs_error_t, hs_single_char_search,
+                   const hs_single_char_compiled_pattern_t *database,
+                   const char *data, size_t length, match_event_handler onEvent,
+                   void *context);
+CONNECT_ARGS_3(hs_error_t, hs_single_char_search, database, data, length,
+               onEvent, context);
+
+CREATE_DISPATCH(hs_error_t, hs_char_set_search,
+                const hs_char_set_compiled_pattern_t *database,
+                const char *data, size_t length, match_event_handler onEvent,
+                void *context);
+CONNECT_ARGS_1(hs_error_t, hs_char_set_search, database, data, length, onEvent,
+               context);
+CONNECT_DISPATCH_2(hs_error_t, hs_char_set_search,
+                   const hs_char_set_compiled_pattern_t *database,
+                   const char *data, size_t length, match_event_handler onEvent,
+                   void *context);
+CONNECT_ARGS_3(hs_error_t, hs_char_set_search, database, data, length, onEvent,
+               context);
+
+CREATE_DISPATCH(hs_error_t, hs_single_char_pair_search,
+                const hs_single_char_pair_compiled_pattern_t *database,
+                const char *data, size_t length, match_event_handler onEvent,
+                void *context);
+CONNECT_ARGS_1(hs_error_t, hs_single_char_pair_search, database, data, length,
+               onEvent, context);
+CONNECT_DISPATCH_2(hs_error_t, hs_single_char_pair_search,
+                   const hs_single_char_pair_compiled_pattern_t *database,
+                   const char *data, size_t length, match_event_handler onEvent,
+                   void *context);
+CONNECT_ARGS_3(hs_error_t, hs_single_char_pair_search, database, data, length,
+               onEvent, context);
+
+CREATE_DISPATCH(hs_error_t, hs_char_pair_set_search,
+                const hs_char_pair_set_compiled_pattern_t *database,
+                const char *data, size_t length, match_event_handler onEvent,
+                void *context);
+CONNECT_ARGS_1(hs_error_t, hs_char_pair_set_search, database, data, length,
+               onEvent, context);
+CONNECT_DISPATCH_2(hs_error_t, hs_char_pair_set_search,
+                   const hs_char_pair_set_compiled_pattern_t *database,
+                   const char *data, size_t length, match_event_handler onEvent,
+                   void *context);
+CONNECT_ARGS_3(hs_error_t, hs_char_pair_set_search, database, data, length,
+               onEvent, context);
 
 /** INTERNALS **/
 
