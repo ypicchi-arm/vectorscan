@@ -63,6 +63,21 @@ set(unit_hyperscan_SOURCES
 add_executable(unit-hyperscan ${unit_hyperscan_SOURCES})
 target_link_libraries(unit-hyperscan hs expressionutil)
 
+set(unit_direct_api_SOURCES
+    ${gtest_SOURCES}
+    direct_API/char_pair_set.cpp
+    direct_API/char_set.cpp
+    direct_API/common.h
+    direct_API/long_literal.cpp
+    direct_API/main.cpp
+    direct_API/multi_literal.cpp
+    direct_API/short_literal.cpp
+    direct_API/single_char_pair.cpp
+    direct_API/single_char.cpp
+    )
+add_executable(unit-direct-API ${unit_direct_api_SOURCES})
+target_link_libraries(unit-direct-API hs)
+
 if (NOT FAT_RUNTIME AND BUILD_STATIC_LIBS)
 set(BUILD_UNIT_INTERNAL TRUE)
 set(unit_internal_SOURCES
