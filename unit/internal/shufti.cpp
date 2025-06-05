@@ -903,6 +903,34 @@ TEST(DoubleShufti, ExecMatchMixed3) {
     }
 }
 
+// Double shufti used to report matches when the first char of a pair landed at
+// the end of a vector. This test check for the regression.
+TEST(DoubleShufti, ExecNoMatchVectorEdge) {
+    m128 lo1, hi1, lo2, hi2;
+
+    flat_set<pair<u8, u8>> lits;
+
+    lits.insert(make_pair('a','c'));
+
+    bool ret = shuftiBuildDoubleMasks(CharReach(), lits, reinterpret_cast<u8 *>(&lo1), reinterpret_cast<u8 *>(&hi1),
+                                      reinterpret_cast<u8 *>(&lo2), reinterpret_cast<u8 *>(&hi2));
+    ASSERT_TRUE(ret);
+
+    const int len = 80;
+    char t1[len + 1];
+    memset(t1, 'b', len);
+
+    for (size_t i = 0; i < 70; i++) {
+        t1[len - i] = 'a';
+        t1[len - i + 1] = 'b';
+        DEBUG_PRINTF("i = %ld\n", i);
+        const u8 *rv = shuftiDoubleExec(lo1, hi1, lo2, hi2,
+                                        reinterpret_cast<u8 *>(t1), reinterpret_cast<u8 *>(t1) + len);
+
+        ASSERT_EQ(reinterpret_cast<const u8 *>(t1 + len), rv);
+    }
+}
+
 TEST(ReverseShufti, ExecNoMatch1) {
     m128 lo, hi;
 
