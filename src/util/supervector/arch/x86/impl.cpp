@@ -877,10 +877,10 @@ template <>
 template<uint8_t N>
 really_inline SuperVector<32> SuperVector<32>::vshr_256_imm() const
 {
-    if (N == 0) return *this;
-    if (N == 16) return {SuperVector<32>(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)))};
-    if (N == 32) return Zeroes();
-    if (N < 16) {
+    if constexpr (N == 0) return *this;
+    if constexpr (N == 16) return {SuperVector<32>(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)))};
+    if constexpr (N == 32) return Zeroes();
+    if constexpr (N < 16) {
         return {SuperVector<32>(_mm256_alignr_epi8(u.v256[0], _mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 16 - N))};
     } else {
         return {SuperVector<32>(_mm256_srli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), N - 16))};
@@ -1532,14 +1532,39 @@ template <>
 template<uint8_t N>
 really_inline SuperVector<64> SuperVector<64>::vshr_256_imm() const
 {
-    return {};
+    if constexpr (N == 0) return *this;
+    if constexpr (N == 16) return {SuperVector<64>(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)))};
+    if constexpr (N == 32) return Zeroes();
+    if constexpr (N < 16) {
+        return {SuperVector<64>(_mm256_alignr_epi8(u.v256[0], _mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(0, 0, 2, 0)), 16 - N))};
+    } else {
+        return {SuperVector<64>(_mm256_srli_si256(_mm256_permute2x128_si256(u.v256[0], u.v256[0], _MM_SHUFFLE(2, 0, 0, 1)), N - 16))};
+    }
 }
 
 template <>
 template<uint8_t N>
 really_inline SuperVector<64> SuperVector<64>::vshr_512_imm() const
 {
-    return {};
+    if constexpr (N == 0) return *this;
+    if constexpr (N < 32) {
+        SuperVector<32> lo256 = SuperVector<32>(u.v256[0]);
+        SuperVector<32> hi256 = SuperVector<32>(u.v256[1]);
+        SuperVector<32> carry = hi256 << (32 - N);
+        hi256 = hi256 >> N;
+        lo256 = (lo256 >> N) | carry;
+        return SuperVector<64>(lo256, hi256);
+    }
+    if constexpr (N == 32) {
+        SuperVector<32> hi256 = SuperVector<32>(u.v256[1]);
+        return SuperVector<64>(hi256, SuperVector<32>::Zeroes());
+    }
+    if constexpr (N < 64) {
+        SuperVector<32> hi256 = SuperVector<32>(u.v256[1]);
+        return SuperVector<64>(hi256 >> (N - 32), SuperVector<32>::Zeroes());
+    } else {
+        return Zeroes();
+    }
 }
 
 template <>
@@ -1560,6 +1585,7 @@ template SuperVector<64> SuperVector<64>::vshr_64_imm<1>() const;
 template SuperVector<64> SuperVector<64>::vshr_64_imm<4>() const;
 template SuperVector<64> SuperVector<64>::vshr_128_imm<1>() const;
 template SuperVector<64> SuperVector<64>::vshr_128_imm<4>() const;
+template SuperVector<64> SuperVector<64>::vshr_imm<1>() const;
 #endif
 
 // template <>

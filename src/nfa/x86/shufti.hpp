@@ -69,36 +69,11 @@ SuperVector<S> blockDoubleMask(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi,
     // c2 is the match mask for the second char of the patterns
     c2.print8("c2");
 
-    // We want to shift the whole vector left by 1 and insert the last element of inout_c1.
-    // Due to lack of direct instructions to insert, extract and concatenate vectors
-    // we need to to store and load the vector.
-    uint8_t tmp_buf[2*S];
-    SuperVector<S> offset_c1;
-    if constexpr (S == 16) {
-        _mm_storeu_si128(reinterpret_cast<m128 *>(&tmp_buf[0]), inout_c1->u.v128[0]);
-        _mm_storeu_si128(reinterpret_cast<m128 *>(&tmp_buf[S]), new_c1.u.v128[0]);
-        offset_c1 = SuperVector<S>(_mm_loadu_si128(reinterpret_cast<const m128 *>(&tmp_buf[S-1])));
-    }
-#ifdef HAVE_AVX2
-    else if constexpr (S == 32) {
-        _mm256_storeu_si256(reinterpret_cast<m256 *>(&tmp_buf[0]), inout_c1->u.v256[0]);
-        _mm256_storeu_si256(reinterpret_cast<m256 *>(&tmp_buf[S]), new_c1.u.v256[0]);
-        offset_c1 = SuperVector<S>(_mm256_loadu_si256(reinterpret_cast<const m256 *>(&tmp_buf[S-1])));
-    }
-#endif
-#ifdef HAVE_AVX512
-    else if constexpr (S == 64) {
-        _mm512_storeu_si512(reinterpret_cast<m512 *>(&tmp_buf[0]), inout_c1->u.v512[0]);
-        _mm512_storeu_si512(reinterpret_cast<m512 *>(&tmp_buf[S]), new_c1.u.v512[0]);
-        offset_c1 = SuperVector<S>(_mm512_load_si512(reinterpret_cast<const m512 *>(&tmp_buf[S-1])));
-    }
-#endif
-    offset_c1.print8("offset c1");
-
     // offset c1 so it aligns with c2. The hole created by the offset is filled
     // with the last elements of the previous c1 so no info is lost.
     // If bits with value 0 lines up, it indicate a match.
-    SuperVector<S> c = offset_c1 | c2;
+    c2.template vshr_imm<1>().print8("c2.vshr_128(1)");
+    SuperVector<S> c = new_c1 | (c2.template vshr_imm<1>());
     c.print8("c");
 
     *inout_c1 = new_c1;
