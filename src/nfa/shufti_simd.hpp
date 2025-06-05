@@ -265,19 +265,7 @@ const u8 *shuftiDoubleExecReal(m128 mask1_lo, m128 mask1_hi, m128 mask2_lo, m128
             d = ROUNDUP_PTR(d, S);
             ptrdiff_t offset = d - buf;
             first_char_mask.print8("inout_c1");
-            if constexpr (S == 16) {
-                first_char_mask = first_char_mask.vshl_128(S - offset);
-            }
-#ifdef HAVE_SIMD_256_BITS
-            else if constexpr (S == 32) {
-                first_char_mask = first_char_mask.vshl_256(S - offset);
-            }
-#endif
-#ifdef HAVE_SIMD_512_BITS
-            else if constexpr (S == 64) {
-                first_char_mask = first_char_mask.vshl_512(S - offset);
-            }
-#endif
+            first_char_mask = first_char_mask.vshl(S - offset);
             first_char_mask.print8("inout_c1 shifted");
         }
 
