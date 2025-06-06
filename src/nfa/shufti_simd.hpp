@@ -208,18 +208,9 @@ const u8 *check_last_byte(SuperVector<S> mask2_lo, SuperVector<S> mask2_hi,
     uint8_t last_elem = mask.u.u8[mask_len - 1];
 
     SuperVector<S> reduce = mask2_lo | mask2_hi;
-#if defined(HAVE_SIMD_512_BITS)
-    if constexpr (S >= 64)
-        reduce = reduce | reduce.vshr_512(32);
-#endif
-#if defined(HAVE_SIMD_256_BITS)
-    if constexpr (S >= 32)
-        reduce = reduce | reduce.vshr_256(16);
-#endif
-    reduce = reduce | reduce.vshr_128(8);
-    reduce = reduce | reduce.vshr_64(32);
-    reduce = reduce | reduce.vshr_32(16);
-    reduce = reduce | reduce.vshr_16(8);
+    for(uint16_t i = S; i > 2; i/=2) {
+        reduce = reduce | reduce.vshr(i/2);
+    }
     uint8_t match_inverted = reduce.u.u8[0] | last_elem;
 
     // if 0xff, then no match
