@@ -72,8 +72,8 @@ SuperVector<S> blockDoubleMask(SuperVector<S> mask1_lo, SuperVector<S> mask1_hi,
     // offset c1 so it aligns with c2. The hole created by the offset is filled
     // with the last elements of the previous c1 so no info is lost.
     // If bits with value 0 lines up, it indicate a match.
-    c2.template vshr_imm<1>().print8("c2.vshr_128(1)");
-    SuperVector<S> c = new_c1 | (c2.template vshr_imm<1>());
+    SuperVector<S> offset_c1 = inout_c1->alignr(new_c1, S-1);
+    SuperVector<S> c = offset_c1 | c2;
     c.print8("c");
 
     *inout_c1 = new_c1;
