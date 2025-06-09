@@ -922,7 +922,7 @@ TEST(DoubleShufti, ExecNoMatchVectorEdge) {
     ASSERT_TRUE(ret);
 
     const int len = 80;
-    char t1[len + 1];
+    char t1[len + 2];
     memset(t1, 'b', len);
 
     for (size_t i = 0; i < 70; i++) {
