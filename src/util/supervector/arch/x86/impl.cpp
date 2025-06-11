@@ -556,6 +556,7 @@ really_inline SuperVector<16> SuperVector<16>::alignr(SuperVector<16> &other, in
     case 13: return SuperVector<16>(_mm_alignr_epi8(u.v128[0], other.u.v128[0], 13)); break;
     case 14: return SuperVector<16>(_mm_alignr_epi8(u.v128[0], other.u.v128[0], 14)); break;
     case 15: return SuperVector<16>(_mm_alignr_epi8(u.v128[0], other.u.v128[0], 15)); break;
+    case 16: return *this; break;
     default: break;
     }
     return *this;
@@ -1145,52 +1146,15 @@ really_inline SuperVector<32> SuperVector<32>::loadu_maskz(void const *ptr, uint
 template<>
 really_inline SuperVector<32> SuperVector<32>::alignr(SuperVector<32> &other, int8_t offset)
 {
-#if defined(HAVE__BUILTIN_CONSTANT_P) && !(defined(__GNUC__) && ((__GNUC__ == 13) || (__GNUC__ == 14)))
-    if (__builtin_constant_p(offset)) {
-        if (offset == 16) {
-            return *this;
-        } else {
-            return {SuperVector<32>(_mm256_alignr_epi8(u.v256[0], other.u.v256[0], offset))};
-        }
-    }
-#endif
-    // As found here: https://stackoverflow.com/questions/8517970/mm-alignr-epi8-palignr-equivalent-in-avx2#8637458
-    switch (offset){ 
-    case 0 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[0], other.u.v128[1], 0), _mm_alignr_epi8(other.u.v128[1], other.u.v128[0], 0))); break;
-    case 1 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[0], other.u.v128[1], 1), _mm_alignr_epi8(other.u.v128[1], other.u.v128[0], 1))); break;
-    case 2 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[0], other.u.v128[1], 2), _mm_alignr_epi8(other.u.v128[1], other.u.v128[0], 2))); break;
-    case 3 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[0], other.u.v128[1], 3), _mm_alignr_epi8(other.u.v128[1], other.u.v128[0], 3))); break;
-    case 4 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[0], other.u.v128[1], 4), _mm_alignr_epi8(other.u.v128[1], other.u.v128[0], 4))); break;
-    case 5 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[0], other.u.v128[1], 5), _mm_alignr_epi8(other.u.v128[1], other.u.v128[0], 5))); break;
-    case 6 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[0], other.u.v128[1], 6), _mm_alignr_epi8(other.u.v128[1], other.u.v128[0], 6))); break;
-    case 7 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[0], other.u.v128[1], 7), _mm_alignr_epi8(other.u.v128[1], other.u.v128[0], 7))); break;
-    case 8 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[0], other.u.v128[1], 8), _mm_alignr_epi8(other.u.v128[1], other.u.v128[0], 8))); break;
-    case 9 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[0], other.u.v128[1], 9), _mm_alignr_epi8(other.u.v128[1], other.u.v128[0], 9))); break;
-    case 10 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[0], other.u.v128[1], 10), _mm_alignr_epi8(other.u.v128[1], other.u.v128[0], 10))); break;
-    case 11 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[0], other.u.v128[1], 11), _mm_alignr_epi8(other.u.v128[1], other.u.v128[0], 11))); break;
-    case 12 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[0], other.u.v128[1], 12), _mm_alignr_epi8(other.u.v128[1], other.u.v128[0], 12))); break;
-    case 13 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[0], other.u.v128[1], 13), _mm_alignr_epi8(other.u.v128[1], other.u.v128[0], 13))); break;
-    case 14 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[0], other.u.v128[1], 14), _mm_alignr_epi8(other.u.v128[1], other.u.v128[0], 14))); break;
-    case 15 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[0], other.u.v128[1], 15), _mm_alignr_epi8(other.u.v128[1], other.u.v128[0], 15))); break;
-    case 16 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[1], u.v128[0], 0), _mm_alignr_epi8(u.v128[0], other.u.v128[1], 0))); break;
-    case 17 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[1], u.v128[0], 1), _mm_alignr_epi8(u.v128[0], other.u.v128[1], 1))); break;
-    case 18 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[1], u.v128[0], 2), _mm_alignr_epi8(u.v128[0], other.u.v128[1], 2))); break;
-    case 19 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[1], u.v128[0], 3), _mm_alignr_epi8(u.v128[0], other.u.v128[1], 3))); break;
-    case 20 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[1], u.v128[0], 4), _mm_alignr_epi8(u.v128[0], other.u.v128[1], 4))); break;
-    case 21 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[1], u.v128[0], 5), _mm_alignr_epi8(u.v128[0], other.u.v128[1], 5))); break;
-    case 22 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[1], u.v128[0], 6), _mm_alignr_epi8(u.v128[0], other.u.v128[1], 6))); break;
-    case 23 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[1], u.v128[0], 7), _mm_alignr_epi8(u.v128[0], other.u.v128[1], 7))); break;
-    case 24 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[1], u.v128[0], 8), _mm_alignr_epi8(u.v128[0], other.u.v128[1], 8))); break;
-    case 25 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[1], u.v128[0], 9), _mm_alignr_epi8(u.v128[0], other.u.v128[1], 9))); break;
-    case 26 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[1], u.v128[0], 10), _mm_alignr_epi8(u.v128[0], other.u.v128[1], 10))); break;
-    case 27 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[1], u.v128[0], 11), _mm_alignr_epi8(u.v128[0], other.u.v128[1], 11))); break;
-    case 28 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[1], u.v128[0], 12), _mm_alignr_epi8(u.v128[0], other.u.v128[1], 12))); break;
-    case 29 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[1], u.v128[0], 13), _mm_alignr_epi8(u.v128[0], other.u.v128[1], 13))); break;
-    case 30 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[1], u.v128[0], 14), _mm_alignr_epi8(u.v128[0], other.u.v128[1], 14))); break;
-    case 31 : return SuperVector<32>(_mm256_set_m128i(_mm_alignr_epi8(u.v128[1], u.v128[0], 15), _mm_alignr_epi8(u.v128[0], other.u.v128[1], 15))); break;  
-    default: break;
-    }
-    return *this;
+    if (offset == 0)  { return other; }
+    else if (offset < 32) {
+        SuperVector<32> this_shifted = *this << (32 - offset);
+	SuperVector<32> other_shifted = other >> offset;
+	this_shifted.print8("this << (32 - offset)");
+	other_shifted.print8("other >> offset");
+	return this_shifted | other_shifted;
+    } else if (offset == 32) { return *this; }
+    return Zeroes();
 }
 
 template<>
@@ -1825,36 +1789,17 @@ really_inline SuperVector<64> SuperVector<64>::pshufb_maskz(SuperVector<64> b, u
 }
 
 template<>
-really_inline SuperVector<64> SuperVector<64>::alignr(SuperVector<64> &l, int8_t offset)
+really_inline SuperVector<64> SuperVector<64>::alignr(SuperVector<64> &other, int8_t offset)
 {
-#if defined(HAVE__BUILTIN_CONSTANT_P) && !(defined(__GNUC__) && (__GNUC__ == 14))
-    if (__builtin_constant_p(offset)) {
-        if (offset == 16) {
-            return *this;
-        } else {
-            return {SuperVector<64>(_mm512_alignr_epi8(u.v512[0], l.u.v512[0], offset))};
-        }
-    }
-#endif
-    if(offset == 0) {
-        return *this;
-    } else if (offset < 32){
-        SuperVector<32> lo256 = SuperVector<32>(u.v256[0]);
-        SuperVector<32> hi256 = SuperVector<32>(u.v256[1]);
-        SuperVector<32> o_lo256 = SuperVector<32>(l.u.v256[0]);
-        SuperVector<32> carry1 = SuperVector<32>(hi256.alignr(lo256,offset));
-        SuperVector<32> carry2 = SuperVector<32>(o_lo256.alignr(hi256,offset));
-        return SuperVector<64>(carry1, carry2);
-    } else if (offset <= 64){
-        SuperVector<32> hi256 = SuperVector<32>(u.v256[1]);
-        SuperVector<32> o_lo256 = SuperVector<32>(l.u.v256[0]);
-        SuperVector<32> o_hi256 = SuperVector<32>(l.u.v256[1]);
-        SuperVector<32> carry1 = SuperVector<32>(o_lo256.alignr(hi256, offset - 32));
-        SuperVector<32> carry2 = SuperVector<32>(o_hi256.alignr(o_lo256,offset -32));
-        return SuperVector<64>(carry1, carry2);
-    } else {
-        return *this;
-    }
+    if (offset == 0)  { return other; }
+    else if (offset < 64) { 
+        SuperVector<64> this_shifted = *this << (64 - offset);
+	SuperVector<64> other_shifted = other >> offset;
+	this_shifted.print8("this << (64 - offset)");
+	other_shifted.print8("other >> offset");
+	return this_shifted | other_shifted;
+    } else if (offset == 64) { return *this; }
+    return Zeroes();
 }
 
 #endif // HAVE_AVX512
