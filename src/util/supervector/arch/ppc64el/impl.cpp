@@ -560,11 +560,6 @@ really_inline SuperVector<16> SuperVector<16>::alignr(SuperVector<16> &other, in
 {   
     if (offset == 0) return other;
     if (offset == 16) return *this;
-#if defined(HAVE__BUILTIN_CONSTANT_P)
-    if (__builtin_constant_p(offset)) {
-        return SuperVector<16>(vec_sld(u.s8x16[0], other.u.s8x16[0], offset));
-    }
-#endif
     uint8x16_t sl = vec_splats((uint8_t) (offset << 3));
     uint8x16_t sr = vec_splats((uint8_t) ((16 - offset) << 3));
     uint8x16_t rhs = vec_slo(u.u8x16[0], sr);
