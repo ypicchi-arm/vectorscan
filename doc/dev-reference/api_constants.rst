@@ -51,3 +51,10 @@ Compile mode flags
 .. doxygengroup:: HS_MODE_FLAG
    :content-only:
    :no-link:
+
+******************************
+Other Constants
+******************************
+
+.. doxygendefine:: HS_SHORT_PATTERN_THRESHOLD
+   :no-link:

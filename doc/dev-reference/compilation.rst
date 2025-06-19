@@ -123,6 +123,9 @@ Supported flags: :c:member:`HS_FLAG_CASELESS`, :c:member:`HS_FLAG_SINGLEMATCH`,
           The new literal APIs introduced here are designed for rule sets
           containing only pure literal expressions.
 
+In tight loops where performance is critical, some further specialization of the
+literal search exists in the form of :ref:`direct_api`
+
 ***************
 Pattern Support
 ***************

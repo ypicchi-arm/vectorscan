@@ -21,3 +21,4 @@ Vectorscan |version| Developer's Reference Guide
    api_constants
    api_files
    chimera
+   direct_api
